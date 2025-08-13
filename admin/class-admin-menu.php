@@ -12,7 +12,7 @@ class Yab_Admin_Menu {
     public function add_plugin_admin_menu() {
         add_menu_page('Awesome Banner', 'Awesome Banner', 'manage_options', $this->plugin_name, array( $this, 'display_add_new_page' ), 'dashicons-art', 25 );
         add_submenu_page($this->plugin_name, 'Add New', 'Add New', 'manage_options', $this->plugin_name, array( $this, 'display_add_new_page' ));
-        add_submenu_page($this->plugin_name, 'All Elements', 'All Elements', 'manage_options', $this->plugin_name . '-list', array( $this, 'display_list_page' ));
+        add_submenu_page($this->plugin_name, 'All Banners', 'All Banners', 'manage_options', $this->plugin_name . '-list', array( $this, 'display_list_page' ));
     }
 
     public function display_add_new_page() {
@@ -24,6 +24,7 @@ class Yab_Admin_Menu {
     }
 
     public function enqueue_styles_and_scripts( $hook ) {
+        // Only load on plugin pages
         if ( strpos($hook, $this->plugin_name) === false ) {
             return;
         }
@@ -38,27 +39,40 @@ class Yab_Admin_Menu {
     }
 
     private function get_localized_data() {
-        $posts = get_posts(array('numberposts' => 200, 'post_status' => 'publish'));
-        $categories = get_categories(array('hide_empty' => false, 'number' => 200));
-        $pages = get_pages(array('number' => 200));
-
-        $localized_data = array(
+        $localized_data = [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('yab_nonce'),
-            'posts' => array_map(function($post) { return ['ID' => $post->ID, 'post_title' => $post->post_title]; }, $posts),
-            'categories' => array_map(function($cat) { return ['term_id' => $cat->term_id, 'name' => $cat->name]; }, $categories),
-            'pages' => array_map(function($page) { return ['ID' => $page->ID, 'post_title' => $page->post_title]; }, $pages),
+            'posts' => [],
+            'categories' => [],
+            'pages' => [],
             'existing_banner' => null
-        );
+        ];
 
+        // Only provide initial data if editing an existing banner
         if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['banner_id'])) {
             $banner_id = intval($_GET['banner_id']);
+            $banner_post = get_post($banner_id);
             $banner_data = get_post_meta($banner_id, '_yab_banner_data', true);
-            if ($banner_data) {
-                $banner_post = get_post($banner_id);
-                $banner_data['name'] = $banner_post->post_title;
+
+            if ($banner_post && $banner_data) {
+                // Combine post data with meta data
                 $banner_data['id'] = $banner_id;
+                $banner_data['name'] = $banner_post->post_title;
                 $localized_data['existing_banner'] = $banner_data;
+                
+                // Pre-load the selected items so they appear on page load
+                if (!empty($banner_data['displayOn']['posts'])) {
+                    $posts = get_posts(['post__in' => $banner_data['displayOn']['posts'], 'numberposts' => -1]);
+                    $localized_data['posts'] = array_map(fn($p) => ['ID' => $p->ID, 'post_title' => $p->post_title], $posts);
+                }
+                if (!empty($banner_data['displayOn']['pages'])) {
+                    $pages = get_pages(['include' => $banner_data['displayOn']['pages']]);
+                    $localized_data['pages'] = array_map(fn($p) => ['ID' => $p->ID, 'post_title' => $p->post_title], $pages);
+                }
+                if (!empty($banner_data['displayOn']['categories'])) {
+                    $cats = get_categories(['include' => $banner_data['displayOn']['categories'], 'hide_empty' => false]);
+                    $localized_data['categories'] = array_map(fn($c) => ['term_id' => $c->term_id, 'name' => $c->name], $cats);
+                }
             }
         }
         

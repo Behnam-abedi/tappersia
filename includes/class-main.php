@@ -28,6 +28,7 @@ class Yab_Main {
         require_once YAB_PLUGIN_DIR . 'admin/class-ajax-handler.php';
         $ajax_handler = new Yab_Ajax_Handler();
         add_action( 'wp_ajax_yab_save_double_banner', array( $ajax_handler, 'save_double_banner' ) );
+        add_action( 'wp_ajax_yab_search_content', array( $ajax_handler, 'search_content' ) ); // <-- جدید
     }
     
     private function define_public_hooks() {

@@ -1,4 +1,4 @@
-const { createApp, ref, reactive, computed, onMounted } = Vue;
+const { createApp, ref, reactive, computed, onMounted, watch } = Vue;
 
 function deepMerge(target, source) {
     for (const key in source) {
@@ -18,16 +18,13 @@ createApp({
 
     const createDefaultBannerState = () => ({
       alignment: 'left', backgroundType: 'solid', bgColor: '#232323',
-      gradientColor1: '#232323', gradientColor2: '#1A2B48',
-      titleText: 'Awesome Title', titleColor: '#ffffff', titleSize: 15, titleWeight: '800',
+      gradientColor1: '#232323', gradientColor2: '#1A2B48', gradientAngle: 90,
+      titleText: 'Awesome Title', titleColor: '#ffffff', titleSize: 22, titleWeight: '700',
       descText: 'This is a short and engaging description for your new banner.',
-      descColor: '#dddddd', descSize: 10, descWeight: '400',
+      descColor: '#dddddd', descSize: 14, descWeight: '400',
       buttonText: 'Learn More', buttonLink: '#', buttonBgColor: '#00baa4',
-      buttonTextColor: '#ffffff', buttonFontSize: 10,
-      imageUrl: '', imageSize: 176, imageFit: 'cover',
-      enableCustomPosition: false,
-      imagePosX: 0,
-      imagePosY: 0,
+      buttonTextColor: '#ffffff', buttonFontSize: 14,
+      imageUrl: '', imageSize: 177, imageFit: 'cover',
     });
     
     const banner = reactive({
@@ -37,6 +34,9 @@ createApp({
     });
 
     const siteData = reactive({ posts: [], pages: [], categories: [] });
+    const searchTerms = reactive({ posts: '', pages: '', categories: '' });
+    const searchLoading = reactive({ posts: false, pages: false, categories: false });
+    let searchTimeout = null;
     let mediaUploader;
 
     const allBannersUrl = computed(() => `admin.php?page=your-awesome-banner-list`);
@@ -45,22 +45,34 @@ createApp({
         if (banner.displayMethod === 'Embeddable') {
             return banner.id ? `[doublebanner id="${banner.id}"]` : '[doublebanner id="..."]';
         }
-        return '[doublebanner_fixed]';
+        return 'Not applicable for Fixed display';
     });
     
     const bannerStyles = (bannerData) => {
-        return bannerData.backgroundType === 'solid' ? bannerData.bgColor : `linear-gradient(90deg, ${bannerData.gradientColor1}, ${bannerData.gradientColor2})`;
+        if (bannerData.backgroundType === 'gradient') {
+            return `linear-gradient(${bannerData.gradientAngle || 90}deg, ${bannerData.gradientColor1}, ${bannerData.gradientColor2})`;
+        }
+        return bannerData.bgColor;
+    };
+    
+    const contentAlignment = (align) => {
+        if (align === 'right') return 'flex-end';
+        if (align === 'center') return 'center';
+        return 'flex-start';
+    };
+    
+    const createSortedList = (type, idField) => {
+        return computed(() => {
+            const selectedIds = new Set(banner.displayOn[type]);
+            const selectedItems = siteData[type].filter(item => selectedIds.has(item[idField]));
+            const unselectedItems = siteData[type].filter(item => !selectedIds.has(item[idField]));
+            return [...selectedItems, ...unselectedItems];
+        });
     };
 
-    const imageStyleObject = (b) => {
-      const style = {
-        objectFit: b.imageFit,
-      };
-      if (b.enableCustomPosition) {
-        style.objectPosition = `${b.imagePosX}px ${b.imagePosY}px`;
-      }
-      return style;
-    };
+    const sortedPosts = createSortedList('posts', 'ID');
+    const sortedPages = createSortedList('pages', 'ID');
+    const sortedCategories = createSortedList('categories', 'term_id');
 
     const selectElementType = (type) => {
       if (type === 'double-banner') appState.value = 'editor';
@@ -72,56 +84,104 @@ createApp({
         jQuery.ajax({
             url: window.yab_data.ajax_url, type: 'POST',
             data: { action: 'yab_save_double_banner', nonce: window.yab_data.nonce, banner_data: JSON.stringify(banner) },
-            success: function(response) {
+            success: (response) => {
                 if(response.success) {
                     if (response.data.banner_id) banner.id = response.data.banner_id;
                     alert('Banner Saved!');
-                } else { alert('Error: ' + response.data.message); }
+                } else { 
+                    alert('Error: ' + response.data.message); 
+                }
             },
-            error: function() { alert('An unknown AJAX error occurred.'); },
-            complete: function() { isSaving.value = false; }
+            error: (jqXHR) => { 
+                const message = jqXHR.responseJSON?.data?.message || 'An unknown AJAX error occurred.';
+                alert('Error: ' + message);
+            },
+            complete: () => { isSaving.value = false; }
         });
     };
     
     const copyShortcode = (event) => {
+        if (!banner.id) {
+            alert('Please save the banner first to get the shortcode.');
+            return;
+        }
         navigator.clipboard.writeText(event.target.value).then(() => alert('Shortcode copied!'));
     };
 
     const openMediaUploader = (targetBannerKey) => {
-      if (mediaUploader) {
-          mediaUploader.off('select');
-      } else {
-          mediaUploader = wp.media({ title: 'Select an Image', button: { text: 'Use this Image' }, multiple: false });
-      }
-      mediaUploader.on('select', () => {
+        mediaUploader = wp.media({ title: 'Select an Image', button: { text: 'Use this Image' }, multiple: false });
+        mediaUploader.on('select', () => {
           const attachment = mediaUploader.state().get('selection').first().toJSON();
           banner[targetBannerKey].imageUrl = attachment.url;
-      });
-      mediaUploader.open();
+        });
+        mediaUploader.open();
+    };
+
+    const removeImage = (targetBannerKey) => {
+        banner[targetBannerKey].imageUrl = '';
+    };
+
+    const searchContent = (type) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            searchLoading[type] = true;
+            jQuery.ajax({
+                url: window.yab_data.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'yab_search_content',
+                    nonce: window.yab_data.nonce,
+                    search_term: searchTerms[type],
+                    content_type: type
+                },
+                success: (response) => {
+                    if (response.success) {
+                        const idField = type === 'categories' ? 'term_id' : 'ID';
+                        // Add new results without removing existing ones to preserve selections
+                        const existingIds = new Set(siteData[type].map(item => item[idField]));
+                        const newItems = response.data.filter(item => !existingIds.has(item[idField]));
+                        siteData[type].push(...newItems);
+                    }
+                },
+                complete: () => {
+                    searchLoading[type] = false;
+                }
+            });
+        }, 500); // 500ms debounce
     };
 
     onMounted(() => {
-      if (window.yab_data) {
-          siteData.posts = window.yab_data.posts || [];
-          siteData.pages = window.yab_data.pages || [];
-          siteData.categories = window.yab_data.categories || [];
-      } else {
+      if (!window.yab_data) {
           console.error("YAB Data object not found.");
+          appState.value = 'error';
           return;
       }
       
       if (window.yab_data.existing_banner) {
-          const existingData = window.yab_data.existing_banner;
+          const existingData = JSON.parse(JSON.stringify(window.yab_data.existing_banner));
           deepMerge(banner, existingData);
+          
+          // Ensure displayOn arrays exist
           banner.displayOn.posts = existingData.displayOn?.posts || [];
           banner.displayOn.pages = existingData.displayOn?.pages || [];
           banner.displayOn.categories = existingData.displayOn?.categories || [];
+
+          // Pre-populate siteData with selected items
+          siteData.posts = window.yab_data.posts || [];
+          siteData.pages = window.yab_data.pages || [];
+          siteData.categories = window.yab_data.categories || [];
+          
           appState.value = 'editor';
       } else {
           appState.value = 'selection';
       }
     });
 
-    return { appState, isSaving, banner, siteData, allBannersUrl, shortcode, bannerStyles, imageStyleObject, selectElementType, saveBanner, copyShortcode, openMediaUploader };
+    return { 
+        appState, isSaving, banner, siteData, allBannersUrl, shortcode, searchTerms, searchLoading,
+        bannerStyles, contentAlignment, selectElementType, saveBanner, copyShortcode, 
+        openMediaUploader, removeImage, searchContent,
+        sortedPosts, sortedPages, sortedCategories
+    };
   }
 }).mount('#yab-app');

@@ -3,13 +3,13 @@ if (!class_exists('Yab_Shortcode_Handler')) :
     class Yab_Shortcode_Handler {
 
         public function register_shortcodes() {
-            add_shortcode('doublebanner_fixed', array($this, 'render_fixed_banner'));
-            add_shortcode('doublebanner', array($this, 'render_embeddable_banner'));
+            add_shortcode('doublebanner_fixed', [$this, 'render_fixed_banner']);
+            add_shortcode('doublebanner', [$this, 'render_embeddable_banner']);
         }
 
         public function render_fixed_banner($atts) {
             global $post;
-            if (!$post) {
+            if (!$post && !is_category() && !is_archive()) {
                 return '';
             }
 
@@ -25,9 +25,8 @@ if (!class_exists('Yab_Shortcode_Handler')) :
             ];
 
             $banners = get_posts($args);
-            $output = '';
             $queried_object_id = get_queried_object_id();
-
+            
             foreach ($banners as $banner_post) {
                 $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
                 if (empty($data) || empty($data['displayOn'])) {
@@ -41,14 +40,9 @@ if (!class_exists('Yab_Shortcode_Handler')) :
                 $page_ids = !empty($display_conditions['pages']) ? array_map('intval', $display_conditions['pages']) : [];
                 $cat_ids  = !empty($display_conditions['categories']) ? array_map('intval', $display_conditions['categories']) : [];
 
-                if (is_singular('post') && in_array($queried_object_id, $post_ids)) {
-                    $should_display = true;
-                }
-
-                if (!$should_display && is_page() && in_array($queried_object_id, $page_ids)) {
-                    $should_display = true;
-                }
-
+                if (is_singular('post') && in_array($queried_object_id, $post_ids)) $should_display = true;
+                if (!$should_display && is_page() && in_array($queried_object_id, $page_ids)) $should_display = true;
+                
                 if (!$should_display && !empty($cat_ids)) {
                     if (is_category($cat_ids)) {
                         $should_display = true;
@@ -58,15 +52,15 @@ if (!class_exists('Yab_Shortcode_Handler')) :
                 }
 
                 if ($should_display) {
-                    $output .= $this->generate_banner_html($data);
+                    return $this->generate_banner_html($data); // Return and stop after finding the first matching banner
                 }
             }
-            return $output;
+            return ''; // No banner found for this page
         }
 
         public function render_embeddable_banner($atts) {
-            $atts = shortcode_atts(array('id' => 0), $atts, 'doublebanner');
-            if ( empty($atts['id']) ) return '';
+            $atts = shortcode_atts(['id' => 0], $atts, 'doublebanner');
+            if (empty($atts['id'])) return '';
 
             $banner_post = get_post(intval($atts['id']));
             if (!$banner_post || $banner_post->post_type !== 'yab_banner' || $banner_post->post_status !== 'publish') return '';
@@ -77,65 +71,46 @@ if (!class_exists('Yab_Shortcode_Handler')) :
             return $this->generate_banner_html($data);
         }
         
+        private function get_alignment_style($align) {
+            switch ($align) {
+                case 'right': return 'align-items: flex-end; text-align: right;';
+                case 'center': return 'align-items: center; text-align: center;';
+                default: return 'align-items: flex-start; text-align: left;';
+            }
+        }
+        
         private function generate_banner_html($data) {
             ob_start();
-            $left = $data['left']; $right = $data['right'];
-            $get_bg_style = function($banner_part) {
-                return $banner_part['backgroundType'] === 'gradient' ? "background: linear-gradient(90deg, {$banner_part['gradientColor1']}, {$banner_part['gradientColor2']});" : "background-color: {$banner_part['bgColor']};";
-            };
+            $banners = ['left' => $data['left'], 'right' => $data['right']];
 
-            $get_img_style = function($banner_part) {
-                $style = 'position: absolute; width: 100%; height: 100%; object-fit: ' . esc_attr($banner_part['imageFit']) . ';';
-                if (isset($banner_part['enableCustomPosition']) && $banner_part['enableCustomPosition']) {
-                    $style .= ' object-position: ' . esc_attr($banner_part['imagePosX']) . 'px ' . esc_attr($banner_part['imagePosY']) . 'px;';
+            $get_bg_style = function($banner_part) {
+                if ($banner_part['backgroundType'] === 'gradient') {
+                    $angle = isset($banner_part['gradientAngle']) ? intval($banner_part['gradientAngle']) . 'deg' : '90deg';
+                    return "background: linear-gradient({$angle}, {$banner_part['gradientColor1']}, {$banner_part['gradientColor2']});";
                 }
-                return $style;
+                return "background-color: {$banner_part['bgColor']};";
             };
 
             ?>
             <div class="yab-wrapper" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-                <div style="width: 100%; border-radius: 0.5rem; position: relative; overflow: hidden; display: flex; <?php echo esc_attr($get_bg_style($left)); ?> min-height: <?php echo esc_attr($left['imageSize']); ?>px;">
-                    <?php if ($left['alignment'] === 'right'): ?>
-                        <div style="width: 50%; position: relative;">
-                            <?php if(!empty($left['imageUrl'])): ?>
-                                <img src="<?php echo esc_url($left['imageUrl']); ?>" style="<?php echo $get_img_style($left); ?>">
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
-                    <div style="width: 50%; padding: 1rem; display: flex; flex-direction: column; align-items: <?php echo $left['alignment'] === 'left' ? 'flex-start' : 'flex-end'; ?>; text-align: <?php echo esc_attr($left['alignment']); ?>; z-index: 1;">
-                        <h4 style="font-weight: <?php echo esc_attr($left['titleWeight']); ?>; color: <?php echo esc_attr($left['titleColor']); ?>; font-size: <?php echo esc_attr($left['titleSize']); ?>px; margin: 0;"><?php echo esc_html($left['titleText']); ?></h4>
-                        <p style="margin-top: 0.5rem; font-weight: <?php echo esc_attr($left['descWeight']); ?>; color: <?php echo esc_attr($left['descColor']); ?>; font-size: <?php echo esc_attr($left['descSize']); ?>px;"><?php echo wp_kses_post($left['descText']); ?></p>
-                        <a href="<?php echo esc_url($left['buttonLink']); ?>" target="_blank" style="margin-top: auto; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; background-color: <?php echo esc_attr($left['buttonBgColor']); ?>; color: <?php echo esc_attr($left['buttonTextColor']); ?>; font-size: <?php echo esc_attr($left['buttonFontSize']); ?>px;"><?php echo esc_html($left['buttonText']); ?></a>
+                <?php foreach ($banners as $key => $b): ?>
+                <div class="yab-banner-item" style="width: 100%; height: <?php echo esc_attr($b['imageSize']); ?>px; border-radius: 0.5rem; position: relative; overflow: hidden; display: flex; <?php echo esc_attr($get_bg_style($b)); ?>">
+                    
+                    <?php if (!empty($b['imageUrl'])): ?>
+                    <div style="position: absolute; inset: 0; z-index: 0;">
+                        <img src="<?php echo esc_url($b['imageUrl']); ?>" style="width: 100%; height: 100%; object-fit: <?php echo esc_attr($b['imageFit']); ?>;">
                     </div>
-                    <?php if ($left['alignment'] === 'left'): ?>
-                        <div style="width: 50%; position: relative;">
-                            <?php if(!empty($left['imageUrl'])): ?>
-                                <img src="<?php echo esc_url($left['imageUrl']); ?>" style="<?php echo $get_img_style($left); ?>">
-                            <?php endif; ?>
-                        </div>
                     <?php endif; ?>
-                </div>
-                <div style="width: 100%; border-radius: 0.5rem; position: relative; overflow: hidden; display: flex; <?php echo esc_attr($get_bg_style($right)); ?> min-height: <?php echo esc_attr($right['imageSize']); ?>px;">
-                    <?php if ($right['alignment'] === 'right'): ?>
-                        <div style="width: 50%; position: relative;">
-                            <?php if(!empty($right['imageUrl'])): ?>
-                                <img src="<?php echo esc_url($right['imageUrl']); ?>" style="<?php echo $get_img_style($right); ?>">
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
-                    <div style="width: 50%; padding: 1rem; display: flex; flex-direction: column; align-items: <?php echo $right['alignment'] === 'left' ? 'flex-start' : 'flex-end'; ?>; text-align: <?php echo esc_attr($right['alignment']); ?>; z-index: 1;">
-                        <h4 style="font-weight: <?php echo esc_attr($right['titleWeight']); ?>; color: <?php echo esc_attr($right['titleColor']); ?>; font-size: <?php echo esc_attr($right['titleSize']); ?>px; margin: 0;"><?php echo esc_html($right['titleText']); ?></h4>
-                        <p style="margin-top: 0.5rem; font-weight: <?php echo esc_attr($right['descWeight']); ?>; color: <?php echo esc_attr($right['descColor']); ?>; font-size: <?php echo esc_attr($right['descSize']); ?>px;"><?php echo wp_kses_post($right['descText']); ?></p>
-                        <a href="<?php echo esc_url($right['buttonLink']); ?>" target="_blank" style="margin-top: auto; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; background-color: <?php echo esc_attr($right['buttonBgColor']); ?>; color: <?php echo esc_attr($right['buttonTextColor']); ?>; font-size: <?php echo esc_attr($right['buttonFontSize']); ?>px;"><?php echo esc_html($right['buttonText']); ?></a>
+
+                    <div style="width: 100%; padding: 1rem; display: flex; flex-direction: column; z-index: 1; <?php echo $this->get_alignment_style($b['alignment']); ?>">
+                        <h4 style="font-weight: <?php echo esc_attr($b['titleWeight']); ?>; color: <?php echo esc_attr($b['titleColor']); ?>; font-size: <?php echo esc_attr($b['titleSize']); ?>px; margin: 0;"><?php echo esc_html($b['titleText']); ?></h4>
+                        <p style="margin-top: 0.5rem; font-weight: <?php echo esc_attr($b['descWeight']); ?>; color: <?php echo esc_attr($b['descColor']); ?>; font-size: <?php echo esc_attr($b['descSize']); ?>px;"><?php echo nl2br(esc_html($b['descText'])); ?></p>
+                        <?php if(!empty($b['buttonText'])): ?>
+                        <a href="<?php echo esc_url($b['buttonLink']); ?>" target="_blank" style="margin-top: auto; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; background-color: <?php echo esc_attr($b['buttonBgColor']); ?>; color: <?php echo esc_attr($b['buttonTextColor']); ?>; font-size: <?php echo esc_attr($b['buttonFontSize']); ?>px;"><?php echo esc_html($b['buttonText']); ?></a>
+                        <?php endif; ?>
                     </div>
-                    <?php if ($right['alignment'] === 'left'): ?>
-                        <div style="width: 50%; position: relative;">
-                            <?php if(!empty($right['imageUrl'])): ?>
-                                <img src="<?php echo esc_url($right['imageUrl']); ?>" style="<?php echo $get_img_style($right); ?>">
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
                 </div>
+                <?php endforeach; ?>
             </div>
             <?php
             return ob_get_clean();

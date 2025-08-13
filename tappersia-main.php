@@ -3,7 +3,7 @@
  * Plugin Name:       Your Awesome Banner
  * Plugin URI:        https://example.com/
  * Description:       A modern banner management plugin with a custom UI using Vue.js and Tailwind CSS.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Author:            Your Name
  * Author URI:        https://example.com/
  * License:           GPL v2 or later
@@ -17,7 +17,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 // Define plugin constants
-define( 'YAB_VERSION', '1.2.0' );
+define( 'YAB_VERSION', '1.3.0' );
 define( 'YAB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'YAB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
