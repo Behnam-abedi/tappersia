@@ -22,17 +22,15 @@ if (!class_exists('Yab_Ajax_Handler')) :
                 return;
             }
 
-            // --- شروع بررسی تداخل بنر ---
             if ($banner_data['displayMethod'] === 'Fixed') {
                 $conflict = $this->check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
                 if ($conflict['has_conflict']) {
                     wp_send_json_error([
-                        'message' => 'Assignment Conflict: ' . $conflict['message']
+                        'message' => $conflict['message'] // Use the new detailed English message
                     ]);
                     return;
                 }
             }
-            // --- پایان بررسی تداخل بنر ---
 
             $sanitized_data = $this->sanitize_banner_data($banner_data);
             $post_id = !empty($sanitized_data['id']) ? intval($sanitized_data['id']) : 0;
@@ -52,7 +50,6 @@ if (!class_exists('Yab_Ajax_Handler')) :
             if (is_wp_error($result)) {
                 wp_send_json_error(['message' => $result->get_error_message()]);
             } else {
-                // Remove name and id as they are part of the post object, not meta
                 unset($sanitized_data['name']);
                 unset($sanitized_data['id']);
 
@@ -117,6 +114,38 @@ if (!class_exists('Yab_Ajax_Handler')) :
             wp_die();
         }
 
+        public function delete_banner() {
+            check_ajax_referer('yab_nonce', 'nonce');
+
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(['message' => 'Permission denied.'], 403);
+                return;
+            }
+
+            if (!isset($_POST['banner_id']) || !is_numeric($_POST['banner_id'])) {
+                wp_send_json_error(['message' => 'Invalid banner ID.']);
+                return;
+            }
+
+            $banner_id = intval($_POST['banner_id']);
+            $post = get_post($banner_id);
+
+            if (!$post || $post->post_type !== 'yab_banner') {
+                wp_send_json_error(['message' => 'Banner not found.']);
+                return;
+            }
+
+            $result = wp_delete_post($banner_id, true);
+
+            if ($result === false) {
+                wp_send_json_error(['message' => 'Failed to delete the banner.']);
+            } else {
+                wp_send_json_success(['message' => 'Banner deleted successfully.']);
+            }
+
+            wp_die();
+        }
+
         private function check_for_banner_conflict($displayOn, $current_banner_id) {
             $conflict = ['has_conflict' => false, 'message' => ''];
             
@@ -125,50 +154,86 @@ if (!class_exists('Yab_Ajax_Handler')) :
             $cat_ids  = !empty($displayOn['categories']) ? array_map('intval', $displayOn['categories']) : [];
 
             if (empty($post_ids) && empty($page_ids) && empty($cat_ids)) {
-                return $conflict; // No rules, no conflict
+                return $conflict;
             }
 
             $args = [
-                'post_type' => 'yab_banner',
+                'post_type'    => 'yab_banner',
                 'posts_per_page' => -1,
-                'post_status' => 'publish',
-                'meta_query' => [
+                'post_status'  => 'publish',
+                'meta_query'   => [
                     ['key' => '_yab_display_method', 'value' => 'Fixed', 'compare' => '=']
                 ],
-                'exclude' => $current_banner_id ? [$current_banner_id] : [],
+                'post__not_in' => $current_banner_id ? [intval($current_banner_id)] : [],
             ];
 
-            $query = new WP_Query($args);
-            $other_banners = $query->posts;
+            $other_banners_query = new WP_Query($args);
 
-            foreach ($other_banners as $banner_post) {
+            foreach ($other_banners_query->posts as $banner_post) {
                 $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
                 if (empty($data) || empty($data['displayOn'])) continue;
 
-                $other_display_on = $data['displayOn'];
+                $other_post_ids = !empty($data['displayOn']['posts']) ? $data['displayOn']['posts'] : [];
+                $other_page_ids = !empty($data['displayOn']['pages']) ? $data['displayOn']['pages'] : [];
+                $other_cat_ids  = !empty($data['displayOn']['categories']) ? $data['displayOn']['categories'] : [];
 
-                $conflicting_posts = array_intersect($post_ids, $other_display_on['posts'] ?? []);
-                if (!empty($conflicting_posts)) {
-                    $post_title = get_the_title(reset($conflicting_posts));
+                // Type 1: Our selected POSTS vs their selected POSTS
+                $post_vs_post = array_intersect($post_ids, $other_post_ids);
+                if (!empty($post_vs_post)) {
+                    $post_title = get_the_title(reset($post_vs_post));
                     $conflict['has_conflict'] = true;
-                    $conflict['message'] = "Post \"{$post_title}\" is already assigned to another banner ({$banner_post->post_title}).";
+                    $conflict['message'] = "Assignment Conflict:\nThe post \"{$post_title}\" is already directly assigned to the double banner \"{$banner_post->post_title}\".";
                     return $conflict;
                 }
 
-                $conflicting_pages = array_intersect($page_ids, $other_display_on['pages'] ?? []);
-                if (!empty($conflicting_pages)) {
-                    $page_title = get_the_title(reset($conflicting_pages));
+                // Type 2: Our selected PAGES vs their selected PAGES
+                $page_vs_page = array_intersect($page_ids, $other_page_ids);
+                if (!empty($page_vs_page)) {
+                    $page_title = get_the_title(reset($page_vs_page));
                     $conflict['has_conflict'] = true;
-                    $conflict['message'] = "Page \"{$page_title}\" is already assigned to another banner ({$banner_post->post_title}).";
+                    $conflict['message'] = "Assignment Conflict:\nThe page \"{$page_title}\" is already assigned to the double banner \"{$banner_post->post_title}\".";
                     return $conflict;
+                }
+
+                // Type 3: Our selected POSTS vs their selected CATEGORIES
+                if (!empty($post_ids) && !empty($other_cat_ids)) {
+                    foreach ($post_ids as $post_id) {
+                        if (in_category($other_cat_ids, $post_id)) {
+                            $post_title = get_the_title($post_id);
+                            $conflicting_cat = get_term(reset(wp_get_post_categories($post_id, ['fields' => 'ids', 'include' => $other_cat_ids])));
+                            $conflict['has_conflict'] = true;
+                            $conflict['message'] = "Assignment Conflict:\nThe post \"{$post_title}\" you selected is already covered by the double banner \"{$banner_post->post_title}\" because it belongs to the category \"{$conflicting_cat->name}\" which is assigned to that banner.";
+                            return $conflict;
+                        }
+                    }
+                }
+
+                // Type 4: Our selected CATEGORIES vs their selected POSTS
+                if (!empty($cat_ids) && !empty($other_post_ids)) {
+                    $posts_in_our_cats = get_posts(['post_type' => 'post', 'posts_per_page' => -1, 'category__in' => $cat_ids, 'fields' => 'ids']);
+                    $cat_vs_post = array_intersect($posts_in_our_cats, $other_post_ids);
+                    if (!empty($cat_vs_post)) {
+                        $post_title = get_the_title(reset($cat_vs_post));
+                        $conflicting_cat = get_term(reset(wp_get_post_categories(reset($cat_vs_post), ['fields' => 'ids', 'include' => $cat_ids])));
+                        $conflict['has_conflict'] = true;
+                        $conflict['message'] = "Assignment Conflict:\nThe category \"{$conflicting_cat->name}\" you selected includes the post \"{$post_title}\", which is already directly assigned to the double banner \"{$banner_post->post_title}\".\n\nPlease remove the direct assignment from that post to proceed.";
+                        return $conflict;
+                    }
                 }
                 
-                $conflicting_cats = array_intersect($cat_ids, $other_display_on['categories'] ?? []);
-                if (!empty($conflicting_cats)) {
-                    $cat_name = get_term(reset($conflicting_cats))->name;
-                    $conflict['has_conflict'] = true;
-                    $conflict['message'] = "Category \"{$cat_name}\" is already assigned to another banner ({$banner_post->post_title}).";
-                    return $conflict;
+                // Type 5: Our selected CATEGORIES vs their selected CATEGORIES
+                if (!empty($cat_ids) && !empty($other_cat_ids)) {
+                    $posts_in_our_cats = get_posts(['post_type' => 'post', 'posts_per_page' => -1, 'category__in' => $cat_ids, 'fields' => 'ids']);
+                    foreach($posts_in_our_cats as $post_id) {
+                        if(in_category($other_cat_ids, $post_id)) {
+                            $post_title = get_the_title($post_id);
+                            $our_cat = get_term(reset(wp_get_post_categories($post_id, ['fields' => 'ids', 'include' => $cat_ids])));
+                            $other_cat = get_term(reset(wp_get_post_categories($post_id, ['fields' => 'ids', 'include' => $other_cat_ids])));
+                            $conflict['has_conflict'] = true;
+                            $conflict['message'] = "Assignment Conflict:\nThe category \"{$our_cat->name}\" you selected has a conflict. It includes the post \"{$post_title}\", which is also covered by the double banner \"{$banner_post->post_title}\" through its assignment to the category \"{$other_cat->name}\".\n\nOne post cannot be covered by two different category rules.";
+                            return $conflict;
+                        }
+                    }
                 }
             }
 

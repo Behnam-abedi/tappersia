@@ -15,16 +15,18 @@ createApp({
   setup() {
     const appState = ref('loading');
     const isSaving = ref(false);
+    const modalComponent = ref(null);
 
     const createDefaultBannerState = () => ({
-      alignment: 'left', backgroundType: 'solid', bgColor: '#232323',
+      alignment: 'right', backgroundType: 'solid', bgColor: '#232323',
       gradientColor1: '#232323', gradientColor2: '#1A2B48', gradientAngle: 90,
-      titleText: 'Awesome Title', titleColor: '#ffffff', titleSize: 22, titleWeight: '700',
+      titleText: 'Awesome Title', titleColor: '#ffffff', titleSize: 15, titleWeight: '700',
       descText: 'This is a short and engaging description for your new banner.',
-      descColor: '#dddddd', descSize: 14, descWeight: '400',
+      descColor: '#dddddd', descSize: 10, descWeight: '400',
       buttonText: 'Learn More', buttonLink: '#', buttonBgColor: '#00baa4',
-      buttonTextColor: '#ffffff', buttonFontSize: 14,
+      buttonTextColor: '#ffffff', buttonFontSize: 10,
       imageUrl: '', imageSize: 177, imageFit: 'cover',
+      enableCustomPosition: false, imagePosX: 0, imagePosY: 0
     });
     
     const banner = reactive({
@@ -45,14 +47,22 @@ createApp({
         if (banner.displayMethod === 'Embeddable') {
             return banner.id ? `[doublebanner id="${banner.id}"]` : '[doublebanner id="..."]';
         }
-        return 'Not applicable for Fixed display';
+        return '[doublebanner_fixed]';
     });
     
-    const bannerStyles = (bannerData) => {
-        if (bannerData.backgroundType === 'gradient') {
-            return `linear-gradient(${bannerData.gradientAngle || 90}deg, ${bannerData.gradientColor1}, ${bannerData.gradientColor2})`;
+    const bannerStyles = (b) => {
+        if (b.backgroundType === 'gradient') {
+            return `linear-gradient(${b.gradientAngle || 90}deg, ${b.gradientColor1}, ${b.gradientColor2})`;
         }
-        return bannerData.bgColor;
+        return b.bgColor;
+    };
+
+    const imageStyleObject = (b) => {
+      const style = { objectFit: b.imageFit, width: 'auto', height: '100%' };
+      if (b.enableCustomPosition) {
+        style.objectPosition = `${b.imagePosX}px ${b.imagePosY}px`;
+      }
+      return style;
     };
     
     const contentAlignment = (align) => {
@@ -60,12 +70,26 @@ createApp({
         if (align === 'center') return 'center';
         return 'flex-start';
     };
+
+    const buttonAlignment = (align) => {
+        if (align === 'right') return 'flex-end';
+        if (align === 'center') return 'center';
+        return 'flex-start';
+    };
     
     const createSortedList = (type, idField) => {
         return computed(() => {
+            const allItems = siteData[type];
+            if (!allItems) return [];
+            
             const selectedIds = new Set(banner.displayOn[type]);
-            const selectedItems = siteData[type].filter(item => selectedIds.has(item[idField]));
-            const unselectedItems = siteData[type].filter(item => !selectedIds.has(item[idField]));
+            
+            const term = searchTerms[type].toLowerCase();
+            const filteredItems = term ? allItems.filter(item => (item.post_title || item.name).toLowerCase().includes(term)) : allItems;
+
+            const selectedItems = filteredItems.filter(item => selectedIds.has(item[idField]));
+            const unselectedItems = filteredItems.filter(item => !selectedIds.has(item[idField]));
+
             return [...selectedItems, ...unselectedItems];
         });
     };
@@ -78,8 +102,15 @@ createApp({
       if (type === 'double-banner') appState.value = 'editor';
     };
 
+    const showModal = (title, message) => {
+        return modalComponent.value?.show({ title, message });
+    };
+
     const saveBanner = () => {
-        if (!banner.name) { alert('Please enter a name for the banner.'); return; }
+        if (!banner.name) {
+            showModal('Input Required', 'Please enter a name for the banner.');
+            return;
+        }
         isSaving.value = true;
         jQuery.ajax({
             url: window.yab_data.ajax_url, type: 'POST',
@@ -87,25 +118,27 @@ createApp({
             success: (response) => {
                 if(response.success) {
                     if (response.data.banner_id) banner.id = response.data.banner_id;
-                    alert('Banner Saved!');
+                    showModal('Success!', 'Banner saved successfully!');
                 } else { 
-                    alert('Error: ' + response.data.message); 
+                    showModal('Error', response.data.message || 'An unknown error occurred.'); 
                 }
             },
             error: (jqXHR) => { 
                 const message = jqXHR.responseJSON?.data?.message || 'An unknown AJAX error occurred.';
-                alert('Error: ' + message);
+                showModal('Error', message);
             },
             complete: () => { isSaving.value = false; }
         });
     };
     
     const copyShortcode = (event) => {
-        if (!banner.id) {
-            alert('Please save the banner first to get the shortcode.');
+        if (!banner.id && banner.displayMethod === 'Embeddable') {
+            showModal('Info', 'Please save the banner first to get the shortcode.');
             return;
         }
-        navigator.clipboard.writeText(event.target.value).then(() => alert('Shortcode copied!'));
+        navigator.clipboard.writeText(event.target.value).then(() => {
+            showModal('Success', 'Shortcode copied to clipboard!');
+        });
     };
 
     const openMediaUploader = (targetBannerKey) => {
@@ -123,6 +156,8 @@ createApp({
 
     const searchContent = (type) => {
         clearTimeout(searchTimeout);
+        if (!searchTerms[type]) return;
+
         searchTimeout = setTimeout(() => {
             searchLoading[type] = true;
             jQuery.ajax({
@@ -137,7 +172,6 @@ createApp({
                 success: (response) => {
                     if (response.success) {
                         const idField = type === 'categories' ? 'term_id' : 'ID';
-                        // Add new results without removing existing ones to preserve selections
                         const existingIds = new Set(siteData[type].map(item => item[idField]));
                         const newItems = response.data.filter(item => !existingIds.has(item[idField]));
                         siteData[type].push(...newItems);
@@ -147,7 +181,7 @@ createApp({
                     searchLoading[type] = false;
                 }
             });
-        }, 500); // 500ms debounce
+        }, 300);
     };
 
     onMounted(() => {
@@ -157,20 +191,13 @@ createApp({
           return;
       }
       
+      siteData.posts = window.yab_data.posts || [];
+      siteData.pages = window.yab_data.pages || [];
+      siteData.categories = window.yab_data.categories || [];
+      
       if (window.yab_data.existing_banner) {
           const existingData = JSON.parse(JSON.stringify(window.yab_data.existing_banner));
           deepMerge(banner, existingData);
-          
-          // Ensure displayOn arrays exist
-          banner.displayOn.posts = existingData.displayOn?.posts || [];
-          banner.displayOn.pages = existingData.displayOn?.pages || [];
-          banner.displayOn.categories = existingData.displayOn?.categories || [];
-
-          // Pre-populate siteData with selected items
-          siteData.posts = window.yab_data.posts || [];
-          siteData.pages = window.yab_data.pages || [];
-          siteData.categories = window.yab_data.categories || [];
-          
           appState.value = 'editor';
       } else {
           appState.value = 'selection';
@@ -179,9 +206,13 @@ createApp({
 
     return { 
         appState, isSaving, banner, siteData, allBannersUrl, shortcode, searchTerms, searchLoading,
-        bannerStyles, contentAlignment, selectElementType, saveBanner, copyShortcode, 
-        openMediaUploader, removeImage, searchContent,
-        sortedPosts, sortedPages, sortedCategories
+        bannerStyles, imageStyleObject, contentAlignment, buttonAlignment, 
+        selectElementType, saveBanner, copyShortcode, openMediaUploader, removeImage, searchContent,
+        sortedPosts, sortedPages, sortedCategories,
+        modalComponent
     };
+  },
+  components: {
+      'yab-modal': YabModal
   }
 }).mount('#yab-app');

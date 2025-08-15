@@ -3,7 +3,7 @@
     <div v-if="appState === 'selection'" class="flex items-center justify-center h-screen">
         <div class="p-8 text-center ">
             <h1 class="text-3xl font-bold mb-8 text-gray-200 ">Create a New Element</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ltr">
                 <div @click="selectElementType('double-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
                     <span class="dashicons dashicons-columns text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                     <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Double Banner</h3>
@@ -51,13 +51,11 @@
         </header>
         
         <main class="grid grid-cols-12 gap-3 p-6">
-            <div class="col-span-4 overflow-y-auto ltr flex gap-3 flex-col" style="max-height: calc(100vh - 100px);">
+            <div class="col-span-4 overflow-y-auto ltr flex gap-3 flex-col" style="max-height: calc(100vh - 120px);">
                 <div v-for="(b, key) in { left: banner.left, right: banner.right }" :key="key" class="bg-[#434343] p-5 rounded-lg shadow-xl">
                     
-                    <div class="flex items-center justify-between mb-5">
-                        <h3 class="font-bold text-xl text-white capitalize tracking-wide">{{ key }} Banner Settings</h3>
-                        </div>
-
+                    <h3 class="font-bold text-xl text-white capitalize tracking-wide mb-5">{{ key }} Banner Settings</h3>
+                    
                     <div class="flex flex-col gap-5">
                         <div>
                             <h4 class="section-title">Background</h4>
@@ -70,11 +68,12 @@
                                 <input type="text" v-model="b.bgColor" class="flex-1 text-input" placeholder="#hexcode">
                             </div>
                             <div v-else>
-                                <div class="flex items-center gap-2 mb-2">
+                                <div class="flex items-center gap-2 mb-2 ">
                                     <input type="color" v-model="b.gradientColor1" class="yab-color-picker">
                                     <input type="text" v-model="b.gradientColor1" class="flex-1 text-input" placeholder="#hexcode">
                                     <input type="color" v-model="b.gradientColor2" class="yab-color-picker">
                                     <input type="text" v-model="b.gradientColor2" class="flex-1 text-input" placeholder="#hexcode">
+
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <label class="text-sm text-gray-300">Angle:</label>
@@ -103,16 +102,27 @@
                                         <option value="fill">Fill</option>
                                     </select>
                                 </div>
+                                <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
+                                    <label class="text-sm text-gray-300">Enable Custom Position</label>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" v-model="b.enableCustomPosition" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                                    </label>
                                 </div>
+                                <div v-if="b.enableCustomPosition" class="grid grid-cols-2 gap-2">
+                                    <input type="number" v-model.number="b.imagePosX" class="text-input" placeholder="X (px)">
+                                    <input type="number" v-model.number="b.imagePosY" class="text-input" placeholder="Y (px)">
+                                </div>
+                             </div>
                         </div>
 
                         <hr class="section-divider">
                         <div>
                              <h4 class="section-title">Content Alignment</h4>
-                             <div class="flex rounded-lg bg-[#292929] overflow-hidden">
-                                <button @click="b.alignment = 'left'" :class="b.alignment === 'left' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Left</button>
+                             <div class="flex rounded-lg bg-[#292929] overflow-hidden ">
+                                <button @click="b.alignment = 'right'" :class="b.alignment === 'right' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Left</button>
                                 <button @click="b.alignment = 'center'" :class="b.alignment === 'center' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Center</button>
-                                <button @click="b.alignment = 'right'" :class="b.alignment === 'right' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Right</button>
+                                <button @click="b.alignment = 'left'" :class="b.alignment === 'left' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Right</button>
                             </div>
                         </div>
 
@@ -152,26 +162,29 @@
                             </div>
                         </div>
                     </div>
-                    <div :style="{ marginBottom: key === 'left' ? '120px' : '0px' }"></div>
                 </div>
             </div>
 
             <div class="col-span-8 sticky top-[120px] space-y-4">
                 <div class="bg-[#434343] p-4 rounded-lg">
                     <h3 class="preview-title">Live Preview</h3>
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-row-reverse gap-2 justify-center">
                         <div v-for="(b, key) in { left: banner.left, right: banner.right }" :key="`preview-${key}`" 
-                            class="w-full h-[177px] rounded-lg relative overflow-hidden flex" 
-                            :style="{ background: bannerStyles(b) }">
+                            class="rounded-[11.35px] relative overflow-hidden flex flex-shrink-0" 
+                            :style="{ background: bannerStyles(b), width: '432px', height: '177px' }">
                             
-                            <div v-if="b.imageUrl" class="absolute inset-0 z-0">
-                                <img :src="b.imageUrl" class="w-full h-full" :style="{ objectFit: b.imageFit }" />
+                            <div v-if="b.imageUrl" class="absolute right-0 top-0 w-full h-full z-10">
+                                <img :src="b.imageUrl" class="w-auto h-full" :style="imageStyleObject(b)" />
                             </div>
 
-                            <div class="w-full p-6 flex flex-col z-10" :style="{ alignItems: contentAlignment(b.alignment), textAlign: b.alignment }">
+                            <div class="w-full p-4 md:p-6 flex flex-col z-20 relative" :style="{ alignItems: contentAlignment(b.alignment), textAlign: b.alignment }">
                                 <h4 class="font-bold" :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight }">{{ b.titleText }}</h4>
-                                <p class="mt-2 leading-tight" :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap' }">{{ b.descText }}</p>
-                                <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" class="py-2 px-4 rounded mt-auto" :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', alignSelf: 'start' }">{{ b.buttonText }}</a>
+                                <p class="mt-2 leading-tight" :class="b.alignment==='right'?'ltr text-left':'rtl text-right'" :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap' ,}">{{ b.descText }}</p>
+                                <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" 
+                                   class="py-2 px-4 rounded mt-auto" 
+                                   :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', alignSelf: buttonAlignment(b.alignment) }">
+                                   {{ b.buttonText }}
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -184,42 +197,45 @@
                             <label class="condition-label">Show on Posts</label>
                             <input type="search" v-model="searchTerms.posts" @input="searchContent('posts')" placeholder="Search posts..." class="search-input">
                             <div class="h-48 overflow-y-auto p-2 space-y-1">
-                                <div v-if="searchLoading.posts">Loading...</div>
-                                <label v-for="post in sortedPosts" :key="`post-${post.ID}`" class="checkbox-label">
-                                    <input type="checkbox" :value="post.ID" v-model="banner.displayOn.posts" class="!hidden peer" />
-                                    <span class="checkbox-custom">
-                                        <svg v-if="banner.displayOn.posts.includes(post.ID)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                    </span>
-                                    <span class="checkbox-text">{{ post.post_title }}</span>
-                                </label>
+                                <div v-if="searchLoading.posts" class="text-center text-gray-400 py-2">Loading...</div>
+                                <div v-else-if="sortedPosts.length === 0" class="text-center text-gray-400 py-2">No results found.</div>
+                                <label v-else v-for="post in sortedPosts" :key="`post-${post.ID}`" class="checkbox-label">
+                                     <input type="checkbox" :value="post.ID" v-model="banner.displayOn.posts" class="!hidden peer" />
+                                     <span class="checkbox-custom">
+                                         <svg v-if="banner.displayOn.posts.includes(post.ID)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                     </span>
+                                     <span class="checkbox-text">{{ post.post_title }}</span>
+                                 </label>
                             </div>
                         </div>
                         <div class="condition-box">
                             <label class="condition-label">Show on Categories</label>
                             <input type="search" v-model="searchTerms.categories" @input="searchContent('categories')" placeholder="Search categories..." class="search-input">
                             <div class="h-48 overflow-y-auto p-2 space-y-1">
-                                <div v-if="searchLoading.categories">Loading...</div>
-                                <label v-for="cat in sortedCategories" :key="`cat-${cat.term_id}`" class="checkbox-label">
+                                <div v-if="searchLoading.categories" class="text-center text-gray-400 py-2">Loading...</div>
+                                <div v-else-if="sortedCategories.length === 0" class="text-center text-gray-400 py-2">No results found.</div>
+                                <label v-else v-for="cat in sortedCategories" :key="`cat-${cat.term_id}`" class="checkbox-label">
                                     <input type="checkbox" :value="cat.term_id" v-model="banner.displayOn.categories" class="!hidden peer"/>
                                     <span class="checkbox-custom">
                                         <svg v-if="banner.displayOn.categories.includes(cat.term_id)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                                     </span>
                                     <span class="checkbox-text">{{ cat.name }}</span>
-                                </label>
+                                 </label>
                             </div>
                         </div>
                         <div class="condition-box">
                             <label class="condition-label">Show on Pages</label>
                             <input type="search" v-model="searchTerms.pages" @input="searchContent('pages')" placeholder="Search pages..." class="search-input">
                             <div class="h-48 overflow-y-auto p-2 space-y-1">
-                                <div v-if="searchLoading.pages">Loading...</div>
-                                <label v-for="page in sortedPages" :key="`page-${page.ID}`" class="checkbox-label">
+                                <div v-if="searchLoading.pages" class="text-center text-gray-400 py-2">Loading...</div>
+                                <div v-else-if="sortedPages.length === 0" class="text-center text-gray-400 py-2">No results found.</div>
+                                <label v-else v-for="page in sortedPages" :key="`page-${page.ID}`" class="checkbox-label">
                                     <input type="checkbox" :value="page.ID" v-model="banner.displayOn.pages" class="!hidden peer" />
                                     <span class="checkbox-custom">
                                         <svg v-if="banner.displayOn.pages.includes(page.ID)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                                     </span>
                                     <span class="checkbox-text">{{ page.post_title }}</span>
-                                </label>
+                                 </label>
                             </div>
                         </div>
                     </div>
@@ -231,6 +247,9 @@
     <div v-if="appState === 'loading'" class="flex items-center justify-center h-screen">
         <span class="dashicons dashicons-update animate-spin text-5xl text-[#00baa4]"></span>
     </div>
+
+    <yab-modal ref="modalComponent"></yab-modal>
+
 </div>
 
 <style>
@@ -239,8 +258,6 @@
     .yab-color-picker { -webkit-appearance: none; -moz-appearance: none; appearance: none; width: 40px; height: 38px; background-color: transparent; border: none; cursor: pointer; padding: 0 }
     .yab-color-picker::-webkit-color-swatch { border-radius: 6px; border: 2px solid #656565; }
     .yab-color-picker::-moz-color-swatch { border-radius: 6px; border: 2px solid #656565; }
-
-    /* Custom Component Styles */
     .section-title { color: #fff; font-size: 15px; margin-bottom: 8px; background: #656565; padding: 5px 10px; border-radius: 7px; font-weight: 600; }
     .section-divider { height: 1px; margin: 12px 0; background-color: #656565; border: 0; }
     .text-input { width: 100%; background: #292929; border: 1px solid #292929; border-radius: 5px; padding: 8px; color: #fff; }

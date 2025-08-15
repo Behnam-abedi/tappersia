@@ -23,3 +23,9 @@
     gap: 1rem; /* 16px */
     width: 100%;
 }
+.metabox-prefs, .hide-if-no-js, .screen-meta-toggle,#wpfooter {
+  display: none!important;
+}
+#wpbody{
+  background-color:#232323!important ;
+}
