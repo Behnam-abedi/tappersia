@@ -5,7 +5,7 @@
             <h1 class="text-3xl font-bold mb-8 text-gray-200">All Elements</h1>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ltr">
                 <div @click="selectType('double-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                    <span class="dashicons dashicons-columns text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors"></span>
+                    <span class="dashicons dashicons-columns text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                     <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Double Banners</h3>
                 </div>
             </div>

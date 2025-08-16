@@ -36,7 +36,7 @@
 </header>
 
 <main class="grid grid-cols-12 gap-3 p-6">
-    <div class="col-span-4 overflow-y-auto ltr flex gap-3 flex-col" style="max-height: calc(100vh - 120px);">
+    <div class="col-span-4 overflow-y-auto ltr flex gap-3 flex-col [&>*:last-child]:mb-[40px]" style="max-height: calc(100vh - 120px);">
         <div v-for="(b, key) in { left: banner.left, right: banner.right }" :key="key" class="bg-[#434343] p-5 rounded-lg shadow-xl">
             
             <h3 class="font-bold text-xl text-white capitalize tracking-wide mb-5">{{ key }} Banner Settings</h3>
@@ -117,8 +117,14 @@
                 <div>
                     <h4 class="section-title">Title</h4>
                     <input type="text" v-model="b.titleText" class="w-full text-input mb-2" placeholder="Title Text">
-                    <div class="grid grid-cols-[auto,1fr,1fr,1fr] gap-2">
-                        <input type="color" v-model="b.titleColor" class="yab-color-picker">
+                    <div class="grid grid-cols-[24%,24%,24%,24%] gap-1">
+                        <span class="mb-1">Text color:</span>
+                        <span class="mb-1">Text color code:</span>
+                        <span class="mb-1">Font size:</span>
+                        <span class="mb-1">Font weight:</span>
+                    </div>
+                    <div class="grid grid-cols-[24%,24%,24%,24%] gap-1">
+                        <input type="color" v-model="b.titleColor" class="yab-color-picker !w-full">
                         <input type="text" v-model="b.titleColor" class="text-input" placeholder="#hexcode">
                         <input type="number" v-model.number="b.titleSize" class="text-input" placeholder="Size (px)">
                         <select v-model="b.titleWeight" class="select-input">
@@ -130,8 +136,14 @@
                 <div>
                     <h4 class="section-title">Description</h4>
                     <textarea v-model="b.descText" rows="3" class="w-full text-input mb-2" placeholder="Description Text"></textarea>
-                    <div class="grid grid-cols-[auto,1fr,1fr,1fr] gap-2">
-                        <input type="color" v-model="b.descColor" class="yab-color-picker">
+                    <div class="grid grid-cols-[24%,24%,24%,24%] gap-1">
+                        <span class="mb-1">Text color:</span>
+                        <span class="mb-1">Text color code:</span>
+                        <span class="mb-1">Font size:</span>
+                        <span class="mb-1">Font weight:</span>
+                    </div>
+                    <div class="grid grid-cols-[24%,24%,24%,24%] gap-1">
+                        <input type="color" v-model="b.descColor" class="yab-color-picker !w-full">
                         <input type="text" v-model="b.descColor" class="text-input" placeholder="#hexcode">
                         <input type="number" v-model.number="b.descSize" class="text-input" placeholder="Size (px)">
                         <select v-model="b.descWeight" class="select-input">
@@ -142,18 +154,31 @@
                 <hr class="section-divider">
                 <div>
                     <h4 class="section-title">Button</h4>
+                    <span class="mb-1">Text:</span>
                     <input type="text" v-model="b.buttonText" class="w-full text-input mb-2" placeholder="Button Text">
+                    <span class="mb-1">Link:</span>
                     <input type="text" v-model="b.buttonLink" class="w-full text-input mb-2" placeholder="Button Link (URL)">
-                    <div class="grid grid-cols-[auto,1fr,auto,1fr] gap-2 items-center mb-2">
-                        <input type="color" v-model="b.buttonBgColor" class="yab-color-picker" title="Button BG">
-                        <input type="text" v-model="b.buttonBgColor" class="text-input" placeholder="BG #hex">
-                        <input type="color" v-model="b.buttonTextColor" class="yab-color-picker" title="Button Text">
-                        <input type="text" v-model="b.buttonTextColor" class="text-input" placeholder="Text #hex">
+                    <div class="grid grid-cols-[24%,24%,24%,24%] gap-1">
+                        <span class="mb-1">Bg color:</span>
+                        <span class="mb-1">Bg color code:</span>
+                        <span class="mb-1">Text color:</span>
+                        <span class="mb-1">Text color code:</span>
                     </div>
-                    <div class="grid grid-cols-[auto,1fr,auto,1fr] gap-2 items-center">
-                        <input type="color" v-model="b.buttonBgHoverColor" class="yab-color-picker" title="Button Hover BG">
-                        <input type="text" v-model="b.buttonBgHoverColor" class="text-input" placeholder="Hover #hex">
-                         <input type="number" v-model.number="b.buttonFontSize" class="text-input col-span-2" placeholder="Font Size (px)">
+                    <div class="grid grid-cols-[24%,24%,24%,24%] gap-1 items-center mb-2">
+                        <input type="color" v-model="b.buttonBgColor" class="yab-color-picker !w-full" title="Button BG">
+                        <input type="text" v-model="b.buttonBgColor" class="text-input !w-full" placeholder="BG #hex">
+                        <input type="color" v-model="b.buttonTextColor" class="yab-color-picker !w-full" title="Button Text">
+                        <input type="text" v-model="b.buttonTextColor" class="text-input !w-full" placeholder="Text #hex">
+                    </div>
+                    <div class="grid grid-cols-[1fr,1fr,1fr] gap-1">
+                        <span class="mb-1">Bg color hover:</span>
+                        <span class="mb-1">Bg color hover code:</span>
+                        <span class="mb-1">Font-size:</span>
+                    </div>
+                    <div class="grid grid-cols-[1fr,1fr,1fr] gap-2 items-center">
+                        <input type="color" v-model="b.buttonBgHoverColor" class="yab-color-picker !w-full" title="Button Hover BG">
+                        <input type="text" v-model="b.buttonBgHoverColor" class="text-input !w-full" placeholder="Hover #hex">
+                         <input type="number" v-model.number="b.buttonFontSize" class="text-input !w-full" placeholder="Font Size (px)">
                     </div>
                 </div>
             </div>
@@ -170,11 +195,11 @@
                     
                     <img v-if="b.imageUrl" :src="b.imageUrl" :style="imageStyleObject(b)" />
 
-                    <div class="w-full h-full p-4 md:p-6 flex flex-col z-10 relative" :style="{ alignItems: contentAlignment(b.alignment), textAlign: b.alignment }">
-                        <h4 class="font-bold" :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight }">{{ b.titleText }}</h4>
-                        <p class="mt-2 leading-tight" :class="b.alignment==='right'?'ltr text-left':'rtl text-right'" :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap' ,}">{{ b.descText }}</p>
+                    <div class="w-full h-full py-[37px] px-[31px] flex flex-col z-10 relative" :style="{ alignItems: contentAlignment(b.alignment), textAlign: b.alignment }">
+                        <h4 class="font-bold " :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight }">{{ b.titleText }}</h4>
+                        <p class="mt-2 leading-tight mb-[25px]" :class="b.alignment==='right'?'ltr text-left':'rtl text-right'" :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap' ,}">{{ b.descText }}</p>
                         <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" 
-                            class="py-2 px-4 rounded mt-auto" 
+                            class="py-2 px-4 rounded" 
                             :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', alignSelf: buttonAlignment(b.alignment) }">
                             {{ b.buttonText }}
                         </a>
@@ -185,8 +210,8 @@
 
         <div v-if="banner.displayMethod === 'Fixed'" class="bg-[#434343] p-4 rounded-lg">
             <h3 class="preview-title">Display Conditions</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="condition-box">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 ltr">
+                <div class="condition-box ">
                     <label class="condition-label">Show on Posts</label>
                     <input type="search" v-model="searchTerms.posts" @input="searchContent('posts')" placeholder="Search posts..." class="search-input">
                     <div class="h-48 overflow-y-auto p-2 space-y-1">

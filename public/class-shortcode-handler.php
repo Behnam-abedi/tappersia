@@ -126,15 +126,15 @@ if (!class_exists('Yab_Shortcode_Handler')) :
             </style>
             <div class="yab-wrapper" style="display: flex; flex-direction: row-reverse; gap: 1rem; width: 100%; justify-content: center;">
                 <?php foreach ($banners as $key => $b): ?>
-                <div class="yab-banner-item yab-banner-<?php echo $banner_id; ?>-<?php echo $key; ?>" style="width: <?php echo $banner_width; ?>; height: <?php echo $banner_height; ?>; border-radius: 0.5rem; position: relative; overflow: hidden; display: flex; flex-shrink: 0; <?php echo esc_attr($get_bg_style($b)); ?>">
+                <div class="yab-banner-item yab-banner-<?php echo $banner_id; ?>-<?php echo $key; ?>" style="width: <?php echo $banner_width; ?>; height: <?php echo $banner_height; ?>; border-radius: 0.5rem; position: relative; overflow: hidden;display: flex; flex-shrink: 0; <?php echo esc_attr($get_bg_style($b)); ?>">
                     
                     <?php if (!empty($b['imageUrl'])): ?>
                         <img src="<?php echo esc_url($b['imageUrl']); ?>" style="<?php echo esc_attr($get_img_style($b)); ?>">
                     <?php endif; ?>
 
-                    <div style="width: 100%; height:100%; padding: 1rem 1.5rem; display: flex; flex-direction: column; z-index: 10; position: relative; <?php echo $this->get_alignment_style($b); ?>">
+                    <div style="width: 100%; height:100%; padding:37px 31px; display: flex; flex-direction: column; z-index: 10; position: relative; <?php echo $this->get_alignment_style($b); ?>">
                         <h4 style="font-weight: <?php echo esc_attr($b['titleWeight']); ?>; color: <?php echo esc_attr($b['titleColor']); ?>; font-size: <?php echo esc_attr($b['titleSize']); ?>px; margin: 0;"><?php echo esc_html($b['titleText']); ?></h4>
-                        <p style="direction:<?php echo ($b['alignment'] === 'right') ? 'ltr' : (($b['alignment'] === 'center') ? 'ltr' : 'rtl'); ?>;text-align:<?php echo ($b['alignment'] === 'right') ? 'left' : (($b['alignment'] === 'center') ? 'center' : 'right'); ?>;margin-top:0.5rem;font-weight:<?php echo esc_attr($b['descWeight']); ?>;color:<?php echo esc_attr($b['descColor']); ?>;font-size:<?php echo esc_attr($b['descSize']); ?>px;white-space:pre-wrap;"><?php echo esc_html($b['descText']); ?></p>
+                        <p style="direction:<?php echo ($b['alignment'] === 'right') ? 'ltr' : (($b['alignment'] === 'center') ? 'ltr' : 'rtl'); ?>;text-align:<?php echo ($b['alignment'] === 'right') ? 'left' : (($b['alignment'] === 'center') ? 'center' : 'right'); ?>;margin-top:0.5rem;margin-bottom:25px;font-weight:<?php echo esc_attr($b['descWeight']); ?>;color:<?php echo esc_attr($b['descColor']); ?>;font-size:<?php echo esc_attr($b['descSize']); ?>px;white-space:pre-wrap;"><?php echo esc_html($b['descText']); ?></p>
                         <?php if(!empty($b['buttonText'])): ?>
                         <a href="<?php echo esc_url($b['buttonLink']); ?>" target="_blank" class="yab-button" style="margin-top: auto; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; background-color: <?php echo esc_attr($b['buttonBgColor']); ?>; color: <?php echo esc_attr($b['buttonTextColor']); ?>; font-size: <?php echo esc_attr($b['buttonFontSize']); ?>px; align-self: var(--align-self); transition: background-color 0.3s;"><?php echo esc_html($b['buttonText']); ?></a>
                         <?php endif; ?>
