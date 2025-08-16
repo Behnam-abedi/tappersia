@@ -61,7 +61,10 @@ if (!class_exists('Yab_Shortcode_Handler')) :
             if (!$banner_post || $banner_post->post_type !== 'yab_banner' || $banner_post->post_status !== 'publish') return '';
 
             $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
-            if (empty($data) || !isset($data['isActive']) || !$data['isActive']) return '';
+            // FIX: Added a check for displayMethod to ensure the banner is actually embeddable.
+            if (empty($data) || !isset($data['isActive']) || !$data['isActive'] || !isset($data['displayMethod']) || $data['displayMethod'] !== 'Embeddable') {
+                return '';
+            }
             
             return $this->generate_banner_html($data, $banner_post->ID);
         }
@@ -124,7 +127,7 @@ if (!class_exists('Yab_Shortcode_Handler')) :
                     <?php endif; ?>
                 <?php endforeach; ?>
             </style>
-            <div class="yab-wrapper" style="display: flex; flex-direction: row-reverse; gap: 1rem; width: 100%; justify-content: center;">
+            <div class="yab-wrapper" style="display: flex; flex-direction: row-reverse; gap: 1rem; width: 100%; justify-content: center;line-height:17px!important">
                 <?php foreach ($banners as $key => $b): ?>
                 <div class="yab-banner-item yab-banner-<?php echo $banner_id; ?>-<?php echo $key; ?>" style="width: <?php echo $banner_width; ?>; height: <?php echo $banner_height; ?>; border-radius: 0.5rem; position: relative; overflow: hidden;display: flex; flex-shrink: 0; <?php echo esc_attr($get_bg_style($b)); ?>">
                     
