@@ -33,7 +33,6 @@ class Yab_Admin_Menu {
         wp_enqueue_script( 'yab-vue', 'https://unpkg.com/vue@3/dist/vue.global.js', array(), '3.4.27', true );
         wp_enqueue_style( 'yab-admin-style', YAB_PLUGIN_URL . 'assets/css/admin-style.css', array(), $this->version, 'all' );
         
-        // Enqueue the new modal component script
         wp_enqueue_script( 'yab-modal-component', YAB_PLUGIN_URL . 'assets/js/admin-modal-component.js', array( 'yab-vue' ), $this->version, true );
 
         $page_slug = $this->plugin_name;

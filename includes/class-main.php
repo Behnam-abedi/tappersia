@@ -7,6 +7,15 @@ class Yab_Main {
     public function __construct() {
         $this->plugin_name = 'your-awesome-banner';
         $this->version = YAB_VERSION;
+        $this->load_dependencies();
+    }
+
+    private function load_dependencies() {
+        require_once YAB_PLUGIN_DIR . 'admin/class-admin-menu.php';
+        require_once YAB_PLUGIN_DIR . 'admin/class-ajax-handler.php';
+        require_once YAB_PLUGIN_DIR . 'public/class-shortcode-handler.php';
+        // Base banner type class can be included here if needed in the future
+        // require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/BaseBannerType.php';
     }
 
     public function run() {
@@ -20,20 +29,18 @@ class Yab_Main {
     }
 
     private function define_admin_hooks() {
-        require_once YAB_PLUGIN_DIR . 'admin/class-admin-menu.php';
         $admin_menu = new Yab_Admin_Menu( $this->get_plugin_name(), $this->get_version() );
         add_action( 'admin_menu', array( $admin_menu, 'add_plugin_admin_menu' ) );
         add_action( 'admin_enqueue_scripts', array( $admin_menu, 'enqueue_styles_and_scripts' ) );
 
-        require_once YAB_PLUGIN_DIR . 'admin/class-ajax-handler.php';
         $ajax_handler = new Yab_Ajax_Handler();
-        add_action( 'wp_ajax_yab_save_double_banner', array( $ajax_handler, 'save_double_banner' ) );
+        // Changed to a more generic hook name
+        add_action( 'wp_ajax_yab_save_banner', array( $ajax_handler, 'save_banner' ) );
         add_action( 'wp_ajax_yab_search_content', array( $ajax_handler, 'search_content' ) );
-        add_action( 'wp_ajax_yab_delete_banner', array( $ajax_handler, 'delete_banner' ) ); // <-- جدید
+        add_action( 'wp_ajax_yab_delete_banner', array( $ajax_handler, 'delete_banner' ) );
     }
     
     private function define_public_hooks() {
-        require_once YAB_PLUGIN_DIR . 'public/class-shortcode-handler.php';
         $shortcode_handler = new Yab_Shortcode_Handler();
         add_action('init', array($shortcode_handler, 'register_shortcodes'));
     }

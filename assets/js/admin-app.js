@@ -24,13 +24,17 @@ createApp({
       descText: 'This is a short and engaging description for your new banner.',
       descColor: '#dddddd', descSize: 10, descWeight: '400',
       buttonText: 'Learn More', buttonLink: '#', buttonBgColor: '#00baa4',
-      buttonTextColor: '#ffffff', buttonFontSize: 10,
-      imageUrl: '', imageSize: 177, imageFit: 'cover',
-      enableCustomPosition: false, imagePosX: 0, imagePosY: 0
+      buttonTextColor: '#ffffff', buttonFontSize: 10, buttonBgHoverColor: '#008a7b',
+      imageUrl: '', 
+      imageFit: 'none', // Default to natural size
+      enableCustomImageSize: false,
+      imageWidth: null, imageHeight: null,
+      imagePosRight: 0, imagePosBottom: 0,
     });
     
     const banner = reactive({
       id: null, name: '', displayMethod: 'Fixed', isActive: true,
+      type: 'double-banner',
       displayOn: { posts: [], pages: [], categories: [] },
       left: createDefaultBannerState(), right: createDefaultBannerState(),
     });
@@ -58,11 +62,21 @@ createApp({
     };
 
     const imageStyleObject = (b) => {
-      const style = { objectFit: b.imageFit, width: 'auto', height: '100%' };
-      if (b.enableCustomPosition) {
-        style.objectPosition = `${b.imagePosX}px ${b.imagePosY}px`;
-      }
-      return style;
+        const style = {
+            position: 'absolute',
+            right: b.imagePosRight !== null ? `${b.imagePosRight}px` : '0px',
+            bottom: b.imagePosBottom !== null ? `${b.imagePosBottom}px` : '0px',
+        };
+
+        if (b.enableCustomImageSize) {
+            style.width = b.imageWidth !== null ? `${b.imageWidth}px` : 'auto';
+            style.height = b.imageHeight !== null ? `${b.imageHeight}px` : 'auto';
+            // NO object-fit property here
+        } else {
+            style.objectFit = b.imageFit;
+        }
+        
+        return style;
     };
     
     const contentAlignment = (align) => {
@@ -99,7 +113,8 @@ createApp({
     const sortedCategories = createSortedList('categories', 'term_id');
 
     const selectElementType = (type) => {
-      if (type === 'double-banner') appState.value = 'editor';
+      banner.type = type;
+      appState.value = 'editor';
     };
 
     const showModal = (title, message) => {
@@ -114,7 +129,12 @@ createApp({
         isSaving.value = true;
         jQuery.ajax({
             url: window.yab_data.ajax_url, type: 'POST',
-            data: { action: 'yab_save_double_banner', nonce: window.yab_data.nonce, banner_data: JSON.stringify(banner) },
+            data: { 
+                action: 'yab_save_banner', 
+                nonce: window.yab_data.nonce, 
+                banner_data: JSON.stringify(banner),
+                banner_type: banner.type 
+            },
             success: (response) => {
                 if(response.success) {
                     if (response.data.banner_id) banner.id = response.data.banner_id;
