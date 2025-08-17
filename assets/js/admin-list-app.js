@@ -3,7 +3,8 @@ const { createApp, ref, reactive, computed, onMounted } = Vue;
 createApp({
   setup() {
     const appState = ref('selection');
-    const banners = reactive([]);
+    const allBanners = reactive([]);
+    const selectedType = ref('');
     const searchQuery = ref('');
     const currentPage = ref(1);
     const itemsPerPage = ref(20);
@@ -12,10 +13,17 @@ createApp({
     const modalComponent = ref(null);
 
     const filteredBanners = computed(() => {
-      if (!searchQuery.value) {
-        return banners;
+      // First, filter by selected type
+      let bannersByType = allBanners;
+      if (selectedType.value) {
+          bannersByType = allBanners.filter(banner => banner.type === selectedType.value);
       }
-      return banners.filter(banner =>
+      
+      // Then, filter by search query
+      if (!searchQuery.value) {
+        return bannersByType;
+      }
+      return bannersByType.filter(banner =>
         banner.title.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
     });
@@ -31,11 +39,13 @@ createApp({
     });
 
     const selectType = (type) => {
+      selectedType.value = type;
       appState.value = 'list';
     };
 
     const goBack = () => {
       appState.value = 'selection';
+      selectedType.value = '';
       searchQuery.value = '';
       currentPage.value = 1;
     };
@@ -88,9 +98,9 @@ createApp({
             },
             success: function(response) {
                 if (response.success) {
-                    const index = banners.findIndex(b => b.id === bannerId);
+                    const index = allBanners.findIndex(b => b.id === bannerId);
                     if (index > -1) {
-                        banners.splice(index, 1);
+                        allBanners.splice(index, 1);
                     }
                     showModal('Success', 'The banner has been deleted.');
                 } else {
@@ -105,7 +115,7 @@ createApp({
 
     onMounted(() => {
       if (window.yab_list_data) {
-        banners.push(...window.yab_list_data.banners);
+        allBanners.push(...window.yab_list_data.banners);
         addNewURL.value = window.yab_list_data.addNewURL;
         nonce.value = window.yab_list_data.nonce;
       } else {
@@ -115,11 +125,11 @@ createApp({
 
     return {
       appState,
-      banners,
       searchQuery,
       currentPage,
       itemsPerPage,
       addNewURL,
+      selectedType,
       filteredBanners,
       totalPages,
       paginatedBanners,

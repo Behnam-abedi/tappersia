@@ -60,9 +60,16 @@ class Yab_Admin_Menu {
                 $query->the_post();
                 $banner_id = get_the_ID();
                 $banner_data = get_post_meta($banner_id, '_yab_banner_data', true);
-                
+                $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner'; // Default to double for old banners
+
                 $display_method = isset($banner_data['displayMethod']) ? $banner_data['displayMethod'] : 'Fixed';
-                $shortcode = $display_method === 'Embeddable' ? '[doublebanner id="' . $banner_id . '"]' : '[doublebanner_fixed]';
+                
+                $shortcode = '[unknown_banner]';
+                if ($display_method === 'Embeddable') {
+                    $shortcode = $banner_type === 'single-banner' ? '[singlebanner id="' . $banner_id . '"]' : '[doublebanner id="' . $banner_id . '"]';
+                } else {
+                     $shortcode = $banner_type === 'single-banner' ? '[singlebanner_fixed]' : '[doublebanner_fixed]';
+                }
 
                 $all_banners[] = [
                     'id' => $banner_id,
@@ -71,6 +78,7 @@ class Yab_Admin_Menu {
                     'is_active' => isset($banner_data['isActive']) ? $banner_data['isActive'] : false,
                     'display_method' => $display_method,
                     'shortcode' => $shortcode,
+                    'type' => $banner_type,
                     'edit_url' => admin_url('admin.php?page=your-awesome-banner&action=edit&banner_id=' . $banner_id),
                 ];
             }
@@ -103,10 +111,14 @@ class Yab_Admin_Menu {
             $banner_id = intval($_GET['banner_id']);
             $banner_post = get_post($banner_id);
             $banner_data = get_post_meta($banner_id, '_yab_banner_data', true);
+            $banner_type = get_post_meta($banner_id, '_yab_banner_type', true);
+
 
             if ($banner_post && $banner_data) {
                 $banner_data['name'] = $banner_post->post_title;
                 $banner_data['id'] = $banner_id;
+                $banner_data['type'] = $banner_type ?: 'double-banner'; // Default for safety
+
                 $localized_data['existing_banner'] = $banner_data;
                 
                 if (!empty($banner_data['displayOn']['posts'])) {

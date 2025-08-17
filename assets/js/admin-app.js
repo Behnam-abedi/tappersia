@@ -17,8 +17,8 @@ createApp({
     const isSaving = ref(false);
     const modalComponent = ref(null);
 
-    const createDefaultBannerState = () => ({
-      alignment: 'right', backgroundType: 'solid', bgColor: '#232323',
+    const createDefaultBannerPartState = () => ({
+      alignment: 'left', backgroundType: 'solid', bgColor: '#232323',
       gradientColor1: '#232323', gradientColor2: '#1A2B48', gradientAngle: 90,
       titleText: 'Awesome Title', titleColor: '#ffffff', titleSize: 15, titleWeight: '700',
       descText: 'This is a short and engaging description for your new banner.',
@@ -26,7 +26,7 @@ createApp({
       buttonText: 'Learn More', buttonLink: '#', buttonBgColor: '#00baa4',
       buttonTextColor: '#ffffff', buttonFontSize: 10, buttonBgHoverColor: '#008a7b',
       imageUrl: '', 
-      imageFit: 'none', // Default to natural size
+      imageFit: 'none',
       enableCustomImageSize: false,
       imageWidth: null, imageHeight: null,
       imagePosRight: 0, imagePosBottom: 0,
@@ -34,9 +34,11 @@ createApp({
     
     const banner = reactive({
       id: null, name: '', displayMethod: 'Fixed', isActive: true,
-      type: 'double-banner',
+      type: null, // Set initial type to null
       displayOn: { posts: [], pages: [], categories: [] },
-      left: createDefaultBannerState(), right: createDefaultBannerState(),
+      left: createDefaultBannerPartState(),
+      right: createDefaultBannerPartState(),
+      single: createDefaultBannerPartState(),
     });
 
     const siteData = reactive({ posts: [], pages: [], categories: [] });
@@ -46,15 +48,19 @@ createApp({
     let mediaUploader;
 
     const allBannersUrl = computed(() => `admin.php?page=your-awesome-banner-list`);
+    const CreateNewBanner = computed(() => `admin.php?page=your-awesome-banner`);
 
     const shortcode = computed(() => {
+        if (!banner.type) return '';
         if (banner.displayMethod === 'Embeddable') {
-            return banner.id ? `[doublebanner id="${banner.id}"]` : '[doublebanner id="..."]';
+            if (!banner.id) return `[${banner.type.replace('-','')} id="..."]`;
+            return `[${banner.type.replace('-','')} id="${banner.id}"]`;
         }
-        return '[doublebanner_fixed]';
+        return `[${banner.type.replace('-','')}_fixed]`;
     });
     
     const bannerStyles = (b) => {
+        if (!b) return '';
         if (b.backgroundType === 'gradient') {
             return `linear-gradient(${b.gradientAngle || 90}deg, ${b.gradientColor1}, ${b.gradientColor2})`;
         }
@@ -62,6 +68,7 @@ createApp({
     };
 
     const imageStyleObject = (b) => {
+        if (!b) return {};
         const style = {
             position: 'absolute',
             right: b.imagePosRight !== null ? `${b.imagePosRight}px` : '0px',
@@ -71,7 +78,6 @@ createApp({
         if (b.enableCustomImageSize) {
             style.width = b.imageWidth !== null ? `${b.imageWidth}px` : 'auto';
             style.height = b.imageHeight !== null ? `${b.imageHeight}px` : 'auto';
-            // NO object-fit property here
         } else {
             style.objectFit = b.imageFit;
         }
@@ -225,7 +231,7 @@ createApp({
     });
 
     return { 
-        appState, isSaving, banner, siteData, allBannersUrl, shortcode, searchTerms, searchLoading,
+        appState, isSaving, banner, siteData, allBannersUrl,CreateNewBanner, shortcode, searchTerms, searchLoading,
         bannerStyles, imageStyleObject, contentAlignment, buttonAlignment, 
         selectElementType, saveBanner, copyShortcode, openMediaUploader, removeImage, searchContent,
         sortedPosts, sortedPages, sortedCategories,

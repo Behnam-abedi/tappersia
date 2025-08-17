@@ -3,12 +3,17 @@ if (!class_exists('Yab_Ajax_Handler')) :
     class Yab_Ajax_Handler {
 
         private function get_banner_type_handler($banner_type_slug) {
-            // In the future, you can have a switch or a map here to load different handlers
-            if ($banner_type_slug === 'double-banner') {
-                require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/DoubleBanner/DoubleBanner.php';
-                return new Yab_Double_Banner();
+            // A simple factory to get the correct handler instance
+            switch ($banner_type_slug) {
+                case 'double-banner':
+                    require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/DoubleBanner/DoubleBanner.php';
+                    return new Yab_Double_Banner();
+                case 'single-banner':
+                    require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/SingleBanner/SingleBanner.php';
+                    return new Yab_Single_Banner();
+                default:
+                    return null;
             }
-            return null;
         }
         
         public function save_banner() {
@@ -19,21 +24,22 @@ if (!class_exists('Yab_Ajax_Handler')) :
                 return;
             }
 
-            if (!isset($_POST['banner_data'])) {
-                wp_send_json_error(['message' => 'No data received.']);
+            if (!isset($_POST['banner_data']) || !isset($_POST['banner_type'])) {
+                wp_send_json_error(['message' => 'Incomplete data received.']);
                 return;
             }
             
             $banner_data = json_decode(stripslashes($_POST['banner_data']), true);
-            $banner_type = isset($_POST['banner_type']) ? sanitize_text_field($_POST['banner_type']) : 'double-banner';
+            $banner_type = sanitize_text_field($_POST['banner_type']);
 
             $handler = $this->get_banner_type_handler($banner_type);
 
             if (!$handler) {
-                 wp_send_json_error(['message' => 'Invalid banner type.']);
+                 wp_send_json_error(['message' => 'Invalid banner type specified.']);
                  return;
             }
             
+            // Delegate the save operation to the specific handler
             $handler->save($banner_data);
         }
 

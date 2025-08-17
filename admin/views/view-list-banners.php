@@ -3,7 +3,11 @@
     <div v-if="appState === 'selection'" class="flex items-center justify-center h-screen">
         <div class="p-8 text-center">
             <h1 class="text-3xl font-bold mb-8 text-gray-200">All Elements</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ltr">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div @click="selectType('single-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                    <span class="dashicons dashicons-format-image text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                    <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Single Banners</h3>
+                </div>
                 <div @click="selectType('double-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
                     <span class="dashicons dashicons-columns text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                     <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Double Banners</h3>
@@ -16,7 +20,7 @@
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-4">
                 <button @click="goBack" class="text-gray-400 hover:text-white">&larr; Back</button>
-                <h1 class="text-2xl font-bold text-white">Double Banners</h1>
+                <h1 class="text-2xl font-bold text-white capitalize">{{ selectedType.replace('-', ' ') }}s</h1>
             </div>
             <div class="flex items-center gap-4">
                 <input type="search" v-model="searchQuery" placeholder="Search banners..." class="search-input !w-64">
@@ -30,7 +34,7 @@
                     <tr>
                         <th class="p-4 font-semibold">Name</th>
                         <th class="p-4 font-semibold">Shortcode</th>
-                        <th class="p-4 font-semibold">Type</th>
+                        <th class="p-4 font-semibold">Display</th>
                         <th class="p-4 font-semibold">Status</th>
                         <th class="p-4 font-semibold">Date</th>
                         <th class="p-4 font-semibold">Actions</th>

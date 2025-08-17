@@ -4,20 +4,25 @@
         <div class="p-8 text-center ">
             <h1 class="text-3xl font-bold mb-8 text-gray-200 ">Create a New Element</h1>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ltr">
-                <div @click="selectElementType('double-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                    <span class="dashicons dashicons-columns text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                 <div @click="selectElementType('single-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                    <span class="dashicons dashicons-format-image text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                    <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Single Banner</h3>
+                </div>
+                <div @click="selectElementType('double-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                    <span class="dashicons dashicons-columns text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                     <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Double Banner</h3>
                 </div>
-                </div>
+            </div>
         </div>
     </div>
 
     <div v-if="appState === 'editor'">
-        <?php
-            // The editor for the specific banner type will be loaded here.
-            // For now, we only have double-banner.
-            require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/double-banner-editor.php';
-        ?>
+        <div v-if="banner.type === 'double-banner'">
+            <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/double-banner-editor.php'; ?>
+        </div>
+        <div v-if="banner.type === 'single-banner'">
+            <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/single-banner-editor.php'; ?>
+        </div>
     </div>
 
     <div v-if="appState === 'loading'" class="flex items-center justify-center h-screen">
@@ -39,7 +44,7 @@
     .text-input { width: 100%; background: #292929; border: 1px solid #292929; border-radius: 5px; padding: 8px; color: #fff; }
     .select-input { width: 100%; background: #292929; border: 1px solid #292929; border-radius: 5px; padding: 8px; color: #fff; }
     .tab-button { text-align: center; padding: 6px 0; border-radius: 5px; cursor: pointer; background: #494949; border: 1px solid #292929; color: #fff; transition: all 0.2s; }
-    .active-tab { background: #292929; border: 2px solid #00baa4; font-weight: bold; }
+    .active-tab { background: #00baa4; border: 2px solid #00baa4; font-weight: bold; }
     .preview-title { font-weight: bold; font-size: 1.125rem; margin-bottom: 1rem; color: white; text-align: left; background: #656565; padding: 10px; border-radius: 7px; }
     .condition-box { background: #292929; padding: 12px; border-radius: 8px; }
     .condition-label { display: block; font-size: 0.875rem; font-weight: 500; color: #d1d5db; margin-bottom: 8px; text-align: left; }
