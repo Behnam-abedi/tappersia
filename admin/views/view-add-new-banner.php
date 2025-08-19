@@ -50,8 +50,8 @@
     .section-divider { height: 1px; margin: 12px 0; background-color: #656565; border: 0; }
     .text-input { width: 100%; background: #292929; border: 1px solid #292929; border-radius: 5px; padding: 8px; color: #fff; }
     .select-input { width: 100%; background: #292929; border: 1px solid #292929; border-radius: 5px; padding: 8px; color: #fff; }
-    .tab-button { text-align: center; padding: 6px 0; border-radius: 5px; cursor: pointer; background: #494949; border: 1px solid #292929; color: #fff; transition: all 0.2s; }
-    .active-tab { background: #00baa4; border: 2px solid #00baa4; font-weight: bold; }
+    .tab-button { text-align: center; padding: 6px 0; cursor: pointer; color: #fff; transition: all 0.2s; }
+    .active-tab { background: #00baa4;  font-weight: bold; }
     .preview-title { font-weight: bold; font-size: 1.125rem; margin-bottom: 1rem; color: white; text-align: left; background: #656565; padding: 10px; border-radius: 7px; }
     .condition-box { background: #292929; padding: 12px; border-radius: 8px; }
     .condition-label { display: block; font-size: 0.875rem; font-weight: 500; color: #d1d5db; margin-bottom: 8px; text-align: left; }

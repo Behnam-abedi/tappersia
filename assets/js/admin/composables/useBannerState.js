@@ -1,6 +1,5 @@
-// import { reactive, computed } from 'vue'; // <--- این خط حذف شد
-
-const { reactive, computed } = Vue; // <--- این خط جایگزین شد
+// import { reactive, computed } from 'vue'; // <--- This line was removed
+const { reactive, computed } = Vue; // <--- This line was substituted
 
 /**
  * Manages the core state, defaults, and computed properties of the banner.
@@ -18,26 +17,30 @@ export function useBannerState() {
     });
     
     const createDefaultApiDesign = () => ({
+        // Layout & Background
         layout: 'left',
-        // General
+        backgroundType: 'solid',
         bgColor: '#ffffff',
-        enableBorder: true, // <-- ADDED
+        gradientColor1: '#F0F2F5',
+        gradientColor2: '#FFFFFF',
+        gradientAngle: 90,
+        // Border
+        enableBorder: true,
         borderWidth: 1,
         borderColor: '#E0E0E0',
         borderRadius: 15,
         // Content Padding
-        enableCustomPadding: false, // <-- ADDED
-        paddingTop: 23, // <-- ADDED
-        paddingBottom: 23, // <-- ADDED
-        paddingLeft: 55, // <-- ADDED
-        paddingRight: 30, // <-- ADDED
+        enableCustomPadding: false,
+        paddingTop: 23,
+        paddingBottom: 23,
+        paddingLeft: 55,
+        paddingRight: 30,
         // Title
         titleColor: '#000000', 
         titleSize: 18, 
         titleWeight: '700',
-        // Stars
+        // Stars & City
         starSize: 13,
-        // City
         cityColor: '#000000',
         citySize: 10,
         // Rating Box
@@ -50,16 +53,14 @@ export function useBannerState() {
         // Review Count
         reviewColor: '#999999',
         reviewSize: 10,
-        // Price "From"
+        // Price
         priceFromColor: '#999999',
         priceFromSize: 10,
-        // Price Amount
         priceAmountColor: '#00BAA4',
         priceAmountSize: 16,
         priceAmountWeight: '700',
-        // Price "/ night"
         priceNightColor: '#999999',
-        priceNightSize: 10,
+        priceNightSize: 10, // Added this missing property
     });
 
     const banner = reactive({
@@ -86,15 +87,12 @@ export function useBannerState() {
     const mergeWithExisting = (existingData) => {
         for (const key in existingData) {
             if (Object.prototype.hasOwnProperty.call(existingData, key)) {
-                // Deep merge for nested objects like 'api' or 'design'
                 if (typeof existingData[key] === 'object' && existingData[key] !== null && !Array.isArray(existingData[key]) && banner[key]) {
                      if (key === 'api' && existingData[key].design) {
-                        // Ensure design object exists before assigning
                         if (!banner.api.design) {
                             banner.api.design = {};
                         }
                         Object.assign(banner.api.design, existingData[key].design);
-                        // Handle other properties of api if they exist
                         Object.assign(banner.api, { ...existingData.api, design: banner.api.design });
                     } else {
                         Object.assign(banner[key], existingData[key]);

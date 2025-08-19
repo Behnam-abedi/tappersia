@@ -7,7 +7,7 @@ export function useApiBanner(banner, showModal, ajax) {
     const isHotelModalOpen = ref(false);
     const isHotelLoading = ref(false);
     const isMoreHotelLoading = ref(false);
-    const isHotelDetailsLoading = ref(false); // <-- New state
+    const isHotelDetailsLoading = ref(false);
     const hotelResults = reactive([]);
     const hotelCurrentPage = ref(1);
     const canLoadMoreHotels = ref(true);
@@ -53,15 +53,17 @@ export function useApiBanner(banner, showModal, ajax) {
             banner.api.selectedHotel = null;
             return;
         }
-        isHotelDetailsLoading.value = true; // <-- Set loading to true
+        isHotelDetailsLoading.value = true;
         try {
+            // A small delay to ensure the loader is visible on fast connections
+            await new Promise(resolve => setTimeout(resolve, 100)); 
             const hotelDetails = await ajax.post('yab_fetch_hotel_details_from_api', { hotel_id: hotelId });
             banner.api.selectedHotel = hotelDetails;
         } catch (error) {
             showModal('Error', `Could not fetch hotel details: ${error.message}`);
             banner.api.selectedHotel = tempSelectedHotel.value; // Fallback to partial data
         } finally {
-            isHotelDetailsLoading.value = false; // <-- Set loading to false
+            isHotelDetailsLoading.value = false;
         }
     };
 
@@ -85,6 +87,10 @@ export function useApiBanner(banner, showModal, ajax) {
 
     const confirmHotelSelection = () => {
         if (tempSelectedHotel.value) {
+            // BUG FIX: Immediately assign the temporary hotel object.
+            // This ensures the v-if="!banner.api.selectedHotel" becomes false,
+            // allowing the v-else-if="isHotelDetailsLoading" to be evaluated and shown.
+            banner.api.selectedHotel = tempSelectedHotel.value;
             fetchFullHotelDetails(tempSelectedHotel.value.id);
         } else {
             banner.api.selectedHotel = null;
@@ -208,7 +214,7 @@ export function useApiBanner(banner, showModal, ajax) {
 
     return { 
         isHotelModalOpen, isHotelLoading, isMoreHotelLoading, sortedHotelResults,
-        isHotelDetailsLoading, // <-- Expose new state
+        isHotelDetailsLoading,
         openHotelModal, closeHotelModal, selectHotel, modalListRef, 
         tempSelectedHotel, confirmHotelSelection,
         filters, cities, hotelTypes,

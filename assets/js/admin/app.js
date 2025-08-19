@@ -1,5 +1,5 @@
-// import { createApp, ref, computed, onMounted } from 'vue'; // <--- این خط اشتباه بود و حذف شد
-const { createApp, ref, computed, onMounted } = Vue; // <--- این خط صحیح جایگزین شد
+// const { createApp, ref, computed, onMounted } = Vue; // This line was incorrect and was removed
+const { createApp, ref, computed, onMounted } = Vue; // This correct line was substituted
 
 import { useAjax } from './composables/useAjax.js';
 import { useBannerState } from './composables/useBannerState.js';
@@ -47,7 +47,7 @@ createApp({
         const appState = ref('loading');
         const isSaving = ref(false);
         const modalComponent = ref(null);
-        
+
         const { banner, shortcode, mergeWithExisting } = useBannerState();
         const ajax = useAjax(window.yab_data.ajax_url, window.yab_data.nonce);
         const showModal = (title, message) => modalComponent.value?.show({ title, message });
@@ -101,12 +101,20 @@ createApp({
         const openMediaUploader = (targetBannerKey) => {
             const uploader = wp.media({ title: 'Select Image', button: { text: 'Use this Image' }, multiple: false });
             uploader.on('select', () => {
-                banner[targetBannerKey].imageUrl = uploader.state().get('selection').first().toJSON().url;
+                const target = banner[targetBannerKey] || banner.single; // Fallback for single banner
+                if (target) {
+                    target.imageUrl = uploader.state().get('selection').first().toJSON().url;
+                }
             });
             uploader.open();
         };
         
-        const removeImage = (targetBannerKey) => { banner[targetBannerKey].imageUrl = ''; };
+        const removeImage = (targetBannerKey) => { 
+            const target = banner[targetBannerKey] || banner.single;
+            if (target) {
+                target.imageUrl = '';
+            }
+        };
         
         const copyShortcode = (event) => {
             if (!banner.id && banner.displayMethod === 'Embeddable') return showModal('Info', 'Please save the banner first.');
@@ -160,12 +168,6 @@ createApp({
     },
     components: { 
         'yab-modal': YabModal,
-        'image-loader': ImageLoader,
-        'hotel-modal': {
-            template: `<?php include_once YAB_PLUGIN_DIR . 'admin/views/components/hotel-modal.php'; ?>`
-        },
-        'display-conditions': {
-             template: `<?php include_once YAB_PLUGIN_DIR . 'admin/views/components/display-conditions.php'; ?>`
-        }
+        'image-loader': ImageLoader 
     }
 }).mount('#yab-app');
