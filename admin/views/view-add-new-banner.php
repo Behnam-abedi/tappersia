@@ -12,6 +12,10 @@
                     <span class="dashicons dashicons-columns text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                     <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Double Banner</h3>
                 </div>
+                <div @click="selectElementType('api-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                    <span class="dashicons dashicons-rest-api text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                    <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">API Banner</h3>
+                </div>
             </div>
         </div>
     </div>
@@ -22,6 +26,9 @@
         </div>
         <div v-if="banner.type === 'single-banner'">
             <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/single-banner-editor.php'; ?>
+        </div>
+        <div v-if="banner.type === 'api-banner'">
+            <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/api-banner-editor.php'; ?>
         </div>
     </div>
 

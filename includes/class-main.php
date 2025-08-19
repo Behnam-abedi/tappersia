@@ -5,7 +5,7 @@ class Yab_Main {
     protected $version;
 
     public function __construct() {
-        $this->plugin_name = 'your-awesome-banner';
+        $this->plugin_name = 'tappersia';
         $this->version = YAB_VERSION;
         $this->load_dependencies();
     }
@@ -14,8 +14,6 @@ class Yab_Main {
         require_once YAB_PLUGIN_DIR . 'admin/class-admin-menu.php';
         require_once YAB_PLUGIN_DIR . 'admin/class-ajax-handler.php';
         require_once YAB_PLUGIN_DIR . 'public/class-shortcode-handler.php';
-        // Base banner type class can be included here if needed in the future
-        // require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/BaseBannerType.php';
     }
 
     public function run() {
@@ -34,10 +32,12 @@ class Yab_Main {
         add_action( 'admin_enqueue_scripts', array( $admin_menu, 'enqueue_styles_and_scripts' ) );
 
         $ajax_handler = new Yab_Ajax_Handler();
-        // Changed to a more generic hook name
         add_action( 'wp_ajax_yab_save_banner', array( $ajax_handler, 'save_banner' ) );
         add_action( 'wp_ajax_yab_search_content', array( $ajax_handler, 'search_content' ) );
+        add_action( 'wp_ajax_yab_fetch_hotels_from_api', array( $ajax_handler, 'fetch_hotels_from_api' ) );
         add_action( 'wp_ajax_yab_delete_banner', array( $ajax_handler, 'delete_banner' ) );
+        add_action( 'wp_ajax_yab_fetch_cities_from_api', array( $ajax_handler, 'yab_fetch_cities_from_api' ) );
+        add_action( 'wp_ajax_yab_fetch_hotel_details_from_api', array( $ajax_handler, 'yab_fetch_hotel_details_from_api' ) );
     }
     
     private function define_public_hooks() {

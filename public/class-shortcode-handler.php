@@ -1,285 +1,140 @@
 <?php
-if (!class_exists('Yab_Shortcode_Handler')) :
+// tappersia/public/class-shortcode-handler.php
+
+if (!class_exists('Yab_Shortcode_Handler')) {
+    
+    // Autoload renderer classes
+    spl_autoload_register(function ($class_name) {
+        if (strpos($class_name, 'Yab_') === 0 && strpos($class_name, '_Renderer') !== false) {
+            $file = YAB_PLUGIN_DIR . 'public/Renderers/class-' . strtolower(str_replace('_', '-', str_replace('Yab_', '', $class_name))) . '.php';
+            if (file_exists($file)) {
+                require_once $file;
+            }
+        }
+    });
+
     class Yab_Shortcode_Handler {
 
         public function register_shortcodes() {
-            add_shortcode('doublebanner_fixed', [$this, 'render_fixed_banner']);
-            add_shortcode('doublebanner', [$this, 'render_embeddable_banner']);
-            add_shortcode('singlebanner_fixed', [$this, 'render_fixed_single_banner']);
-            add_shortcode('singlebanner', [$this, 'render_embeddable_single_banner']);
+            $banner_types = ['singlebanner', 'doublebanner', 'apibanner'];
+            foreach ($banner_types as $type) {
+                add_shortcode($type, [$this, 'render_embeddable_banner']);
+                add_shortcode($type . '_fixed', [$this, 'render_fixed_banner']);
+            }
         }
 
-        public function render_fixed_single_banner($atts) {
-             global $post;
-             if (!$post && !is_category() && !is_archive()) {
-                return '';
+        /**
+         * Handles all embeddable banner shortcodes.
+         */
+        public function render_embeddable_banner($atts, $content = null, $tag = '') {
+            $atts = shortcode_atts(['id' => 0], $atts, $tag);
+            if (empty($atts['id'])) {
+                return "";
             }
-
-            $args = [
-                'post_type' => 'yab_banner',
-                'posts_per_page' => -1,
-                'post_status' => 'publish',
-                'meta_query' => [
-                    'relation' => 'AND',
-                    ['key' => '_yab_display_method', 'value' => 'Fixed', 'compare' => '='],
-                    ['key' => '_yab_is_active', 'value' => true, 'compare' => '='],
-                    ['key' => '_yab_banner_type', 'value' => 'single-banner', 'compare' => '=']
-                ]
-            ];
-
-            $banners = get_posts($args);
-            $queried_object_id = get_queried_object_id();
             
-            foreach ($banners as $banner_post) {
-                $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
-                if (empty($data) || empty($data['displayOn'])) continue;
-
-                $display_conditions = $data['displayOn'];
-                $should_display = false;
-
-                $post_ids = !empty($display_conditions['posts']) ? array_map('intval', $display_conditions['posts']) : [];
-                $page_ids = !empty($display_conditions['pages']) ? array_map('intval', $display_conditions['pages']) : [];
-                $cat_ids  = !empty($display_conditions['categories']) ? array_map('intval', $display_conditions['categories']) : [];
-
-                if (is_singular('post') && in_array($queried_object_id, $post_ids)) $should_display = true;
-                if (!$should_display && is_page() && in_array($queried_object_id, $page_ids)) $should_display = true;
-                
-                if (!$should_display && !empty($cat_ids)) {
-                    if (is_category($cat_ids)) $should_display = true;
-                    elseif (is_singular('post') && has_category($cat_ids, $post)) $should_display = true;
-                }
-
-                if ($should_display) {
-                    return $this->generate_single_banner_html($data, $banner_post->ID); 
-                }
-            }
-            return '';
-        }
-
-        public function render_embeddable_single_banner($atts) {
-            $atts = shortcode_atts(['id' => 0], $atts, 'singlebanner');
-            if (empty($atts['id'])) return '';
-
             $banner_post = get_post(intval($atts['id']));
-            if (!$banner_post || $banner_post->post_type !== 'yab_banner' || $banner_post->post_status !== 'publish') return '';
             
-            $banner_type = get_post_meta($banner_post->ID, '_yab_banner_type', true);
-            if ($banner_type !== 'single-banner') return '';
+            // ** FIX START **: Correctly convert tag to slug (e.g., 'singlebanner' to 'single-banner')
+            $banner_type_slug = str_replace('banner', '-banner', $tag);
+            // ** FIX END **
 
-            $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
-            if (empty($data) || !isset($data['isActive']) || !$data['isActive'] || !isset($data['displayMethod']) || $data['displayMethod'] !== 'Embeddable') {
-                return '';
+            if (!$this->is_valid_banner($banner_post, $banner_type_slug, 'Embeddable')) {
+                 return "";
             }
             
-            return $this->generate_single_banner_html($data, $banner_post->ID);
+            $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
+            return $this->render_banner($banner_type_slug, $data, $banner_post->ID);
         }
 
-        public function render_fixed_banner($atts) {
+        /**
+         * Handles all fixed banner shortcodes.
+         */
+        public function render_fixed_banner($atts, $content = null, $tag = '') {
             global $post;
-             if (!$post && !is_category() && !is_archive()) {
-                return '';
-            }
+            if (!$post && !is_category() && !is_archive()) return '';
 
+            // ** FIX START **: Correctly convert fixed tag to slug (e.g., 'singlebanner_fixed' to 'single-banner')
+            $base_tag = str_replace('_fixed', '', $tag);
+            $banner_type_slug = str_replace('banner', '-banner', $base_tag);
+            // ** FIX END **
+            
             $args = [
-                'post_type' => 'yab_banner',
-                'posts_per_page' => -1,
-                'post_status' => 'publish',
+                'post_type' => 'yab_banner', 'posts_per_page' => -1, 'post_status' => 'publish',
                 'meta_query' => [
                     'relation' => 'AND',
-                    ['key' => '_yab_display_method', 'value' => 'Fixed', 'compare' => '='],
-                    ['key' => '_yab_is_active', 'value' => true, 'compare' => '='],
-                    ['key' => '_yab_banner_type', 'value' => 'double-banner', 'compare' => '=']
+                    ['key' => '_yab_display_method', 'value' => 'Fixed'],
+                    ['key' => '_yab_is_active', 'value' => true],
+                    ['key' => '_yab_banner_type', 'value' => $banner_type_slug]
                 ]
             ];
 
             $banners = get_posts($args);
+            if (empty($banners)) return '';
+
             $queried_object_id = get_queried_object_id();
-            
+
             foreach ($banners as $banner_post) {
-                $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
-                if (empty($data) || empty($data['displayOn'])) continue;
-
-                $display_conditions = $data['displayOn'];
-                $should_display = false;
-
-                $post_ids = !empty($display_conditions['posts']) ? array_map('intval', $display_conditions['posts']) : [];
-                $page_ids = !empty($display_conditions['pages']) ? array_map('intval', $display_conditions['pages']) : [];
-                $cat_ids  = !empty($display_conditions['categories']) ? array_map('intval', $display_conditions['categories']) : [];
-
-                if (is_singular('post') && in_array($queried_object_id, $post_ids)) $should_display = true;
-                if (!$should_display && is_page() && in_array($queried_object_id, $page_ids)) $should_display = true;
-                
-                if (!$should_display && !empty($cat_ids)) {
-                    if (is_category($cat_ids)) $should_display = true;
-                    elseif (is_singular('post') && has_category($cat_ids, $post)) $should_display = true;
-                }
-
-                if ($should_display) {
-                    return $this->generate_banner_html($data, $banner_post->ID); 
+                if ($this->should_display_fixed($banner_post, $queried_object_id, $post)) {
+                    $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
+                    return $this->render_banner($banner_type_slug, $data, $banner_post->ID);
                 }
             }
+
             return '';
         }
 
-        public function render_embeddable_banner($atts) {
-            $atts = shortcode_atts(['id' => 0], $atts, 'doublebanner');
-            if (empty($atts['id'])) return '';
-
-            $banner_post = get_post(intval($atts['id']));
-            if (!$banner_post || $banner_post->post_type !== 'yab_banner' || $banner_post->post_status !== 'publish') return '';
-            
-            $banner_type = get_post_meta($banner_post->ID, '_yab_banner_type', true);
-            if ($banner_type !== 'double-banner') return '';
-
+        /**
+         * Checks if a fixed banner should be displayed based on conditions.
+         */
+        private function should_display_fixed($banner_post, $queried_object_id, $global_post): bool {
             $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
-            if (empty($data) || !isset($data['isActive']) || !$data['isActive'] || !isset($data['displayMethod']) || $data['displayMethod'] !== 'Embeddable') {
-                return '';
+            // For API banners, if displayOn is not set, we assume it should show everywhere.
+            // This can be changed if you add display conditions to API banners in the future.
+            if (get_post_meta($banner_post->ID, '_yab_banner_type', true) === 'api-banner' && empty($data['displayOn'])) {
+                 return true;
             }
-            
-            return $this->generate_banner_html($data, $banner_post->ID);
-        }
-        
-        private function get_alignment_style($b) {
-             $align_items = 'flex-start';
-             $text_align = 'left';
-             $align_self = 'flex-start';
+            if (empty($data['displayOn'])) return false;
 
-            if ($b['alignment'] === 'center') {
-                $align_items = 'center';
-                $text_align = 'center';
-                $align_self = 'center';
-            } elseif ($b['alignment'] === 'right') { // User clicked 'Left'
-                $align_items = 'flex-start';
-                $text_align = 'left';
-                $align_self = 'flex-start';
-            } elseif ($b['alignment'] === 'left') { // User clicked 'Right'
-                $align_items = 'flex-end';
-                $text_align = 'right';
-                $align_self = 'flex-end';
+            $cond = $data['displayOn'];
+            $post_ids = !empty($cond['posts']) ? array_map('intval', $cond['posts']) : [];
+            $page_ids = !empty($cond['pages']) ? array_map('intval', $cond['pages']) : [];
+            $cat_ids  = !empty($cond['categories']) ? array_map('intval', $cond['categories']) : [];
+
+            if (is_singular('post') && in_array($queried_object_id, $post_ids)) return true;
+            if (is_page() && in_array($queried_object_id, $page_ids)) return true;
+            if (!empty($cat_ids) && (is_category($cat_ids) || (is_singular('post') && has_category($cat_ids, $global_post)))) return true;
+            
+            return false;
+        }
+
+        /**
+         * Validates a banner post object for rendering.
+         */
+        private function is_valid_banner($banner_post, string $expected_type, string $expected_method): bool {
+            if (!$banner_post || $banner_post->post_type !== 'yab_banner' || $banner_post->post_status !== 'publish') {
+                return false;
             }
-            return "align-items: {$align_items}; text-align: {$text_align}; --align-self: {$align_self};";
-        }
-        
-        private function generate_single_banner_html($data, $banner_id) {
-            ob_start();
-            $b = $data['single'];
-            
-            $banner_width = '886px';
-            $banner_height = '178px';
+            $banner_type = get_post_meta($banner_post->ID, '_yab_banner_type', true);
+            $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
 
-            $get_bg_style = function($b) {
-                if ($b['backgroundType'] === 'gradient') {
-                    $angle = isset($b['gradientAngle']) ? intval($b['gradientAngle']) . 'deg' : '90deg';
-                    return "background: linear-gradient({$angle}, {$b['gradientColor1']}, {$b['gradientColor2']});";
-                }
-                return "background-color: {$b['bgColor']};";
-            };
-
-            $get_img_style = function($b) {
-                $right = isset($b['imagePosRight']) && $b['imagePosRight'] !== null ? esc_attr($b['imagePosRight']) . 'px' : '0px';
-                $bottom = isset($b['imagePosBottom']) && $b['imagePosBottom'] !== null ? esc_attr($b['imagePosBottom']) . 'px' : '0px';
-                $style = "position: absolute; right: {$right}; bottom: {$bottom};";
-
-                if (!empty($b['enableCustomImageSize'])) {
-                    $width = isset($b['imageWidth']) && $b['imageWidth'] !== null ? esc_attr($b['imageWidth']) . 'px' : 'auto';
-                    $height = isset($b['imageHeight']) && $b['imageHeight'] !== null ? esc_attr($b['imageHeight']) . 'px' : 'auto';
-                    $style .= "width: {$width}; height: {$height};";
-                } else {
-                    $style .= 'object-fit: ' . esc_attr($b['imageFit'] ?? 'none') . ';';
-                }
-                
-                return $style;
-            };
-
-            ?>
-            <style>
-                <?php if(!empty($b['buttonText']) && !empty($b['buttonBgHoverColor'])): ?>
-                .yab-banner-<?php echo $banner_id; ?> .yab-button:hover {
-                    background-color: <?php echo esc_attr($b['buttonBgHoverColor']); ?> !important;
-                }
-                <?php endif; ?>
-            </style>
-            <div class="yab-wrapper" style="display: flex; justify-content: center; width: 100%;line-height:1.2!important">
-                <div class="yab-banner-item yab-banner-<?php echo $banner_id; ?>" style="width: <?php echo $banner_width; ?>; height: <?php echo $banner_height; ?>; border-radius: 0.5rem; position: relative; overflow: hidden; display: flex; flex-shrink: 0; <?php echo esc_attr($get_bg_style($b)); ?>">
-                    
-                    <?php if (!empty($b['imageUrl'])): ?>
-                        <img src="<?php echo esc_url($b['imageUrl']); ?>" style="<?php echo esc_attr($get_img_style($b)); ?>">
-                    <?php endif; ?>
-
-                    <div style="width: 100%; height:100%; padding: 2rem; display: flex; flex-direction: column; z-index: 10; position: relative; <?php echo $this->get_alignment_style($b); ?>">
-                        <h4 style="font-weight: <?php echo esc_attr($b['titleWeight']); ?>; color: <?php echo esc_attr($b['titleColor']); ?>; font-size: <?php echo esc_attr($b['titleSize']); ?>px; margin: 0;"><?php echo esc_html($b['titleText']); ?></h4>
-                        <p style="margin-top:0.5rem; margin-bottom:1.5rem; font-weight:<?php echo esc_attr($b['descWeight']); ?>; color:<?php echo esc_attr($b['descColor']); ?>; font-size:<?php echo esc_attr($b['descSize']); ?>px; white-space:pre-wrap;"><?php echo wp_kses_post($b['descText']); ?></p>
-                        <?php if(!empty($b['buttonText'])): ?>
-                        <a href="<?php echo esc_url($b['buttonLink']); ?>" target="_blank" class="yab-button" style="margin-top: auto; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; background-color: <?php echo esc_attr($b['buttonBgColor']); ?>; color: <?php echo esc_attr($b['buttonTextColor']); ?>; font-size: <?php echo esc_attr($b['buttonFontSize']); ?>px; align-self: var(--align-self); transition: background-color 0.3s;"><?php echo esc_html($b['buttonText']); ?></a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <?php
-            return ob_get_clean();
+            return $banner_type === $expected_type &&
+                   !empty($data) &&
+                   !empty($data['isActive']) &&
+                   ($data['displayMethod'] ?? 'Fixed') === $expected_method;
         }
 
-        private function generate_banner_html($data, $banner_id) {
-            ob_start();
-            $banners = ['left' => $data['left'], 'right' => $data['right']];
+        /**
+         * Instantiates the correct renderer and calls its render method.
+         */
+        private function render_banner(string $type_slug, array $data, int $banner_id): string {
+            $class_name = 'Yab_' . str_replace('-', '_', ucwords($type_slug, '-')) . '_Renderer';
             
-            $banner_width = '432px';
-            $banner_height = '177px';
+            if (class_exists($class_name)) {
+                $renderer = new $class_name($data, $banner_id);
+                return $renderer->render();
+            }
 
-            $get_bg_style = function($b) {
-                if ($b['backgroundType'] === 'gradient') {
-                    $angle = isset($b['gradientAngle']) ? intval($b['gradientAngle']) . 'deg' : '90deg';
-                    return "background: linear-gradient({$angle}, {$b['gradientColor1']}, {$b['gradientColor2']});";
-                }
-                return "background-color: {$b['bgColor']};";
-            };
-
-            $get_img_style = function($b) {
-                $right = isset($b['imagePosRight']) && $b['imagePosRight'] !== null ? esc_attr($b['imagePosRight']) . 'px' : '0px';
-                $bottom = isset($b['imagePosBottom']) && $b['imagePosBottom'] !== null ? esc_attr($b['imagePosBottom']) . 'px' : '0px';
-                $style = "position: absolute; right: {$right}; bottom: {$bottom};";
-
-                if (!empty($b['enableCustomImageSize'])) {
-                    $width = isset($b['imageWidth']) && $b['imageWidth'] !== null ? esc_attr($b['imageWidth']) . 'px' : 'auto';
-                    $height = isset($b['imageHeight']) && $b['imageHeight'] !== null ? esc_attr($b['imageHeight']) . 'px' : 'auto';
-                    $style .= "width: {$width}; height: {$height};";
-                } else {
-                    $style .= 'object-fit: ' . esc_attr($b['imageFit'] ?? 'none') . ';';
-                }
-                
-                return $style;
-            };
-
-            ?>
-            <style>
-                <?php foreach ($banners as $key => $b): ?>
-                    <?php if(!empty($b['buttonText']) && !empty($b['buttonBgHoverColor'])): ?>
-                    .yab-banner-<?php echo $banner_id; ?>-<?php echo $key; ?> .yab-button:hover {
-                        background-color: <?php echo esc_attr($b['buttonBgHoverColor']); ?> !important;
-                    }
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            </style>
-            <div class="yab-wrapper" style="display: flex; flex-direction: row; gap: 1rem; width: 100%; justify-content: center;line-height:1.2!important">
-                <?php foreach ($banners as $key => $b): ?>
-                <div class="yab-banner-item yab-banner-<?php echo $banner_id; ?>-<?php echo $key; ?>" style="width: <?php echo $banner_width; ?>; height: <?php echo $banner_height; ?>; border-radius: 0.5rem; position: relative; overflow: hidden;display: flex; flex-shrink: 0; <?php echo esc_attr($get_bg_style($b)); ?>">
-                    
-                    <?php if (!empty($b['imageUrl'])): ?>
-                        <img src="<?php echo esc_url($b['imageUrl']); ?>" style="<?php echo esc_attr($get_img_style($b)); ?>">
-                    <?php endif; ?>
-
-                    <div style="width: 100%; height:100%; padding: 1.5rem; display: flex; flex-direction: column; z-index: 10; position: relative; <?php echo $this->get_alignment_style($b); ?>">
-                        <h4 style="font-weight: <?php echo esc_attr($b['titleWeight']); ?>; color: <?php echo esc_attr($b['titleColor']); ?>; font-size: <?php echo esc_attr($b['titleSize']); ?>px; margin: 0;"><?php echo esc_html($b['titleText']); ?></h4>
-                        <p style="margin-top:0.5rem;margin-bottom:1.5rem;font-weight:<?php echo esc_attr($b['descWeight']); ?>;color:<?php echo esc_attr($b['descColor']); ?>;font-size:<?php echo esc_attr($b['descSize']); ?>px;white-space:pre-wrap;"><?php echo wp_kses_post($b['descText']); ?></p>
-                        <?php if(!empty($b['buttonText'])): ?>
-                        <a href="<?php echo esc_url($b['buttonLink']); ?>" target="_blank" class="yab-button" style="margin-top: auto; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none; background-color: <?php echo esc_attr($b['buttonBgColor']); ?>; color: <?php echo esc_attr($b['buttonTextColor']); ?>; font-size: <?php echo esc_attr($b['buttonFontSize']); ?>px; align-self: var(--align-self); transition: background-color 0.3s;"><?php echo esc_html($b['buttonText']); ?></a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-            <?php
-            return ob_get_clean();
+            return "";
         }
     }
-endif;
+}

@@ -10,7 +10,7 @@ class Yab_Admin_Menu {
     }
 
     public function add_plugin_admin_menu() {
-        add_menu_page('Awesome Banner', 'Awesome Banner', 'manage_options', $this->plugin_name, array( $this, 'display_add_new_page' ), 'dashicons-art', 25 );
+        add_menu_page('Tappersia', 'Tappersia', 'manage_options', $this->plugin_name, array( $this, 'display_add_new_page' ), 'dashicons-art', 25 );
         add_submenu_page($this->plugin_name, 'Add New', 'Add New', 'manage_options', $this->plugin_name, array( $this, 'display_add_new_page' ));
         add_submenu_page($this->plugin_name, 'All Banners', 'All Banners', 'manage_options', $this->plugin_name . '-list', array( $this, 'display_list_page' ));
     }
@@ -33,16 +33,33 @@ class Yab_Admin_Menu {
         wp_enqueue_script( 'yab-vue', 'https://unpkg.com/vue@3/dist/vue.global.js', array(), '3.4.27', true );
         wp_enqueue_style( 'yab-admin-style', YAB_PLUGIN_URL . 'assets/css/admin-style.css', array(), $this->version, 'all' );
         
+        // This component is loaded globally as it's used by both apps
         wp_enqueue_script( 'yab-modal-component', YAB_PLUGIN_URL . 'assets/js/admin-modal-component.js', array( 'yab-vue' ), $this->version, true );
 
         $page_slug = $this->plugin_name;
         if (strpos($hook, $page_slug) !== false) {
              if (strpos($hook, $page_slug . '-list') !== false) {
+                // The list app remains a simple, single file for now
                 wp_enqueue_script( 'yab-list-app', YAB_PLUGIN_URL . 'assets/js/admin-list-app.js', array( 'yab-vue', 'jquery', 'yab-modal-component' ), $this->version, true );
                 wp_localize_script( 'yab-list-app', 'yab_list_data', $this->get_list_page_data() );
             } else {
-                wp_enqueue_script( 'yab-admin-app', YAB_PLUGIN_URL . 'assets/js/admin-app.js', array( 'yab-vue', 'jquery', 'yab-modal-component' ), $this->version, true );
-                wp_localize_script( 'yab-admin-app', 'yab_data', $this->get_add_new_page_data() );
+                // **MODIFIED SECTION FOR MODULAR JS**
+                // 1. Enqueue the new main app file. The handle must be unique.
+                wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component' ), $this->version, true );
+                
+                // 2. Use a filter to add `type="module"` to our specific script tag.
+                // This is the standard and safe way to load ES modules in WordPress.
+                add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
+                    // Check for our specific script handle
+                    if ( 'yab-admin-app-main' === $handle ) {
+                        // Replace the standard script tag with one that has type="module"
+                        $tag = '<script type="module" src="' . esc_url( $src ) . '" id="yab-admin-app-main-js"></script>';
+                    }
+                    return $tag;
+                }, 10, 3 );
+                
+                // 3. Localize the script with the same handle to pass PHP data.
+                wp_localize_script( 'yab-admin-app-main', 'yab_data', $this->get_add_new_page_data() );
             }
         }
     }
@@ -60,15 +77,17 @@ class Yab_Admin_Menu {
                 $query->the_post();
                 $banner_id = get_the_ID();
                 $banner_data = get_post_meta($banner_id, '_yab_banner_data', true);
-                $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner'; // Default to double for old banners
+                $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner'; // Default for safety
 
                 $display_method = isset($banner_data['displayMethod']) ? $banner_data['displayMethod'] : 'Fixed';
                 
                 $shortcode = '[unknown_banner]';
+                $base_shortcode = str_replace('-', '', $banner_type);
+
                 if ($display_method === 'Embeddable') {
-                    $shortcode = $banner_type === 'single-banner' ? '[singlebanner id="' . $banner_id . '"]' : '[doublebanner id="' . $banner_id . '"]';
+                    $shortcode = '[' . $base_shortcode . ' id="' . $banner_id . '"]';
                 } else {
-                     $shortcode = $banner_type === 'single-banner' ? '[singlebanner_fixed]' : '[doublebanner_fixed]';
+                     $shortcode = '[' . $base_shortcode . '_fixed]';
                 }
 
                 $all_banners[] = [
@@ -79,7 +98,7 @@ class Yab_Admin_Menu {
                     'display_method' => $display_method,
                     'shortcode' => $shortcode,
                     'type' => $banner_type,
-                    'edit_url' => admin_url('admin.php?page=your-awesome-banner&action=edit&banner_id=' . $banner_id),
+                    'edit_url' => admin_url('admin.php?page=tappersia&action=edit&banner_id=' . $banner_id),
                 ];
             }
         }
@@ -87,7 +106,7 @@ class Yab_Admin_Menu {
 
         return [
             'banners' => $all_banners,
-            'addNewURL' => admin_url('admin.php?page=your-awesome-banner'),
+            'addNewURL' => admin_url('admin.php?page=tappersia'),
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('yab_nonce'),
         ];
