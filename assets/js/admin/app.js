@@ -79,6 +79,23 @@ createApp({
         });
 
         // --- Methods ---
+        const getRatingLabel = (score) => {
+            if (!score || score == 0) {
+                return 'New';
+            }
+            if (score >= 4.6) {
+                return 'Excellent';
+            } else if (score >= 4.1) {
+                return 'Very Good';
+            } else if (score >= 3.6) {
+                return 'Good';
+            } else if (score >= 3.0) {
+                return 'Average';
+            } else {
+                return 'Poor';
+            }
+        };
+
         const selectElementType = (type) => { banner.type = type; appState.value = 'editor'; };
 
         const saveBanner = async () => {
@@ -145,6 +162,7 @@ createApp({
         return {
             appState, isSaving, banner, shortcode, modalComponent, allBannersUrl,
             apiContentStyles,
+            getRatingLabel,
             selectElementType, saveBanner, openMediaUploader, removeImage, copyShortcode,
             ...apiBannerLogic,
             ...displayConditionsLogic,

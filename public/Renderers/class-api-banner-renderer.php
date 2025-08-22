@@ -6,6 +6,23 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
 
     class Yab_Api_Banner_Renderer extends Yab_Abstract_Banner_Renderer {
         
+        private function get_rating_label($score) {
+            if (!isset($score) || $score == 0) {
+                return 'New';
+            }
+            if ($score >= 4.6) {
+                return 'Excellent';
+            } elseif ($score >= 4.1) {
+                return 'Very Good';
+            } elseif ($score >= 3.6) {
+                return 'Good';
+            } elseif ($score >= 3.0) {
+                return 'Average';
+            } else {
+                return 'Poor';
+            }
+        }
+
         public function render(): string {
             if (empty($this->data['api']['selectedHotel'])) {
                 return '';
@@ -14,6 +31,7 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
             $hotel = $this->data['api']['selectedHotel'];
             $design = $this->data['api']['design'] ?? [];
             $banner_id = $this->banner_id;
+            $rating_label = $this->get_rating_label($hotel['avgRating'] ?? null);
 
             // Helper for safely getting design values with defaults
             $get_design = function($key, $default) use ($design) {
@@ -86,13 +104,13 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
 
                     <div style="<?php echo $style(['margin-top' => 'auto', 'display' => 'flex', 'align-items' => 'center', 'justify-content' => 'space-between', 'padding-bottom' => '20px']); ?>">
                          <div style="<?php echo $style(['display' => 'flex', 'align-items' => 'center', 'flex-direction' => $is_right_layout ? 'row-reverse' : 'row']); ?>">
-                            <?php if(!empty($hotel['avgRating']) && $hotel['avgRating'] > 0): ?>
-                            <div style="<?php echo $style(['display' => 'flex', 'align-items' => 'center', 'justify-content' => 'center', 'border-radius' => '4px', 'width' => '35px', 'height' => '15px', 'background-color' => $get_design('ratingBoxBgColor', '#5191FA')]); ?>">
+                            <?php if(isset($hotel['avgRating'])): ?>
+                            <div style="<?php echo $style(['display' => 'flex', 'align-items' => 'center', 'justify-content' => 'center', 'border-radius' => '4px', 'min-width' => '25px', 'padding' => '0 6px', 'height' => '15px', 'background-color' => $get_design('ratingBoxBgColor', '#5191FA')]); ?>">
                                 <span style="<?php echo $style(['font-weight' => 'bold', 'color' => $get_design('ratingBoxColor', '#FFFFFF'), 'font-size' => $get_design('ratingBoxSize', 10) . 'px']); ?>"><?php echo esc_html($hotel['avgRating']); ?></span>
                             </div>
                             <?php endif; ?>
-                            <span style="<?php echo $style(['margin' => '0 7px', 'color' => $get_design('ratingTextColor', '#5191FA'), 'font-size' => $get_design('ratingTextSize', 10) . 'px']); ?>">verygood</span>
-                            <?php if(!empty($hotel['reviewCount']) && $hotel['reviewCount'] > 0): ?>
+                            <span style="<?php echo $style(['margin' => '0 7px', 'color' => $get_design('ratingTextColor', '#5191FA'), 'font-size' => $get_design('ratingTextSize', 10) . 'px']); ?>"><?php echo esc_html($rating_label); ?></span>
+                            <?php if(isset($hotel['reviewCount'])): ?>
                             <span style="<?php echo $style(['color' => $get_design('reviewColor', '#999999'), 'font-size' => $get_design('reviewSize', 10) . 'px']); ?>">(<?php echo esc_html($hotel['reviewCount']); ?> reviews)</span>
                             <?php endif; ?>
                         </div>

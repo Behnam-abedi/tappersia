@@ -51,7 +51,6 @@
             <h3 class="font-bold text-xl text-white tracking-wide mb-5">Banner Settings</h3>
             <div class="flex flex-col gap-5">
 
-                <!-- Background -->
                 <div>
                     <h4 class="section-title">Background</h4>
                     <div class="flex  mb-2 bg-[#292929] rounded-lg border-none">
@@ -86,7 +85,6 @@
                 </div>
                 <hr class="section-divider">
 
-                <!-- Layout -->
                 <div>
                     <h4 class="section-title">Layout</h4>
                     <label class="setting-label-sm">Image Position</label>
@@ -97,7 +95,6 @@
                 </div>
                 <hr class="section-divider">
 
-                <!-- Border -->
                 <div>
                     <h4 class="section-title">Border</h4>
                     <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
@@ -121,7 +118,6 @@
                 </div>
                 <hr class="section-divider">
 
-                <!-- Title -->
                 <div>
                     <h4 class="section-title">Title</h4>
                     <div class="grid grid-cols-2 gap-4">
@@ -144,7 +140,6 @@
                 </div>
                 <hr class="section-divider">
 
-                <!-- Stars & City -->
                 <div>
                     <h4 class="section-title">Stars & City</h4>
                     <div class="grid grid-cols-2 gap-4">
@@ -167,7 +162,6 @@
                 </div>
                 <hr class="section-divider">
 
-                <!-- Rating & Reviews -->
                 <div>
                     <h4 class="section-title">Rating & Reviews</h4>
                     <div class="grid grid-cols-2 gap-4">
@@ -190,14 +184,14 @@
                             <input type="number" v-model.number="banner.api.design.ratingBoxSize" class="text-input w-full">
                         </div>
                         <div>
-                            <label class="setting-label-sm">"Very Good" Color</label>
+                            <label class="setting-label-sm">Rating Text Color</label>
                             <div class="flex items-center gap-2">
                                 <input type="color" v-model="banner.api.design.ratingTextColor" class="yab-color-picker">
                                 <input type="text" v-model="banner.api.design.ratingTextColor" class="text-input flex-1">
                             </div>
                         </div>
                         <div>
-                            <label class="setting-label-sm">"Very Good" Size (px)</label>
+                            <label class="setting-label-sm">Rating Text Size (px)</label>
                             <input type="number" v-model.number="banner.api.design.ratingTextSize" class="text-input flex-1">
                         </div>
                         <div>
@@ -217,7 +211,6 @@
                 </div>
                 <hr class="section-divider">
 
-                <!-- Price -->
                 <div>
                     <h4 class="section-title">Price</h4>
                     <div class="grid grid-cols-2 gap-4">
@@ -310,16 +303,16 @@
                         
                         <div class="mt-auto flex items-center justify-between">
                             <div class="flex items-center" :style="{flexDirection: banner.api.design.layout === 'right' ? 'row-reverse' : 'row'}">
-                                <div v-if="banner.api.selectedHotel.avgRating > 0" 
+                                <div v-if="banner.api.selectedHotel.avgRating != null" 
                                     class="flex items-center justify-center rounded" 
                                     :style="{ 
-                                        width: '35px', height: '15px', 
+                                        minWidth: '25px', padding: '0 6px', height: '15px', 
                                         backgroundColor: banner.api.design.ratingBoxBgColor,
                                     }">
                                     <span class="font-bold" :style="{ color: banner.api.design.ratingBoxColor, fontSize: banner.api.design.ratingBoxSize + 'px' }">{{ banner.api.selectedHotel.avgRating }}</span>
                                 </div>
-                                <span class="mx-[7px]" :style="{ color: banner.api.design.ratingTextColor, fontSize: banner.api.design.ratingTextSize + 'px' }">verygood</span>
-                                <span v-if="banner.api.selectedHotel.reviewCount > 0" :style="{ color: banner.api.design.reviewColor, fontSize: banner.api.design.reviewSize + 'px' }">({{ banner.api.selectedHotel.reviewCount }} reviews)</span>
+                                <span class="mx-[7px]" :style="{ color: banner.api.design.ratingTextColor, fontSize: banner.api.design.ratingTextSize + 'px' }">{{ getRatingLabel(banner.api.selectedHotel.avgRating) }}</span>
+                                <span v-if="banner.api.selectedHotel.reviewCount != null" :style="{ color: banner.api.design.reviewColor, fontSize: banner.api.design.reviewSize + 'px' }">({{ banner.api.selectedHotel.reviewCount }} reviews)</span>
                             </div>
 
                             <div>

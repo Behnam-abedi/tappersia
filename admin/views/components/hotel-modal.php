@@ -111,9 +111,9 @@
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
-                                            <div v-if="hotel.avgRating" class="flex items-center justify-center rounded" style="width: 38px; height: 15px; background-color: #5191FA;"><span class="text-white font-bold text-[10px]">{{ hotel.avgRating }}</span></div>
-                                            <span class="ml-[7px] text-[10px] font-semibold" style="color: #5191FA;">verygood</span>
-                                            <span v-if="hotel.reviewCount" class="ml-[7px] text-[10px]" style="color: #999999;">({{ hotel.reviewCount }} reviews)</span>
+                                            <div v-if="hotel.avgRating != null" class="flex items-center justify-center rounded" style="min-width: 28px; padding: 0 6px; height: 15px; background-color: #5191FA;"><span class="text-white font-bold text-[10px]">{{ hotel.avgRating }}</span></div>
+                                            <span class="ml-[7px] text-[10px] font-semibold" style="color: #5191FA;">{{ getRatingLabel(hotel.avgRating) }}</span>
+                                            <span v-if="hotel.reviewCount != null" class="ml-[7px] text-[10px]" style="color: #999999;">({{ hotel.reviewCount }} reviews)</span>
                                         </div>
                                         <div class="flex items-baseline gap-1.5">
                                             <span class="text-[10px]" style="color: #666666;">from</span>
