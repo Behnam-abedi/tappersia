@@ -1,6 +1,6 @@
 <?php
-if (!class_exists('Yab_Double_Banner')) :
-class Yab_Double_Banner {
+if (!class_exists('Yab_Simple_Banner')) :
+class Yab_Simple_Banner {
     
     public function save($banner_data) {
         if (empty($banner_data['name'])) {
@@ -38,7 +38,7 @@ class Yab_Double_Banner {
             unset($sanitized_data['id']);
 
             update_post_meta($result, '_yab_banner_data', $sanitized_data);
-            update_post_meta($result, '_yab_banner_type', 'double-banner');
+            update_post_meta($result, '_yab_banner_type', 'simple-banner');
             update_post_meta($result, '_yab_display_method', $sanitized_data['displayMethod']);
             update_post_meta($result, '_yab_is_active', $sanitized_data['isActive']);
             
@@ -66,7 +66,7 @@ class Yab_Double_Banner {
             'meta_query'   => [
                 'relation' => 'AND',
                 ['key' => '_yab_display_method', 'value' => 'Fixed', 'compare' => '='],
-                ['key' => '_yab_banner_type', 'value' => 'double-banner', 'compare' => '=']
+                ['key' => '_yab_banner_type', 'value' => 'simple-banner', 'compare' => '=']
             ],
             'post__not_in' => $current_banner_id ? [intval($current_banner_id)] : [],
         ];
@@ -83,15 +83,15 @@ class Yab_Double_Banner {
             $post_intersection = array_intersect($post_ids, $other_post_ids);
             if (!empty($post_intersection)) {
                 $p = get_post(reset($post_intersection));
-                return ['has_conflict' => true, 'message' => sprintf('Error: The post "%s" already has the Double Banner "%s" assigned to it.', $p->post_title, $banner_post->post_title)];
+                return ['has_conflict' => true, 'message' => sprintf('Error: The post "%s" already has the Simple Banner "%s" assigned to it.', $p->post_title, $banner_post->post_title)];
             }
 
             $page_intersection = array_intersect($page_ids, $other_page_ids);
             if (!empty($page_intersection)) {
                 $p = get_post(reset($page_intersection));
-                return ['has_conflict' => true, 'message' => sprintf('Error: The page "%s" already has the Double Banner "%s" assigned to it.', $p->post_title, $banner_post->post_title)];
+                return ['has_conflict' => true, 'message' => sprintf('Error: The page "%s" already has the Simple Banner "%s" assigned to it.', $p->post_title, $banner_post->post_title)];
             }
-
+            
             if (!empty($cat_ids)) {
                  $posts_in_cats_query = new WP_Query(['post_type' => 'post', 'posts_per_page' => -1, 'category__in' => $cat_ids, 'fields' => 'ids']);
                 if (!empty($posts_in_cats_query->posts)) {
@@ -100,7 +100,7 @@ class Yab_Double_Banner {
                         $p = get_post(reset($conflict_in_cats));
                         $cat_id = wp_get_post_categories($p->ID, ['fields' => 'ids'])[0];
                         $cat = get_term($cat_id);
-                        return ['has_conflict' => true, 'message' => sprintf('Error: In the category "%s" you selected, the post "%s" already has the Double Banner "%s" assigned to it.', $cat->name, $p->post_title, $banner_post->post_title)];
+                        return ['has_conflict' => true, 'message' => sprintf('Error: In the category "%s" you selected, the post "%s" already has the Simple Banner "%s" assigned to it.', $cat->name, $p->post_title, $banner_post->post_title)];
                     }
                 }
             }
@@ -122,20 +122,14 @@ class Yab_Double_Banner {
             } else {
                 switch ($key) {
                     case 'buttonLink':
-                    case 'imageUrl':
                         $sanitized[$key] = esc_url_raw(trim($value));
                         break;
-                    case 'descText':
-                        $sanitized[$key] = wp_kses_post(trim($value));
-                        break;
+                    case 'textColor':
+                    case 'buttonBgColor':
+                    case 'buttonTextColor':
                     case 'bgColor':
                     case 'gradientColor1':
                     case 'gradientColor2':
-                    case 'titleColor':
-                    case 'descColor':
-                    case 'buttonBgColor':
-                    case 'buttonTextColor':
-                    case 'buttonBgHoverColor':
                         $sanitized[$key] = sanitize_hex_color($value);
                         break;
                     default:

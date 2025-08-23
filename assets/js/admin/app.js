@@ -81,29 +81,17 @@ createApp({
         // --- Methods ---
         const formatRating = (score) => {
             if (score == null) return '';
-            // If it's a whole number, return as is.
-            if (score % 1 === 0) {
-                return score;
-            }
-            // Otherwise, truncate to one decimal place without rounding.
+            if (score % 1 === 0) return score;
             return Math.trunc(score * 10) / 10;
         };
         
         const getRatingLabel = (score) => {
-            if (!score || score == 0) {
-                return 'New';
-            }
-            if (score >= 4.6) {
-                return 'Excellent';
-            } else if (score >= 4.1) {
-                return 'Very Good';
-            } else if (score >= 3.6) {
-                return 'Good';
-            } else if (score >= 3.0) {
-                return 'Average';
-            } else {
-                return 'Poor';
-            }
+            if (!score || score == 0) return 'New';
+            if (score >= 4.6) return 'Excellent';
+            if (score >= 4.1) return 'Very Good';
+            if (score >= 3.6) return 'Good';
+            if (score >= 3.0) return 'Average';
+            return 'Poor';
         };
 
         const selectElementType = (type) => { banner.type = type; appState.value = 'editor'; };
@@ -128,7 +116,7 @@ createApp({
         const openMediaUploader = (targetBannerKey) => {
             const uploader = wp.media({ title: 'Select Image', button: { text: 'Use this Image' }, multiple: false });
             uploader.on('select', () => {
-                const target = banner[targetBannerKey] || banner.single; // Fallback for single banner
+                const target = banner[targetBannerKey] || banner.single;
                 if (target) {
                     target.imageUrl = uploader.state().get('selection').first().toJSON().url;
                 }
@@ -193,12 +181,11 @@ createApp({
                 }
                 return style;
             },
-            // Helper for star rating display
             ceil: Math.ceil
         };
     },
     components: { 
         'yab-modal': YabModal,
-        'image-loader': ImageLoader 
+        'image-loader': ImageLoader,
     }
 }).mount('#yab-app');

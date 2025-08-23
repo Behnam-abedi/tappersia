@@ -1,7 +1,8 @@
 <?php
 // tappersia/admin/views/components/display-conditions.php
 ?>
-<div v-if="banner.displayMethod === 'Fixed'" class="bg-[#434343] p-4 rounded-lg">
+<?php // *** FIX: The redundant v-if="banner.displayMethod === 'Fixed'" has been removed from the root div *** ?>
+<div class="bg-[#434343] p-4 rounded-lg">
     <h3 class="preview-title">Display Conditions</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 ltr">
         <div class="condition-box">

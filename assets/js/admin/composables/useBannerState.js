@@ -60,13 +60,41 @@ export function useBannerState() {
         priceAmountSize: 16,
         priceAmountWeight: '700',
         priceNightColor: '#999999',
-        priceNightSize: 10, // Added this missing property
+        priceNightSize: 10,
+    });
+
+    const createDefaultSimplePart = () => ({
+        backgroundType: 'solid',
+        bgColor: '#ffffff',
+        gradientColor1: '#F0F2F5',
+        gradientColor2: '#FFFFFF',
+        gradientAngle: 90,
+        height: 74,
+        borderRadius: 10,
+        paddingY: 26,
+        paddingX: 40,
+        direction: 'ltr',
+        text: 'This is a simple banner text.',
+        textColor: '#000000',
+        textSize: 17,
+        textWeight: '700',
+        buttonText: 'Click Here',
+        buttonLink: '#',
+        buttonBgColor: '#1EC2AF',
+        buttonTextColor: '#ffffff',
+        buttonBorderRadius: 3,
+        buttonFontSize: 8,
+        buttonFontWeight: '600',
+        buttonPaddingY: 7,
+        buttonPaddingX: 15,
+        buttonMinWidth: 72,
     });
 
     const banner = reactive({
         id: null, name: '', displayMethod: 'Fixed', isActive: true, type: null,
         displayOn: { posts: [], pages: [], categories: [] },
         left: createDefaultPart(), right: createDefaultPart(), single: createDefaultPart(),
+        simple: createDefaultSimplePart(),
         api: { 
             apiType: null, 
             selectedHotel: null, 
@@ -102,6 +130,17 @@ export function useBannerState() {
                 }
             }
         }
+        
+        // *** FIX START: Ensure displayOn structure is always correct after merging ***
+        // This prevents errors if an old banner without this data is loaded.
+        if (!banner.displayOn) {
+            banner.displayOn = { posts: [], pages: [], categories: [] };
+        } else {
+            if (!Array.isArray(banner.displayOn.posts)) banner.displayOn.posts = [];
+            if (!Array.isArray(banner.displayOn.pages)) banner.displayOn.pages = [];
+            if (!Array.isArray(banner.displayOn.categories)) banner.displayOn.categories = [];
+        }
+        // *** FIX END ***
     };
 
     return { banner, shortcode, mergeWithExisting };

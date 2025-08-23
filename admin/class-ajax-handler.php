@@ -13,6 +13,9 @@ if (!class_exists('Yab_Ajax_Handler')) :
                 case 'api-banner':
                     require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/ApiBanner/ApiBanner.php';
                     return new Yab_Api_Banner();
+                case 'simple-banner':
+                    require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/SimpleBanner/SimpleBanner.php';
+                    return new Yab_Simple_Banner();
                 default:
                     return null;
             }

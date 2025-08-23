@@ -253,7 +253,9 @@
             </div>
         </div>
 
-        <display-conditions v-if="banner.displayMethod === 'Fixed'"></display-conditions>
+        <div v-if="banner.displayMethod === 'Fixed'">
+            <?php require_once YAB_PLUGIN_DIR . 'admin/views/components/display-conditions.php'; ?>
+        </div>
 
     </div>
 </main>

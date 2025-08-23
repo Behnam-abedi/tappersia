@@ -36,7 +36,13 @@ export function useDisplayConditions(banner, ajax) {
 
     const createSortedList = (type, idField) => computed(() => {
         const allItems = siteData[type] || [];
-        const selectedIds = new Set(banner.displayOn[type] || []);
+        
+        // *** FIX START: Use optional chaining (?.) to safely access nested properties ***
+        // This checks if banner.displayOn exists before trying to access its 'type' property.
+        // If it doesn't exist, it defaults to an empty array, preventing the error.
+        const selectedIds = new Set(banner.displayOn?.[type] || []);
+        // *** FIX END ***
+
         const term = searchTerms[type].toLowerCase();
         
         const filteredItems = term ? allItems.filter(item => (item.post_title || item.name).toLowerCase().includes(term)) : allItems;

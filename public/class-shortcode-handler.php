@@ -16,7 +16,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
     class Yab_Shortcode_Handler {
 
         public function register_shortcodes() {
-            $banner_types = ['singlebanner', 'doublebanner', 'apibanner'];
+            $banner_types = ['singlebanner', 'doublebanner', 'apibanner', 'simplebanner'];
             foreach ($banner_types as $type) {
                 add_shortcode($type, [$this, 'render_embeddable_banner']);
                 add_shortcode($type . '_fixed', [$this, 'render_fixed_banner']);
@@ -34,9 +34,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             
             $banner_post = get_post(intval($atts['id']));
             
-            // ** FIX START **: Correctly convert tag to slug (e.g., 'singlebanner' to 'single-banner')
             $banner_type_slug = str_replace('banner', '-banner', $tag);
-            // ** FIX END **
 
             if (!$this->is_valid_banner($banner_post, $banner_type_slug, 'Embeddable')) {
                  return "";
@@ -53,10 +51,8 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             global $post;
             if (!$post && !is_category() && !is_archive()) return '';
 
-            // ** FIX START **: Correctly convert fixed tag to slug (e.g., 'singlebanner_fixed' to 'single-banner')
             $base_tag = str_replace('_fixed', '', $tag);
             $banner_type_slug = str_replace('banner', '-banner', $base_tag);
-            // ** FIX END **
             
             $args = [
                 'post_type' => 'yab_banner', 'posts_per_page' => -1, 'post_status' => 'publish',
@@ -88,8 +84,6 @@ if (!class_exists('Yab_Shortcode_Handler')) {
          */
         private function should_display_fixed($banner_post, $queried_object_id, $global_post): bool {
             $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
-            // For API banners, if displayOn is not set, we assume it should show everywhere.
-            // This can be changed if you add display conditions to API banners in the future.
             if (get_post_meta($banner_post->ID, '_yab_banner_type', true) === 'api-banner' && empty($data['displayOn'])) {
                  return true;
             }

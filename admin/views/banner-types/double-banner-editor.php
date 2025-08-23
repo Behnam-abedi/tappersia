@@ -1,6 +1,6 @@
 <header class="sticky top-7 bg-[#434343]/60 backdrop-blur-md p-4 z-20 flex items-center justify-between shadow-lg ltr">
     <div class="flex items-center gap-4">
-        <a :href="CreateNewBanner" class="text-gray-400 hover:text-white">&larr; Create banner</a>
+        <a :href="allBannersUrl" class="text-gray-400 hover:text-white">&larr; All Banners</a>
         <span class="text-gray-600">|</span>
         <span class="text-sm">Title:</span>
         <input type="text" v-model="banner.name" placeholder="Enter Banner Name..." class="bg-[#656565] text-white border border-gray-600 rounded px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00baa4] w-64">
@@ -255,7 +255,9 @@
             </div>
         </div>
         
-        <display-conditions v-if="banner.displayMethod === 'Fixed'"></display-conditions>
+        <div v-if="banner.displayMethod === 'Fixed'">
+            <?php require_once YAB_PLUGIN_DIR . 'admin/views/components/display-conditions.php'; ?>
+        </div>
 
     </div>
 </main>

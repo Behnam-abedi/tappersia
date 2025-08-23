@@ -89,7 +89,7 @@ class Yab_Single_Banner {
                 return [
                     'has_conflict' => true,
                     'message' => sprintf(
-                        'Error: The post "%s" already has the banner "%s" assigned to it.',
+                        'Error: The post "%s" already has the Single Banner "%s" assigned to it.',
                         $conflicting_post->post_title,
                         $banner_post->post_title
                     )
@@ -104,76 +104,26 @@ class Yab_Single_Banner {
                 return [
                     'has_conflict' => true,
                     'message' => sprintf(
-                        'Error: The page "%s" already has the banner "%s" assigned to it.',
+                        'Error: The page "%s" already has the Single Banner "%s" assigned to it.',
                         $conflicting_page->post_title,
                         $banner_post->post_title
                     )
                 ];
             }
 
-            // 3. Direct Category Conflict
-            $cat_intersection = array_intersect($cat_ids, $other_cat_ids);
-            if (!empty($cat_intersection)) {
-                $conflicting_cat_id = reset($cat_intersection);
-                $conflicting_cat = get_term($conflicting_cat_id);
-                return [
-                    'has_conflict' => true,
-                    'message' => sprintf(
-                        'Error: The category "%s" already has the banner "%s" assigned to it.',
-                        $conflicting_cat->name,
-                        $banner_post->post_title
-                    )
-                ];
-            }
-
-            // 4. Indirect Conflict: Selected Post is in a Category with another banner
-            if (!empty($post_ids) && !empty($other_cat_ids)) {
-                foreach ($post_ids as $post_id) {
-                    $post_categories = wp_get_post_categories($post_id, ['fields' => 'ids']);
-                    $conflict = array_intersect($post_categories, $other_cat_ids);
-                    if (!empty($conflict)) {
-                         $conflicting_post = get_post($post_id);
-                         $conflicting_cat = get_term(reset($conflict));
-                         return [
-                            'has_conflict' => true,
-                            'message' => sprintf(
-                                'Error: The post "%s" is in the category "%s", which already has the banner "%s" assigned to it.',
-                                $conflicting_post->post_title,
-                                $conflicting_cat->name,
-                                $banner_post->post_title
-                            )
-                        ];
-                    }
-                }
-            }
-            
-            // 5. Indirect Conflict: Selected Category contains a Post with another banner
-             if (!empty($cat_ids) && !empty($other_post_ids)) {
+            // 3. Indirect Conflict: Check posts within selected categories
+            if (!empty($cat_ids)) {
                 $posts_in_cats_query = new WP_Query([
-                    'post_type' => 'post',
-                    'posts_per_page' => -1,
-                    'category__in' => $cat_ids,
-                    'fields' => 'ids'
+                    'post_type' => 'post', 'posts_per_page' => -1, 'category__in' => $cat_ids, 'fields' => 'ids'
                 ]);
-                $posts_in_cats = $posts_in_cats_query->posts;
-
-                $conflict = array_intersect($posts_in_cats, $other_post_ids);
-                if (!empty($conflict)) {
-                    $conflicting_post_id = reset($conflict);
-                    $conflicting_post = get_post($conflicting_post_id);
-                    $post_cats = wp_get_post_categories($conflicting_post_id, ['fields' => 'ids']);
-                    $conflicting_cat_id = reset(array_intersect($cat_ids, $post_cats));
-                    $conflicting_cat = get_term($conflicting_cat_id);
-
-                    return [
-                        'has_conflict' => true,
-                        'message' => sprintf(
-                            'Error: The category "%s" contains the post "%s", which already has the banner "%s" assigned to it.',
-                            $conflicting_cat->name,
-                            $conflicting_post->post_title,
-                            $banner_post->post_title
-                        )
-                    ];
+                if (!empty($posts_in_cats_query->posts)) {
+                    $conflict_in_cats = array_intersect($posts_in_cats_query->posts, $other_post_ids);
+                    if (!empty($conflict_in_cats)) {
+                        $p = get_post(reset($conflict_in_cats));
+                        $cat_id = wp_get_post_categories($p->ID, ['fields' => 'ids'])[0];
+                        $cat = get_term($cat_id);
+                        return ['has_conflict' => true, 'message' => sprintf('Error: In the category "%s" you selected, the post "%s" already has the Single Banner "%s" assigned to it.', $cat->name, $p->post_title, $banner_post->post_title)];
+                    }
                 }
             }
         }
