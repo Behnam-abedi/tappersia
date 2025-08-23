@@ -38,6 +38,9 @@ class Yab_Main {
         add_action( 'wp_ajax_yab_delete_banner', array( $ajax_handler, 'delete_banner' ) );
         add_action( 'wp_ajax_yab_fetch_cities_from_api', array( $ajax_handler, 'yab_fetch_cities_from_api' ) );
         add_action( 'wp_ajax_yab_fetch_hotel_details_from_api', array( $ajax_handler, 'yab_fetch_hotel_details_from_api' ) );
+        add_action( 'wp_ajax_yab_fetch_tours_from_api', array( $ajax_handler, 'fetch_tours_from_api' ) );
+        add_action( 'wp_ajax_yab_fetch_tour_cities_from_api', array( $ajax_handler, 'fetch_tour_cities_from_api' ) );
+        add_action( 'wp_ajax_yab_fetch_tour_details_from_api', array( $ajax_handler, 'yab_fetch_tour_details_from_api' ) );
     }
     
     private function define_public_hooks() {

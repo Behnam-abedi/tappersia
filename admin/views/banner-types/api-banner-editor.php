@@ -33,21 +33,21 @@
 
 <main class="grid grid-cols-12 gap-6 p-6 ltr">
     <div class="col-span-4 overflow-y-auto flex flex-col gap-6 [&>*:last-child]:mb-[40px]" style="max-height: calc(100vh - 120px);">
-        <div class="bg-[#434343] p-5 rounded-lg shadow-xl">
+        <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
             <h3 class="font-bold text-xl text-white tracking-wide mb-5">Content Source</h3>
             <div class="flex gap-4">
-                <button @click="openHotelModal" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2">
+                <button @click="openHotelModal" class=" w-1/2 flex gap-2 justify-center items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                     <span class="dashicons dashicons-building"></span>
                     {{ banner.api.selectedHotel ? 'Change Hotel' : 'Select Hotel' }}
                 </button>
-                <button class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 flex items-center gap-2" disabled>
+                <button @click="openTourModal" class="w-1/2 flex gap-2 justify-center items-center bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">
                     <span class="dashicons dashicons-palmtree"></span>
-                    Select Tour (Coming Soon)
+                    {{ banner.api.selectedTour ? 'Change Tour' : 'Select Tour' }}
                 </button>
             </div>
         </div>
-        
-        <div class="bg-[#434343] p-5 rounded-lg shadow-xl">
+
+        <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
             <h3 class="font-bold text-xl text-white tracking-wide mb-5">Banner Settings</h3>
             <div class="flex flex-col gap-5">
 
@@ -248,10 +248,10 @@
     <div class="col-span-8 sticky top-[120px] space-y-4">
         <div class="bg-[#434343] p-4 rounded-lg">
             <h3 class="preview-title">Live Preview</h3>
-            <div v-if="!banner.api.selectedHotel" class="flex items-center justify-center h-72 bg-[#292929] rounded-lg">
-                <p class="text-gray-500">Please select a hotel to see the preview.</p>
+            <div v-if="!banner.api.selectedHotel && !banner.api.selectedTour" class="flex items-center justify-center h-40 bg-[#292929] rounded-lg">
+                <p class="text-gray-500">Please select a hotel or tour to see the preview.</p>
             </div>
-             <div v-else-if="isHotelDetailsLoading" class="flex justify-center">
+             <div v-else-if="isHotelDetailsLoading || isTourDetailsLoading" class="flex justify-center">
                  <div class="w-[864px] h-[128px] rounded-lg bg-[#292929] flex items-stretch animate-pulse" :style="{ flexDirection: banner.api.design.layout === 'right' ? 'row-reverse' : 'row' }">
                     <div class="w-[360px] h-full bg-[#656565] rounded-l-lg"></div>
                     <div class="flex-grow p-4 flex flex-col justify-between">
@@ -265,7 +265,7 @@
                 </div>
             </div>
             <div v-else class="flex justify-center">
-                <div 
+                <div v-if="banner.api.selectedHotel"
                     class="yab-api-banner-wrapper shadow-lg flex items-stretch font-sans" 
                     :style="{ 
                         background: bannerStyles(banner.api.design),
@@ -291,7 +291,7 @@
                             margin: 0
                         }">{{ banner.api.selectedHotel.title }}</h3>
                         
-                        <div class="flex items-center mt-[9px]" :style="{ justifyContent: banner.api.design.layout === 'right' ? 'flex-end' : 'flex-start', flexDirection: banner.api.design.layout === 'right' ? 'row-reverse' : 'row' }">
+                        <div class="flex items-center mt-[9px] flex-start" :style="{  flexDirection: banner.api.design.layout === 'right' ? 'row-reverse' : 'row' }">
                             <div class="text-yellow-400 flex items-center" :style="{ flexDirection: banner.api.design.layout === 'right' ? 'row-reverse' : 'row' }">
                                 <span v-for="n in 5" :key="n" :style="{ fontSize: banner.api.design.starSize + 'px', width: banner.api.design.starSize + 'px', height: banner.api.design.starSize + 'px', lineHeight: 1 }">{{ n <= banner.api.selectedHotel.star ? '★' : '☆' }}</span>
                             </div>
@@ -301,22 +301,22 @@
                             </span>
                         </div>
                         
-                        <div class="mt-auto flex items-center justify-between">
+                        <div class="mt-auto flex items-center justify-between" :class="banner.api.design.layout === 'right' ? 'flex-row-reverse' : 'flex-row' ">
                             <div class="flex items-center" :style="{flexDirection: banner.api.design.layout === 'right' ? 'row-reverse' : 'row'}">
                                 <div v-if="banner.api.selectedHotel.avgRating != null" 
                                     class="flex items-center justify-center rounded" 
                                     :style="{ 
-                                        minWidth: '25px', padding: '0 6px', height: '15px', 
+                                        minWidth: '35px', padding: '0 6px', height: '15px', 
                                         backgroundColor: banner.api.design.ratingBoxBgColor,
                                     }">
-                                    <span class="font-bold" :style="{ color: banner.api.design.ratingBoxColor, fontSize: banner.api.design.ratingBoxSize + 'px' }">{{ banner.api.selectedHotel.avgRating }}</span>
+                                    <span class="font-bold" :style="{ color: banner.api.design.ratingBoxColor, fontSize: banner.api.design.ratingBoxSize + 'px' }">{{ formatRating(banner.api.selectedHotel.avgRating) }}</span>
                                 </div>
                                 <span class="mx-[7px]" :style="{ color: banner.api.design.ratingTextColor, fontSize: banner.api.design.ratingTextSize + 'px' }">{{ getRatingLabel(banner.api.selectedHotel.avgRating) }}</span>
                                 <span v-if="banner.api.selectedHotel.reviewCount != null" :style="{ color: banner.api.design.reviewColor, fontSize: banner.api.design.reviewSize + 'px' }">({{ banner.api.selectedHotel.reviewCount }} reviews)</span>
                             </div>
 
                             <div>
-                                <div class="flex items-baseline gap-1.5" :style="{ flexDirection: banner.api.design.layout === 'right' ? 'row-reverse' : 'row' }">
+                                <div class="flex items-baseline gap-1.5" >
                                     <span :style="{ color: banner.api.design.priceFromColor, fontSize: banner.api.design.priceFromSize + 'px' }">from</span>
                                     <span :style="{ color: banner.api.design.priceAmountColor, fontSize: banner.api.design.priceAmountSize + 'px', fontWeight: banner.api.design.priceAmountWeight }">€{{ banner.api.selectedHotel.minPrice.toFixed(2) }}</span>
                                     <span :style="{ color: banner.api.design.priceNightColor, fontSize: banner.api.design.priceFromSize + 'px' }">/ night</span>
@@ -325,6 +325,66 @@
                         </div>
                     </div>
                 </div>
+                
+                <div v-if="banner.api.selectedTour"
+                    class="yab-api-banner-wrapper shadow-lg flex items-stretch font-sans" 
+                    :style="{ 
+                        background: bannerStyles(banner.api.design),
+                        border: `${banner.api.design.enableBorder ? banner.api.design.borderWidth : 0}px solid ${banner.api.design.borderColor}`,
+                        borderRadius: `${banner.api.design.borderRadius}px`,
+                        width: '864px', 
+                        height: '128px',
+                        flexDirection: banner.api.design.layout === 'right' ? 'row-reverse' : 'row',
+                        overflow: 'hidden'
+                    }">
+                    <div class="flex-shrink-0" style="width: 360px; height: 100%;">
+                        <img :src="banner.api.selectedTour.bannerImage.url" :alt="banner.api.selectedTour.title" class="w-full h-full object-cover block">
+                    </div>
+
+                    <div 
+                        class="flex-grow flex flex-col relative"
+                        :style="apiContentStyles"
+                    >
+                        <h3 class="font-bold leading-[18px]" :style="{ 
+                            color: banner.api.design.titleColor, 
+                            fontSize: banner.api.design.titleSize + 'px', 
+                            fontWeight: banner.api.design.titleWeight,
+                            margin: 0
+                        }">{{ banner.api.selectedTour.title }}</h3>
+                        
+                        <div class="flex items-center mt-[9px] justify-start" :class="banner.api.design.layout === 'right' ? 'flex-row-reverse' : 'flex-row' ">
+                             <div class="text-yellow-400 flex items-center" >
+                                <span v-for="n in 5" :key="n" :style="{ fontSize: banner.api.design.starSize + 'px', width: banner.api.design.starSize + 'px', height: banner.api.design.starSize + 'px', lineHeight: 1 }">{{ n <= ceil(banner.api.selectedTour.rate) ? '★' : '☆' }}</span>
+                            </div>
+                            <div class="border-l border-gray-600 h-4 mx-[13px]"></div>
+                            <span :style="{ color: banner.api.design.cityColor, fontSize: banner.api.design.citySize + 'px' }">
+                                {{ banner.api.selectedTour.startProvince.name }}
+                            </span>
+                        </div>
+                        
+                        <div class="mt-auto flex items-center justify-between " :class="banner.api.design.layout === 'right' ? 'flex-row-reverse' : 'flex-row' ">
+                            <div class="flex items-center gap-[7px]" :style="{flexDirection: banner.api.design.layout === 'right' ? 'row-reverse' : 'row'}">
+                                 <div v-if="banner.api.selectedTour.rate != null" 
+                                    class="flex items-center justify-center rounded" 
+                                    :style="{ 
+                                        minWidth: '35px', padding: '0 6px', height: '15px', 
+                                        backgroundColor: banner.api.design.ratingBoxBgColor,
+                                    }">
+                                    <span class="font-bold" :style="{ color: banner.api.design.ratingBoxColor, fontSize: banner.api.design.ratingBoxSize + 'px' }">{{ formatRating(banner.api.selectedTour.rate) }}</span>
+                                </div>
+                                <span v-if="banner.api.selectedTour.rateCount != null" :style="{ color: banner.api.design.reviewColor, fontSize: banner.api.design.reviewSize + 'px' }">({{ banner.api.selectedTour.rateCount }} reviews)</span>
+                            </div>
+
+                            <div>
+                                <div class="flex items-baseline gap-1.5" >
+                                    <span :style="{ color: banner.api.design.priceFromColor, fontSize: banner.api.design.priceFromSize + 'px' }">from</span>
+                                    <span :style="{ color: banner.api.design.priceAmountColor, fontSize: banner.api.design.priceAmountSize + 'px', fontWeight: banner.api.design.priceAmountWeight }">€{{ banner.api.selectedTour.price.toFixed(2) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
         
@@ -335,3 +395,4 @@
 </main>
 
 <?php require_once YAB_PLUGIN_DIR . 'admin/views/components/hotel-modal.php'; ?>
+<?php require_once YAB_PLUGIN_DIR . 'admin/views/components/tour-modal.php'; ?>

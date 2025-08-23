@@ -107,6 +107,40 @@ if (!class_exists('Yab_Ajax_Handler')) :
             wp_send_json_success($data['data']);
             wp_die();
         }
+        
+        public function yab_fetch_tour_details_from_api() {
+            check_ajax_referer('yab_nonce', 'nonce');
+            if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
+            if (empty($_POST['tour_id']) || !is_numeric($_POST['tour_id'])) {
+                wp_send_json_error(['message' => 'Invalid Tour ID provided.'], 400);
+                return;
+            }
+        
+            $tour_id = intval($_POST['tour_id']);
+            $api_url = "https://b2bapi.tapexplore.com/api/b2b/tour/{$tour_id}";
+            $api_key = '0963b596-1f23-4188-b46c-d7d671028940';
+        
+            $response = wp_remote_get($api_url, [
+                'headers' => [ 'api-key' => $api_key ],
+                'timeout' => 15
+            ]);
+        
+            if (is_wp_error($response)) {
+                wp_send_json_error(['message' => 'Failed to fetch tour details. ' . $response->get_error_message()], 500);
+                return;
+            }
+        
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+        
+            if (json_last_error() !== JSON_ERROR_NONE || !isset($data['success']) || $data['success'] !== true) {
+                wp_send_json_error(['message' => 'Invalid API response or failed request for tour details.'], 500);
+                return;
+            }
+        
+            wp_send_json_success($data['data']);
+            wp_die();
+        }
 
         public function fetch_hotels_from_api() {
             check_ajax_referer('yab_nonce', 'nonce');
@@ -159,6 +193,58 @@ if (!class_exists('Yab_Ajax_Handler')) :
             if (json_last_error() !== JSON_ERROR_NONE) { wp_send_json_error(['message' => 'Invalid JSON response from API.'], 500); return; }
 
             wp_send_json_success($data);
+            wp_die();
+        }
+
+        public function fetch_tours_from_api() {
+            check_ajax_referer('yab_nonce', 'nonce');
+            if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
+        
+            $api_key = '0963b596-1f23-4188-b46c-d7d671028940';
+            $base_url = 'https://b2bapi.tapexplore.com/api/b2b/tour/filter';
+            
+            $params = [];
+            if (!empty($_POST['keyword'])) { $params['keyword'] = sanitize_text_field($_POST['keyword']); }
+            if (!empty($_POST['page'])) { $params['page'] = intval($_POST['page']); }
+            if (!empty($_POST['size'])) { $params['size'] = intval($_POST['size']); }
+            if (!empty($_POST['types'])) { $params['types'] = sanitize_text_field($_POST['types']); }
+            if (isset($_POST['minPrice']) && is_numeric($_POST['minPrice'])) { $params['minPrice'] = $_POST['minPrice']; }
+            if (!empty($_POST['maxPrice'])) { $params['maxPrice'] = $_POST['maxPrice']; }
+            if (!empty($_POST['province'])) { $params['province'] = intval($_POST['province']); }
+            
+            $api_url = add_query_arg($params, $base_url);
+        
+            $response = wp_remote_get($api_url, [
+                'headers' => [ 'api-key' => $api_key, 'Content-Type' => 'application/json' ],
+                'timeout' => 20,
+            ]);
+        
+            if (is_wp_error($response)) { wp_send_json_error(['message' => 'Failed to fetch tours from API. ' . $response->get_error_message()], 500); return; }
+        
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+        
+            if (json_last_error() !== JSON_ERROR_NONE) { wp_send_json_error(['message' => 'Invalid JSON response from tours API.'], 500); return; }
+        
+            wp_send_json_success($data);
+            wp_die();
+        }
+        
+        public function fetch_tour_cities_from_api() {
+            check_ajax_referer('yab_nonce', 'nonce');
+            if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
+        
+            $api_url = 'https://b2bapi.tapexplore.com/api/b2b/tour/cities';
+            $response = wp_remote_get($api_url, ['timeout' => 15]);
+        
+            if (is_wp_error($response)) { wp_send_json_error(['message' => 'Failed to fetch tour cities. ' . $response->get_error_message()], 500); return; }
+        
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+        
+            if (json_last_error() !== JSON_ERROR_NONE || !isset($data['data'])) { wp_send_json_error(['message' => 'Invalid JSON response from tour cities API.'], 500); return; }
+        
+            wp_send_json_success($data['data']);
             wp_die();
         }
 

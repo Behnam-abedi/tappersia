@@ -79,6 +79,16 @@ createApp({
         });
 
         // --- Methods ---
+        const formatRating = (score) => {
+            if (score == null) return '';
+            // If it's a whole number, return as is.
+            if (score % 1 === 0) {
+                return score;
+            }
+            // Otherwise, truncate to one decimal place without rounding.
+            return Math.trunc(score * 10) / 10;
+        };
+        
         const getRatingLabel = (score) => {
             if (!score || score == 0) {
                 return 'New';
@@ -163,6 +173,7 @@ createApp({
             appState, isSaving, banner, shortcode, modalComponent, allBannersUrl,
             apiContentStyles,
             getRatingLabel,
+            formatRating,
             selectElementType, saveBanner, openMediaUploader, removeImage, copyShortcode,
             ...apiBannerLogic,
             ...displayConditionsLogic,
@@ -182,6 +193,8 @@ createApp({
                 }
                 return style;
             },
+            // Helper for star rating display
+            ceil: Math.ceil
         };
     },
     components: { 
