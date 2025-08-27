@@ -9,14 +9,14 @@
                 <div>
                     <h4 class="section-title">Background</h4>
                     <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none">
-                        <button @click="banner.simple.backgroundType = 'solid'" :class="{'active-tab': banner.simple.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg border-none">Solid Color</button>
-                        <button @click="banner.simple.backgroundType = 'gradient'" :class="{'active-tab': banner.simple.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg border-none">Gradient</button>
+                        <button @click="banner.sticky_simple.backgroundType = 'solid'" :class="{'active-tab': banner.sticky_simple.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg border-none">Solid Color</button>
+                        <button @click="banner.sticky_simple.backgroundType = 'gradient'" :class="{'active-tab': banner.sticky_simple.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg border-none">Gradient</button>
                     </div>
-                    <div v-if="banner.simple.backgroundType === 'solid'" class="space-y-2">
+                    <div v-if="banner.sticky_simple.backgroundType === 'solid'" class="space-y-2">
                         <label class="setting-label-sm">Background Color</label>
                         <div class="yab-color-input-wrapper">
-                            <input type="color" v-model="banner.simple.bgColor" class="yab-color-picker">
-                            <input type="text" v-model="banner.simple.bgColor" class="yab-hex-input" placeholder="#hexcode">
+                            <input type="color" v-model="banner.sticky_simple.bgColor" class="yab-color-picker">
+                            <input type="text" v-model="banner.sticky_simple.bgColor" class="yab-hex-input" placeholder="#hexcode">
                         </div>
                     </div>
                     <div v-else class="space-y-2">
@@ -24,19 +24,19 @@
                             <label class="setting-label-sm">Gradient Colors</label>
                             <div class="grid grid-cols-2 gap-2">
                                 <div class="yab-color-input-wrapper">
-                                    <input type="color" v-model="banner.simple.gradientColor1" class="yab-color-picker">
-                                    <input type="text" v-model="banner.simple.gradientColor1" class="yab-hex-input" placeholder="#hexcode">
+                                    <input type="color" v-model="banner.sticky_simple.gradientColor1" class="yab-color-picker">
+                                    <input type="text" v-model="banner.sticky_simple.gradientColor1" class="yab-hex-input" placeholder="#hexcode">
                                 </div>
                                 <div class="yab-color-input-wrapper">
-                                    <input type="color" v-model="banner.simple.gradientColor2" class="yab-color-picker">
-                                    <input type="text" v-model="banner.simple.gradientColor2" class="yab-hex-input" placeholder="#hexcode">
+                                    <input type="color" v-model="banner.sticky_simple.gradientColor2" class="yab-color-picker">
+                                    <input type="text" v-model="banner.sticky_simple.gradientColor2" class="yab-hex-input" placeholder="#hexcode">
                                 </div>
                             </div>
                         </div>
                         <div>
                             <label class="setting-label-sm">Gradient Angle</label>
                             <div class="flex items-center gap-2">
-                                <input type="number" v-model.number="banner.simple.gradientAngle" class="yab-form-input w-full" placeholder="e.g., 90">
+                                <input type="number" v-model.number="banner.sticky_simple.gradientAngle" class="yab-form-input w-full" placeholder="e.g., 90">
                                 <span class="text-sm text-gray-400">deg</span>
                             </div>
                         </div>
@@ -48,26 +48,26 @@
                      <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="setting-label-sm">Height (px)</label>
-                            <input type="number" v-model.number="banner.simple.height" class="yab-form-input" placeholder="e.g., 74">
+                            <input type="number" v-model.number="banner.sticky_simple.height" class="yab-form-input" placeholder="e.g., 74">
                          </div>
                          <div>
                             <label class="setting-label-sm">Border Radius (px)</label>
-                            <input type="number" v-model.number="banner.simple.borderRadius" class="yab-form-input" placeholder="e.g., 10">
+                            <input type="number" v-model.number="banner.sticky_simple.borderRadius" class="yab-form-input" placeholder="e.g., 10">
                         </div>
                         <div>
                             <label class="setting-label-sm">Padding Top/Bottom (px)</label>
-                            <input type="number" v-model.number="banner.simple.paddingY" class="yab-form-input" placeholder="e.g., 26">
+                            <input type="number" v-model.number="banner.sticky_simple.paddingY" class="yab-form-input" placeholder="e.g., 26">
                          </div>
                          <div>
                             <label class="setting-label-sm">Padding Left/Right (px)</label>
-                            <input type="number" v-model.number="banner.simple.paddingX" class="yab-form-input" placeholder="e.g., 40">
+                            <input type="number" v-model.number="banner.sticky_simple.paddingX" class="yab-form-input" placeholder="e.g., 40">
                         </div>
                     </div>
                      <div class="mt-4">
                         <label class="setting-label-sm">Content Direction</label>
                         <div class="flex rounded-lg bg-[#292929] overflow-hidden">
-                            <button @click="banner.simple.direction = 'ltr'" :class="banner.simple.direction === 'ltr' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Left</button>
-                            <button @click="banner.simple.direction = 'rtl'" :class="banner.simple.direction === 'rtl' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Right</button>
+                            <button @click="banner.sticky_simple.direction = 'ltr'" :class="banner.sticky_simple.direction === 'ltr' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Left</button>
+                            <button @click="banner.sticky_simple.direction = 'rtl'" :class="banner.sticky_simple.direction === 'rtl' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Right</button>
                         </div>
                     </div>
                 </div>
@@ -75,22 +75,22 @@
                 <div class="space-y-2">
                     <h4 class="section-title">Text</h4>
                     <label class="setting-label-sm">Text</label>
-                    <input type="text" v-model="banner.simple.text" class="yab-form-input mb-2" placeholder="Banner Text">
+                    <input type="text" v-model="banner.sticky_simple.text" class="yab-form-input mb-2" placeholder="Banner Text">
                     <div class="grid grid-cols-3 gap-2">
                          <div class="col-span-1">
                             <label class="setting-label-sm">Color</label>
                             <div class="yab-color-input-wrapper">
-                                <input type="color" v-model="banner.simple.textColor" class="yab-color-picker">
-                                <input type="text" v-model="banner.simple.textColor" class="yab-hex-input" placeholder="#hexcode">
+                                <input type="color" v-model="banner.sticky_simple.textColor" class="yab-color-picker">
+                                <input type="text" v-model="banner.sticky_simple.textColor" class="yab-hex-input" placeholder="#hexcode">
                             </div>
                         </div>
                         <div>
                             <label class="setting-label-sm">Font Size (px)</label>
-                            <input type="number" v-model.number="banner.simple.textSize" class="yab-form-input" placeholder="e.g., 17">
+                            <input type="number" v-model.number="banner.sticky_simple.textSize" class="yab-form-input" placeholder="e.g., 17">
                         </div>
                         <div>
                             <label class="setting-label-sm">Font Weight</label>
-                            <select v-model="banner.simple.textWeight" class="yab-form-input">
+                            <select v-model="banner.sticky_simple.textWeight" class="yab-form-input">
                                 <option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option>
                             </select>
                         </div>
@@ -100,52 +100,52 @@
                 <div class="space-y-2">
                     <h4 class="section-title">Button</h4>
                     <label class="setting-label-sm">Button Text</label>
-                    <input type="text" v-model="banner.simple.buttonText" class="yab-form-input mb-2" placeholder="Button Text">
+                    <input type="text" v-model="banner.sticky_simple.buttonText" class="yab-form-input mb-2" placeholder="Button Text">
                     <label class="setting-label-sm">Button Link (URL)</label>
-                    <input type="text" v-model="banner.simple.buttonLink" class="yab-form-input mb-4" placeholder="https://example.com">
+                    <input type="text" v-model="banner.sticky_simple.buttonLink" class="yab-form-input mb-4" placeholder="https://example.com">
                     
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <div>
                             <label class="setting-label-sm">Background Color</label>
                             <div class="yab-color-input-wrapper">
-                                <input type="color" v-model="banner.simple.buttonBgColor" class="yab-color-picker">
-                                <input type="text" v-model="banner.simple.buttonBgColor" class="yab-hex-input" placeholder="#1EC2AF">
+                                <input type="color" v-model="banner.sticky_simple.buttonBgColor" class="yab-color-picker">
+                                <input type="text" v-model="banner.sticky_simple.buttonBgColor" class="yab-hex-input" placeholder="#1EC2AF">
                             </div>
                         </div>
                         <div>
                             <label class="setting-label-sm">Text Color</label>
                             <div class="yab-color-input-wrapper">
-                                <input type="color" v-model="banner.simple.buttonTextColor" class="yab-color-picker">
-                                <input type="text" v-model="banner.simple.buttonTextColor" class="yab-hex-input" placeholder="#FFFFFF">
+                                <input type="color" v-model="banner.sticky_simple.buttonTextColor" class="yab-color-picker">
+                                <input type="text" v-model="banner.sticky_simple.buttonTextColor" class="yab-hex-input" placeholder="#FFFFFF">
                             </div>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                            <label class="setting-label-sm">Border Radius (px)</label>
-                           <input type="number" v-model.number="banner.simple.buttonBorderRadius" class="yab-form-input" placeholder="e.g., 3">
+                           <input type="number" v-model.number="banner.sticky_simple.buttonBorderRadius" class="yab-form-input" placeholder="e.g., 3">
                         </div>
                         <div>
                             <label class="setting-label-sm">Font Size (px)</label>
-                            <input type="number" v-model.number="banner.simple.buttonFontSize" class="yab-form-input" placeholder="e.g., 8">
+                            <input type="number" v-model.number="banner.sticky_simple.buttonFontSize" class="yab-form-input" placeholder="e.g., 8">
                         </div>
                         <div>
                             <label class="setting-label-sm">Font Weight</label>
-                             <select v-model="banner.simple.buttonFontWeight" class="yab-form-input">
+                             <select v-model="banner.sticky_simple.buttonFontWeight" class="yab-form-input">
                                 <option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option>
                             </select>
                         </div>
                          <div>
                             <label class="setting-label-sm">Min Width (px)</label>
-                            <input type="number" v-model.number="banner.simple.buttonMinWidth" class="yab-form-input" placeholder="e.g., 72">
+                            <input type="number" v-model.number="banner.sticky_simple.buttonMinWidth" class="yab-form-input" placeholder="e.g., 72">
                         </div>
                         <div>
                             <label class="setting-label-sm">Padding Top/Bottom (px)</label>
-                            <input type="number" v-model.number="banner.simple.buttonPaddingY" class="yab-form-input" placeholder="e.g., 7">
+                            <input type="number" v-model.number="banner.sticky_simple.buttonPaddingY" class="yab-form-input" placeholder="e.g., 7">
                          </div>
                          <div>
                             <label class="setting-label-sm">Padding Left/Right (px)</label>
-                            <input type="number" v-model.number="banner.simple.buttonPaddingX" class="yab-form-input" placeholder="e.g., 15">
+                            <input type="number" v-model.number="banner.sticky_simple.buttonPaddingX" class="yab-form-input" placeholder="e.g., 15">
                         </div>
                     </div>
                 </div>
@@ -160,42 +160,42 @@
                  <div class="yab-simple-banner-wrapper" 
                      :style="{ 
                         width: '100%', 
-                        height: banner.simple.height + 'px', 
-                        minHeight: banner.simple.height + 'px',
-                        borderRadius: banner.simple.borderRadius + 'px', 
-                        background: bannerStyles(banner.simple),
-                        padding: banner.simple.paddingY + 'px ' + banner.simple.paddingX + 'px',
+                        height: banner.sticky_simple.height + 'px', 
+                        minHeight: banner.sticky_simple.height + 'px',
+                        borderRadius: banner.sticky_simple.borderRadius + 'px', 
+                        background: bannerStyles(banner.sticky_simple),
+                        padding: banner.sticky_simple.paddingY + 'px ' + banner.sticky_simple.paddingX + 'px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         boxSizing: 'border-box',
-                        direction: banner.simple.direction,
-                        flexDirection: banner.simple.direction === 'rtl' ? 'row-reverse' : 'row'
+                        direction: banner.sticky_simple.direction,
+                        flexDirection: banner.sticky_simple.direction === 'rtl' ? 'row-reverse' : 'row'
                      }">
                     <span :style="{ 
-                        fontSize: banner.simple.textSize + 'px',
-                        fontWeight: banner.simple.textWeight,
-                        color: banner.simple.textColor,
-                        order: banner.simple.direction === 'rtl' ? 1 : 0
+                        fontSize: banner.sticky_simple.textSize + 'px',
+                        fontWeight: banner.sticky_simple.textWeight,
+                        color: banner.sticky_simple.textColor,
+                        order: banner.sticky_simple.direction === 'rtl' ? 1 : 0
                     }">
-                        {{ banner.simple.text }}
+                        {{ banner.sticky_simple.text }}
                     </span>
-                    <a :href="banner.simple.buttonLink" 
+                    <a :href="banner.sticky_simple.buttonLink" 
                        target="_blank" 
                        :style="{ 
-                          backgroundColor: banner.simple.buttonBgColor,
-                          borderRadius: banner.simple.buttonBorderRadius + 'px',
-                          color: banner.simple.buttonTextColor,
-                          fontSize: banner.simple.buttonFontSize + 'px',
-                          fontWeight: banner.simple.buttonFontWeight,
-                          padding: banner.simple.buttonPaddingY + 'px ' + banner.simple.buttonPaddingX + 'px',
-                          minWidth: banner.simple.buttonMinWidth + 'px',
+                          backgroundColor: banner.sticky_simple.buttonBgColor,
+                          borderRadius: banner.sticky_simple.buttonBorderRadius + 'px',
+                          color: banner.sticky_simple.buttonTextColor,
+                          fontSize: banner.sticky_simple.buttonFontSize + 'px',
+                          fontWeight: banner.sticky_simple.buttonFontWeight,
+                          padding: banner.sticky_simple.buttonPaddingY + 'px ' + banner.sticky_simple.buttonPaddingX + 'px',
+                          minWidth: banner.sticky_simple.buttonMinWidth + 'px',
                           textDecoration: 'none',
                           textAlign: 'center',
                           boxSizing: 'border-box',
-                          order: banner.simple.direction === 'rtl' ? 0 : 1
+                          order: banner.sticky_simple.direction === 'rtl' ? 0 : 1
                        }">
-                        {{ banner.simple.buttonText }}
+                        {{ banner.sticky_simple.buttonText }}
                     </a>
                 </div>
             </div>

@@ -1,47 +1,56 @@
 <div id="yab-app" class="bg-[#232323] text-white min-h-screen font-sans" v-cloak>
     
-    <div v-if="appState === 'selection'" class="flex items-center justify-center h-screen">
-        <div class="p-8 text-center ">
-            <h1 class="text-3xl font-bold mb-8 text-gray-200 ">Create a New Element</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ltr">
-                 <div @click="selectElementType('single-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                    <span class="dashicons dashicons-format-image text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
-                    <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Single Banner</h3>
-                </div>
-                <div @click="selectElementType('double-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                    <span class="dashicons dashicons-columns text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
-                    <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Double Banner</h3>
-                </div>
-                <div @click="selectElementType('api-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                    <span class="dashicons dashicons-rest-api text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
-                    <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">API Banner</h3>
-                </div>
-                 <div @click="selectElementType('simple-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                    <span class="dashicons dashicons-text-page text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
-                    <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Simple Banner</h3>
+    <transition name="fade" mode="out-in">
+        <div v-if="appState === 'selection'" key="selection" class="flex items-center justify-center h-screen">
+            <div class="p-8 text-center ">
+                <h1 class="text-3xl font-bold mb-8 text-gray-200 ">Create a New Element</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ltr">
+                    <div @click="selectElementType('single-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-format-image text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Single Banner</h3>
+                    </div>
+                    <div @click="selectElementType('double-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-columns text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Double Banner</h3>
+                    </div>
+                    <div @click="selectElementType('api-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-rest-api text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">API Banner</h3>
+                    </div>
+                     <div @click="selectElementType('simple-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-text-page text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Simple Banner</h3>
+                    </div>
+                    <div @click="selectElementType('sticky-simple-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-sticky text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Sticky Simple Banner</h3>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div v-if="appState === 'editor'">
-        <div v-if="banner.type === 'double-banner'">
-            <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/double-banner-editor.php'; ?>
+        <div v-else-if="appState === 'editor'" key="editor">
+            <div v-if="banner.type === 'double-banner'">
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/double-banner-editor.php'; ?>
+            </div>
+            <div v-if="banner.type === 'single-banner'">
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/single-banner-editor.php'; ?>
+            </div>
+            <div v-if="banner.type === 'api-banner'">
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/api-banner-editor.php'; ?>
+            </div>
+            <div v-if="banner.type === 'simple-banner'">
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/simple-banner-editor.php'; ?>
+            </div>
+            <div v-if="banner.type === 'sticky-simple-banner'">
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/sticky-simple-banner-editor.php'; ?>
+            </div>
         </div>
-        <div v-if="banner.type === 'single-banner'">
-            <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/single-banner-editor.php'; ?>
-        </div>
-        <div v-if="banner.type === 'api-banner'">
-            <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/api-banner-editor.php'; ?>
-        </div>
-        <div v-if="banner.type === 'simple-banner'">
-            <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/simple-banner-editor.php'; ?>
-        </div>
-    </div>
 
-    <div v-if="appState === 'loading'" class="flex items-center justify-center h-screen">
-        <span class="dashicons dashicons-update animate-spin text-5xl text-[#00baa4]"></span>
-    </div>
+        <div v-else-if="appState === 'loading'" key="loading" class="flex items-center justify-center h-screen">
+            <div class="yab-spinner w-12 h-12"></div>
+        </div>
+    </transition>
 
     <yab-modal ref="modalComponent"></yab-modal>
 

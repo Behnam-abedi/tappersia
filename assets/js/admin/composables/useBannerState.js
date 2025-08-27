@@ -95,6 +95,7 @@ export function useBannerState() {
         displayOn: { posts: [], pages: [], categories: [] },
         left: createDefaultPart(), right: createDefaultPart(), single: createDefaultPart(),
         simple: createDefaultSimplePart(),
+        sticky_simple: createDefaultSimplePart(),
         api: { 
             apiType: null, 
             selectedHotel: null, 
@@ -105,7 +106,7 @@ export function useBannerState() {
 
     const shortcode = computed(() => {
         if (!banner.type) return '';
-        const base = banner.type.replace('-', '');
+        const base = banner.type.replace(/-/g, '');
         if (banner.displayMethod === 'Embeddable') {
             return banner.id ? `[${base} id="${banner.id}"]` : `[${base} id="..."]`;
         }

@@ -95,6 +95,11 @@ createApp({
         };
 
         const selectElementType = (type) => { banner.type = type; appState.value = 'editor'; };
+        
+        // *** FIX: Added method to go back to the selection screen ***
+        const goBackToSelection = () => {
+            appState.value = 'selection';
+        };
 
         const saveBanner = async () => {
             if (!banner.name) return showModal('Input Required', 'Please enter a name for the banner.');
@@ -163,6 +168,7 @@ createApp({
             getRatingLabel,
             formatRating,
             selectElementType, saveBanner, openMediaUploader, removeImage, copyShortcode,
+            goBackToSelection, // *** FIX: Expose the new method ***
             ...apiBannerLogic,
             ...displayConditionsLogic,
             bannerStyles: (b) => {
