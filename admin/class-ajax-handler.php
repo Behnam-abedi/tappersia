@@ -19,6 +19,9 @@ if (!class_exists('Yab_Ajax_Handler')) :
                 case 'sticky-simple-banner':
                     require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/StickySimpleBanner/StickySimpleBanner.php';
                     return new Yab_Sticky_Simple_Banner();
+                case 'promotion-banner':
+                    require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/PromotionBanner/PromotionBanner.php';
+                    return new Yab_Promotion_Banner();
                 default:
                     return null;
             }

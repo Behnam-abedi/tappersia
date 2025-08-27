@@ -47,8 +47,9 @@ createApp({
         const appState = ref('loading');
         const isSaving = ref(false);
         const modalComponent = ref(null);
+        const bodyTextarea = ref(null); // Ref for the textarea element
 
-        const { banner, shortcode, mergeWithExisting } = useBannerState();
+        const { banner, shortcode, mergeWithExisting, resetBannerState } = useBannerState();
         const ajax = useAjax(window.yab_data.ajax_url, window.yab_data.nonce);
         const showModal = (title, message) => modalComponent.value?.show({ title, message });
 
@@ -78,6 +79,24 @@ createApp({
             return styles;
         });
 
+        const previewBodyText = computed(() => {
+            const promo = banner.promotion;
+            if (!promo.bodyText) return '';
+
+            let text = promo.bodyText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+            if (promo.links && promo.links.length > 0) {
+                promo.links.forEach(link => {
+                    if (link.placeholder && link.url) {
+                        const placeholderRegex = new RegExp(`\\[\\[${link.placeholder.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\]\\]`, 'g');
+                        const linkHtml = `<a href="${link.url}" target="_blank" style="color: ${link.color}; text-decoration: underline; padding: 0 5px;">${link.placeholder}</a>`;
+                        text = text.replace(placeholderRegex, linkHtml);
+                    }
+                });
+            }
+            return text;
+        });
+
         // --- Methods ---
         const formatRating = (score) => {
             if (score == null) return '';
@@ -94,11 +113,20 @@ createApp({
             return 'Poor';
         };
 
-        const selectElementType = (type) => { banner.type = type; appState.value = 'editor'; };
+        const selectElementType = (type) => { 
+            resetBannerState();
+            banner.type = type; 
+            appState.value = 'editor'; 
+        };
         
-        // *** FIX: Added method to go back to the selection screen ***
         const goBackToSelection = () => {
+            resetBannerState();
             appState.value = 'selection';
+        };
+
+        const goToListPage = () => {
+            resetBannerState();
+            window.location.href = allBannersUrl.value;
         };
 
         const saveBanner = async () => {
@@ -121,24 +149,68 @@ createApp({
         const openMediaUploader = (targetBannerKey) => {
             const uploader = wp.media({ title: 'Select Image', button: { text: 'Use this Image' }, multiple: false });
             uploader.on('select', () => {
-                const target = banner[targetBannerKey] || banner.single;
-                if (target) {
-                    target.imageUrl = uploader.state().get('selection').first().toJSON().url;
+                const attachment = uploader.state().get('selection').first().toJSON();
+                if (targetBannerKey === 'promotion') {
+                    banner.promotion.iconUrl = attachment.url;
+                } else {
+                    const target = banner[targetBannerKey] || banner.single;
+                    if (target) {
+                        target.imageUrl = attachment.url;
+                    }
                 }
             });
             uploader.open();
         };
         
         const removeImage = (targetBannerKey) => { 
-            const target = banner[targetBannerKey] || banner.single;
-            if (target) {
-                target.imageUrl = '';
+            if (targetBannerKey === 'promotion') {
+                banner.promotion.iconUrl = '';
+            } else {
+                const target = banner[targetBannerKey] || banner.single;
+                if (target) {
+                    target.imageUrl = '';
+                }
             }
         };
         
         const copyShortcode = (event) => {
             if (!banner.id && banner.displayMethod === 'Embeddable') return showModal('Info', 'Please save the banner first.');
             navigator.clipboard.writeText(event.target.value).then(() => showModal('Success', 'Shortcode copied!'));
+        };
+
+        const addPromoLink = (placeholder = '') => {
+            if (!Array.isArray(banner.promotion.links)) {
+                banner.promotion.links = [];
+            }
+            banner.promotion.links.push({ placeholder: placeholder, url: '#', color: '#f07100' });
+        };
+
+        const removePromoLink = (index) => {
+            banner.promotion.links.splice(index, 1);
+        };
+        
+        const makeSelectedTextPlaceholder = () => {
+            const textarea = bodyTextarea.value;
+            if (!textarea) return;
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+
+            if (!selectedText) {
+                showModal('Info', 'Please select a piece of text first.');
+                return;
+            }
+            
+            const placeholderExists = banner.promotion.links.some(link => link.placeholder === selectedText);
+            if(placeholderExists) {
+                 showModal('Info', `A link for "${selectedText}" already exists.`);
+                 return;
+            }
+
+            const newText = `${textarea.value.substring(0, start)}[[${selectedText}]]${textarea.value.substring(end)}`;
+            banner.promotion.bodyText = newText;
+            addPromoLink(selectedText);
         };
 
         // --- Lifecycle Hooks ---
@@ -163,17 +235,44 @@ createApp({
         });
 
         return {
-            appState, isSaving, banner, shortcode, modalComponent, allBannersUrl,
+            appState, isSaving, banner, shortcode, modalComponent, allBannersUrl, bodyTextarea,
             apiContentStyles,
+            previewBodyText,
             getRatingLabel,
             formatRating,
             selectElementType, saveBanner, openMediaUploader, removeImage, copyShortcode,
-            goBackToSelection, // *** FIX: Expose the new method ***
+            goBackToSelection,
+            goToListPage,
+            addPromoLink,
+            removePromoLink,
+            makeSelectedTextPlaceholder,
             ...apiBannerLogic,
             ...displayConditionsLogic,
-            bannerStyles: (b) => {
+            bannerStyles: (b, section = null) => {
                 if (!b) return '';
-                return b.backgroundType === 'gradient' ? `linear-gradient(${b.gradientAngle||90}deg, ${b.gradientColor1}, ${b.gradientColor2})` : b.bgColor
+                let typeKey = 'backgroundType';
+                let gradAngleKey = 'gradientAngle';
+                let gradColor1Key = 'gradientColor1';
+                let gradColor2Key = 'gradientColor2';
+                let bgColorKey = 'bgColor';
+
+                if (section === 'header') {
+                    typeKey = 'headerBackgroundType';
+                    gradAngleKey = 'headerGradientAngle';
+                    gradColor1Key = 'headerGradientColor1';
+                    gradColor2Key = 'headerGradientColor2';
+                    bgColorKey = 'headerBgColor';
+                } else if (section === 'body') {
+                    typeKey = 'bodyBackgroundType';
+                    gradAngleKey = 'bodyGradientAngle';
+                    gradColor1Key = 'bodyGradientColor1';
+                    gradColor2Key = 'bodyGradientColor2';
+                    bgColorKey = 'bodyBgColor';
+                }
+
+                return b[typeKey] === 'gradient' 
+                    ? `linear-gradient(${b[gradAngleKey]||90}deg, ${b[gradColor1Key]}, ${b[gradColor2Key]})` 
+                    : b[bgColorKey];
             },
             contentAlignment: (align) => align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start'),
             buttonAlignment: (align) => align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start'),

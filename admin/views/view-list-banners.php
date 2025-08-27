@@ -4,44 +4,39 @@
         <div v-if="appState === 'selection'" key="selection" class="flex items-center justify-center h-screen">
             <div class="p-8 text-center">
                 <h1 class="text-3xl font-bold mb-8 text-gray-200">All Elements</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                    <div @click="selectType('simple-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-text-page text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
-                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Simple Banners</h3>
-                    </div>
-                    <div @click="selectType('sticky-simple-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-sticky text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
-                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Sticky Simple Banners</h3>
-                    </div>
-                    <div @click="selectType('single-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div @click="selectType('single-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
                         <span class="dashicons dashicons-format-image text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Single Banners</h3>
                     </div>
-                    <div @click="selectType('double-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                    <div @click="selectType('double-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
                         <span class="dashicons dashicons-columns text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Double Banners</h3>
                     </div>
-                     <div @click="selectType('api-banner')" class="cursor-pointer bg-[#1A2B48] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                     <div @click="selectType('api-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
                         <span class="dashicons dashicons-rest-api text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">API Banners</h3>
+                    </div>
+                    <div @click="selectType('simple-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-text-page text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Simple Banners</h3>
+                    </div>
+                    <div @click="selectType('sticky-simple-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-sticky text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Sticky Simple Banners</h3>
+                    </div>
+                    <div @click="selectType('promotion-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-megaphone text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Promotion Banners</h3>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div v-else-if="appState === 'list'" key="list" class="p-6">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-4">
-                    <button @click="goBack" class="text-gray-400 hover:text-white">&larr; Back</button>
-                    <h1 class="text-2xl font-bold text-white capitalize">{{ selectedType.replace('-', ' ') }}s</h1>
-                </div>
-                <div class="flex items-center gap-4">
-                    <input type="search" v-model="searchQuery" placeholder="Search banners..." class="search-input !w-64">
-                    <a :href="addNewURL" class="bg-[#00baa4] text-white font-bold px-4 py-2 rounded hover:bg-opacity-80 transition-all">Add New</a>
-                </div>
-            </div>
+        <div v-else-if="appState === 'list'" key="list" class="">
+            <?php require YAB_PLUGIN_DIR . 'admin/views/components/banner-list-header.php'; ?>
 
-            <div class="bg-[#434343] rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-[#434343] rounded-lg shadow-lg overflow-hidden m-6">
                 <table class="w-full text-left">
                     <thead class="bg-[#292929]">
                         <tr>

@@ -25,6 +25,10 @@
                         <span class="dashicons dashicons-sticky text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Sticky Simple Banner</h3>
                     </div>
+                    <div @click="selectElementType('promotion-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-megaphone text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Promotion Banner</h3>
+                    </div>
                 </div>
             </div>
         </div>
@@ -44,6 +48,9 @@
             </div>
             <div v-if="banner.type === 'sticky-simple-banner'">
                 <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/sticky-simple-banner-editor.php'; ?>
+            </div>
+            <div v-if="banner.type === 'promotion-banner'">
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/promotion-banner-editor.php'; ?>
             </div>
         </div>
 

@@ -17,43 +17,34 @@ export function useBannerState() {
     });
     
     const createDefaultApiDesign = () => ({
-        // Layout & Background
         layout: 'left',
         backgroundType: 'solid',
         bgColor: '#ffffff',
         gradientColor1: '#F0F2F5',
         gradientColor2: '#FFFFFF',
         gradientAngle: 90,
-        // Border
         enableBorder: true,
         borderWidth: 1,
         borderColor: '#E0E0E0',
         borderRadius: 15,
-        // Content Padding
         enableCustomPadding: false,
         paddingTop: 23,
         paddingBottom: 23,
         paddingLeft: 55,
         paddingRight: 30,
-        // Title
         titleColor: '#000000', 
         titleSize: 18, 
         titleWeight: '700',
-        // Stars & City
         starSize: 13,
         cityColor: '#000000',
         citySize: 10,
-        // Rating Box
         ratingBoxBgColor: '#5191FA',
         ratingBoxColor: '#FFFFFF',
         ratingBoxSize: 10,
-        // Rating Text ("Very Good")
         ratingTextColor: '#5191FA',
         ratingTextSize: 10,
-        // Review Count
         reviewColor: '#999999',
         reviewSize: 10,
-        // Price
         priceFromColor: '#999999',
         priceFromSize: 10,
         priceAmountColor: '#00BAA4',
@@ -90,12 +81,50 @@ export function useBannerState() {
         buttonMinWidth: 72,
     });
 
-    const banner = reactive({
+    const createDefaultPromotionPart = () => ({
+        // General
+        borderWidth: 1,
+        borderColor: '#ffad1e57',
+        borderRadius: 12,
+        direction: 'ltr', // Default direction for the entire promotion banner
+        // Header
+        headerBackgroundType: 'solid',
+        headerBgColor: '#FF731B',
+        headerGradientColor1: '#FF731B',
+        headerGradientColor2: '#F07100',
+        headerGradientAngle: 90,
+        iconUrl: '',
+        iconSize: 24,
+        headerPaddingX: 20,
+        headerPaddingY: 12,
+        headerText: 'Promotion Header!',
+        headerTextColor: '#FFFFFF',
+        headerFontSize: 18,
+        headerFontWeight: '700',
+        // Body
+        bodyBackgroundType: 'solid',
+        bodyBgColor: '#f071001f',
+        bodyGradientColor1: '#f071001f',
+        bodyGradientColor2: '#FFFFFF',
+        bodyGradientAngle: 90,
+        bodyPaddingX: 20,
+        bodyPaddingY: 5,
+        bodyText: 'This is the main content of the promotion banner. You can write a detailed paragraph here. To link a part of this text, use placeholders like [[this text]].',
+        bodyTextColor: '#212121',
+        bodyFontSize: 15,
+        bodyFontWeight: '400',
+        bodyLineHeight: 1.7,
+        // Links
+        links: [],
+    });
+
+    const createDefaultBanner = () => ({
         id: null, name: '', displayMethod: 'Fixed', isActive: true, type: null,
         displayOn: { posts: [], pages: [], categories: [] },
         left: createDefaultPart(), right: createDefaultPart(), single: createDefaultPart(),
         simple: createDefaultSimplePart(),
         sticky_simple: createDefaultSimplePart(),
+        promotion: createDefaultPromotionPart(),
         api: { 
             apiType: null, 
             selectedHotel: null, 
@@ -103,6 +132,8 @@ export function useBannerState() {
             design: createDefaultApiDesign(),
         },
     });
+
+    const banner = reactive(createDefaultBanner());
 
     const shortcode = computed(() => {
         if (!banner.type) return '';
@@ -130,10 +161,12 @@ export function useBannerState() {
                     banner[key] = existingData[key];
                 }
             }
+            // Ensure direction is set if it's a promotion banner
+            if (key === 'promotion' && typeof existingData[key].direction === 'undefined') {
+                existingData[key].direction = 'ltr'; // Set default if missing from old banners
+            }
         }
         
-        // *** FIX START: Ensure displayOn structure is always correct after merging ***
-        // This prevents errors if an old banner without this data is loaded.
         if (!banner.displayOn) {
             banner.displayOn = { posts: [], pages: [], categories: [] };
         } else {
@@ -141,8 +174,15 @@ export function useBannerState() {
             if (!Array.isArray(banner.displayOn.pages)) banner.displayOn.pages = [];
             if (!Array.isArray(banner.displayOn.categories)) banner.displayOn.categories = [];
         }
-        // *** FIX END ***
+
+        if (banner.type === 'promotion-banner' && !Array.isArray(banner.promotion.links)) {
+            banner.promotion.links = [];
+        }
     };
 
-    return { banner, shortcode, mergeWithExisting };
+    const resetBannerState = () => {
+        Object.assign(banner, createDefaultBanner());
+    };
+
+    return { banner, shortcode, mergeWithExisting, resetBannerState };
 }

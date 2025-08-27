@@ -16,7 +16,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
     class Yab_Shortcode_Handler {
 
         public function register_shortcodes() {
-            $banner_types = ['singlebanner', 'doublebanner', 'apibanner', 'simplebanner', 'stickysimplebanner'];
+            $banner_types = ['singlebanner', 'doublebanner', 'apibanner', 'simplebanner', 'stickysimplebanner', 'promotionbanner'];
             foreach ($banner_types as $type) {
                 add_shortcode($type, [$this, 'render_embeddable_banner']);
                 add_shortcode($type . '_fixed', [$this, 'render_fixed_banner']);

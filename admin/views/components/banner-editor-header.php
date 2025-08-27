@@ -1,6 +1,6 @@
 <header class="sticky top-7 bg-[#434343]/60 backdrop-blur-md p-4 z-20 flex items-center justify-between shadow-lg ltr">
     <div class="flex items-center gap-4">
-        <button @click="goBackToSelection" class="text-gray-400 hover:text-white bg-transparent border-none p-0 cursor-pointer flex items-center">&larr; All Banners</button>
+        <button @click="goBackToSelection" class="text-gray-400 hover:text-white bg-transparent border-none p-0 cursor-pointer flex items-center">&larr; Back</button>
         <span class="text-gray-600">|</span>
         <span class="text-sm">Title:</span>
         <input type="text" v-model="banner.name" placeholder="Enter Banner Name..." class="bg-[#656565] text-white border border-gray-600 rounded px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#00baa4] w-64">
