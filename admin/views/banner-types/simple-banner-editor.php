@@ -101,8 +101,8 @@
                      <div class="mt-4">
                         <label class="setting-label-sm">Content Direction</label>
                         <div class="flex rounded-lg bg-[#292929] overflow-hidden">
-                            <button @click="banner.simple.direction = 'ltr'" :class="banner.simple.direction === 'ltr' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Left to Right</button>
-                            <button @click="banner.simple.direction = 'rtl'" :class="banner.simple.direction === 'rtl' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Right to Left</button>
+                            <button @click="banner.simple.direction = 'ltr'" :class="banner.simple.direction === 'ltr' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Left</button>
+                            <button @click="banner.simple.direction = 'rtl'" :class="banner.simple.direction === 'rtl' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Right</button>
                         </div>
                     </div>
                 </div>
@@ -191,7 +191,7 @@
     <div class="col-span-8 sticky top-[120px] space-y-4">
         <div class="bg-[#434343] p-4 rounded-lg">
             <h3 class="preview-title">Live Preview</h3>
-            <div class="flex justify-center items-center h-48 bg-[#292929] rounded-lg p-4">
+            <div class="flex justify-center items-center h-auto bg-[#292929] rounded-lg p-4">
                  <div class="yab-simple-banner-wrapper" 
                      :style="{ 
                         width: '100%', 
@@ -204,7 +204,8 @@
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         boxSizing: 'border-box',
-                        direction: banner.simple.direction
+                        direction: banner.simple.direction,
+                        flexDirection: banner.simple.direction === 'rtl' ? 'row-reverse' : 'row'
                      }">
                     <span :style="{ 
                         fontSize: banner.simple.textSize + 'px',
@@ -234,10 +235,11 @@
                 </div>
             </div>
         </div>
-        
-        <div v-if="banner.displayMethod === 'Fixed'">
-            <?php require_once YAB_PLUGIN_DIR . 'admin/views/components/display-conditions.php'; ?>
-        </div>
+        <transition name="yab-modal-fade">
+            <div v-if="banner.displayMethod === 'Fixed'">
+                <?php require YAB_PLUGIN_DIR . 'admin/views/components/display-conditions.php'; ?>
+            </div>
+        </transition>
 
     </div>
 </main>

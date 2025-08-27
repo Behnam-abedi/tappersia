@@ -84,9 +84,6 @@ if (!class_exists('Yab_Shortcode_Handler')) {
          */
         private function should_display_fixed($banner_post, $queried_object_id, $global_post): bool {
             $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
-            if (get_post_meta($banner_post->ID, '_yab_banner_type', true) === 'api-banner' && empty($data['displayOn'])) {
-                 return true;
-            }
             if (empty($data['displayOn'])) return false;
 
             $cond = $data['displayOn'];

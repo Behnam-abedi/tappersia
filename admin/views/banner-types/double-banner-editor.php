@@ -255,9 +255,11 @@
             </div>
         </div>
         
-        <div v-if="banner.displayMethod === 'Fixed'">
-            <?php require_once YAB_PLUGIN_DIR . 'admin/views/components/display-conditions.php'; ?>
-        </div>
+        <transition name="yab-modal-fade">
+            <div v-if="banner.displayMethod === 'Fixed'">
+                <?php require YAB_PLUGIN_DIR . 'admin/views/components/display-conditions.php'; ?>
+            </div>
+        </transition>
 
     </div>
 </main>
