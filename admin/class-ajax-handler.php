@@ -22,6 +22,14 @@ if (!class_exists('Yab_Ajax_Handler')) :
                 case 'promotion-banner':
                     require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/PromotionBanner/PromotionBanner.php';
                     return new Yab_Promotion_Banner();
+                case 'content-html-banner':
+                    require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/ContentHtmlBanner/ContentHtmlBanner.php';
+                    return new Yab_Content_Html_Banner();
+                // START: ADDED SECTION
+                case 'content-html-sidebar-banner':
+                    require_once YAB_PLUGIN_DIR . 'includes/BannerTypes/ContentHtmlSidebarBanner/ContentHtmlSidebarBanner.php';
+                    return new Yab_Content_Html_Sidebar_Banner();
+                // END: ADDED SECTION
                 default:
                     return null;
             }
@@ -182,6 +190,9 @@ if (!class_exists('Yab_Ajax_Handler')) :
             }
             if (!empty($_POST['stars'])) {
                 $params['stars'] = sanitize_text_field($_POST['stars']);
+            }
+            if (!empty($_POST['sort'])) {
+                $params['sort'] = sanitize_text_field($_POST['sort']);
             }
             
             $api_url = add_query_arg($params, $base_url);

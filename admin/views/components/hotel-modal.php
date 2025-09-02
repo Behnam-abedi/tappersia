@@ -60,6 +60,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mb-6">
+                        <label class="filter-label">Sort By</label>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <button @click="toggleSort('rate')" :class="filters.sort === 'rate' ? 'bg-[#00baa4] text-white' : 'bg-[#434343] text-gray-300'" class="px-2 py-2 rounded-md transition-colors">Rating</button>
+                            <button @click="toggleSort('price_low_high')" :class="filters.sort === 'price_low_high' ? 'bg-[#00baa4] text-white' : 'bg-[#434343] text-gray-300'" class="px-2 py-2 rounded-md transition-colors">Price (Low-High)</button>
+                            <button @click="toggleSort('price_high_low')" :class="filters.sort === 'price_high_low' ? 'bg-[#00baa4] text-white' : 'bg-[#434343] text-gray-300'" class="px-2 py-2 rounded-md transition-colors">Price (High-Low)</button>
+                            <button @click="toggleSort('star_high_low')" :class="filters.sort === 'star_high_low' ? 'bg-[#00baa4] text-white' : 'bg-[#434343] text-gray-300'" class="px-2 py-2 rounded-md transition-colors">Stars (High-Low)</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="mt-auto pt-4">
                     <button @click="confirmHotelSelection" :disabled="!tempSelectedHotel" class="w-full bg-[#00baa4] text-white font-bold px-4 py-3 rounded-lg hover:bg-opacity-80 transition-all disabled:bg-gray-500 disabled:cursor-not-allowed">

@@ -49,7 +49,8 @@ export function useApiBanner(banner, showModal, ajax) {
         minPrice: 0,
         maxPrice: 1000,
         province: '',
-        stars: 0
+        stars: 0,
+        sort: ''
     });
 
     const hotelTypes = [
@@ -222,16 +223,30 @@ export function useApiBanner(banner, showModal, ajax) {
                 minPrice: filters.minPrice,
                 maxPrice: filters.maxPrice,
                 province: filters.province,
-                stars: starsParam
+                stars: starsParam,
+                sort: filters.sort
             };
             const data = await ajax.post('yab_fetch_hotels_from_api', params);
 
+            const newResults = data.data || [];
+
+            if (isNewSearch && tempSelectedHotel.value) {
+                const isSelectedInResults = newResults.some(h => h.id === tempSelectedHotel.value.id);
+                if (!isSelectedInResults) {
+                    hotelResults.push(tempSelectedHotel.value);
+                }
+            }
+
+            const existingIds = new Set(hotelResults.map(h => h.id));
+            const uniqueNewResults = newResults.filter(h => !existingIds.has(h.id));
+            hotelResults.push(...uniqueNewResults);
+
             if (data.data && data.data.length > 0) {
-                hotelResults.push(...data.data);
                 hotelCurrentPage.value++;
             } else {
-                canLoadMoreHotels.value = false; 
+                canLoadMoreHotels.value = false;
             }
+
         } catch (error) {
             showModal('API Error', error.message);
         } finally {
@@ -308,30 +323,32 @@ export function useApiBanner(banner, showModal, ajax) {
         }
     });
 
-    watch(() => ({...filters}), (newFilters, oldFilters) => {
-        if (newFilters.keyword !== oldFilters.keyword) return;
-        if (newFilters.minPrice !== oldFilters.minPrice || newFilters.maxPrice !== oldFilters.maxPrice) {
-             clearTimeout(debounceTimeout);
-             debounceTimeout = setTimeout(() => searchHotels(true), 500);
-        } else {
-            searchHotels(true);
-        }
-    }, { deep: true });
-    
-    watch(() => ({...tourFilters}), (newFilters, oldFilters) => {
-        if (newFilters.keyword !== oldFilters.keyword) return;
-        if (newFilters.minPrice !== oldFilters.minPrice || newFilters.maxPrice !== oldFilters.maxPrice) {
-             clearTimeout(debounceTimeout);
-             debounceTimeout = setTimeout(() => searchTours(true), 500);
-        } else {
-            searchTours(true);
-        }
-    }, { deep: true });
+    watch(() => filters.keyword, debouncedHotelSearch);
+    watch(() => [filters.types, filters.province, filters.stars, filters.sort], () => searchHotels(true), { deep: true });
+    watch(() => [filters.minPrice, filters.maxPrice], () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => searchHotels(true), 500);
+    });
+
+    watch(() => tourFilters.keyword, debouncedTourSearch);
+    watch(() => [tourFilters.types, tourFilters.province], () => searchTours(true), { deep: true });
+    watch(() => [tourFilters.minPrice, tourFilters.maxPrice], () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => searchTours(true), 500);
+    });
 
     const toggleType = (typeKey) => {
         const index = filters.types.indexOf(typeKey);
         if (index > -1) filters.types.splice(index, 1);
         else filters.types.push(typeKey);
+    };
+    
+    const toggleSort = (sortKey) => {
+        if (filters.sort === sortKey) {
+            filters.sort = '';
+        } else {
+            filters.sort = sortKey;
+        }
     };
 
     const toggleTourType = (typeKey) => {
@@ -356,7 +373,7 @@ export function useApiBanner(banner, showModal, ajax) {
 
     const resetFilters = () => {
         Object.assign(filters, {
-            keyword: '', types: [], minPrice: 0, maxPrice: 1000, province: '', stars: 0
+            keyword: '', types: [], minPrice: 0, maxPrice: 1000, province: '', stars: 0, sort: ''
         });
     };
     
@@ -406,7 +423,7 @@ export function useApiBanner(banner, showModal, ajax) {
         openHotelModal, closeHotelModal, selectHotel, modalListRef, 
         tempSelectedHotel, confirmHotelSelection,
         filters, cities, hotelTypes,
-        debouncedHotelSearch, toggleType, setStarRating, resetFilters,
+        debouncedHotelSearch, toggleType, setStarRating, resetFilters, toggleSort,
         isCityDropdownOpen, selectedCityName, selectCity,
         fetchFullHotelDetails,
         
@@ -416,7 +433,7 @@ export function useApiBanner(banner, showModal, ajax) {
         tempSelectedTour, confirmTourSelection,
         tourFilters, tourCities, tourTypes,
         debouncedTourSearch, toggleTourType, resetTourFilters,
-        isTourCityDropdownOpen, selectedTourCityName, selectTourCity,
+        isCityDropdownOpen, selectedTourCityName, selectTourCity,
         fetchFullTourDetails, fetchFullTourDetails
     };
 }

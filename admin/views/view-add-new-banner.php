@@ -29,7 +29,15 @@
                         <span class="dashicons dashicons-megaphone text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Promotion Banner</h3>
                     </div>
-                </div>
+                    <div @click="selectElementType('content-html-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-editor-code text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Content HTML</h3>
+                    </div>
+                    <div @click="selectElementType('content-html-sidebar-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-align-pull-right text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Content HTML Sidebar</h3>
+                    </div>
+                    </div>
             </div>
         </div>
 
@@ -52,7 +60,13 @@
             <div v-if="banner.type === 'promotion-banner'">
                 <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/promotion-banner-editor.php'; ?>
             </div>
-        </div>
+            <div v-if="banner.type === 'content-html-banner'">
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/content-html-editor.php'; ?>
+            </div>
+            <div v-if="banner.type === 'content-html-sidebar-banner'">
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/content-html-sidebar-editor.php'; ?>
+            </div>
+            </div>
 
         <div v-else-if="appState === 'loading'" key="loading" class="flex items-center justify-center h-screen">
             <div class="yab-spinner w-12 h-12"></div>

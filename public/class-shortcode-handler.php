@@ -16,7 +16,9 @@ if (!class_exists('Yab_Shortcode_Handler')) {
     class Yab_Shortcode_Handler {
 
         public function register_shortcodes() {
-            $banner_types = ['singlebanner', 'doublebanner', 'apibanner', 'simplebanner', 'stickysimplebanner', 'promotionbanner'];
+            // START: MODIFIED SECTION
+            $banner_types = ['singlebanner', 'doublebanner', 'apibanner', 'simplebanner', 'stickysimplebanner', 'promotionbanner', 'contenthtml', 'contenthtmlsidebar'];
+            // END: MODIFIED SECTION
             foreach ($banner_types as $type) {
                 add_shortcode($type, [$this, 'render_embeddable_banner']);
                 add_shortcode($type . '_fixed', [$this, 'render_fixed_banner']);
@@ -34,7 +36,14 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             
             $banner_post = get_post(intval($atts['id']));
             
+            // START: MODIFIED SECTION
             $banner_type_slug = str_replace('banner', '-banner', $tag);
+            if ($tag === 'contenthtml') {
+                $banner_type_slug = 'content-html-banner';
+            } elseif ($tag === 'contenthtmlsidebar') {
+                $banner_type_slug = 'content-html-sidebar-banner';
+            }
+            // END: MODIFIED SECTION
 
             if (!$this->is_valid_banner($banner_post, $banner_type_slug, 'Embeddable')) {
                  return "";
@@ -52,7 +61,14 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             if (!$post && !is_category() && !is_archive()) return '';
 
             $base_tag = str_replace('_fixed', '', $tag);
+            // START: MODIFIED SECTION
             $banner_type_slug = str_replace('banner', '-banner', $base_tag);
+            if ($base_tag === 'contenthtml') {
+                $banner_type_slug = 'content-html-banner';
+            } elseif ($base_tag === 'contenthtmlsidebar') {
+                $banner_type_slug = 'content-html-sidebar-banner';
+            }
+            // END: MODIFIED SECTION
             
             $args = [
                 'post_type' => 'yab_banner', 'posts_per_page' => -1, 'post_status' => 'publish',

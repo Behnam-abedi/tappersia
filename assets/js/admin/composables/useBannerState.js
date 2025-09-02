@@ -86,7 +86,7 @@ export function useBannerState() {
         borderWidth: 1,
         borderColor: '#ffad1e57',
         borderRadius: 12,
-        direction: 'ltr', // Default direction for the entire promotion banner
+        direction: 'ltr',
         // Header
         headerBackgroundType: 'solid',
         headerBgColor: '#FF731B',
@@ -118,6 +118,16 @@ export function useBannerState() {
         links: [],
     });
 
+    const createDefaultHtmlPart = () => ({
+        html: '<div style="padding: 20px; text-align: center;">\n  <h2 style="color: #333;">Welcome!</h2>\n  <p style="color: #555;">This is your custom HTML banner.</p>\n  <button style="background-color: #00baa4; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Click Me</button>\n</div>'
+    });
+    
+    // START: ADDED SECTION
+    const createDefaultHtmlSidebarPart = () => ({
+        html: '<div style="padding: 15px; border: 1px solid #ddd; text-align: center;">\n  <h4 style="color: #333; margin-top: 0;">Sidebar Content</h4>\n  <p style="color: #555; font-size: 14px;">Your custom HTML for sidebar.</p>\n</div>'
+    });
+    // END: ADDED SECTION
+
     const createDefaultBanner = () => ({
         id: null, name: '', displayMethod: 'Fixed', isActive: true, type: null,
         displayOn: { posts: [], pages: [], categories: [] },
@@ -125,6 +135,10 @@ export function useBannerState() {
         simple: createDefaultSimplePart(),
         sticky_simple: createDefaultSimplePart(),
         promotion: createDefaultPromotionPart(),
+        content_html: createDefaultHtmlPart(),
+        // START: ADDED SECTION
+        content_html_sidebar: createDefaultHtmlSidebarPart(),
+        // END: ADDED SECTION
         api: { 
             apiType: null, 
             selectedHotel: null, 
@@ -137,7 +151,11 @@ export function useBannerState() {
 
     const shortcode = computed(() => {
         if (!banner.type) return '';
-        const base = banner.type.replace(/-/g, '');
+        // START: MODIFIED SECTION
+        const base = banner.type.replace(/-/g, '')
+                                .replace('contenthtmlbanner', 'contenthtml')
+                                .replace('contenthtmlsidebarbanner', 'contenthtmlsidebar');
+        // END: MODIFIED SECTION
         if (banner.displayMethod === 'Embeddable') {
             return banner.id ? `[${base} id="${banner.id}"]` : `[${base} id="..."]`;
         }
@@ -161,9 +179,8 @@ export function useBannerState() {
                     banner[key] = existingData[key];
                 }
             }
-            // Ensure direction is set if it's a promotion banner
             if (key === 'promotion' && typeof existingData[key].direction === 'undefined') {
-                existingData[key].direction = 'ltr'; // Set default if missing from old banners
+                existingData[key].direction = 'ltr';
             }
         }
         
