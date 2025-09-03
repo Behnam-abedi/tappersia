@@ -43,28 +43,28 @@
 
         <div v-else-if="appState === 'editor'" key="editor">
             <div v-if="banner.type === 'double-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/double-banner-editor.php'; ?>
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/double-banner/double-banner-editor.php'; ?>
             </div>
             <div v-if="banner.type === 'single-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/single-banner-editor.php'; ?>
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/single-banner/single-banner-editor.php'; ?>
             </div>
             <div v-if="banner.type === 'api-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/api-banner-editor.php'; ?>
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/api-banner/api-banner-editor.php'; ?>
             </div>
             <div v-if="banner.type === 'simple-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/simple-banner-editor.php'; ?>
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/simple-banner/simple-banner-editor.php'; ?>
             </div>
             <div v-if="banner.type === 'sticky-simple-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/sticky-simple-banner-editor.php'; ?>
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/sticky-simple-banner/sticky-simple-banner-editor.php'; ?>
             </div>
             <div v-if="banner.type === 'promotion-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/promotion-banner-editor.php'; ?>
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/promotion-banner/promotion-banner-editor.php'; ?>
             </div>
             <div v-if="banner.type === 'content-html-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/content-html-editor.php'; ?>
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/content-html-banner/content-html-editor.php'; ?>
             </div>
             <div v-if="banner.type === 'content-html-sidebar-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/content-html-sidebar-editor.php'; ?>
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/content-html-sidebar-banner/content-html-sidebar-editor.php'; ?>
             </div>
             </div>
 

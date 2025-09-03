@@ -166,7 +166,7 @@ require YAB_PLUGIN_DIR . 'admin/views/components/banner-editor-header.php';
                         <label class="setting-label-sm">Body Text (Use [[placeholder]] for links)</label>
                         <button @click="makeSelectedTextPlaceholder" class="text-xs bg-[#00baa4] text-white px-2 py-1 rounded-md hover:bg-opacity-80 transition-all">Create Link from Selected Text</button>
                     </div>
-                    <textarea ref="bodyTextarea" v-model="banner.promotion.bodyText" rows="4" class="yab-form-input mb-2" placeholder="e.g., For more info, see [[our guide]]."></textarea>
+                    <textarea ref="bodyTextarea" v-model="banner.promotion.bodyText" rows="4" class="yab-form-input mb-2 text-white" placeholder="e.g., For more info, see [[our guide]]."></textarea>
                      <div class="grid grid-cols-3 gap-2">
                         <div>
                             <label class="setting-label-sm">Text Color</label>

@@ -74,7 +74,7 @@ if (!class_exists('Yab_Abstract_Banner_Renderer')) {
          */
         protected function get_alignment_style(array $b): string {
             $alignment = $b['alignment'] ?? 'left';
-            $align_items = 'flex-start';
+            $align_items = 'flex-start'; // Default to left
             $text_align = 'left';
             $align_self = 'flex-start';
 
@@ -82,12 +82,12 @@ if (!class_exists('Yab_Abstract_Banner_Renderer')) {
                 $align_items = 'center';
                 $text_align = 'center';
                 $align_self = 'center';
-            } elseif ($alignment === 'left') { // Corresponds to 'Right' in the UI
+            } elseif ($alignment === 'right') {
                 $align_items = 'flex-end';
                 $text_align = 'right';
                 $align_self = 'flex-end';
             }
-            // 'right' in UI corresponds to 'flex-start' which is the default
+            
             return "align-items: {$align_items}; text-align: {$text_align}; --align-self: {$align_self};";
         }
     }
