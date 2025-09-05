@@ -17,10 +17,10 @@
                 </div>
             </div>
             <div>
-                <label class="setting-label-sm">Height</label>
+                <label class="setting-label-sm">Min Height</label>
                 <div class="flex items-center gap-1">
-                    <input type="number" v-model.number="settings.height" class="yab-form-input" placeholder="Height">
-                    <select v-model="settings.heightUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
+                    <input type="number" v-model.number="settings.minHeight" class="yab-form-input" placeholder="Min Height">
+                    <select v-model="settings.minHeightUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
                 </div>
             </div>
         </div>
@@ -36,20 +36,24 @@
             </label>
         </div>
         <div v-if="settings.enableBorder" class="grid grid-cols-3 gap-2">
-             <div>
+             <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Color</label>
                 <div class="yab-color-input-wrapper">
                     <input type="color" v-model="settings.borderColor" class="yab-color-picker">
                      <input type="text" v-model="settings.borderColor" class="yab-hex-input" placeholder="Color">
                 </div>
             </div>
-            <div>
-                <label class="setting-label-sm">Width (px)</label>
-                <input type="number" v-model.number="settings.borderWidth" class="yab-form-input" placeholder="e.g., 1">
-            </div>
-            <div>
-                <label class="setting-label-sm">Radius (px)</label>
-                <input type="number" v-model.number="settings.borderRadius" class="yab-form-input" placeholder="e.g., 8">
+            <div :class="{'col-span-3': currentView === 'mobile', 'col-span-2': currentView === 'desktop'}">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="setting-label-sm">Width (px)</label>
+                        <input type="number" v-model.number="settings.borderWidth" class="yab-form-input" placeholder="e.g., 1">
+                    </div>
+                    <div>
+                        <label class="setting-label-sm">Radius (px)</label>
+                        <input type="number" v-model.number="settings.borderRadius" class="yab-form-input" placeholder="e.g., 8">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -78,6 +82,7 @@
     <hr class="section-divider">
     <div>
         <h4 class="section-title">Background Overlay</h4>
+        <p class="text-xs text-gray-400 mb-2">Configure the desktop background first; you can then override it for the mobile view.</p>
         <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none">
             <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg border-none">Solid Color</button>
             <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg border-none">Gradient</button>
@@ -168,7 +173,7 @@
         </div>
     </div>
     <hr class="section-divider">
-    <div>
+    <div v-if="currentView === 'desktop'">
         <h4 class="section-title">Content Alignment</h4>
         <div class="flex rounded-lg bg-[#292929] overflow-hidden">
             <button @click="settings.alignment = 'left'" :class="settings.alignment === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Left</button>
@@ -184,14 +189,14 @@
             <input type="text" v-model="settings.titleText" class="yab-form-input mb-2" placeholder="Title Text">
         </div>
         <div class="grid grid-cols-2 gap-2">
-            <div>
+            <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Color</label>
                 <div class="yab-color-input-wrapper">
                     <input type="color" v-model="settings.titleColor" class="yab-color-picker">
                     <input type="text" v-model="settings.titleColor" class="yab-hex-input" placeholder="#hexcode">
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-2" :class="{'col-span-2': currentView === 'mobile'}">
                 <div>
                     <label class="setting-label-sm">Size (px)</label>
                     <input type="number" v-model.number="settings.titleSize" class="yab-form-input" placeholder="Size">
@@ -213,14 +218,14 @@
             <textarea v-model="settings.descText" rows="3" class="yab-form-input mb-2" placeholder="Description Text"></textarea>
         </div>
         <div class="grid grid-cols-2 gap-2">
-            <div>
+            <div v-if="currentView === 'desktop'">
                  <label class="setting-label-sm">Color</label>
                  <div class="yab-color-input-wrapper">
                     <input type="color" v-model="settings.descColor" class="yab-color-picker">
                     <input type="text" v-model="settings.descColor" class="yab-hex-input" placeholder="#hexcode">
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-2" :class="{'col-span-2': currentView === 'mobile'}">
                 <div>
                     <label class="setting-label-sm">Size (px)</label>
                     <input type="number" v-model.number="settings.descSize" class="yab-form-input" placeholder="Size">
@@ -250,7 +255,7 @@
             <label class="setting-label-sm">Button Link (URL)</label>
             <input type="text" v-model="settings.buttonLink" class="yab-form-input mb-2" placeholder="https://example.com">
         </div>
-        <div class="grid grid-cols-2 gap-2 mb-2">
+        <div v-if="currentView === 'desktop'" class="grid grid-cols-2 gap-2 mb-2">
             <div>
                 <label class="setting-label-sm">Background Color</label>
                 <div class="yab-color-input-wrapper">
@@ -267,14 +272,14 @@
             </div>
         </div>
          <div class="grid grid-cols-2 gap-2">
-            <div>
+            <div v-if="currentView === 'desktop'">
                <label class="setting-label-sm">Hover BG Color</label>
                <div class="yab-color-input-wrapper">
                     <input type="color" v-model="settings.buttonBgHoverColor" class="yab-color-picker">
                     <input type="text" v-model="settings.buttonBgHoverColor" class="yab-hex-input" placeholder="Hover #hex">
                 </div>
             </div>
-            <div>
+            <div :class="{'col-span-2': currentView === 'mobile'}">
                 <label class="setting-label-sm">Font Size (px)</label>
                 <input type="number" v-model.number="settings.buttonFontSize" class="yab-form-input" placeholder="Font Size">
             </div>

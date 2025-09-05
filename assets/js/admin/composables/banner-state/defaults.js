@@ -38,8 +38,9 @@ export const createDefaultPart = () => ({
     enableCustomDimensions: true,
     width: 100,
     widthUnit: '%',
-    height: 183,
-    heightUnit: 'px',
+    height: 'auto',
+    minHeight: 183,
+    minHeightUnit: 'px',
     enableBorder: false,
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -66,14 +67,15 @@ export const createDefaultMobilePart = () => {
     // Custom defaults for mobile as per user request
     mobileDefaults.width = 100;
     mobileDefaults.widthUnit = '%';
-    mobileDefaults.height = 110;
-    mobileDefaults.heightUnit = 'px';
+    mobileDefaults.height = 'auto';
+    mobileDefaults.minHeight = 110;
+    mobileDefaults.minHeightUnit = 'px';
     mobileDefaults.borderRadius = 16;
     mobileDefaults.paddingTop = 15;
     mobileDefaults.paddingRight = 12;
     mobileDefaults.paddingBottom = 15;
     mobileDefaults.paddingLeft = 12;
-    mobileDefaults.marginTopDescription = 2;
+    mobileDefaults.marginTopDescription = 5;
     mobileDefaults.titleSize = 14;
     mobileDefaults.descSize = 9;
     mobileDefaults.descLineHeight = 1.2;

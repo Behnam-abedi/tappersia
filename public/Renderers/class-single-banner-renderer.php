@@ -1,6 +1,5 @@
 <?php
 // tappersia/public/Renderers/class-single-banner-renderer.php
-
 if (!class_exists('Yab_Single_Banner_Renderer')) {
     require_once __DIR__ . '/class-abstract-banner-renderer.php';
 
@@ -41,16 +40,17 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
         private function render_view($b, $view, $banner_id) {
              $banner_styles = [
                 'width' => !empty($b['enableCustomDimensions']) ? esc_attr($b['width'] . $b['widthUnit']) : '100%',
-                'height' => !empty($b['enableCustomDimensions']) ? esc_attr($b['height'] . $b['heightUnit']) : ($view === 'desktop' ? '183px' : '110px'),
+                'height' => 'auto',
+                'min-height' => !empty($b['enableCustomDimensions']) ? esc_attr($b['minHeight'] . ($b['minHeightUnit'] ?? 'px')) : ($view === 'desktop' ? '183px' : '110px'),
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
                 'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0',
             ];
              if (!empty($b['enableBorder'])) { $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 1) . 'px solid ' . esc_attr($b['borderColor'] ?? '#E0E0E0'); }
 
             $content_styles = [
-                'width' => '100%', 'height' => '100%',
+                'width' => '100%',
                 'padding' => sprintf('%spx %spx %spx %spx', esc_attr($b['paddingTop'] ?? 15), esc_attr($b['paddingRight'] ?? 12), esc_attr($b['paddingBottom'] ?? 15), esc_attr($b['paddingLeft'] ?? 12)),
-                'display' => 'flex', 'flex-direction' => 'column', 'z-index' => '10', 'position' => 'relative',
+                'display' => 'flex', 'flex-direction' => 'column', 'z-index' => '10', 'position' => 'relative', 'flex-grow' => '1',
             ];
             
             $alignment_style = $this->get_alignment_style($b);

@@ -27,16 +27,12 @@ export function initializeApp(yabData) {
             // --- Watchers ---
             watch(currentView, (newView) => {
                 if (newView === 'mobile' && !banner.isMobileConfigured) {
-                    // One-time copy from desktop to mobile for specific fields
+                    // One-time copy from desktop to mobile for fields that are NOT synced
                     const desktop = banner.single;
                     const mobile = banner.single_mobile;
-
-                    // Fields to copy from desktop
-                    mobile.backgroundType = desktop.backgroundType;
-                    mobile.bgColor = desktop.bgColor;
+                    
                     mobile.gradientAngle = desktop.gradientAngle;
                     mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
-                    mobile.imageUrl = desktop.imageUrl; // Use the same image URL
                     mobile.enableCustomImageSize = desktop.enableCustomImageSize;
                     mobile.imageWidth = desktop.imageWidth;
                     mobile.imageWidthUnit = desktop.imageWidthUnit;
@@ -44,30 +40,49 @@ export function initializeApp(yabData) {
                     mobile.imageHeightUnit = desktop.imageHeightUnit;
                     mobile.imagePosRight = desktop.imagePosRight;
                     mobile.imagePosBottom = desktop.imagePosBottom;
-                    mobile.alignment = desktop.alignment;
                     mobile.titleText = desktop.titleText;
-                    mobile.titleColor = desktop.titleColor;
                     mobile.titleWeight = desktop.titleWeight;
-                    mobile.descText = desktop.descText;
-                    mobile.descColor = desktop.descColor;
                     mobile.descWeight = desktop.descWeight;
                     mobile.buttonText = desktop.buttonText;
                     mobile.buttonLink = desktop.buttonLink;
-                    mobile.buttonBgColor = desktop.buttonBgColor;
-                    mobile.buttonTextColor = desktop.buttonTextColor;
-                    mobile.buttonBgHoverColor = desktop.buttonBgHoverColor;
                     mobile.buttonFontWeight = desktop.buttonFontWeight;
                     mobile.buttonWidth = desktop.buttonWidth;
                     mobile.buttonWidthUnit = desktop.buttonWidthUnit;
                     mobile.buttonHeight = desktop.buttonHeight;
                     mobile.buttonHeightUnit = desktop.buttonHeightUnit;
-                    mobile.buttonMinWidth = desktop.buttonMinWidth;
-                    mobile.buttonMinWidthUnit = desktop.buttonMinWidthUnit;
                     mobile.buttonBorderRadius = desktop.buttonBorderRadius;
 
                     banner.isMobileConfigured = true; // Mark as configured
                 }
             });
+
+            // Watch for changes in desktop settings and sync them to mobile
+            watch(() => ({
+                borderColor: banner.single.borderColor,
+                backgroundType: banner.single.backgroundType,
+                bgColor: banner.single.bgColor,
+                imageUrl: banner.single.imageUrl,
+                alignment: banner.single.alignment,
+                titleColor: banner.single.titleColor,
+                descText: banner.single.descText,
+                descColor: banner.single.descColor,
+                buttonBgColor: banner.single.buttonBgColor,
+                buttonBgHoverColor: banner.single.buttonBgHoverColor,
+                buttonTextColor: banner.single.buttonTextColor,
+            }), (newDesktopSettings) => {
+                banner.single_mobile.borderColor = newDesktopSettings.borderColor;
+                banner.single_mobile.backgroundType = newDesktopSettings.backgroundType;
+                banner.single_mobile.bgColor = newDesktopSettings.bgColor;
+                banner.single_mobile.imageUrl = newDesktopSettings.imageUrl;
+                banner.single_mobile.alignment = newDesktopSettings.alignment;
+                banner.single_mobile.titleColor = newDesktopSettings.titleColor;
+                banner.single_mobile.descText = newDesktopSettings.descText;
+                banner.single_mobile.descColor = newDesktopSettings.descColor;
+                banner.single_mobile.buttonBgColor = newDesktopSettings.buttonBgColor;
+                banner.single_mobile.buttonBgHoverColor = newDesktopSettings.buttonBgHoverColor;
+                banner.single_mobile.buttonTextColor = newDesktopSettings.buttonTextColor;
+            }, { deep: true });
+
 
             // --- Computed Properties ---
             const allBannersUrl = computed(() => 'admin.php?page=tappersia-list');
@@ -113,7 +128,8 @@ export function initializeApp(yabData) {
                 if (!settings) return {};
                 return {
                     width: settings.enableCustomDimensions ? `${settings.width}${settings.widthUnit}` : '100%',
-                    height: settings.enableCustomDimensions ? `${settings.height}${settings.heightUnit}` : (view === 'desktop' ? '183px' : '110px'),
+                    height: 'auto',
+                    minHeight: settings.enableCustomDimensions ? `${settings.minHeight}${settings.minHeightUnit}` : (view === 'desktop' ? '183px' : '110px'),
                     border: settings.enableBorder ? `${settings.borderWidth}px solid ${settings.borderColor}` : 'none',
                     borderRadius: `${settings.borderRadius}px`
                 };
@@ -180,12 +196,15 @@ export function initializeApp(yabData) {
             };
             
             const goBackToSelection = () => {
-                resetBannerState();
-                appState.value = 'selection';
+                if (yabData.existing_banner) {
+                    window.location.href = allBannersUrl.value;
+                } else {
+                    resetBannerState();
+                    appState.value = 'selection';
+                }
             };
     
             const goToListPage = () => {
-                resetBannerState();
                 window.location.href = allBannersUrl.value;
             };
     
@@ -248,8 +267,33 @@ export function initializeApp(yabData) {
             };
             
             const copyShortcode = (event) => {
-                if (!banner.id && banner.displayMethod === 'Embeddable') return showModal('Info', 'Please save the banner first.');
-                navigator.clipboard.writeText(event.target.value).then(() => showModal('Success', 'Shortcode copied!'));
+                if (!banner.id && banner.displayMethod === 'Embeddable') {
+                    return showModal('Info', 'Please save the banner first to generate the shortcode.');
+                }
+            
+                const textToCopy = event.target.value;
+            
+                if (navigator.clipboard && window.isSecureContext) {
+                    // Modern async clipboard API
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showModal('Success', 'Shortcode copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy with navigator.clipboard: ', err);
+                        showModal('Error', 'Could not copy the shortcode.');
+                    });
+                } else {
+                    // Fallback for older browsers or insecure contexts
+                    try {
+                        const input = event.target;
+                        input.select();
+                        document.execCommand('copy');
+                        input.setSelectionRange(0, 0); // Deselect
+                        showModal('Success', 'Shortcode copied to clipboard!');
+                    } catch (err) {
+                        console.error('Fallback copy failed: ', err);
+                        showModal('Error', 'Could not copy the shortcode. Please copy it manually.');
+                    }
+                }
             };
             
             const makeSelectedTextPlaceholder = () => {
@@ -293,6 +337,8 @@ export function initializeApp(yabData) {
                 }
             });
 
+            const buttonAlignment = (align) => align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start');
+
             return {
                 appState, isSaving, banner, shortcode, modalComponent, allBannersUrl, bodyTextarea, currentView,
                 previewBodyText,
@@ -300,7 +346,7 @@ export function initializeApp(yabData) {
                 goBackToSelection, goToListPage, makeSelectedTextPlaceholder,
                 ...apiBannerLogic,
                 ...displayConditionsLogic,
-                bannerStyles, contentAlignment, imageStyleObject,
+                bannerStyles, contentAlignment, imageStyleObject, buttonAlignment,
                 ceil: Math.ceil,
                 getContentStyles,
                 getTitleStyles,
