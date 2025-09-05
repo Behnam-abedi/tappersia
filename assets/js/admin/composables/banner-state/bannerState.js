@@ -11,25 +11,39 @@ import {
 } from './defaults.js';
 
 export function useBannerState() {
-    const createDefaultBanner = () => ({
-        id: null, name: '', displayMethod: 'Fixed', isActive: true, type: null,
-        isMobileConfigured: false, // Flag to track if mobile has been configured once
-        displayOn: { posts: [], pages: [], categories: [] },
-        left: createDefaultPart(), right: createDefaultPart(), 
-        single: createDefaultPart(),
-        single_mobile: createDefaultMobilePart(),
-        simple: createDefaultSimplePart(),
-        sticky_simple: createDefaultSimplePart(),
-        promotion: createDefaultPromotionPart(),
-        content_html: createDefaultHtmlPart(),
-        content_html_sidebar: createDefaultHtmlSidebarPart(),
-        api: { 
-            apiType: null, 
-            selectedHotel: null, 
-            selectedTour: null,
-            design: createDefaultApiDesign(),
-        },
-    });
+    const createDefaultBanner = () => {
+        const left = createDefaultPart();
+        left.width = 50; left.widthUnit = '%'; left.minHeight = 185; left.paddingTop = 35; left.paddingBottom = 35; left.paddingRight = 31; left.paddingLeft = 31; left.buttonMinWidth = 143; left.marginTopDescription = 12;
+
+        const right = createDefaultPart();
+        right.width = 50; right.widthUnit = '%'; right.minHeight = 185; right.paddingTop = 35; right.paddingBottom = 35; right.paddingRight = 31; right.paddingLeft = 31; right.buttonMinWidth = 143; right.marginTopDescription = 12;
+
+        const left_mobile = createDefaultMobilePart();
+        left_mobile.paddingTop = 35; left_mobile.paddingBottom = 35; left_mobile.paddingRight = 31; left_mobile.paddingLeft = 31; left_mobile.buttonMinWidth = 143; left_mobile.marginTopDescription = 12;
+
+        const right_mobile = createDefaultMobilePart();
+        right_mobile.paddingTop = 35; right_mobile.paddingBottom = 35; right_mobile.paddingRight = 31; right_mobile.paddingLeft = 31; right_mobile.buttonMinWidth = 143; right_mobile.marginTopDescription = 12;
+
+        return {
+            id: null, name: '', displayMethod: 'Fixed', isActive: true, type: null,
+            isMobileConfigured: false, // Flag to track if mobile has been configured once
+            displayOn: { posts: [], pages: [], categories: [] },
+            left, right, left_mobile, right_mobile,
+            single: createDefaultPart(),
+            single_mobile: createDefaultMobilePart(),
+            simple: createDefaultSimplePart(),
+            sticky_simple: createDefaultSimplePart(),
+            promotion: createDefaultPromotionPart(),
+            content_html: createDefaultHtmlPart(),
+            content_html_sidebar: createDefaultHtmlSidebarPart(),
+            api: {
+                apiType: null,
+                selectedHotel: null,
+                selectedTour: null,
+                design: createDefaultApiDesign(),
+            },
+        };
+    };
 
     const banner = reactive(createDefaultBanner());
 
@@ -47,6 +61,12 @@ export function useBannerState() {
     const mergeWithExisting = (existingData) => {
         if (!existingData.single_mobile) {
             existingData.single_mobile = createDefaultMobilePart();
+        }
+        if (!existingData.left_mobile) {
+            existingData.left_mobile = createDefaultMobilePart();
+        }
+        if (!existingData.right_mobile) {
+            existingData.right_mobile = createDefaultMobilePart();
         }
 
         // If loading an existing banner, mark mobile as "configured" to prevent auto-copying

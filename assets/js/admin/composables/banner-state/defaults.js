@@ -19,6 +19,7 @@ export const createDefaultPart = () => ({
     descLineHeight: 1.1,
     descWidth: 100, // *** ADDED: Default description width ***
     descWidthUnit: '%', // *** ADDED: Default description width unit ***
+    layerOrder: 'overlay-top',
     buttonText: 'Learn More',
     buttonLink: '#',
     buttonBgColor: '#124C88',

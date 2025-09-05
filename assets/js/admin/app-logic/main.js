@@ -52,6 +52,15 @@ export function initializeApp(yabData) {
                     mobile.buttonHeightUnit = desktop.buttonHeightUnit;
                     mobile.buttonBorderRadius = desktop.buttonBorderRadius;
 
+                    ['left', 'right'].forEach(side => {
+                        const d = banner[side];
+                        const m = banner[`${side}_mobile`];
+                        Object.assign(m, JSON.parse(JSON.stringify(d)));
+                        m.width = 100;
+                        m.widthUnit = '%';
+                        m.minHeight = 110;
+                    });
+
                     banner.isMobileConfigured = true; // Mark as configured
                 }
             });
@@ -81,6 +90,38 @@ export function initializeApp(yabData) {
                 banner.single_mobile.buttonBgColor = newDesktopSettings.buttonBgColor;
                 banner.single_mobile.buttonBgHoverColor = newDesktopSettings.buttonBgHoverColor;
                 banner.single_mobile.buttonTextColor = newDesktopSettings.buttonTextColor;
+            }, { deep: true });
+
+            watch(() => ({
+                borderColor: banner.left.borderColor,
+                backgroundType: banner.left.backgroundType,
+                bgColor: banner.left.bgColor,
+                imageUrl: banner.left.imageUrl,
+                alignment: banner.left.alignment,
+                titleColor: banner.left.titleColor,
+                descText: banner.left.descText,
+                descColor: banner.left.descColor,
+                buttonBgColor: banner.left.buttonBgColor,
+                buttonBgHoverColor: banner.left.buttonBgHoverColor,
+                buttonTextColor: banner.left.buttonTextColor,
+            }), (newDesktopSettings) => {
+                Object.assign(banner.left_mobile, newDesktopSettings);
+            }, { deep: true });
+
+            watch(() => ({
+                borderColor: banner.right.borderColor,
+                backgroundType: banner.right.backgroundType,
+                bgColor: banner.right.bgColor,
+                imageUrl: banner.right.imageUrl,
+                alignment: banner.right.alignment,
+                titleColor: banner.right.titleColor,
+                descText: banner.right.descText,
+                descColor: banner.right.descColor,
+                buttonBgColor: banner.right.buttonBgColor,
+                buttonBgHoverColor: banner.right.buttonBgHoverColor,
+                buttonTextColor: banner.right.buttonTextColor,
+            }), (newDesktopSettings) => {
+                Object.assign(banner.right_mobile, newDesktopSettings);
             }, { deep: true });
 
 
@@ -123,22 +164,20 @@ export function initializeApp(yabData) {
                 }
             };
             
-            const getBannerContainerStyles = (view) => {
-                const settings = view === 'desktop' ? banner.single : banner.single_mobile;
+            const buildBannerContainerStyles = (settings) => {
                 if (!settings) return {};
                 return {
-                    width: settings.enableCustomDimensions ? `${settings.width}${settings.widthUnit}` : '100%',
+                    width: `${settings.width}${settings.widthUnit}`,
                     height: 'auto',
-                    minHeight: settings.enableCustomDimensions ? `${settings.minHeight}${settings.minHeightUnit}` : (view === 'desktop' ? '183px' : '110px'),
+                    minHeight: `${settings.minHeight}${settings.minHeightUnit}`,
                     border: settings.enableBorder ? `${settings.borderWidth}px solid ${settings.borderColor}` : 'none',
                     borderRadius: `${settings.borderRadius}px`
                 };
             };
-            
-            const getDynamicStyles = (view) => {
-                const settings = view === 'desktop' ? banner.single : banner.single_mobile;
+
+            const buildDynamicStyles = (settings) => {
                 if (!settings) return {};
-    
+
                 return {
                     contentStyles: {
                         alignItems: contentAlignment(settings.alignment),
@@ -157,11 +196,11 @@ export function initializeApp(yabData) {
                         fontSize: `${settings.descSize}px`,
                         fontWeight: settings.descWeight,
                         whiteSpace: 'pre-wrap',
-                        marginTop: `${settings.marginTopDescription || 10}px`,
-                        marginBottom: '10px',
+                        marginTop: `${settings.marginTopDescription || 12}px`,
+                        marginBottom: '25px',
                         lineHeight: settings.descLineHeight || 1.1,
-                        width: `${settings.descWidth}${settings.descWidthUnit}`, // *** ADDED: Description width ***
-                        wordWrap: 'break-word' // *** ADDED: Word wrap behavior ***
+                        width: `${settings.descWidth}${settings.descWidthUnit}`,
+                        wordWrap: 'break-word'
                     },
                     buttonStyles: {
                         backgroundColor: settings.buttonBgColor,
@@ -183,11 +222,16 @@ export function initializeApp(yabData) {
                     }
                 };
             };
-    
+
+            const getBannerContainerStyles = (view) => buildBannerContainerStyles(view === 'desktop' ? banner.single : banner.single_mobile);
+            const getDynamicStyles = (view) => buildDynamicStyles(view === 'desktop' ? banner.single : banner.single_mobile);
             const getContentStyles = (view) => getDynamicStyles(view).contentStyles;
             const getTitleStyles = (view) => getDynamicStyles(view).titleStyles;
             const getDescriptionStyles = (view) => getDynamicStyles(view).descriptionStyles;
             const getButtonStyles = (view) => getDynamicStyles(view).buttonStyles;
+
+            const getPartContainerStyles = (side, view) => buildBannerContainerStyles(view === 'desktop' ? banner[side] : banner[side + '_mobile']);
+            const getPartDynamicStyles = (side, view) => buildDynamicStyles(view === 'desktop' ? banner[side] : banner[side + '_mobile']);
 
             const selectElementType = (type) => { 
                 resetBannerState();
@@ -354,7 +398,9 @@ export function initializeApp(yabData) {
                 getButtonStyles,
                 addGradientStop,
                 removeGradientStop,
-                getBannerContainerStyles
+                getBannerContainerStyles,
+                getPartContainerStyles,
+                getPartDynamicStyles
             };
         },
         components: { 
