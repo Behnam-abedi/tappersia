@@ -1,5 +1,5 @@
 // tappersia/assets/js/admin/app-logic/main.js
-const { createApp, ref, computed, onMounted, reactive } = Vue;
+const { createApp, ref, computed, onMounted, reactive, watch } = Vue;
 
 import { useAjax } from '../composables/useAjax.js';
 import { useBannerState } from '../composables/useBannerState.js';
@@ -23,6 +23,51 @@ export function initializeApp(yabData) {
             const ajax = useAjax(yabData.ajax_url, yabData.nonce);
             const apiBannerLogic = useApiBanner(banner, showModal, ajax);
             const displayConditionsLogic = useDisplayConditions(banner, ajax);
+
+            // --- Watchers ---
+            watch(currentView, (newView) => {
+                if (newView === 'mobile' && !banner.isMobileConfigured) {
+                    // One-time copy from desktop to mobile for specific fields
+                    const desktop = banner.single;
+                    const mobile = banner.single_mobile;
+
+                    // Fields to copy from desktop
+                    mobile.backgroundType = desktop.backgroundType;
+                    mobile.bgColor = desktop.bgColor;
+                    mobile.gradientAngle = desktop.gradientAngle;
+                    mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
+                    mobile.imageUrl = desktop.imageUrl; // Use the same image URL
+                    mobile.enableCustomImageSize = desktop.enableCustomImageSize;
+                    mobile.imageWidth = desktop.imageWidth;
+                    mobile.imageWidthUnit = desktop.imageWidthUnit;
+                    mobile.imageHeight = desktop.imageHeight;
+                    mobile.imageHeightUnit = desktop.imageHeightUnit;
+                    mobile.imagePosRight = desktop.imagePosRight;
+                    mobile.imagePosBottom = desktop.imagePosBottom;
+                    mobile.alignment = desktop.alignment;
+                    mobile.titleText = desktop.titleText;
+                    mobile.titleColor = desktop.titleColor;
+                    mobile.titleWeight = desktop.titleWeight;
+                    mobile.descText = desktop.descText;
+                    mobile.descColor = desktop.descColor;
+                    mobile.descWeight = desktop.descWeight;
+                    mobile.buttonText = desktop.buttonText;
+                    mobile.buttonLink = desktop.buttonLink;
+                    mobile.buttonBgColor = desktop.buttonBgColor;
+                    mobile.buttonTextColor = desktop.buttonTextColor;
+                    mobile.buttonBgHoverColor = desktop.buttonBgHoverColor;
+                    mobile.buttonFontWeight = desktop.buttonFontWeight;
+                    mobile.buttonWidth = desktop.buttonWidth;
+                    mobile.buttonWidthUnit = desktop.buttonWidthUnit;
+                    mobile.buttonHeight = desktop.buttonHeight;
+                    mobile.buttonHeightUnit = desktop.buttonHeightUnit;
+                    mobile.buttonMinWidth = desktop.buttonMinWidth;
+                    mobile.buttonMinWidthUnit = desktop.buttonMinWidthUnit;
+                    mobile.buttonBorderRadius = desktop.buttonBorderRadius;
+
+                    banner.isMobileConfigured = true; // Mark as configured
+                }
+            });
 
             // --- Computed Properties ---
             const allBannersUrl = computed(() => 'admin.php?page=tappersia-list');
@@ -48,62 +93,81 @@ export function initializeApp(yabData) {
                 return modalComponent.value?.show({ title, message });
             }
 
-            const copyDesktopToMobile = () => {
-                banner.single_mobile = JSON.parse(JSON.stringify(banner.single));
-                showModal('Success', 'Desktop settings copied to mobile.');
+            const addGradientStop = (settings) => {
+                if (!settings.gradientStops) {
+                    settings.gradientStops = [];
+                }
+                settings.gradientStops.push({ color: 'rgba(255, 255, 255, 0.5)', stop: 100 });
             };
 
+            const removeGradientStop = (settings, index) => {
+                if (settings.gradientStops.length > 1) {
+                    settings.gradientStops.splice(index, 1);
+                } else {
+                    showModal('Info', 'A gradient must have at least one color stop.');
+                }
+            };
+            
+            const getBannerContainerStyles = (view) => {
+                const settings = view === 'desktop' ? banner.single : banner.single_mobile;
+                if (!settings) return {};
+                return {
+                    width: settings.enableCustomDimensions ? `${settings.width}${settings.widthUnit}` : '100%',
+                    height: settings.enableCustomDimensions ? `${settings.height}${settings.heightUnit}` : (view === 'desktop' ? '183px' : '110px'),
+                    border: settings.enableBorder ? `${settings.borderWidth}px solid ${settings.borderColor}` : 'none',
+                    borderRadius: `${settings.borderRadius}px`
+                };
+            };
+            
             const getDynamicStyles = (view) => {
                 const settings = view === 'desktop' ? banner.single : banner.single_mobile;
                 if (!settings) return {};
     
                 return {
-                    bannerStyles: {
-                        background: bannerStyles(settings),
-                        width: settings.enableCustomDimensions ? `${settings.width}${settings.widthUnit}` : (view === 'desktop' ? 'auto' : '100%'),
-                        height: settings.enableCustomDimensions ? `${settings.height}${settings.heightUnit}` : (view === 'desktop' ? '178px' : '250px'),
-                        border: settings.enableBorder ? `${settings.borderWidth}px solid ${settings.borderColor}` : 'none',
-                        borderRadius: `${settings.borderRadius}px`
-                    },
                     contentStyles: {
                         alignItems: contentAlignment(settings.alignment),
                         textAlign: settings.alignment,
-                        padding: `${settings.paddingTop}px ${settings.paddingRight}px ${settings.paddingBottom}px ${settings.paddingLeft}px`
+                        padding: `${settings.paddingTop}px ${settings.paddingRight}px ${settings.paddingBottom}px ${settings.paddingLeft}px`,
+                        flexGrow: 1,
                     },
                     titleStyles: {
                         color: settings.titleColor,
                         fontSize: `${settings.titleSize}px`,
                         fontWeight: settings.titleWeight,
-                        margin: 0
+                        margin: 0,
                     },
                     descriptionStyles: {
                         color: settings.descColor,
                         fontSize: `${settings.descSize}px`,
                         fontWeight: settings.descWeight,
                         whiteSpace: 'pre-wrap',
-                        marginTop: `${settings.marginTopDescription}px`,
-                        marginBottom: 0
+                        marginTop: `${settings.marginTopDescription || 10}px`,
+                        marginBottom: '10px',
+                        lineHeight: settings.descLineHeight || 1.1,
+                        width: `${settings.descWidth}${settings.descWidthUnit}`, // *** ADDED: Description width ***
+                        wordWrap: 'break-word' // *** ADDED: Word wrap behavior ***
                     },
                     buttonStyles: {
                         backgroundColor: settings.buttonBgColor,
                         color: settings.buttonTextColor,
                         fontSize: `${settings.buttonFontSize}px`,
+                        fontWeight: settings.buttonFontWeight,
                         alignSelf: settings.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start'),
                         width: settings.buttonWidth ? `${settings.buttonWidth}${settings.buttonWidthUnit}` : 'auto',
                         height: settings.buttonHeight ? `${settings.buttonHeight}${settings.buttonHeightUnit}` : 'auto',
                         minWidth: settings.buttonMinWidth ? `${settings.buttonMinWidth}${settings.buttonMinWidthUnit}` : 'auto',
                         borderRadius: `${settings.buttonBorderRadius}px`,
+                        padding: `${settings.buttonPaddingY}px ${settings.buttonPaddingX}px`,
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         textDecoration: 'none',
-                        padding: '8px 16px',
-                        marginTop: (settings.marginBottomDescription !== null && settings.marginBottomDescription !== '') ? `${settings.marginBottomDescription}px` : 'auto'
+                        marginTop: 'auto',
+                        lineHeight: '1.15',
                     }
                 };
             };
     
-            const getBannerStyles = (view) => getDynamicStyles(view).bannerStyles;
             const getContentStyles = (view) => getDynamicStyles(view).contentStyles;
             const getTitleStyles = (view) => getDynamicStyles(view).titleStyles;
             const getDescriptionStyles = (view) => getDynamicStyles(view).descriptionStyles;
@@ -157,6 +221,9 @@ export function initializeApp(yabData) {
                     
                     if (targetObject && typeof targetObject === 'object') {
                         targetObject.imageUrl = attachment.url;
+                        if (targetKey === 'single') {
+                            banner.single_mobile.imageUrl = attachment.url;
+                        }
                     }
                 });
                 uploader.open();
@@ -174,6 +241,9 @@ export function initializeApp(yabData) {
     
                 if (targetObject && typeof targetObject === 'object') {
                     targetObject.imageUrl = '';
+                     if (targetKey === 'single') {
+                        banner.single_mobile.imageUrl = '';
+                    }
                 }
             };
             
@@ -232,12 +302,13 @@ export function initializeApp(yabData) {
                 ...displayConditionsLogic,
                 bannerStyles, contentAlignment, imageStyleObject,
                 ceil: Math.ceil,
-                copyDesktopToMobile,
-                getBannerStyles,
                 getContentStyles,
                 getTitleStyles,
                 getDescriptionStyles,
-                getButtonStyles
+                getButtonStyles,
+                addGradientStop,
+                removeGradientStop,
+                getBannerContainerStyles
             };
         },
         components: { 

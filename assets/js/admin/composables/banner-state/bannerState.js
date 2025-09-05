@@ -13,6 +13,7 @@ import {
 export function useBannerState() {
     const createDefaultBanner = () => ({
         id: null, name: '', displayMethod: 'Fixed', isActive: true, type: null,
+        isMobileConfigured: false, // Flag to track if mobile has been configured once
         displayOn: { posts: [], pages: [], categories: [] },
         left: createDefaultPart(), right: createDefaultPart(), 
         single: createDefaultPart(),
@@ -46,6 +47,11 @@ export function useBannerState() {
     const mergeWithExisting = (existingData) => {
         if (!existingData.single_mobile) {
             existingData.single_mobile = createDefaultMobilePart();
+        }
+
+        // If loading an existing banner, mark mobile as "configured" to prevent auto-copying
+        if (existingData.id) {
+            existingData.isMobileConfigured = true;
         }
 
         for (const key in existingData) {

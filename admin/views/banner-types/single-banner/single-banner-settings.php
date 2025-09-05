@@ -77,62 +77,61 @@
     </div>
     <hr class="section-divider">
     <div>
-        <h4 class="section-title">Background</h4>
+        <h4 class="section-title">Background Overlay</h4>
         <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none">
             <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg border-none">Solid Color</button>
             <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg border-none">Gradient</button>
         </div>
         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
-            <label class="setting-label-sm">Background Color</label>
+            <label class="setting-label-sm">Color (supports transparency)</label>
             <div class="yab-color-input-wrapper">
                 <input type="color" v-model="settings.bgColor" class="yab-color-picker">
-                <input type="text" v-model="settings.bgColor" class="yab-hex-input" placeholder="#hexcode">
+                <input type="text" v-model="settings.bgColor" class="yab-hex-input" placeholder="e.g., rgba(0,0,0,0.5)">
             </div>
         </div>
-        <div v-else class="space-y-2">
+        <div v-else class="space-y-4">
             <div>
-                <label class="setting-label-sm">Gradient Colors</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="yab-color-input-wrapper">
-                        <input type="color" v-model="settings.gradientColor1" class="yab-color-picker">
-                        <input type="text" v-model="settings.gradientColor1" class="yab-hex-input" placeholder="#hexcode">
-                    </div>
-                    <div class="yab-color-input-wrapper">
-                        <input type="color" v-model="settings.gradientColor2" class="yab-color-picker">
-                        <input type="text" v-model="settings.gradientColor2" class="yab-hex-input" placeholder="#hexcode">
-                    </div>
+                <label class="setting-label-sm">Gradient Angle: {{ settings.gradientAngle }}deg</label>
+                <div class="flex items-center gap-2">
+                    <input type="range" v-model.number="settings.gradientAngle" min="0" max="360" class="w-full">
+                    <input type="number" v-model.number="settings.gradientAngle" class="yab-form-input w-20 text-center">
                 </div>
             </div>
             <div>
-                <label class="setting-label-sm">Gradient Angle</label>
-                <div class="flex items-center gap-2">
-                    <input type="number" v-model.number="settings.gradientAngle" class="yab-form-input w-full" placeholder="e.g., 90">
-                    <span class="text-sm text-gray-400">deg</span>
+                <label class="setting-label-sm">Gradient Colors</label>
+                <div v-for="(stop, index) in settings.gradientStops" :key="index" class="bg-[#292929] p-3 rounded-lg mb-2 space-y-2">
+                    <div class="flex items-center justify-between">
+                         <span class="text-xs font-bold text-gray-300">Color Stop #{{ index + 1 }}</span>
+                         <button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings, index)" class="text-red-500 hover:text-red-400 text-xs">Remove</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="yab-color-input-wrapper">
+                            <input type="color" v-model="stop.color" class="yab-color-picker">
+                            <input type="text" v-model="stop.color" class="yab-hex-input" placeholder="e.g., transparent">
+                        </div>
+                        <button @click="stop.color = 'transparent'" class="bg-gray-600 text-white text-xs rounded-md hover:bg-gray-500">Set Transparent</button>
+                    </div>
+                    <div>
+                        <label class="setting-label-sm">Position: {{ stop.stop }}%</label>
+                        <input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full">
+                    </div>
                 </div>
+                 <button @click="addGradientStop(settings)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button>
             </div>
         </div>
     </div>
     <hr class="section-divider">
     <div>
         <h4 class="section-title">Image</h4>
-        <div class="flex gap-2 items-center">
-            <button @click="openMediaUploader(currentView === 'desktop' ? 'single' : 'single_mobile')" class="flex-1 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm">
+        <div v-if="currentView === 'desktop'" class="flex gap-2 items-center">
+            <button @click="openMediaUploader('single')" class="flex-1 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm">
                 {{ settings.imageUrl ? 'Change Image' : 'Select Image' }}
             </button>
-            <button v-if="settings.imageUrl" @click="removeImage(currentView === 'desktop' ? 'single' : 'single_mobile')" class="bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm">
+            <button v-if="settings.imageUrl" @click="removeImage('single')" class="bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm">
                 Remove
             </button>
         </div>
         <div v-if="settings.imageUrl" class="mt-3 space-y-3">
-            <div v-if="!settings.enableCustomImageSize" class="flex items-center gap-2">
-                <label class="setting-label-sm w-20">Image Fit:</label>
-                <select v-model="settings.imageFit" class="yab-form-input flex-1">
-                    <option value="cover">Cover</option>
-                    <option value="contain">Contain</option>
-                    <option value="fill">Fill</option>
-                    <option value="none">None</option>
-                </select>
-            </div>
             <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
                 <label class="setting-label-sm">Enable Custom Image Size</label>
                 <label class="relative inline-flex items-center cursor-pointer">
@@ -142,12 +141,18 @@
             </div>
              <div v-if="settings.enableCustomImageSize" class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="setting-label-sm">Width (px)</label>
-                    <input type="number" v-model.number="settings.imageWidth" class="yab-form-input" placeholder="Width">
+                    <label class="setting-label-sm">Width</label>
+                    <div class="flex items-center gap-1">
+                        <input type="number" v-model.number="settings.imageWidth" class="yab-form-input" placeholder="Auto">
+                        <select v-model="settings.imageWidthUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
+                    </div>
                 </div>
                 <div>
-                    <label class="setting-label-sm">Height (px)</label>
-                    <input type="number" v-model.number="settings.imageHeight" class="yab-form-input" placeholder="Height">
+                    <label class="setting-label-sm">Height</label>
+                    <div class="flex items-center gap-1">
+                        <input type="number" v-model.number="settings.imageHeight" class="yab-form-input" placeholder="100%">
+                        <select v-model="settings.imageHeightUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
+                    </div>
                 </div>
             </div>
              <div class="grid grid-cols-2 gap-2 mt-2">
@@ -172,24 +177,12 @@
         </div>
     </div>
     <hr class="section-divider">
-    <div>
-        <h4 class="section-title">Spacing (px)</h4>
-        <div class="grid grid-cols-2 gap-2">
-            <div>
-                <label class="setting-label-sm">Title to Description</label>
-                <input type="number" v-model.number="settings.marginTopDescription" class="yab-form-input" placeholder="e.g., 8">
-            </div>
-            <div>
-                <label class="setting-label-sm">Description to Button</label>
-                <input type="number" v-model.number="settings.marginBottomDescription" class="yab-form-input" placeholder="e.g., 24">
-            </div>
-        </div>
-    </div>
-    <hr class="section-divider">
     <div class="space-y-2">
         <h4 class="section-title">Title</h4>
-        <label class="setting-label-sm">Title Text</label>
-        <input type="text" v-model="settings.titleText" class="yab-form-input mb-2" placeholder="Title Text">
+        <div v-if="currentView === 'desktop'">
+            <label class="setting-label-sm">Title Text</label>
+            <input type="text" v-model="settings.titleText" class="yab-form-input mb-2" placeholder="Title Text">
+        </div>
         <div class="grid grid-cols-2 gap-2">
             <div>
                 <label class="setting-label-sm">Color</label>
@@ -215,8 +208,10 @@
     <hr class="section-divider">
     <div class="space-y-2">
         <h4 class="section-title">Description</h4>
-        <label class="setting-label-sm">Description Text</label>
-        <textarea v-model="settings.descText" rows="3" class="yab-form-input mb-2" placeholder="Description Text"></textarea>
+        <div v-if="currentView === 'desktop'">
+            <label class="setting-label-sm">Description Text</label>
+            <textarea v-model="settings.descText" rows="3" class="yab-form-input mb-2" placeholder="Description Text"></textarea>
+        </div>
         <div class="grid grid-cols-2 gap-2">
             <div>
                  <label class="setting-label-sm">Color</label>
@@ -238,14 +233,23 @@
                 </div>
             </div>
         </div>
+        <div class="mt-2">
+            <label class="setting-label-sm">Description Width</label>
+            <div class="flex items-center gap-1">
+                <input type="number" v-model.number="settings.descWidth" class="yab-form-input" placeholder="100">
+                <select v-model="settings.descWidthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select>
+            </div>
+        </div>
     </div>
     <hr class="section-divider">
     <div class="space-y-2">
         <h4 class="section-title">Button</h4>
-        <label class="setting-label-sm">Button Text</label>
-        <input type="text" v-model="settings.buttonText" class="yab-form-input mb-2" placeholder="Button Text">
-        <label class="setting-label-sm">Button Link (URL)</label>
-        <input type="text" v-model="settings.buttonLink" class="yab-form-input mb-2" placeholder="https://example.com">
+        <div v-if="currentView === 'desktop'">
+            <label class="setting-label-sm">Button Text</label>
+            <input type="text" v-model="settings.buttonText" class="yab-form-input mb-2" placeholder="Button Text">
+            <label class="setting-label-sm">Button Link (URL)</label>
+            <input type="text" v-model="settings.buttonLink" class="yab-form-input mb-2" placeholder="https://example.com">
+        </div>
         <div class="grid grid-cols-2 gap-2 mb-2">
             <div>
                 <label class="setting-label-sm">Background Color</label>

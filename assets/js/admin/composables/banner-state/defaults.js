@@ -1,44 +1,89 @@
 // tappersia/assets/js/admin/composables/banner-state/defaults.js
 export const createDefaultPart = () => ({
-    alignment: 'left', backgroundType: 'solid', bgColor: '#232323',
-    gradientColor1: '#232323', gradientColor2: '#1A2B48', gradientAngle: 90,
-    titleText: 'Awesome Title', titleColor: '#ffffff', titleSize: 15, titleWeight: '700',
-    descText: 'A short and engaging description.', descColor: '#dddddd', descSize: 10, descWeight: '400',
-    buttonText: 'Learn More', buttonLink: '#', buttonBgColor: '#00baa4',
-    buttonTextColor: '#ffffff', buttonFontSize: 10, buttonBgHoverColor: '#008a7b',
-    imageUrl: '', imageFit: 'none', enableCustomImageSize: false,
-    imageWidth: null, imageHeight: null, imagePosRight: 0, imagePosBottom: 0,
-    
-    enableCustomDimensions: false,
-    width: 886,
-    widthUnit: 'px',
-    height: 178,
+    alignment: 'left',
+    backgroundType: 'solid',
+    bgColor: 'rgba(12, 165, 234, 0.85)',
+    gradientAngle: 90,
+    gradientStops: [
+        { color: 'rgba(12, 165, 234, 0.8)', stop: 0 },
+        { color: 'rgba(18, 76, 136, 0.8)', stop: 100 }
+    ],
+    titleText: 'Awesome Title',
+    titleColor: '#ffffff',
+    titleSize: 20,
+    titleWeight: '700',
+    descText: 'A short and engaging description.',
+    descColor: '#ffffff',
+    descSize: 12,
+    descWeight: '500',
+    descLineHeight: 1.1,
+    descWidth: 100, // *** ADDED: Default description width ***
+    descWidthUnit: '%', // *** ADDED: Default description width unit ***
+    buttonText: 'Learn More',
+    buttonLink: '#',
+    buttonBgColor: '#124C88',
+    buttonTextColor: '#ffffff',
+    buttonFontSize: 14,
+    buttonBgHoverColor: '#10447B',
+    buttonFontWeight: '600',
+    imageUrl: '',
+    imageFit: 'cover',
+    enableCustomImageSize: false,
+    imageWidth: null,
+    imageWidthUnit: 'px',
+    imageHeight: null,
+    imageHeightUnit: 'px',
+    imagePosRight: 0,
+    imagePosBottom: 0,
+    enableCustomDimensions: true,
+    width: 100,
+    widthUnit: '%',
+    height: 183,
     heightUnit: 'px',
     enableBorder: false,
     borderWidth: 1,
     borderColor: '#E0E0E0',
-    borderRadius: 8,
-    paddingTop: 32,
-    paddingRight: 32,
-    paddingBottom: 32,
-    paddingLeft: 32,
+    borderRadius: 16,
+    paddingTop: 41.8,
+    paddingRight: 50,
+    paddingBottom: 26,
+    paddingLeft: 50,
     buttonWidth: null,
     buttonWidthUnit: 'px',
     buttonHeight: null,
     buttonHeightUnit: 'px',
-    buttonMinWidth: null,
+    buttonMinWidth: 118,
     buttonMinWidthUnit: 'px',
-    buttonBorderRadius: 4,
-    marginTopDescription: 8,
-    marginBottomDescription: 24,
+    buttonBorderRadius: 5,
+    marginTopDescription: 10,
+    buttonPaddingX: 23,
+    buttonPaddingY: 9,
 });
 
 export const createDefaultMobilePart = () => {
     const mobileDefaults = createDefaultPart();
+    
+    // Custom defaults for mobile as per user request
     mobileDefaults.width = 100;
     mobileDefaults.widthUnit = '%';
-    mobileDefaults.height = 250;
+    mobileDefaults.height = 110;
     mobileDefaults.heightUnit = 'px';
+    mobileDefaults.borderRadius = 16;
+    mobileDefaults.paddingTop = 15;
+    mobileDefaults.paddingRight = 12;
+    mobileDefaults.paddingBottom = 15;
+    mobileDefaults.paddingLeft = 12;
+    mobileDefaults.marginTopDescription = 2;
+    mobileDefaults.titleSize = 14;
+    mobileDefaults.descSize = 9;
+    mobileDefaults.descLineHeight = 1.2;
+    mobileDefaults.descWidth = 100; // Default width for mobile description
+    mobileDefaults.descWidthUnit = '%';
+    mobileDefaults.buttonPaddingX = 18;
+    mobileDefaults.buttonPaddingY = 9;
+    mobileDefaults.buttonFontSize = 9; // *** ADDED: Default button font size for mobile ***
+    mobileDefaults.buttonMinWidth = 80; // *** ADDED: Default button min-width for mobile ***
+
     return mobileDefaults;
 };
 
@@ -46,9 +91,11 @@ export const createDefaultApiDesign = () => ({
     layout: 'left',
     backgroundType: 'solid',
     bgColor: '#ffffff',
-    gradientColor1: '#F0F2F5',
-    gradientColor2: '#FFFFFF',
     gradientAngle: 90,
+    gradientStops: [
+        { color: 'rgba(240, 242, 245, 1)', stop: 0 },
+        { color: 'rgba(255, 255, 255, 1)', stop: 100 }
+    ],
     enableBorder: true,
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -83,9 +130,11 @@ export const createDefaultApiDesign = () => ({
 export const createDefaultSimplePart = () => ({
     backgroundType: 'solid',
     bgColor: '#ffffff',
-    gradientColor1: '#F0F2F5',
-    gradientColor2: '#FFFFFF',
     gradientAngle: 90,
+    gradientStops: [
+        { color: '#F0F2F5', stop: 0 },
+        { color: '#FFFFFF', stop: 100 }
+    ],
     height: 74,
     borderRadius: 10,
     paddingY: 26,
