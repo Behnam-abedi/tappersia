@@ -94,18 +94,18 @@ export const createDefaultDoubleBannerPart = () => ({
     enableCustomDimensions: false,
     width: 50,
     widthUnit: '%',
-    minHeight: 185,
+    minHeight: 190,
     minHeightUnit: 'px',
 
-    enableBorder: true,
+    enableBorder: false,
     borderWidth: 0,
     borderColor: '#FFFFFF',
     borderRadius: 16,
 
-    paddingTop: 35,
-    paddingRight: 31,
-    paddingBottom: 35,
-    paddingLeft: 31,
+    paddingTop: 31,
+    paddingRight: 24,
+    paddingBottom: 31,
+    paddingLeft: 24,
 
     backgroundType: 'solid',
     bgColor: 'rgba(18, 76, 136, 0.8)',
@@ -128,45 +128,57 @@ export const createDefaultDoubleBannerPart = () => ({
 
     titleText: 'Banner Title',
     titleColor: '#FFFFFF',
-    titleSize: 20,
+    titleSize: 19,
     titleWeight: '700',
+    titleLineHeight: 1,
 
     descText: 'This is a description for the banner.',
     descColor: '#FFFFFF',
-    descSize: 12,
+    descSize: 13,
     descWeight: '400',
+    descLineHeight: 1.5,
     descWidth: 100,
     descWidthUnit: '%',
+    marginTopDescription: 12,
 
     buttonText: 'Click Me',
     buttonLink: '#',
     buttonBgColor: '#00BAA4',
     buttonTextColor: '#FFFFFF',
     buttonBgHoverColor: '#009a88',
-    buttonFontSize: 14,
-    buttonFontWeight: '600',
-    buttonMinWidth: 143,
-    buttonMinWidthUnit: 'px',
+    buttonFontSize: 13,
+    buttonFontWeight: '500',
     buttonBorderRadius: 8,
+    buttonPaddingTop: 12,
+    buttonPaddingRight: 24,
+    buttonPaddingBottom: 12,
+    buttonPaddingLeft: 24,
+    buttonMarginTop: 10,
+    buttonMarginBottom: 0,
+    buttonLineHeight: 1,
 });
 
 export const createDefaultDoubleBannerMobilePart = () => {
     const mobileDefaults = createDefaultDoubleBannerPart();
     mobileDefaults.width = 100;
     mobileDefaults.widthUnit = '%';
-    mobileDefaults.height = 'auto';
-    mobileDefaults.minHeight = 110;
-    mobileDefaults.paddingTop = 35;
-    mobileDefaults.paddingRight = 30;
-    mobileDefaults.paddingBottom = 35;
-    mobileDefaults.paddingLeft = 30;
-    mobileDefaults.imagePosRight = 0;
-    mobileDefaults.imagePosBottom = 0;
-    mobileDefaults.titleSize = 18;
+    mobileDefaults.minHeight = 150;
+    mobileDefaults.paddingTop = 20;
+    mobileDefaults.paddingRight = 20;
+    mobileDefaults.paddingBottom = 20;
+    mobileDefaults.paddingLeft = 20;
+    mobileDefaults.titleSize = 14;
+    mobileDefaults.titleLineHeight = 1.4;
     mobileDefaults.descSize = 12;
-    mobileDefaults.descWidth = 100;
-    mobileDefaults.descWidthUnit = '%';
-    mobileDefaults.buttonFontSize = 12;
+    mobileDefaults.descLineHeight = 1.4;
+    mobileDefaults.marginTopDescription = 8;
+    mobileDefaults.buttonFontSize = 11;
+    mobileDefaults.buttonMarginTop = 10;
+    mobileDefaults.buttonMarginBottom = 0;
+    mobileDefaults.buttonPaddingTop = 12;
+    mobileDefaults.buttonPaddingRight = 24;
+    mobileDefaults.buttonPaddingBottom = 12;
+    mobileDefaults.buttonPaddingLeft = 24;
     return mobileDefaults;
 };
 // END: NEW DEFAULTS FOR DOUBLE BANNER

@@ -3,13 +3,11 @@
 <main class="grid grid-cols-12 gap-6 p-6 ltr">
     <div class="col-span-4 overflow-y-auto flex flex-col gap-6 [&>*:last-child]:mb-[40px] mr-2" style="max-height: calc(100vh - 120px);">
         <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
-            <!-- View Switcher (Desktop/Mobile) -->
             <div class="flex mb-4 bg-[#292929] rounded-lg p-1">
                 <button @click="currentView = 'desktop'" :class="{'active-tab': currentView === 'desktop'}" class="flex-1 tab-button rounded-md">Desktop</button>
                 <button @click="currentView = 'mobile'" :class="{'active-tab': currentView === 'mobile'}" class="flex-1 tab-button rounded-md">Mobile</button>
             </div>
 
-            <!-- Banner Switcher (Left/Right) -->
             <div class="flex mb-4 bg-[#292929] rounded-lg p-1">
                 <button @click="selectedDoubleBanner = 'left'" :class="{'active-tab': selectedDoubleBanner === 'left'}" class="flex-1 tab-button rounded-md">Left Banner</button>
                 <button @click="selectedDoubleBanner = 'right'" :class="{'active-tab': selectedDoubleBanner === 'right'}" class="flex-1 tab-button rounded-md">Right Banner</button>
@@ -19,7 +17,6 @@
                 <h3 class="font-bold text-xl text-white tracking-wide mb-4 capitalize">{{ selectedDoubleBanner }} Banner <span class="capitalize text-gray-400 text-lg">({{ currentView }})</span></h3>
                 <div class="flex flex-col gap-5">
                     
-                    <!-- Layout -->
                     <div>
                         <h4 class="section-title">Layout</h4>
                         <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
@@ -48,7 +45,6 @@
                     </div>
                     <hr class="section-divider">
 
-                    <!-- Border -->
                     <div>
                         <h4 class="section-title">Border</h4>
                         <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
@@ -82,7 +78,6 @@
                     </div>
                     <hr class="section-divider">
 
-                    <!-- Padding -->
                     <div>
                         <h4 class="section-title">Content Padding (px)</h4>
                         <div class="grid grid-cols-2 gap-2">
@@ -94,7 +89,6 @@
                     </div>
                     <hr class="section-divider">
 
-                    <!-- Layers -->
                     <div v-if="currentView === 'desktop'">
                         <h4 class="section-title">Layers Control</h4>
                         <div class="flex rounded-lg bg-[#434343] overflow-hidden">
@@ -104,16 +98,15 @@
                     </div>
                     <hr v-if="currentView === 'desktop'" class="section-divider">
 
-                    <!-- Background -->
                     <div>
                         <h4 class="section-title">Background Overlay</h4>
-                        <div v-if="currentView === 'desktop'" class="flex gap-2 mb-2 bg-[#434343] rounded-lg">
+                        <div class="flex gap-2 mb-2 bg-[#434343] rounded-lg">
                             <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg">Solid</button>
                             <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg">Gradient</button>
                         </div>
                         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
-                             <label v-if="currentView === 'desktop'" class="setting-label-sm">Color (supports transparency)</label>
-                            <div v-if="currentView === 'desktop'" class="yab-color-input-wrapper">
+                             <label class="setting-label-sm">Color (supports transparency)</label>
+                            <div class="yab-color-input-wrapper">
                                 <input type="color" v-model="settings.bgColor" class="yab-color-picker">
                                 <input type="text" v-model="settings.bgColor" class="yab-hex-input" placeholder="e.g., rgba(0,0,0,0.5)">
                             </div>
@@ -133,7 +126,7 @@
                                         <span class="text-xs font-bold text-gray-300">Color Stop #{{ index + 1 }}</span>
                                         <button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings, index)" class="text-red-500 hover:text-red-400 text-xs">Remove</button>
                                     </div>
-                                    <div v-if="currentView === 'desktop'" class="grid grid-cols-2 gap-2">
+                                    <div class="grid grid-cols-2 gap-2">
                                         <div class="yab-color-input-wrapper">
                                             <input type="color" v-model="stop.color" class="yab-color-picker">
                                             <input type="text" v-model="stop.color" class="yab-hex-input" placeholder="e.g., transparent">
@@ -151,7 +144,6 @@
                     </div>
                     <hr class="section-divider">
 
-                    <!-- Image -->
                     <div v-if="currentView === 'desktop'">
                         <h4 class="section-title">Image</h4>
                         <div class="flex gap-2 items-center">
@@ -192,7 +184,6 @@
                     </div>
                     <hr v-if="currentView === 'desktop' || settings.imageUrl" class="section-divider">
                     
-                    <!-- Content -->
                     <div>
                         <h4 class="section-title">Content</h4>
                          <div v-if="currentView === 'desktop'">
@@ -203,7 +194,6 @@
                                 <button @click="settings.alignment = 'right'" :class="settings.alignment === 'right' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Right</button>
                             </div>
                          </div>
-                        <!-- Title -->
                         <div class="space-y-2 mb-3">
                             <label class="setting-label-sm font-bold text-gray-300">Title</label>
                             <input v-if="currentView === 'desktop'" type="text" v-model="settings.titleText" class="yab-form-input mb-2" placeholder="Title Text">
@@ -214,8 +204,11 @@
                                     <div> <label class="setting-label-sm">Weight</label> <select v-model="settings.titleWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option></select></div>
                                 </div>
                             </div>
+                             <div class="mt-2">
+                                <label class="setting-label-sm">Line Height</label>
+                                <input type="number" v-model.number="settings.titleLineHeight" step="0.1" class="yab-form-input">
+                            </div>
                         </div>
-                        <!-- Description -->
                         <div class="space-y-2 mb-3">
                             <label class="setting-label-sm font-bold text-gray-300">Description</label>
                             <textarea v-if="currentView === 'desktop'" v-model="settings.descText" rows="3" class="yab-form-input mb-2" placeholder="Description Text"></textarea>
@@ -226,22 +219,42 @@
                                     <div> <label class="setting-label-sm">Weight</label> <select v-model="settings.descWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option></select></div>
                                 </div>
                             </div>
-                            <div class="mt-2"><label class="setting-label-sm">Description Width</label><div class="flex items-center gap-1"><input type="number" v-model.number="settings.descWidth" class="yab-form-input"><select v-model="settings.descWidthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select></div></div>
+                             <div class="grid grid-cols-2 gap-2 mt-2">
+                                <div><label class="setting-label-sm">Description Width</label><div class="flex items-center gap-1"><input type="number" v-model.number="settings.descWidth" class="yab-form-input"><select v-model="settings.descWidthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select></div></div>
+                                 <div><label class="setting-label-sm">Line Height</label><input type="number" step="0.1" v-model.number="settings.descLineHeight" class="yab-form-input"></div>
+                            </div>
+                             <div class="mt-2">
+                                <label class="setting-label-sm">Margin Top (px)</label>
+                                <input type="number" v-model.number="settings.marginTopDescription" class="yab-form-input">
+                            </div>
                         </div>
-                        <!-- Button -->
                         <div class="space-y-2">
                             <label class="setting-label-sm font-bold text-gray-300">Button</label>
                             <div v-if="currentView === 'desktop'">
                                 <input type="text" v-model="settings.buttonText" class="yab-form-input mb-2" placeholder="Button Text">
                                 <input type="text" v-model="settings.buttonLink" class="yab-form-input mb-2" placeholder="https://example.com">
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
+                             <div class="grid grid-cols-2 gap-2">
                                 <div v-if="currentView === 'desktop'"><label class="setting-label-sm">BG Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="settings.buttonBgColor" class="yab-color-picker"><input type="text" v-model="settings.buttonBgColor" class="yab-hex-input"></div></div>
                                 <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Text Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="settings.buttonTextColor" class="yab-color-picker"><input type="text" v-model="settings.buttonTextColor" class="yab-hex-input"></div></div>
                                 <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Hover BG</label><div class="yab-color-input-wrapper"><input type="color" v-model="settings.buttonBgHoverColor" class="yab-color-picker"><input type="text" v-model="settings.buttonBgHoverColor" class="yab-hex-input"></div></div>
                                 <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="settings.buttonFontSize" class="yab-form-input"></div>
-                                <div><label class="setting-label-sm">Min-Width</label><div class="flex items-center gap-1"><input type="number" v-model.number="settings.buttonMinWidth" class="yab-form-input"><select v-model="settings.buttonMinWidthUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select></div></div>
                                 <div><label class="setting-label-sm">Radius (px)</label><input type="number" v-model.number="settings.buttonBorderRadius" class="yab-form-input"></div>
+                                <div><label class="setting-label-sm">Line Height</label><input type="number" step="0.1" v-model.number="settings.buttonLineHeight" class="yab-form-input"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                <div><label class="setting-label-sm">Margin Top (px)</label><input type="number" v-model.number="settings.buttonMarginTop" class="yab-form-input"></div>
+                                <div><label class="setting-label-sm">Margin Bottom (px)</label><input type="number" v-model.number="settings.buttonMarginBottom" class="yab-form-input"></div>
+                            </div>
+
+                             <div>
+                                <h4 class="section-title mt-4">Button Padding (px)</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div><label class="setting-label-sm">Top</label><input type="number" v-model.number="settings.buttonPaddingTop" class="yab-form-input"></div>
+                                    <div><label class="setting-label-sm">Right</label><input type="number" v-model.number="settings.buttonPaddingRight" class="yab-form-input"></div>
+                                    <div><label class="setting-label-sm">Bottom</label><input type="number" v-model.number="settings.buttonPaddingBottom" class="yab-form-input"></div>
+                                    <div><label class="setting-label-sm">Left</label><input type="number" v-model.number="settings.buttonPaddingLeft" class="yab-form-input"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -256,11 +269,10 @@
             <h3 class="preview-title">Live Preview</h3>
             
             <transition name="fade" mode="out-in">
-                <!-- Desktop Preview -->
                 <div v-if="currentView === 'desktop'" class="flex flex-col items-center">
                     <div class="flex flex-row justify-center w-full" style="gap: 20px;">
                         <div v-for="(b, key) in banner.double.desktop" :key="`preview-desktop-${key}`" 
-                            class="relative overflow-hidden flex flex-shrink-0" 
+                            class="relative overflow-hidden flex-shrink-0" 
                             :style="{ 
                                 width: b.enableCustomDimensions ? `${b.width}${b.widthUnit}` : '50%',
                                 minHeight: `${b.minHeight}${b.minHeightUnit}`,
@@ -270,16 +282,17 @@
                             }">
                             <img v-if="b.imageUrl" :src="b.imageUrl" :style="{...imageStyleObject(b), zIndex: b.layerOrder === 'image-below-overlay' ? 1 : 2}" />
                             <div class="absolute inset-0" :style="{background: bannerStyles(b), zIndex: b.layerOrder === 'image-below-overlay' ? 2 : 1}"></div>
-                            <div class="w-full h-full flex flex-col z-10 relative"  :style="{ padding: `${b.paddingTop}px ${b.paddingRight}px ${b.paddingBottom}px ${b.paddingLeft}px`, alignItems: contentAlignment(b.alignment), textAlign: b.alignment, zIndex: 3 }">
-                                <h4 style="line-height:1" :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight, margin: 0 }">{{ b.titleText }}</h4>
-                                <p style="line-height:1.1" :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap', width: `${b.descWidth}${b.descWidthUnit}`, marginTop: '12px', marginBottom: '25px' }">{{ b.descText }}</p>
-                                <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" class="mt-auto" :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', fontWeight: b.buttonFontWeight, minWidth: `${b.buttonMinWidth}${b.buttonMinWidthUnit}`, borderRadius: `${b.buttonBorderRadius}px`, padding: '8px 16px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }">{{ b.buttonText }}</a>
+                            <div class="absolute inset-0 flex flex-col z-10"  :style="{ padding: `${b.paddingTop}px ${b.paddingRight}px ${b.paddingBottom}px ${b.paddingLeft}px`, alignItems: contentAlignment(b.alignment), textAlign: b.alignment, zIndex: 3 }">
+                                <div style="flex-grow: 1;">
+                                    <h2 :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight, margin: 0, lineHeight: b.titleLineHeight }">{{ b.titleText }}</h2>
+                                    <p :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap', width: `${b.descWidth}${b.descWidthUnit}`, marginTop: b.marginTopDescription + 'px', marginBottom: '0', lineHeight: b.descLineHeight }">{{ b.descText }}</p>
+                                </div>
+                                <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', fontWeight: b.buttonFontWeight, borderRadius: `${b.buttonBorderRadius}px`, padding: `${b.buttonPaddingTop}px ${b.buttonPaddingRight}px ${b.buttonPaddingBottom}px ${b.buttonPaddingLeft}px`, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: b.buttonLineHeight, marginTop: b.buttonMarginTop + 'px', marginBottom: b.buttonMarginBottom + 'px' }">{{ b.buttonText }}</a>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Mobile Preview -->
                 <div v-else-if="currentView === 'mobile'" class="flex flex-col items-center">
                      <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex flex-col items-center mx-auto" style="gap: 20px;">
                         <div v-for="(b, key) in banner.double.mobile" :key="`preview-mobile-${key}`"
@@ -291,12 +304,14 @@
                                 border: b.enableBorder ? `${b.borderWidth}px solid ${b.borderColor}` : 'none',
                                 borderRadius: `${b.borderRadius}px`
                             }">
-                            <img v-if="b.imageUrl" :src="b.imageUrl" :style="{...imageStyleObject(b), zIndex: b.layerOrder === 'image-below-overlay' ? 1 : 2}" />
-                            <div class="absolute inset-0" :style="{background: bannerStyles(b), zIndex: b.layerOrder === 'image-below-overlay' ? 2 : 1}"></div>
-                            <div class="w-full h-full flex flex-col z-10 relative" :style="{ padding: `${b.paddingTop}px ${b.paddingRight}px ${b.paddingBottom}px ${b.paddingLeft}px`, alignItems: contentAlignment(b.alignment), textAlign: b.alignment, zIndex: 3 }">
-                                <h4 :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight, margin: 0 }">{{ b.titleText }}</h4>
-                                <p :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap', width: `${b.descWidth}${b.descWidthUnit}`, marginTop: '12px', marginBottom: '25px' }">{{ b.descText }}</p>
-                                <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" class="mt-auto" :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', fontWeight: b.buttonFontWeight, minWidth: `${b.buttonMinWidth}${b.buttonMinWidthUnit}`, borderRadius: `${b.buttonBorderRadius}px`, padding: '8px 16px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }">{{ b.buttonText }}</a>
+                            <img v-if="b.imageUrl" :src="b.imageUrl" :style="{...imageStyleObject(b), zIndex: banner.double.desktop[key].layerOrder === 'image-below-overlay' ? 1 : 2}" />
+                            <div class="absolute inset-0" :style="{background: bannerStyles(b), zIndex: banner.double.desktop[key].layerOrder === 'image-below-overlay' ? 2 : 1}"></div>
+                            <div class="absolute inset-0 flex flex-col z-10" :style="{ padding: `${b.paddingTop}px ${b.paddingRight}px ${b.paddingBottom}px ${b.paddingLeft}px`, alignItems: contentAlignment(banner.double.desktop[key].alignment), textAlign: banner.double.desktop[key].alignment, zIndex: 3 }">
+                                <div style="flex-grow: 1;">
+                                    <h2 :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight, margin: 0, lineHeight: b.titleLineHeight }">{{ b.titleText }}</h2>
+                                    <p :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap', width: `${b.descWidth}${b.descWidthUnit}`, marginTop: b.marginTopDescription + 'px', marginBottom: '0', lineHeight: b.descLineHeight }">{{ b.descText }}</p>
+                                </div>
+                                <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', fontWeight: b.buttonFontWeight, borderRadius: `${b.buttonBorderRadius}px`, padding: `${b.buttonPaddingTop}px ${b.buttonPaddingRight}px ${b.buttonPaddingBottom}px ${b.buttonPaddingLeft}px`, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: b.buttonLineHeight, marginTop: b.buttonMarginTop + 'px', marginBottom: b.buttonMarginBottom + 'px' }">{{ b.buttonText }}</a>
                             </div>
                         </div>
                      </div>
@@ -311,4 +326,3 @@
         </transition>
     </div>
 </main>
-

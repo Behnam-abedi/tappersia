@@ -85,14 +85,15 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
             $button_styles = [
                 'text-decoration' => 'none', 'display' => 'inline-flex', 'align-items' => 'center', 'justify-content' => 'center',
                 'transition' => 'background-color 0.3s',
-                'padding' => '8px 16px',
+                'padding' => sprintf('%spx %spx', esc_attr($b['buttonPaddingTop']), esc_attr($b['buttonPaddingRight'])),
                 'background-color' => esc_attr($b['buttonBgColor']), 'color' => esc_attr($b['buttonTextColor']),
                 'font-size' => esc_attr($b['buttonFontSize']) . 'px',
-                'min-width' => esc_attr($b['buttonMinWidth']) . esc_attr($b['buttonMinWidthUnit'] ?? 'px'),
                 'border-radius' => esc_attr($b['buttonBorderRadius']) . 'px',
-                'margin-top' => 'auto',
                 'font-weight' => esc_attr($b['buttonFontWeight']),
                 'align-self' => $alignment_style['align_self'],
+                'line-height' => esc_attr($b['buttonLineHeight']),
+                'margin-top' => esc_attr($b['buttonMarginTop']) . 'px',
+                'margin-bottom' => esc_attr($b['buttonMarginBottom']) . 'px',
             ];
 
             $image_z_index = ($b['layerOrder'] ?? 'image-below-overlay') === 'image-below-overlay' ? 1 : 2;
@@ -109,8 +110,10 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
                 <div class="yab-banner-overlay" style="position: absolute; inset: 0; z-index: <?php echo $overlay_z_index; ?>; <?php echo $this->get_background_style($b); ?>"></div>
 
                 <div class="yab-banner-content" style="<?php echo $this->get_inline_style_attr($content_styles); ?>">
-                    <h4 style="font-weight: <?php echo esc_attr($b['titleWeight']); ?>; color: <?php echo esc_attr($b['titleColor']); ?>; font-size: <?php echo intval($b['titleSize']); ?>px; margin: 0;"><?php echo esc_html($b['titleText'] ?? ''); ?></h4>
-                    <p style="margin-top: 12px; margin-bottom: 25px; font-weight: <?php echo esc_attr($b['descWeight']); ?>; color: <?php echo esc_attr($b['descColor']); ?>; font-size: <?php echo intval($b['descSize']); ?>px; white-space: pre-wrap; width: <?php echo esc_attr($b['descWidth'] . ($b['descWidthUnit'] ?? '%')); ?>;"><?php echo wp_kses_post($b['descText'] ?? ''); ?></p>
+                    <div style="flex-grow: 1;">
+                        <h2 style="font-weight: <?php echo esc_attr($b['titleWeight']); ?>; color: <?php echo esc_attr($b['titleColor']); ?>; font-size: <?php echo intval($b['titleSize']); ?>px; margin: 0; line-height: <?php echo esc_attr($b['titleLineHeight']); ?>;"><?php echo esc_html($b['titleText'] ?? ''); ?></h2>
+                        <p style="font-weight: <?php echo esc_attr($b['descWeight']); ?>; color: <?php echo esc_attr($b['descColor']); ?>; font-size: <?php echo intval($b['descSize']); ?>px; white-space: pre-wrap; width: <?php echo esc_attr($b['descWidth'] . ($b['descWidthUnit'] ?? '%')); ?>; margin-top: <?php echo esc_attr($b['marginTopDescription']); ?>px; margin-bottom: 0; line-height: <?php echo esc_attr($b['descLineHeight']); ?>;"><?php echo wp_kses_post($b['descText'] ?? ''); ?></p>
+                    </div>
                     
                     <?php if(!empty($b['buttonText'])): ?>
                         <a href="<?php echo esc_url($b['buttonLink'] ?? '#'); ?>" target="_blank" class="yab-button" style="<?php echo $this->get_inline_style_attr($button_styles); ?>"><?php echo esc_html($b['buttonText']); ?></a>

@@ -55,16 +55,16 @@ export function initializeApp(yabData) {
                     banner.isMobileConfigured = true; // Mark as configured
                 }
 
-                // For Double Banner
+                // For Double Banner - Initial Sync
                 if (banner.type === 'double-banner' && newView === 'mobile' && !banner.double.isMobileConfigured) {
                     ['left', 'right'].forEach(key => {
                         const desktop = banner.double.desktop[key];
                         const mobile = banner.double.mobile[key];
 
-                        // Inherit properties
+                        // Inherit properties that are not typically overridden for content
                         mobile.borderColor = desktop.borderColor;
                         mobile.layerOrder = desktop.layerOrder;
-                        mobile.backgroundType = desktop.backgroundType; // Sync background type
+                        mobile.backgroundType = desktop.backgroundType;
                         mobile.bgColor = desktop.bgColor;
                         mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
                         mobile.imageUrl = desktop.imageUrl;
@@ -81,8 +81,6 @@ export function initializeApp(yabData) {
                         mobile.buttonBgHoverColor = desktop.buttonBgHoverColor;
                         mobile.buttonTextColor = desktop.buttonTextColor;
                         mobile.buttonFontWeight = desktop.buttonFontWeight;
-                        mobile.buttonMinWidth = desktop.buttonMinWidth;
-                        mobile.buttonMinWidthUnit = desktop.buttonMinWidthUnit;
                         mobile.buttonBorderRadius = desktop.buttonBorderRadius;
                         mobile.enableCustomImageSize = desktop.enableCustomImageSize;
                     });
@@ -109,6 +107,36 @@ export function initializeApp(yabData) {
             }), (newDesktopSettings) => {
                  if (banner.type !== 'single-banner') return;
                 Object.assign(banner.single_mobile, newDesktopSettings);
+            }, { deep: true });
+
+            // Watch for shared properties in Double Banner and sync them from desktop to mobile
+            watch(() => banner.double.desktop, (newDesktopSettings) => {
+                if (banner.type !== 'double-banner') return;
+
+                ['left', 'right'].forEach(key => {
+                    const desktop = newDesktopSettings[key];
+                    const mobile = banner.double.mobile[key];
+
+                    // Sync content-related properties continuously
+                    const sharedProperties = {
+                        imageUrl: desktop.imageUrl,
+                        titleText: desktop.titleText,
+                        descText: desktop.descText,
+                        buttonText: desktop.buttonText,
+                        buttonLink: desktop.buttonLink,
+                        // Also sync visual properties that should be consistent unless overridden
+                        backgroundType: desktop.backgroundType,
+                        bgColor: desktop.bgColor,
+                        gradientStops: JSON.parse(JSON.stringify(desktop.gradientStops)),
+                        titleColor: desktop.titleColor,
+                        descColor: desktop.descColor,
+                        buttonBgColor: desktop.buttonBgColor,
+                        buttonTextColor: desktop.buttonTextColor,
+                        buttonBgHoverColor: desktop.buttonBgHoverColor,
+                    };
+
+                    Object.assign(mobile, sharedProperties);
+                });
             }, { deep: true });
 
 
