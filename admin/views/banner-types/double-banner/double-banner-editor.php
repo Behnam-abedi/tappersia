@@ -1,197 +1,251 @@
 <?php require YAB_PLUGIN_DIR . 'admin/views/components/banner-editor-header.php'; ?>
 
 <main class="grid grid-cols-12 gap-6 p-6 ltr">
-    <div class="col-span-4 overflow-y-auto ltr flex gap-3 flex-col [&>*:last-child]:mb-[40px]" style="max-height: calc(100vh - 120px);">
-        <div v-for="(b, key) in { left: banner.left, right: banner.right }" :key="key" class="bg-[#434343] p-5 rounded-lg shadow-xl">
+    <div class="col-span-4 overflow-y-auto flex flex-col gap-6 [&>*:last-child]:mb-[40px] mr-2" style="max-height: calc(100vh - 120px);">
+        <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
+            <!-- View Switcher (Desktop/Mobile) -->
+            <div class="flex mb-4 bg-[#292929] rounded-lg p-1">
+                <button @click="currentView = 'desktop'" :class="{'active-tab': currentView === 'desktop'}" class="flex-1 tab-button rounded-md">Desktop</button>
+                <button @click="currentView = 'mobile'" :class="{'active-tab': currentView === 'mobile'}" class="flex-1 tab-button rounded-md">Mobile</button>
+            </div>
+
+            <!-- Banner Switcher (Left/Right) -->
+            <div class="flex mb-4 bg-[#292929] rounded-lg p-1">
+                <button @click="selectedDoubleBanner = 'left'" :class="{'active-tab': selectedDoubleBanner === 'left'}" class="flex-1 tab-button rounded-md">Left Banner</button>
+                <button @click="selectedDoubleBanner = 'right'" :class="{'active-tab': selectedDoubleBanner === 'right'}" class="flex-1 tab-button rounded-md">Right Banner</button>
+            </div>
             
-            <h3 class="font-bold text-xl text-white capitalize tracking-wide mb-5">{{ key }} Banner Settings</h3>
-            
-            <div class="flex flex-col gap-5">
-                <div>
-                    <h4 class="section-title">Background</h4>
-                    <div class="flex gap-2 mb-2">
-                        <button @click="b.backgroundType = 'solid'" :class="{'active-tab': b.backgroundType === 'solid'}" class="flex-1 tab-button">Solid Color</button>
-                        <button @click="b.backgroundType = 'gradient'" :class="{'active-tab': b.backgroundType === 'gradient'}" class="flex-1 tab-button">Gradient</button>
-                    </div>
-                    <div v-if="b.backgroundType === 'solid'" class="space-y-2">
-                        <label class="setting-label-sm">Background Color</label>
-                        <div class="yab-color-input-wrapper">
-                            <input type="color" v-model="b.bgColor" class="yab-color-picker">
-                            <input type="text" v-model="b.bgColor" class="yab-hex-input" placeholder="#hexcode">
-                        </div>
-                    </div>
-                    <div v-else class="space-y-2">
-                         <div>
-                            <label class="setting-label-sm">Gradient Colors</label>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="yab-color-input-wrapper">
-                                    <input type="color" v-model="b.gradientColor1" class="yab-color-picker">
-                                    <input type="text" v-model="b.gradientColor1" class="yab-hex-input" placeholder="#hexcode">
-                                </div>
-                                <div class="yab-color-input-wrapper">
-                                    <input type="color" v-model="b.gradientColor2" class="yab-color-picker">
-                                    <input type="text" v-model="b.gradientColor2" class="yab-hex-input" placeholder="#hexcode">
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="setting-label-sm">Gradient Angle</label>
-                            <div class="flex items-center gap-2">
-                                <input type="number" v-model.number="b.gradientAngle" class="yab-form-input w-24" placeholder="e.g., 90">
-                                <span class="text-sm text-gray-400">deg</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <hr class="section-divider">
-                <div>
-                    <h4 class="section-title">Image</h4>
-                    <div class="flex gap-2 items-center">
-                        <button @click="openMediaUploader(key)" class="flex-1 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm">
-                            {{ b.imageUrl ? 'Change Image' : 'Select Image' }}
-                        </button>
-                        <button v-if="b.imageUrl" @click="removeImage(key)" class="bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm">
-                            Remove
-                        </button>
-                    </div>
-                    <div v-if="b.imageUrl" class="mt-3 space-y-3">
-                        <div v-if="!b.enableCustomImageSize" class="flex items-center gap-2">
-                            <label class="setting-label-sm w-20">Image Fit:</label>
-                            <select v-model="b.imageFit" class="yab-form-input flex-1">
-                                <option value="cover">Cover</option>
-                                <option value="contain">Contain</option>
-                                <option value="fill">Fill</option>
-                                <option value="none">None (Natural Size)</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
-                            <label class="setting-label-sm">Enable Custom Image Size</label>
+            <div :set="settings = banner.double[currentView][selectedDoubleBanner]" :key="currentView + selectedDoubleBanner">
+                <h3 class="font-bold text-xl text-white tracking-wide mb-4 capitalize">{{ selectedDoubleBanner }} Banner <span class="capitalize text-gray-400 text-lg">({{ currentView }})</span></h3>
+                <div class="flex flex-col gap-5">
+                    
+                    <!-- Layout -->
+                    <div>
+                        <h4 class="section-title">Layout</h4>
+                        <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
+                            <label class="setting-label-sm">Enable Custom Dimensions</label>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" v-model="b.enableCustomImageSize" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                                <input type="checkbox" v-model="settings.enableCustomDimensions" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                             </label>
                         </div>
-                         <div v-if="b.enableCustomImageSize" class="grid grid-cols-2 gap-2">
-                             <div>
-                                <label class="setting-label-sm">Width (px)</label>
-                                <input type="number" v-model.number="b.imageWidth" class="yab-form-input" placeholder="Width">
-                             </div>
-                             <div>
-                                <label class="setting-label-sm">Height (px)</label>
-                                <input type="number" v-model.number="b.imageHeight" class="yab-form-input" placeholder="Height">
-                            </div>
-                        </div>
-                         <div class="grid grid-cols-2 gap-2 mt-2">
+                        <div v-if="settings.enableCustomDimensions" class="grid grid-cols-2 gap-2">
                             <div>
-                               <label class="setting-label-sm">Right (px)</label>
-                               <input type="number" v-model.number="b.imagePosRight" class="yab-form-input" placeholder="Right">
+                                <label class="setting-label-sm">Width</label>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" v-model.number="settings.width" class="yab-form-input" placeholder="Width">
+                                    <select v-model="settings.widthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select>
+                                </div>
                             </div>
                             <div>
-                                <label class="setting-label-sm">Bottom (px)</label>
-                                <input type="number" v-model.number="b.imagePosBottom" class="yab-form-input" placeholder="Bottom">
+                                <label class="setting-label-sm">Min Height</label>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" v-model.number="settings.minHeight" class="yab-form-input" placeholder="Min Height">
+                                    <select v-model="settings.minHeightUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <hr class="section-divider">
-                <div>
-                        <h4 class="section-title">Content Alignment</h4>
-                        <div class="flex rounded-lg bg-[#292929] overflow-hidden ">
-                        <button @click="b.alignment = 'left'" :class="b.alignment === 'left' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Left</button>
-                        <button @click="b.alignment = 'center'" :class="b.alignment === 'center' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Center</button>
-                        <button @click="b.alignment = 'right'" :class="b.alignment === 'right' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Right</button>
-                    </div>
-                </div>
-                <hr class="section-divider">
-                <div class="space-y-2">
-                    <h4 class="section-title">Title</h4>
-                     <label class="setting-label-sm">Title Text</label>
-                    <input type="text" v-model="b.titleText" class="yab-form-input mb-2" placeholder="Title Text">
-                    <div class="grid grid-cols-2 gap-2">
-                         <div>
-                            <label class="setting-label-sm">Color</label>
-                            <div class="yab-color-input-wrapper">
-                                <input type="color" v-model="b.titleColor" class="yab-color-picker">
-                                <input type="text" v-model="b.titleColor" class="yab-hex-input" placeholder="#hexcode">
+                    <hr class="section-divider">
+
+                    <!-- Border -->
+                    <div>
+                        <h4 class="section-title">Border</h4>
+                        <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
+                            <label class="setting-label-sm">Enable Border</label>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" v-model="settings.enableBorder" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                            </label>
+                        </div>
+                        <div v-if="settings.enableBorder" class="grid grid-cols-3 gap-2">
+                            <div v-if="currentView === 'desktop'">
+                                <label class="setting-label-sm">Color</label>
+                                <div class="yab-color-input-wrapper">
+                                    <input type="color" v-model="settings.borderColor" class="yab-color-picker">
+                                    <input type="text" v-model="settings.borderColor" class="yab-hex-input" placeholder="Color">
+                                </div>
+                            </div>
+                            <div :class="currentView === 'desktop' ? 'col-span-2' : 'col-span-3'">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="setting-label-sm">Width (px)</label>
+                                        <input type="number" v-model.number="settings.borderWidth" class="yab-form-input" placeholder="e.g., 1">
+                                    </div>
+                                    <div>
+                                        <label class="setting-label-sm">Radius (px)</label>
+                                        <input type="number" v-model.number="settings.borderRadius" class="yab-form-input" placeholder="e.g., 16">
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <hr class="section-divider">
+
+                    <!-- Padding -->
+                    <div>
+                        <h4 class="section-title">Content Padding (px)</h4>
                         <div class="grid grid-cols-2 gap-2">
+                            <div> <label class="setting-label-sm">Top</label> <input type="number" v-model.number="settings.paddingTop" class="yab-form-input"></div>
+                            <div> <label class="setting-label-sm">Right</label> <input type="number" v-model.number="settings.paddingRight" class="yab-form-input"></div>
+                            <div> <label class="setting-label-sm">Bottom</label> <input type="number" v-model.number="settings.paddingBottom" class="yab-form-input"></div>
+                            <div> <label class="setting-label-sm">Left</label> <input type="number" v-model.number="settings.paddingLeft" class="yab-form-input"></div>
+                        </div>
+                    </div>
+                    <hr class="section-divider">
+
+                    <!-- Layers -->
+                    <div v-if="currentView === 'desktop'">
+                        <h4 class="section-title">Layers Control</h4>
+                        <div class="flex rounded-lg bg-[#434343] overflow-hidden">
+                            <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Image Below Color</button>
+                            <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Color Below Image</button>
+                        </div>
+                    </div>
+                    <hr v-if="currentView === 'desktop'" class="section-divider">
+
+                    <!-- Background -->
+                    <div>
+                        <h4 class="section-title">Background Overlay</h4>
+                        <div v-if="currentView === 'desktop'" class="flex gap-2 mb-2 bg-[#434343] rounded-lg">
+                            <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg">Solid</button>
+                            <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg">Gradient</button>
+                        </div>
+                        <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
+                             <label v-if="currentView === 'desktop'" class="setting-label-sm">Color (supports transparency)</label>
+                            <div v-if="currentView === 'desktop'" class="yab-color-input-wrapper">
+                                <input type="color" v-model="settings.bgColor" class="yab-color-picker">
+                                <input type="text" v-model="settings.bgColor" class="yab-hex-input" placeholder="e.g., rgba(0,0,0,0.5)">
+                            </div>
+                        </div>
+                        <div v-else class="space-y-4">
                             <div>
-                                <label class="setting-label-sm">Size (px)</label>
-                                <input type="number" v-model.number="b.titleSize" class="yab-form-input" placeholder="Size">
+                                <label class="setting-label-sm">Gradient Angle: {{ settings.gradientAngle }}deg</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="range" v-model.number="settings.gradientAngle" min="0" max="360" class="w-full">
+                                    <input type="number" v-model.number="settings.gradientAngle" class="yab-form-input w-20 text-center">
+                                </div>
                             </div>
                             <div>
-                                <label class="setting-label-sm">Weight</label>
-                                <select v-model="b.titleWeight" class="yab-form-input">
-                                    <option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option>
-                                </select>
+                                <label class="setting-label-sm">Gradient Colors</label>
+                                <div v-for="(stop, index) in settings.gradientStops" :key="index" class="bg-[#434343] p-3 rounded-lg mb-2 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-gray-300">Color Stop #{{ index + 1 }}</span>
+                                        <button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings, index)" class="text-red-500 hover:text-red-400 text-xs">Remove</button>
+                                    </div>
+                                    <div v-if="currentView === 'desktop'" class="grid grid-cols-2 gap-2">
+                                        <div class="yab-color-input-wrapper">
+                                            <input type="color" v-model="stop.color" class="yab-color-picker">
+                                            <input type="text" v-model="stop.color" class="yab-hex-input" placeholder="e.g., transparent">
+                                        </div>
+                                        <button @click="stop.color = 'transparent'" class="bg-gray-600 text-white text-xs rounded-md hover:bg-gray-500">Set Transparent</button>
+                                    </div>
+                                    <div>
+                                        <label class="setting-label-sm">Position: {{ stop.stop }}%</label>
+                                        <input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full">
+                                    </div>
+                                </div>
+                                <button @click="addGradientStop(settings)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button>
                             </div>
                         </div>
                     </div>
-                </div>
-                <hr class="section-divider">
-                <div class="space-y-2">
-                    <h4 class="section-title">Description</h4>
-                    <label class="setting-label-sm">Description Text</label>
-                    <textarea v-model="b.descText" rows="3" class="yab-form-input mb-2" placeholder="Description Text"></textarea>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="setting-label-sm">Color</label>
-                            <div class="yab-color-input-wrapper">
-                                <input type="color" v-model="b.descColor" class="yab-color-picker">
-                                <input type="text" v-model="b.descColor" class="yab-hex-input" placeholder="#hexcode">
-                            </div>
+                    <hr class="section-divider">
+
+                    <!-- Image -->
+                    <div v-if="currentView === 'desktop'">
+                        <h4 class="section-title">Image</h4>
+                        <div class="flex gap-2 items-center">
+                            <button @click="openMediaUploader(`double_desktop_${selectedDoubleBanner}`)" class="flex-1 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm">
+                                {{ settings.imageUrl ? 'Change Image' : 'Select Image' }}
+                            </button>
+                            <button v-if="settings.imageUrl" @click="removeImage(`double_desktop_${selectedDoubleBanner}`)" class="bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm">Remove</button>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
+                    </div>
+                     <div v-if="settings.imageUrl" class="mt-3 space-y-3">
+                        <div class="flex items-center justify-between bg-[#434343] p-2 rounded-md">
+                            <label class="setting-label-sm">Enable Custom Image Size</label>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" v-model="settings.enableCustomImageSize" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                            </label>
+                        </div>
+                        <div v-if="settings.enableCustomImageSize" class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="setting-label-sm">Size (px)</label>
-                                <input type="number" v-model.number="b.descSize" class="yab-form-input" placeholder="Size">
+                                <label class="setting-label-sm">Width</label>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" v-model.number="settings.imageWidth" class="yab-form-input" placeholder="Auto">
+                                    <select v-model="settings.imageWidthUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
+                                </div>
                             </div>
                             <div>
-                                <label class="setting-label-sm">Weight</label>
-                                <select v-model="b.descWeight" class="yab-form-input">
-                                    <option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option>
-                                </select>
+                                <label class="setting-label-sm">Height</label>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" v-model.number="settings.imageHeight" class="yab-form-input" placeholder="100%">
+                                    <select v-model="settings.imageHeightUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <div><label class="setting-label-sm">Right (px)</label><input type="number" v-model.number="settings.imagePosRight" class="yab-form-input" placeholder="Right"></div>
+                            <div><label class="setting-label-sm">Bottom (px)</label><input type="number" v-model.number="settings.imagePosBottom" class="yab-form-input" placeholder="Bottom"></div>
+                        </div>
+                    </div>
+                    <hr v-if="currentView === 'desktop' || settings.imageUrl" class="section-divider">
+                    
+                    <!-- Content -->
+                    <div>
+                        <h4 class="section-title">Content</h4>
+                         <div v-if="currentView === 'desktop'">
+                            <label class="setting-label-sm">Alignment</label>
+                             <div class="flex rounded-lg bg-[#434343] overflow-hidden mb-4">
+                                <button @click="settings.alignment = 'left'" :class="settings.alignment === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Left</button>
+                                <button @click="settings.alignment = 'center'" :class="settings.alignment === 'center' ? 'active-tab' : ''" class="flex-1 tab-button">Center</button>
+                                <button @click="settings.alignment = 'right'" :class="settings.alignment === 'right' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Right</button>
+                            </div>
+                         </div>
+                        <!-- Title -->
+                        <div class="space-y-2 mb-3">
+                            <label class="setting-label-sm font-bold text-gray-300">Title</label>
+                            <input v-if="currentView === 'desktop'" type="text" v-model="settings.titleText" class="yab-form-input mb-2" placeholder="Title Text">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div v-if="currentView === 'desktop'"> <label class="setting-label-sm">Color</label> <div class="yab-color-input-wrapper"><input type="color" v-model="settings.titleColor" class="yab-color-picker"><input type="text" v-model="settings.titleColor" class="yab-hex-input"></div></div>
+                                <div class="grid grid-cols-2 gap-2" :class="{'col-span-2': currentView === 'mobile'}">
+                                    <div> <label class="setting-label-sm">Size (px)</label> <input type="number" v-model.number="settings.titleSize" class="yab-form-input"></div>
+                                    <div> <label class="setting-label-sm">Weight</label> <select v-model="settings.titleWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option></select></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Description -->
+                        <div class="space-y-2 mb-3">
+                            <label class="setting-label-sm font-bold text-gray-300">Description</label>
+                            <textarea v-if="currentView === 'desktop'" v-model="settings.descText" rows="3" class="yab-form-input mb-2" placeholder="Description Text"></textarea>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div v-if="currentView === 'desktop'"> <label class="setting-label-sm">Color</label> <div class="yab-color-input-wrapper"><input type="color" v-model="settings.descColor" class="yab-color-picker"><input type="text" v-model="settings.descColor" class="yab-hex-input"></div></div>
+                                <div class="grid grid-cols-2 gap-2" :class="{'col-span-2': currentView === 'mobile'}">
+                                    <div> <label class="setting-label-sm">Size (px)</label> <input type="number" v-model.number="settings.descSize" class="yab-form-input"></div>
+                                    <div> <label class="setting-label-sm">Weight</label> <select v-model="settings.descWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option></select></div>
+                                </div>
+                            </div>
+                            <div class="mt-2"><label class="setting-label-sm">Description Width</label><div class="flex items-center gap-1"><input type="number" v-model.number="settings.descWidth" class="yab-form-input"><select v-model="settings.descWidthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select></div></div>
+                        </div>
+                        <!-- Button -->
+                        <div class="space-y-2">
+                            <label class="setting-label-sm font-bold text-gray-300">Button</label>
+                            <div v-if="currentView === 'desktop'">
+                                <input type="text" v-model="settings.buttonText" class="yab-form-input mb-2" placeholder="Button Text">
+                                <input type="text" v-model="settings.buttonLink" class="yab-form-input mb-2" placeholder="https://example.com">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div v-if="currentView === 'desktop'"><label class="setting-label-sm">BG Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="settings.buttonBgColor" class="yab-color-picker"><input type="text" v-model="settings.buttonBgColor" class="yab-hex-input"></div></div>
+                                <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Text Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="settings.buttonTextColor" class="yab-color-picker"><input type="text" v-model="settings.buttonTextColor" class="yab-hex-input"></div></div>
+                                <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Hover BG</label><div class="yab-color-input-wrapper"><input type="color" v-model="settings.buttonBgHoverColor" class="yab-color-picker"><input type="text" v-model="settings.buttonBgHoverColor" class="yab-hex-input"></div></div>
+                                <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="settings.buttonFontSize" class="yab-form-input"></div>
+                                <div><label class="setting-label-sm">Min-Width</label><div class="flex items-center gap-1"><input type="number" v-model.number="settings.buttonMinWidth" class="yab-form-input"><select v-model="settings.buttonMinWidthUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select></div></div>
+                                <div><label class="setting-label-sm">Radius (px)</label><input type="number" v-model.number="settings.buttonBorderRadius" class="yab-form-input"></div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <hr class="section-divider">
-                <div class="space-y-2">
-                    <h4 class="section-title">Button</h4>
-                    <label class="setting-label-sm">Button Text</label>
-                    <input type="text" v-model="b.buttonText" class="yab-form-input mb-2" placeholder="Button Text">
-                    <label class="setting-label-sm">Button Link (URL)</label>
-                    <input type="text" v-model="b.buttonLink" class="yab-form-input mb-2" placeholder="https://example.com">
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <div>
-                            <label class="setting-label-sm">Background Color</label>
-                            <div class="yab-color-input-wrapper">
-                                <input type="color" v-model="b.buttonBgColor" class="yab-color-picker">
-                                <input type="text" v-model="b.buttonBgColor" class="yab-hex-input" placeholder="BG #hex">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="setting-label-sm">Text Color</label>
-                            <div class="yab-color-input-wrapper">
-                                <input type="color" v-model="b.buttonTextColor" class="yab-color-picker">
-                                <input type="text" v-model="b.buttonTextColor" class="yab-hex-input" placeholder="Text #hex">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="setting-label-sm">Hover BG Color</label>
-                            <div class="yab-color-input-wrapper">
-                                <input type="color" v-model="b.buttonBgHoverColor" class="yab-color-picker">
-                                <input type="text" v-model="b.buttonBgHoverColor" class="yab-hex-input" placeholder="Hover #hex">
-                            </div>
-                        </div>
-                         <div>
-                            <label class="setting-label-sm">Font Size (px)</label>
-                            <input type="number" v-model.number="b.buttonFontSize" class="yab-form-input" placeholder="Font Size">
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -200,31 +254,61 @@
     <div class="col-span-8 sticky top-[120px] space-y-4">
         <div class="bg-[#434343] p-4 rounded-lg">
             <h3 class="preview-title">Live Preview</h3>
-            <div class="flex flex-row gap-2 justify-center">
-                <div v-for="(b, key) in { left: banner.left, right: banner.right }" :key="`preview-${key}`" 
-                    class="rounded-[11.35px] relative overflow-hidden flex flex-shrink-0" 
-                    :style="{ background: bannerStyles(b), width: '432px', height: '177px' }">
-                    
-                    <img v-if="b.imageUrl" :src="b.imageUrl" :style="imageStyleObject(b)" />
-
-                    <div class="w-full h-full py-[37px] px-[31px] flex flex-col z-10 relative" :style="{ alignItems: contentAlignment(b.alignment), textAlign: b.alignment }">
-                        <h4 class="font-bold " :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight, margin: 0 }">{{ b.titleText }}</h4>
-                        <p class="mt-2 leading-tight mb-[25px]" :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap' ,}">{{ b.descText }}</p>
-                        <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" 
-                            class="py-2 px-4 rounded mt-auto" 
-                            :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', alignSelf: buttonAlignment(b.alignment) }">
-                            {{ b.buttonText }}
-                        </a>
+            
+            <transition name="fade" mode="out-in">
+                <!-- Desktop Preview -->
+                <div v-if="currentView === 'desktop'" class="flex flex-col items-center">
+                    <div class="flex flex-row justify-center w-full" style="gap: 20px;">
+                        <div v-for="(b, key) in banner.double.desktop" :key="`preview-desktop-${key}`" 
+                            class="relative overflow-hidden flex flex-shrink-0" 
+                            :style="{ 
+                                width: b.enableCustomDimensions ? `${b.width}${b.widthUnit}` : '50%',
+                                minHeight: `${b.minHeight}${b.minHeightUnit}`,
+                                height: 'auto',
+                                border: b.enableBorder ? `${b.borderWidth}px solid ${b.borderColor}` : 'none',
+                                borderRadius: `${b.borderRadius}px`
+                            }">
+                            <img v-if="b.imageUrl" :src="b.imageUrl" :style="{...imageStyleObject(b), zIndex: b.layerOrder === 'image-below-overlay' ? 1 : 2}" />
+                            <div class="absolute inset-0" :style="{background: bannerStyles(b), zIndex: b.layerOrder === 'image-below-overlay' ? 2 : 1}"></div>
+                            <div class="w-full h-full flex flex-col z-10 relative"  :style="{ padding: `${b.paddingTop}px ${b.paddingRight}px ${b.paddingBottom}px ${b.paddingLeft}px`, alignItems: contentAlignment(b.alignment), textAlign: b.alignment, zIndex: 3 }">
+                                <h4 style="line-height:1" :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight, margin: 0 }">{{ b.titleText }}</h4>
+                                <p style="line-height:1.1" :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap', width: `${b.descWidth}${b.descWidthUnit}`, marginTop: '12px', marginBottom: '25px' }">{{ b.descText }}</p>
+                                <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" class="mt-auto" :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', fontWeight: b.buttonFontWeight, minWidth: `${b.buttonMinWidth}${b.buttonMinWidthUnit}`, borderRadius: `${b.buttonBorderRadius}px`, padding: '8px 16px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }">{{ b.buttonText }}</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+                
+                <!-- Mobile Preview -->
+                <div v-else-if="currentView === 'mobile'" class="flex flex-col items-center">
+                     <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex flex-col items-center mx-auto" style="gap: 20px;">
+                        <div v-for="(b, key) in banner.double.mobile" :key="`preview-mobile-${key}`"
+                            class="relative overflow-hidden flex-shrink-0 w-full"
+                            :style="{
+                                width: '100%',
+                                minHeight: `${b.minHeight}${b.minHeightUnit}`,
+                                height: 'auto',
+                                border: b.enableBorder ? `${b.borderWidth}px solid ${b.borderColor}` : 'none',
+                                borderRadius: `${b.borderRadius}px`
+                            }">
+                            <img v-if="b.imageUrl" :src="b.imageUrl" :style="{...imageStyleObject(b), zIndex: b.layerOrder === 'image-below-overlay' ? 1 : 2}" />
+                            <div class="absolute inset-0" :style="{background: bannerStyles(b), zIndex: b.layerOrder === 'image-below-overlay' ? 2 : 1}"></div>
+                            <div class="w-full h-full flex flex-col z-10 relative" :style="{ padding: `${b.paddingTop}px ${b.paddingRight}px ${b.paddingBottom}px ${b.paddingLeft}px`, alignItems: contentAlignment(b.alignment), textAlign: b.alignment, zIndex: 3 }">
+                                <h4 :style="{ color: b.titleColor, fontSize: b.titleSize + 'px', fontWeight: b.titleWeight, margin: 0 }">{{ b.titleText }}</h4>
+                                <p :style="{ color: b.descColor, fontSize: b.descSize + 'px', fontWeight: b.descWeight, whiteSpace: 'pre-wrap', width: `${b.descWidth}${b.descWidthUnit}`, marginTop: '12px', marginBottom: '25px' }">{{ b.descText }}</p>
+                                <a v-if="b.buttonText" :href="b.buttonLink" target="_blank" class="mt-auto" :style="{ backgroundColor: b.buttonBgColor, color: b.buttonTextColor, fontSize: b.buttonFontSize + 'px', fontWeight: b.buttonFontWeight, minWidth: `${b.buttonMinWidth}${b.buttonMinWidthUnit}`, borderRadius: `${b.buttonBorderRadius}px`, padding: '8px 16px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }">{{ b.buttonText }}</a>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+            </transition>
         </div>
         
-        <transition name="yab-modal-fade">
+        <transition name="fade">
             <div v-if="banner.displayMethod === 'Fixed'">
                 <?php require YAB_PLUGIN_DIR . 'admin/views/components/display-conditions.php'; ?>
             </div>
         </transition>
-
     </div>
 </main>
+

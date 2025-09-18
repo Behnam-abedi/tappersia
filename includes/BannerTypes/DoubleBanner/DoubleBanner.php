@@ -111,9 +111,41 @@ class Yab_Double_Banner {
     private function sanitize_banner_data($data) {
         $sanitized = [];
         if (!is_array($data)) return $sanitized;
-
+    
         foreach ($data as $key => $value) {
-            if (is_array($value)) {
+            if ($key === 'double' && is_array($value)) {
+                // Special handling for the nested 'double' object
+                $sanitized['double'] = [];
+                foreach (['desktop', 'mobile'] as $view) {
+                    if (isset($value[$view]) && is_array($value[$view])) {
+                        $sanitized['double'][$view] = [];
+                        foreach (['left', 'right'] as $position) {
+                            if (isset($value[$view][$position]) && is_array($value[$view][$position])) {
+                                $sanitized['double'][$view][$position] = $this->sanitize_single_banner_part($value[$view][$position]);
+                            }
+                        }
+                    }
+                }
+                if (isset($value['isMobileConfigured'])) {
+                    $sanitized['double']['isMobileConfigured'] = boolval($value['isMobileConfigured']);
+                }
+            } elseif (is_array($value)) {
+                $sanitized[$key] = $this->sanitize_banner_data($value);
+            } elseif (is_bool($value)) {
+                $sanitized[$key] = $value;
+            } elseif (is_numeric($value) || $value === null) {
+                $sanitized[$key] = $value;
+            } else {
+                $sanitized[$key] = sanitize_text_field(trim($value));
+            }
+        }
+        return $sanitized;
+    }
+    
+    private function sanitize_single_banner_part($banner_part) {
+        $sanitized = [];
+        foreach ($banner_part as $key => $value) {
+             if (is_array($value)) {
                 $sanitized[$key] = $this->sanitize_banner_data($value);
             } elseif (is_bool($value)) {
                 $sanitized[$key] = $value;
@@ -129,14 +161,18 @@ class Yab_Double_Banner {
                         $sanitized[$key] = wp_kses_post(trim($value));
                         break;
                     case 'bgColor':
-                    case 'gradientColor1':
-                    case 'gradientColor2':
                     case 'titleColor':
                     case 'descColor':
                     case 'buttonBgColor':
                     case 'buttonTextColor':
                     case 'buttonBgHoverColor':
+                    case 'borderColor':
                         $sanitized[$key] = sanitize_hex_color($value);
+                        break;
+                    case 'widthUnit':
+                    case 'minHeightUnit':
+                    case 'buttonMinWidthUnit':
+                         $sanitized[$key] = in_array($value, ['px', '%']) ? $value : 'px';
                         break;
                     default:
                         $sanitized[$key] = sanitize_text_field(trim($value));

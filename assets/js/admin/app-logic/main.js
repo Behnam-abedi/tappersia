@@ -17,6 +17,7 @@ export function initializeApp(yabData) {
             const modalComponent = ref(null);
             const bodyTextarea = ref(null);
             const currentView = ref('desktop');
+            const selectedDoubleBanner = ref('left'); // To toggle between left/right settings
 
             // --- Composables ---
             const { banner, shortcode, mergeWithExisting, resetBannerState } = useBannerState();
@@ -25,14 +26,17 @@ export function initializeApp(yabData) {
             const displayConditionsLogic = useDisplayConditions(banner, ajax);
 
             // --- Watchers ---
+
+            // Sync settings from Desktop to Mobile on first view change
             watch(currentView, (newView) => {
-                if (newView === 'mobile' && !banner.isMobileConfigured) {
-                    // One-time copy from desktop to mobile for fields that are NOT synced
+                // For Single Banner
+                if (banner.type === 'single-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
                     const desktop = banner.single;
                     const mobile = banner.single_mobile;
                     
+                    // Copy non-style-specific values
                     mobile.gradientAngle = desktop.gradientAngle;
-                    mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
+                    mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops)); // Deep copy
                     mobile.enableCustomImageSize = desktop.enableCustomImageSize;
                     mobile.imageWidth = desktop.imageWidth;
                     mobile.imageWidthUnit = desktop.imageWidthUnit;
@@ -40,11 +44,8 @@ export function initializeApp(yabData) {
                     mobile.imageHeightUnit = desktop.imageHeightUnit;
                     mobile.imagePosRight = desktop.imagePosRight;
                     mobile.imagePosBottom = desktop.imagePosBottom;
-                    mobile.titleText = desktop.titleText;
                     mobile.titleWeight = desktop.titleWeight;
                     mobile.descWeight = desktop.descWeight;
-                    mobile.buttonText = desktop.buttonText;
-                    mobile.buttonLink = desktop.buttonLink;
                     mobile.buttonFontWeight = desktop.buttonFontWeight;
                     mobile.buttonWidth = desktop.buttonWidth;
                     mobile.buttonWidthUnit = desktop.buttonWidthUnit;
@@ -54,33 +55,61 @@ export function initializeApp(yabData) {
 
                     banner.isMobileConfigured = true; // Mark as configured
                 }
+
+                // For Double Banner
+                if (banner.type === 'double-banner' && newView === 'mobile' && !banner.double.isMobileConfigured) {
+                    ['left', 'right'].forEach(key => {
+                        const desktop = banner.double.desktop[key];
+                        const mobile = banner.double.mobile[key];
+
+                        // Inherit properties
+                        mobile.borderColor = desktop.borderColor;
+                        mobile.layerOrder = desktop.layerOrder;
+                        mobile.backgroundType = desktop.backgroundType; // Sync background type
+                        mobile.bgColor = desktop.bgColor;
+                        mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
+                        mobile.imageUrl = desktop.imageUrl;
+                        mobile.alignment = desktop.alignment;
+                        mobile.titleText = desktop.titleText;
+                        mobile.titleColor = desktop.titleColor;
+                        mobile.titleWeight = desktop.titleWeight;
+                        mobile.descText = desktop.descText;
+                        mobile.descColor = desktop.descColor;
+                        mobile.descWeight = desktop.descWeight;
+                        mobile.buttonText = desktop.buttonText;
+                        mobile.buttonLink = desktop.buttonLink;
+                        mobile.buttonBgColor = desktop.buttonBgColor;
+                        mobile.buttonBgHoverColor = desktop.buttonBgHoverColor;
+                        mobile.buttonTextColor = desktop.buttonTextColor;
+                        mobile.buttonFontWeight = desktop.buttonFontWeight;
+                        mobile.buttonMinWidth = desktop.buttonMinWidth;
+                        mobile.buttonMinWidthUnit = desktop.buttonMinWidthUnit;
+                        mobile.buttonBorderRadius = desktop.buttonBorderRadius;
+                        mobile.enableCustomImageSize = desktop.enableCustomImageSize;
+                    });
+                    banner.double.isMobileConfigured = true;
+                }
             });
 
-            // Watch for changes in desktop settings and sync them to mobile
+            // Watch for shared properties in Single Banner and sync them from desktop to mobile
             watch(() => ({
                 borderColor: banner.single.borderColor,
                 backgroundType: banner.single.backgroundType,
                 bgColor: banner.single.bgColor,
                 imageUrl: banner.single.imageUrl,
                 alignment: banner.single.alignment,
+                titleText: banner.single.titleText,
                 titleColor: banner.single.titleColor,
                 descText: banner.single.descText,
                 descColor: banner.single.descColor,
+                buttonText: banner.single.buttonText,
+                buttonLink: banner.single.buttonLink,
                 buttonBgColor: banner.single.buttonBgColor,
                 buttonBgHoverColor: banner.single.buttonBgHoverColor,
                 buttonTextColor: banner.single.buttonTextColor,
             }), (newDesktopSettings) => {
-                banner.single_mobile.borderColor = newDesktopSettings.borderColor;
-                banner.single_mobile.backgroundType = newDesktopSettings.backgroundType;
-                banner.single_mobile.bgColor = newDesktopSettings.bgColor;
-                banner.single_mobile.imageUrl = newDesktopSettings.imageUrl;
-                banner.single_mobile.alignment = newDesktopSettings.alignment;
-                banner.single_mobile.titleColor = newDesktopSettings.titleColor;
-                banner.single_mobile.descText = newDesktopSettings.descText;
-                banner.single_mobile.descColor = newDesktopSettings.descColor;
-                banner.single_mobile.buttonBgColor = newDesktopSettings.buttonBgColor;
-                banner.single_mobile.buttonBgHoverColor = newDesktopSettings.buttonBgHoverColor;
-                banner.single_mobile.buttonTextColor = newDesktopSettings.buttonTextColor;
+                 if (banner.type !== 'single-banner') return;
+                Object.assign(banner.single_mobile, newDesktopSettings);
             }, { deep: true });
 
 
@@ -230,18 +259,23 @@ export function initializeApp(yabData) {
                 uploader.on('select', () => {
                     const attachment = uploader.state().get('selection').first().toJSON();
                     let targetObject = banner;
-                    const keys = targetKey.split('_');
+                    const keys = targetKey.split('_'); // e.g., ['double', 'desktop', 'left']
                     
                     keys.forEach(key => {
-                        if (targetObject[key]) {
+                        if (targetObject && typeof targetObject[key] !== 'undefined') {
                             targetObject = targetObject[key];
                         }
                     });
                     
                     if (targetObject && typeof targetObject === 'object') {
                         targetObject.imageUrl = attachment.url;
-                        if (targetKey === 'single') {
+
+                        // Sync image to mobile for single and double banners
+                        if (keys[0] === 'single') {
                             banner.single_mobile.imageUrl = attachment.url;
+                        } else if (keys[0] === 'double' && keys[1] === 'desktop') {
+                            const position = keys[2]; // 'left' or 'right'
+                            banner.double.mobile[position].imageUrl = attachment.url;
                         }
                     }
                 });
@@ -253,15 +287,18 @@ export function initializeApp(yabData) {
                 const keys = targetKey.split('_');
     
                 keys.forEach(key => {
-                    if (targetObject[key]) {
+                    if (targetObject && typeof targetObject[key] !== 'undefined') {
                         targetObject = targetObject[key];
                     }
                 });
     
                 if (targetObject && typeof targetObject === 'object') {
                     targetObject.imageUrl = '';
-                     if (targetKey === 'single') {
+                     if (keys[0] === 'single') {
                         banner.single_mobile.imageUrl = '';
+                    } else if (keys[0] === 'double' && keys[1] === 'desktop') {
+                        const position = keys[2]; // 'left' or 'right'
+                        banner.double.mobile[position].imageUrl = '';
                     }
                 }
             };
@@ -331,6 +368,9 @@ export function initializeApp(yabData) {
                      if (banner.type === 'api-banner' && banner.api.selectedHotel?.id) {
                         apiBannerLogic.fetchFullHotelDetails(banner.api.selectedHotel.id);
                     }
+                     if (banner.type === 'api-banner' && banner.api.selectedTour?.id) {
+                        apiBannerLogic.fetchFullTourDetails(banner.api.selectedTour.id);
+                    }
                     appState.value = 'editor';
                 } else {
                     appState.value = 'selection';
@@ -340,7 +380,7 @@ export function initializeApp(yabData) {
             const buttonAlignment = (align) => align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start');
 
             return {
-                appState, isSaving, banner, shortcode, modalComponent, allBannersUrl, bodyTextarea, currentView,
+                appState, isSaving, banner, shortcode, modalComponent, allBannersUrl, bodyTextarea, currentView, selectedDoubleBanner,
                 previewBodyText,
                 selectElementType, saveBanner, openMediaUploader, removeImage, copyShortcode,
                 goBackToSelection, goToListPage, makeSelectedTextPlaceholder,
@@ -363,3 +403,4 @@ export function initializeApp(yabData) {
         }
     }).mount('#yab-app');
 }
+

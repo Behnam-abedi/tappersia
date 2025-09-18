@@ -2,7 +2,9 @@
 const { reactive, computed } = Vue;
 import { 
     createDefaultPart, 
-    createDefaultMobilePart, 
+    createDefaultMobilePart,
+    createDefaultDoubleBannerPart,
+    createDefaultDoubleBannerMobilePart,
     createDefaultApiDesign, 
     createDefaultSimplePart, 
     createDefaultPromotionPart, 
@@ -13,11 +15,27 @@ import {
 export function useBannerState() {
     const createDefaultBanner = () => ({
         id: null, name: '', displayMethod: 'Fixed', isActive: true, type: null,
-        isMobileConfigured: false, // Flag to track if mobile has been configured once
+        isMobileConfigured: false, 
         displayOn: { posts: [], pages: [], categories: [] },
-        left: createDefaultPart(), right: createDefaultPart(), 
+        
+        // Single Banner State
         single: createDefaultPart(),
         single_mobile: createDefaultMobilePart(),
+
+        // START: NEW DOUBLE BANNER STATE
+        double: {
+            isMobileConfigured: false,
+            desktop: {
+                left: createDefaultDoubleBannerPart(),
+                right: createDefaultDoubleBannerPart()
+            },
+            mobile: {
+                left: createDefaultDoubleBannerMobilePart(),
+                right: createDefaultDoubleBannerMobilePart()
+            }
+        },
+        // END: NEW DOUBLE BANNER STATE
+
         simple: createDefaultSimplePart(),
         sticky_simple: createDefaultSimplePart(),
         promotion: createDefaultPromotionPart(),
@@ -45,36 +63,30 @@ export function useBannerState() {
     });
     
     const mergeWithExisting = (existingData) => {
-        if (!existingData.single_mobile) {
-            existingData.single_mobile = createDefaultMobilePart();
-        }
+        // --- Deep merge helper ---
+        const deepMerge = (target, source) => {
+            for (const key in source) {
+                if (source.hasOwnProperty(key)) {
+                    if (source[key] instanceof Object && key in target && target[key] instanceof Object) {
+                        deepMerge(target[key], source[key]);
+                    } else {
+                        target[key] = source[key];
+                    }
+                }
+            }
+        };
 
         // If loading an existing banner, mark mobile as "configured" to prevent auto-copying
         if (existingData.id) {
             existingData.isMobileConfigured = true;
-        }
-
-        for (const key in existingData) {
-            if (Object.prototype.hasOwnProperty.call(existingData, key)) {
-                if (typeof existingData[key] === 'object' && existingData[key] !== null && !Array.isArray(existingData[key]) && banner[key]) {
-                     if (key === 'api' && existingData[key].design) {
-                        if (!banner.api.design) {
-                            banner.api.design = {};
-                        }
-                        Object.assign(banner.api.design, existingData[key].design);
-                        Object.assign(banner.api, { ...existingData.api, design: banner.api.design });
-                    } else {
-                        Object.assign(banner[key], existingData[key]);
-                    }
-                } else {
-                    banner[key] = existingData[key];
-                }
-            }
-            if (key === 'promotion' && typeof existingData[key].direction === 'undefined') {
-                existingData[key].direction = 'ltr';
+            if (existingData.double) {
+                existingData.double.isMobileConfigured = true;
             }
         }
         
+        deepMerge(banner, existingData);
+        
+        // --- Final checks and sanitization after merge ---
         if (!banner.displayOn) {
             banner.displayOn = { posts: [], pages: [], categories: [] };
         } else {

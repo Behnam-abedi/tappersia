@@ -59,6 +59,25 @@ export function useApiBanner(banner, showModal, ajax) {
         { key: 'EcoLodge', label: 'Eco Lodge' }, { key: 'GuestHouse', label: 'Guest House' }, { key: 'Hostel', label: 'Hostel' }
     ];
 
+    // *** START: ADDED FUNCTIONS ***
+    const getRatingLabel = (score) => {
+        if (score === null || score === undefined || score === 0) return 'New';
+        if (score >= 4.6) return 'Excellent';
+        if (score >= 4.1) return 'Very Good';
+        if (score >= 3.6) return 'Good';
+        if (score >= 3.0) return 'Average';
+        return 'Poor';
+    };
+
+    const formatRating = (score) => {
+        if (score === null || score === undefined) return '';
+        if (Math.floor(score) === score) {
+            return parseInt(score, 10);
+        }
+        return Math.floor(score * 10) / 10;
+    };
+    // *** END: ADDED FUNCTIONS ***
+
     const sortedHotelResults = computed(() => {
         if (!tempSelectedHotel.value) return hotelResults;
         const selectedId = tempSelectedHotel.value.id;
@@ -434,6 +453,12 @@ export function useApiBanner(banner, showModal, ajax) {
         tourFilters, tourCities, tourTypes,
         debouncedTourSearch, toggleTourType, resetTourFilters,
         isCityDropdownOpen, selectedTourCityName, selectTourCity,
-        fetchFullTourDetails, fetchFullTourDetails
+        fetchFullTourDetails,
+
+        // *** START: EXPOSE FUNCTIONS TO TEMPLATE ***
+        getRatingLabel,
+        formatRating,
+        ceil: Math.ceil,
+        // *** END: EXPOSE FUNCTIONS TO TEMPLATE ***
     };
 }

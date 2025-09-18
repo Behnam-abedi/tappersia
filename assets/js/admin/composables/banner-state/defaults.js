@@ -17,8 +17,8 @@ export const createDefaultPart = () => ({
     descSize: 12,
     descWeight: '500',
     descLineHeight: 1.1,
-    descWidth: 100, // *** ADDED: Default description width ***
-    descWidthUnit: '%', // *** ADDED: Default description width unit ***
+    descWidth: 100, 
+    descWidthUnit: '%',
     buttonText: 'Learn More',
     buttonLink: '#',
     buttonBgColor: '#124C88',
@@ -27,7 +27,6 @@ export const createDefaultPart = () => ({
     buttonBgHoverColor: '#10447B',
     buttonFontWeight: '600',
     imageUrl: '',
-    imageFit: 'cover',
     enableCustomImageSize: false,
     imageWidth: null,
     imageWidthUnit: 'px',
@@ -64,7 +63,6 @@ export const createDefaultPart = () => ({
 export const createDefaultMobilePart = () => {
     const mobileDefaults = createDefaultPart();
     
-    // Custom defaults for mobile as per user request
     mobileDefaults.width = 100;
     mobileDefaults.widthUnit = '%';
     mobileDefaults.height = 'auto';
@@ -79,15 +77,100 @@ export const createDefaultMobilePart = () => {
     mobileDefaults.titleSize = 14;
     mobileDefaults.descSize = 9;
     mobileDefaults.descLineHeight = 1.2;
-    mobileDefaults.descWidth = 100; // Default width for mobile description
+    mobileDefaults.descWidth = 100;
     mobileDefaults.descWidthUnit = '%';
     mobileDefaults.buttonPaddingX = 18;
     mobileDefaults.buttonPaddingY = 9;
-    mobileDefaults.buttonFontSize = 9; // *** ADDED: Default button font size for mobile ***
+    mobileDefaults.buttonFontSize = 9;
     mobileDefaults.buttonMinWidth = 80; // *** ADDED: Default button min-width for mobile ***
 
     return mobileDefaults;
 };
+
+
+// START: NEW DEFAULTS FOR DOUBLE BANNER
+export const createDefaultDoubleBannerPart = () => ({
+    layerOrder: 'image-below-overlay', // 'image-below-overlay' or 'overlay-below-image'
+    enableCustomDimensions: false,
+    width: 50,
+    widthUnit: '%',
+    minHeight: 185,
+    minHeightUnit: 'px',
+
+    enableBorder: true,
+    borderWidth: 0,
+    borderColor: '#FFFFFF',
+    borderRadius: 16,
+
+    paddingTop: 35,
+    paddingRight: 31,
+    paddingBottom: 35,
+    paddingLeft: 31,
+
+    backgroundType: 'solid',
+    bgColor: 'rgba(18, 76, 136, 0.8)',
+    gradientAngle: 90,
+    gradientStops: [
+        { color: 'rgba(12, 165, 234, 0.8)', stop: 0 },
+        { color: 'rgba(18, 76, 136, 0.8)', stop: 100 }
+    ],
+
+    imageUrl: '',
+    enableCustomImageSize: false,
+    imageWidth: null,
+    imageWidthUnit: 'px',
+    imageHeight: null,
+    imageHeightUnit: 'px',
+    imagePosRight: 0,
+    imagePosBottom: 0,
+    
+    alignment: 'left',
+
+    titleText: 'Banner Title',
+    titleColor: '#FFFFFF',
+    titleSize: 20,
+    titleWeight: '700',
+
+    descText: 'This is a description for the banner.',
+    descColor: '#FFFFFF',
+    descSize: 12,
+    descWeight: '400',
+    descWidth: 100,
+    descWidthUnit: '%',
+
+    buttonText: 'Click Me',
+    buttonLink: '#',
+    buttonBgColor: '#00BAA4',
+    buttonTextColor: '#FFFFFF',
+    buttonBgHoverColor: '#009a88',
+    buttonFontSize: 14,
+    buttonFontWeight: '600',
+    buttonMinWidth: 143,
+    buttonMinWidthUnit: 'px',
+    buttonBorderRadius: 8,
+});
+
+export const createDefaultDoubleBannerMobilePart = () => {
+    const mobileDefaults = createDefaultDoubleBannerPart();
+    mobileDefaults.width = 100;
+    mobileDefaults.widthUnit = '%';
+    mobileDefaults.height = 'auto';
+    mobileDefaults.minHeight = 110;
+    mobileDefaults.paddingTop = 35;
+    mobileDefaults.paddingRight = 30;
+    mobileDefaults.paddingBottom = 35;
+    mobileDefaults.paddingLeft = 30;
+    mobileDefaults.imagePosRight = 0;
+    mobileDefaults.imagePosBottom = 0;
+    mobileDefaults.titleSize = 18;
+    mobileDefaults.descSize = 12;
+    mobileDefaults.descWidth = 100;
+    mobileDefaults.descWidthUnit = '%';
+    mobileDefaults.buttonFontSize = 12;
+    return mobileDefaults;
+};
+// END: NEW DEFAULTS FOR DOUBLE BANNER
+
 
 export const createDefaultApiDesign = () => ({
     layout: 'left',
@@ -198,3 +281,4 @@ export const createDefaultHtmlPart = () => ({
 export const createDefaultHtmlSidebarPart = () => ({
     html: '<div style="padding: 15px; border: 1px solid #ddd; text-align: center;">\n  <h4 style="color: #333; margin-top: 0;">Sidebar Content</h4>\n</div>'
 });
+
