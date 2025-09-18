@@ -6,7 +6,7 @@ import { useBannerState } from '../composables/useBannerState.js';
 import { useApiBanner } from '../composables/useApiBanner.js';
 import { useDisplayConditions } from '../composables/useDisplayConditions.js';
 import { ImageLoader } from './components.js';
-import { bannerStyles, contentAlignment, imageStyleObject } from './utils.js';
+import { bannerStyles, contentAlignment, imageStyleObject, getApiBannerStyles, getApiContentStyles } from './utils.js';
 
 export function initializeApp(yabData) {
     createApp({
@@ -26,8 +26,6 @@ export function initializeApp(yabData) {
             const displayConditionsLogic = useDisplayConditions(banner, ajax);
 
             // --- Watchers ---
-
-            // Sync settings from Desktop to Mobile on first view change
             watch(currentView, (newView) => {
                 // For Single Banner
                 if (banner.type === 'single-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
@@ -54,6 +52,32 @@ export function initializeApp(yabData) {
 
                     banner.isMobileConfigured = true; // Mark as configured
                 }
+
+                // START: NEW WATCHER FOR SIMPLE BANNER
+                if (banner.type === 'simple-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
+                    const desktop = banner.simple;
+                    const mobile = banner.simple_mobile;
+
+                    // Copy properties that are not typically overridden for mobile content
+                    mobile.backgroundType = desktop.backgroundType;
+                    mobile.bgColor = desktop.bgColor;
+                    mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
+                    mobile.gradientAngle = desktop.gradientAngle;
+                    mobile.borderRadius = desktop.borderRadius;
+                    mobile.direction = desktop.direction;
+                    mobile.text = desktop.text;
+                    mobile.textColor = desktop.textColor;
+                    mobile.textWeight = desktop.textWeight;
+                    mobile.buttonText = desktop.buttonText;
+                    mobile.buttonLink = desktop.buttonLink;
+                    mobile.buttonBgColor = desktop.buttonBgColor;
+                    mobile.buttonTextColor = desktop.buttonTextColor;
+                    mobile.buttonBorderRadius = desktop.buttonBorderRadius;
+                    mobile.buttonFontWeight = desktop.buttonFontWeight;
+
+                    banner.isMobileConfigured = true;
+                }
+                // END: NEW WATCHER FOR SIMPLE BANNER
 
                 // For Double Banner - Initial Sync
                 if (banner.type === 'double-banner' && newView === 'mobile' && !banner.double.isMobileConfigured) {
@@ -86,6 +110,32 @@ export function initializeApp(yabData) {
                     });
                     banner.double.isMobileConfigured = true;
                 }
+
+                // For API Banner - Initial Sync
+                if (banner.type === 'api-banner' && newView === 'mobile' && !banner.api.isMobileConfigured) {
+                    const desktop = banner.api.design;
+                    const mobile = banner.api.design_mobile;
+
+                    // Copy non-style-specific values that should be consistent
+                    mobile.layout = desktop.layout;
+                    mobile.backgroundType = desktop.backgroundType;
+                    mobile.bgColor = desktop.bgColor;
+                    mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
+                    mobile.gradientAngle = desktop.gradientAngle;
+                    mobile.enableBorder = desktop.enableBorder;
+                    mobile.borderColor = desktop.borderColor;
+                    mobile.titleColor = desktop.titleColor;
+                    mobile.cityColor = desktop.cityColor;
+                    mobile.ratingBoxBgColor = desktop.ratingBoxBgColor;
+                    mobile.ratingBoxColor = desktop.ratingBoxColor;
+                    mobile.ratingTextColor = desktop.ratingTextColor;
+                    mobile.reviewColor = desktop.reviewColor;
+                    mobile.priceFromColor = desktop.priceFromColor;
+                    mobile.priceAmountColor = desktop.priceAmountColor;
+                    mobile.priceNightColor = desktop.priceNightColor;
+                    
+                    banner.api.isMobileConfigured = true; // Mark as configured
+                }
             });
 
             // Watch for shared properties in Single Banner and sync them from desktop to mobile
@@ -108,6 +158,26 @@ export function initializeApp(yabData) {
                  if (banner.type !== 'single-banner') return;
                 Object.assign(banner.single_mobile, newDesktopSettings);
             }, { deep: true });
+
+            // START: WATCHER FOR SIMPLE BANNER SHARED PROPERTIES
+            watch(() => ({
+                text: banner.simple.text,
+                buttonText: banner.simple.buttonText,
+                buttonLink: banner.simple.buttonLink,
+                // Also sync some design properties unless overridden
+                backgroundType: banner.simple.backgroundType,
+                bgColor: banner.simple.bgColor,
+                gradientStops: banner.simple.gradientStops,
+                textColor: banner.simple.textColor,
+                buttonBgColor: banner.simple.buttonBgColor,
+                buttonTextColor: banner.simple.buttonTextColor,
+            }), (newDesktopSettings) => {
+                if (banner.type !== 'simple-banner') return;
+                // Deep copy gradient stops to avoid reactivity issues
+                const desktopStops = JSON.parse(JSON.stringify(newDesktopSettings.gradientStops));
+                Object.assign(banner.simple_mobile, { ...newDesktopSettings, gradientStops: desktopStops });
+            }, { deep: true });
+            // END: WATCHER FOR SIMPLE BANNER SHARED PROPERTIES
 
             // Watch for shared properties in Double Banner and sync them from desktop to mobile
             watch(() => banner.double.desktop, (newDesktopSettings) => {
@@ -157,6 +227,42 @@ export function initializeApp(yabData) {
                     });
                 }
                 return text;
+            });
+
+            const apiItem = computed(() => {
+                if (banner.type === 'api-banner') {
+                    return banner.api.selectedHotel || banner.api.selectedTour;
+                }
+                return null;
+            });
+            
+            const isApiHotel = computed(() => {
+                if (banner.type === 'api-banner' && banner.api.selectedHotel) {
+                    return true;
+                }
+                return false;
+            });
+            
+            const settings = computed(() => {
+                if (!banner.type) return {}; 
+            
+                switch (banner.type) {
+                    case 'api-banner':
+                        return currentView.value === 'desktop' ? banner.api.design : banner.api.design_mobile;
+                    case 'double-banner':
+                        if (banner.double && banner.double[currentView.value] && banner.double[currentView.value][selectedDoubleBanner.value]) {
+                            return banner.double[currentView.value][selectedDoubleBanner.value];
+                        }
+                        return {};
+                    case 'single-banner':
+                        return currentView.value === 'desktop' ? banner.single : banner.single_mobile;
+                    // START: ADDED COMPUTED FOR SIMPLE BANNER
+                    case 'simple-banner':
+                        return currentView.value === 'desktop' ? banner.simple : banner.simple_mobile;
+                    // END: ADDED COMPUTED FOR SIMPLE BANNER
+                    default:
+                        return {};
+                }
             });
 
             // --- Methods ---
@@ -284,6 +390,12 @@ export function initializeApp(yabData) {
                 const uploader = wp.media({ title: 'Select Image', button: { text: 'Use this Image' }, multiple: false });
                 uploader.on('select', () => {
                     const attachment = uploader.state().get('selection').first().toJSON();
+                    
+                    if (targetKey === 'promotion') {
+                        banner.promotion.iconUrl = attachment.url;
+                        return;
+                    }
+
                     let targetObject = banner;
                     const keys = targetKey.split('_'); // e.g., ['double', 'desktop', 'left']
                     
@@ -309,6 +421,11 @@ export function initializeApp(yabData) {
             };
             
             const removeImage = (targetKey) => { 
+                if (targetKey === 'promotion') {
+                    banner.promotion.iconUrl = '';
+                    return;
+                }
+
                 let targetObject = banner;
                 const keys = targetKey.split('_');
     
@@ -358,6 +475,21 @@ export function initializeApp(yabData) {
                     }
                 }
             };
+
+            const addPromoLink = (placeholder) => {
+                const placeholderExists = banner.promotion.links.some(link => link.placeholder === placeholder);
+                if (!placeholderExists) {
+                     banner.promotion.links.push({
+                        placeholder: placeholder,
+                        url: '#',
+                        color: '#f07100'
+                    });
+                }
+            };
+            
+            const removePromoLink = (index) => {
+                banner.promotion.links.splice(index, 1);
+            };
             
             const makeSelectedTextPlaceholder = () => {
                 const textarea = bodyTextarea.value;
@@ -405,14 +537,36 @@ export function initializeApp(yabData) {
 
             const buttonAlignment = (align) => align === 'right' ? 'flex-end' : (align === 'center' ? 'center' : 'flex-start');
 
+            const getPromoBackgroundStyle = (promo, section) => {
+                const prefix = section;
+                const typeKey = `${prefix}BackgroundType`;
+                const colorKey = `${prefix}BgColor`;
+                const grad1Key = `${prefix}GradientColor1`;
+                const grad2Key = `${prefix}GradientColor2`;
+                const angleKey = `${prefix}GradientAngle`;
+
+                if (promo[typeKey] === 'gradient') {
+                    const angle = promo[angleKey] || 90;
+                    const color1 = promo[grad1Key] || '#ffffff';
+                    const color2 = promo[grad2Key] || '#ffffff';
+                    return `linear-gradient(${angle}deg, ${color1}, ${color2})`;
+                }
+                return promo[colorKey] || '#ffffff';
+            };
+
             return {
                 appState, isSaving, banner, shortcode, modalComponent, allBannersUrl, bodyTextarea, currentView, selectedDoubleBanner,
                 previewBodyText,
+                apiItem,
+                isApiHotel,
+                settings,
                 selectElementType, saveBanner, openMediaUploader, removeImage, copyShortcode,
-                goBackToSelection, goToListPage, makeSelectedTextPlaceholder,
+                goBackToSelection, goToListPage, makeSelectedTextPlaceholder, removePromoLink,
                 ...apiBannerLogic,
                 ...displayConditionsLogic,
                 bannerStyles, contentAlignment, imageStyleObject, buttonAlignment,
+                getPromoBackgroundStyle,
+                getApiBannerStyles, getApiContentStyles,
                 ceil: Math.ceil,
                 getContentStyles,
                 getTitleStyles,

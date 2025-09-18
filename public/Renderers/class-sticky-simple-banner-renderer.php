@@ -20,7 +20,7 @@ if (!class_exists('Yab_Sticky_Simple_Banner_Renderer')) {
                  style="width: 100%; 
                         height: <?php echo esc_attr($b['height']); ?>px; 
                         min-height: <?php echo esc_attr($b['height']); ?>px;
-                        border-radius: <?php echo esc_attr($b['borderRadius']); ?>px; 
+                        border-radius: 0; /* Ensures sharp corners for full-width */
                         <?php echo $this->get_background_style($b); ?>;
                         padding: <?php echo esc_attr($b['paddingY']); ?>px <?php echo esc_attr($b['paddingX']); ?>px;
                         display: flex;
@@ -28,9 +28,11 @@ if (!class_exists('Yab_Sticky_Simple_Banner_Renderer')) {
                         justify-content: space-between;
                         box-sizing: border-box;
                         direction: <?php echo $b['direction'] === 'rtl' ? 'rtl' : 'ltr'; ?>;
-                        position: sticky;
-                        top: 0;
-                        z-index: 999;
+                        position: fixed;
+                        bottom: 0;
+                        left: 0;
+                        right: 0; /* Ensures banner spans the full width */
+                        z-index: 99999; /* High z-index to stay on top */
                         ">
                 <span style="font-size: <?php echo esc_attr($b['textSize']); ?>px;
                              font-weight: <?php echo esc_attr($b['textWeight']); ?>;
@@ -48,7 +50,8 @@ if (!class_exists('Yab_Sticky_Simple_Banner_Renderer')) {
                           min-width: <?php echo esc_attr($b['buttonMinWidth']); ?>px;
                           text-decoration: none;
                           text-align: center;
-                          box-sizing: border-box;">
+                          box-sizing: border-box;
+                          flex-shrink: 0;">
                     <?php echo esc_html($b['buttonText']); ?>
                 </a>
             </div>

@@ -6,7 +6,11 @@ import {
     createDefaultDoubleBannerPart,
     createDefaultDoubleBannerMobilePart,
     createDefaultApiDesign, 
+    createDefaultApiMobileDesign,
     createDefaultSimplePart, 
+    // START: Import new default function
+    createDefaultSimpleBannerMobilePart,
+    // END: Import new default function
     createDefaultPromotionPart, 
     createDefaultHtmlPart, 
     createDefaultHtmlSidebarPart 
@@ -36,7 +40,10 @@ export function useBannerState() {
         },
         // END: NEW DOUBLE BANNER STATE
 
+        // START: ADDED simple_mobile state
         simple: createDefaultSimplePart(),
+        simple_mobile: createDefaultSimpleBannerMobilePart(),
+        // END: ADDED simple_mobile state
         sticky_simple: createDefaultSimplePart(),
         promotion: createDefaultPromotionPart(),
         content_html: createDefaultHtmlPart(),
@@ -46,6 +53,8 @@ export function useBannerState() {
             selectedHotel: null, 
             selectedTour: null,
             design: createDefaultApiDesign(),
+            design_mobile: createDefaultApiMobileDesign(),
+            isMobileConfigured: false,
         },
     });
 
@@ -81,6 +90,9 @@ export function useBannerState() {
             existingData.isMobileConfigured = true;
             if (existingData.double) {
                 existingData.double.isMobileConfigured = true;
+            }
+            if (existingData.api) {
+                existingData.api.isMobileConfigured = true;
             }
         }
         

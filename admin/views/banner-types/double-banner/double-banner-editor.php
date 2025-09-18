@@ -13,7 +13,7 @@
                 <button @click="selectedDoubleBanner = 'right'" :class="{'active-tab': selectedDoubleBanner === 'right'}" class="flex-1 tab-button rounded-md">Right Banner</button>
             </div>
             
-            <div :set="settings = banner.double[currentView][selectedDoubleBanner]" :key="currentView + selectedDoubleBanner">
+            <div :key="currentView + selectedDoubleBanner">
                 <h3 class="font-bold text-xl text-white tracking-wide mb-4 capitalize">{{ selectedDoubleBanner }} Banner <span class="capitalize text-gray-400 text-lg">({{ currentView }})</span></h3>
                 <div class="flex flex-col gap-5">
                     

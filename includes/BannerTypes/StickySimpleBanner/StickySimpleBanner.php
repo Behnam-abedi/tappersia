@@ -8,12 +8,13 @@ class Yab_Sticky_Simple_Banner {
             return;
         }
 
-        if ($banner_data['displayMethod'] === 'Fixed') {
-            $conflict = $this->check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
-            if ($conflict['has_conflict']) {
-                wp_send_json_error(['message' => $conflict['message']]);
-                return;
-            }
+        // Force displayMethod to be 'Fixed'
+        $banner_data['displayMethod'] = 'Fixed';
+
+        $conflict = $this->check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
+        if ($conflict['has_conflict']) {
+            wp_send_json_error(['message' => $conflict['message']]);
+            return;
         }
 
         $sanitized_data = $this->sanitize_banner_data($banner_data);

@@ -217,7 +217,7 @@ require YAB_PLUGIN_DIR . 'admin/views/components/banner-editor-header.php';
                      }">
                     <div class="yab-promo-header"
                          :style="{ 
-                            background: bannerStyles(banner.promotion, 'header'),
+                            background: getPromoBackgroundStyle(banner.promotion, 'header'),
                             padding: `${banner.promotion.headerPaddingY}px ${banner.promotion.headerPaddingX}px`,
                             display: 'flex',
                             alignItems: 'center',
@@ -232,7 +232,7 @@ require YAB_PLUGIN_DIR . 'admin/views/components/banner-editor-header.php';
                     </div>
                     <div class="yab-promo-body"
                          :style="{
-                            background: bannerStyles(banner.promotion, 'body'),
+                            background: getPromoBackgroundStyle(banner.promotion, 'body'),
                             padding: `${banner.promotion.bodyPaddingY}px ${banner.promotion.bodyPaddingX}px`
                          }">
                          <p :style="{

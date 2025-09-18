@@ -59,7 +59,15 @@ export function useApiBanner(banner, showModal, ajax) {
         { key: 'EcoLodge', label: 'Eco Lodge' }, { key: 'GuestHouse', label: 'Guest House' }, { key: 'Hostel', label: 'Hostel' }
     ];
 
-    // *** START: ADDED FUNCTIONS ***
+    const apiContentStyles = computed(() => {
+        const design = banner.api.design;
+        return {
+            padding: `${design.paddingTop}px ${design.paddingRight}px ${design.paddingBottom}px ${design.paddingLeft}px`,
+            textAlign: design.layout === 'right' ? 'right' : 'left',
+            justifyContent: 'space-between'
+        };
+    });
+
     const getRatingLabel = (score) => {
         if (score === null || score === undefined || score === 0) return 'New';
         if (score >= 4.6) return 'Excellent';
@@ -76,7 +84,6 @@ export function useApiBanner(banner, showModal, ajax) {
         }
         return Math.floor(score * 10) / 10;
     };
-    // *** END: ADDED FUNCTIONS ***
 
     const sortedHotelResults = computed(() => {
         if (!tempSelectedHotel.value) return hotelResults;
@@ -181,7 +188,7 @@ export function useApiBanner(banner, showModal, ajax) {
     };
 
     const confirmHotelSelection = () => {
-        banner.api.selectedTour = null; // Clear tour selection
+        banner.api.selectedTour = null; 
         if (tempSelectedHotel.value) {
             banner.api.selectedHotel = tempSelectedHotel.value;
             fetchFullHotelDetails(tempSelectedHotel.value.id);
@@ -192,7 +199,7 @@ export function useApiBanner(banner, showModal, ajax) {
     };
     
     const confirmTourSelection = () => {
-        banner.api.selectedHotel = null; // Clear hotel selection
+        banner.api.selectedHotel = null; 
         if (tempSelectedTour.value) {
             banner.api.selectedTour = tempSelectedTour.value;
             fetchFullTourDetails(tempSelectedTour.value.id);
@@ -452,13 +459,12 @@ export function useApiBanner(banner, showModal, ajax) {
         tempSelectedTour, confirmTourSelection,
         tourFilters, tourCities, tourTypes,
         debouncedTourSearch, toggleTourType, resetTourFilters,
-        isCityDropdownOpen, selectedTourCityName, selectTourCity,
+        isTourCityDropdownOpen, selectedTourCityName, selectTourCity,
         fetchFullTourDetails,
 
-        // *** START: EXPOSE FUNCTIONS TO TEMPLATE ***
+        apiContentStyles,
         getRatingLabel,
         formatRating,
         ceil: Math.ceil,
-        // *** END: EXPOSE FUNCTIONS TO TEMPLATE ***
     };
 }

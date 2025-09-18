@@ -16,18 +16,13 @@ if (!class_exists('Yab_Shortcode_Handler')) {
     class Yab_Shortcode_Handler {
 
         public function register_shortcodes() {
-            // START: MODIFIED SECTION
             $banner_types = ['singlebanner', 'doublebanner', 'apibanner', 'simplebanner', 'stickysimplebanner', 'promotionbanner', 'contenthtml', 'contenthtmlsidebar'];
-            // END: MODIFIED SECTION
             foreach ($banner_types as $type) {
                 add_shortcode($type, [$this, 'render_embeddable_banner']);
                 add_shortcode($type . '_fixed', [$this, 'render_fixed_banner']);
             }
         }
 
-        /**
-         * Handles all embeddable banner shortcodes.
-         */
         public function render_embeddable_banner($atts, $content = null, $tag = '') {
             $atts = shortcode_atts(['id' => 0], $atts, $tag);
             if (empty($atts['id'])) {
@@ -36,14 +31,12 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             
             $banner_post = get_post(intval($atts['id']));
             
-            // START: MODIFIED SECTION
             $banner_type_slug = str_replace('banner', '-banner', $tag);
             if ($tag === 'contenthtml') {
                 $banner_type_slug = 'content-html-banner';
             } elseif ($tag === 'contenthtmlsidebar') {
                 $banner_type_slug = 'content-html-sidebar-banner';
             }
-            // END: MODIFIED SECTION
 
             if (!$this->is_valid_banner($banner_post, $banner_type_slug, 'Embeddable')) {
                  return "";
@@ -53,22 +46,17 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             return $this->render_banner($banner_type_slug, $data, $banner_post->ID);
         }
 
-        /**
-         * Handles all fixed banner shortcodes.
-         */
         public function render_fixed_banner($atts, $content = null, $tag = '') {
             global $post;
             if (!$post && !is_category() && !is_archive()) return '';
 
             $base_tag = str_replace('_fixed', '', $tag);
-            // START: MODIFIED SECTION
             $banner_type_slug = str_replace('banner', '-banner', $base_tag);
             if ($base_tag === 'contenthtml') {
                 $banner_type_slug = 'content-html-banner';
             } elseif ($base_tag === 'contenthtmlsidebar') {
                 $banner_type_slug = 'content-html-sidebar-banner';
             }
-            // END: MODIFIED SECTION
             
             $args = [
                 'post_type' => 'yab_banner', 'posts_per_page' => -1, 'post_status' => 'publish',
@@ -95,9 +83,6 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             return '';
         }
 
-        /**
-         * Checks if a fixed banner should be displayed based on conditions.
-         */
         private function should_display_fixed($banner_post, $queried_object_id, $global_post): bool {
             $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
             if (empty($data['displayOn'])) return false;
@@ -114,9 +99,6 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             return false;
         }
 
-        /**
-         * Validates a banner post object for rendering.
-         */
         private function is_valid_banner($banner_post, string $expected_type, string $expected_method): bool {
             if (!$banner_post || $banner_post->post_type !== 'yab_banner' || $banner_post->post_status !== 'publish') {
                 return false;
@@ -130,9 +112,6 @@ if (!class_exists('Yab_Shortcode_Handler')) {
                    ($data['displayMethod'] ?? 'Fixed') === $expected_method;
         }
 
-        /**
-         * Instantiates the correct renderer and calls its render method.
-         */
         private function render_banner(string $type_slug, array $data, int $banner_id): string {
             $class_name = 'Yab_' . str_replace('-', '_', ucwords($type_slug, '-')) . '_Renderer';
             

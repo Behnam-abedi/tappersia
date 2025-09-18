@@ -185,6 +185,12 @@ export const createDefaultDoubleBannerMobilePart = () => {
 
 
 export const createDefaultApiDesign = () => ({
+    imageContainerWidth: 360,
+    enableCustomDimensions: false,
+    width: 100,
+    widthUnit: '%',
+    height: 150,
+    heightUnit: 'px',
     layout: 'left',
     backgroundType: 'solid',
     bgColor: '#ffffff',
@@ -193,36 +199,61 @@ export const createDefaultApiDesign = () => ({
         { color: 'rgba(240, 242, 245, 1)', stop: 0 },
         { color: 'rgba(255, 255, 255, 1)', stop: 100 }
     ],
-    enableBorder: true,
+    enableBorder: false,
     borderWidth: 1,
     borderColor: '#E0E0E0',
-    borderRadius: 15,
-    enableCustomPadding: false,
-    paddingTop: 23,
-    paddingBottom: 23,
-    paddingLeft: 55,
-    paddingRight: 30,
+    borderRadius: 16,
+    paddingTop: 24,
+    paddingBottom: 24,
+    paddingLeft: 35,
+    paddingRight: 35,
     titleColor: '#000000', 
-    titleSize: 18, 
+    titleSize: 20, 
     titleWeight: '700',
-    starSize: 13,
+    starSize: 16,
     cityColor: '#000000',
-    citySize: 10,
+    citySize: 12,
     ratingBoxBgColor: '#5191FA',
     ratingBoxColor: '#FFFFFF',
-    ratingBoxSize: 10,
+    ratingBoxSize: 14,
+    ratingBoxWeight: '500',
     ratingTextColor: '#5191FA',
-    ratingTextSize: 10,
+    ratingTextSize: 14,
+    ratingTextWeight: '700',
     reviewColor: '#999999',
-    reviewSize: 10,
+    reviewSize: 11,
     priceFromColor: '#999999',
-    priceFromSize: 10,
+    priceFromSize: 12,
     priceAmountColor: '#00BAA4',
     priceAmountSize: 16,
     priceAmountWeight: '700',
     priceNightColor: '#999999',
     priceNightSize: 10,
 });
+
+export const createDefaultApiMobileDesign = () => {
+    const mobileDefaults = createDefaultApiDesign();
+    
+    // Mobile specific overrides
+    mobileDefaults.height = 80;
+    mobileDefaults.imageContainerWidth = 200;
+
+    mobileDefaults.paddingTop = 12;
+    mobileDefaults.paddingBottom = 12;
+    mobileDefaults.paddingLeft = 15;
+    mobileDefaults.paddingRight = 15;
+
+    mobileDefaults.titleSize = 8;
+    mobileDefaults.starSize = 10;
+    mobileDefaults.citySize = 9;
+    mobileDefaults.ratingBoxSize = 10;
+    mobileDefaults.ratingTextSize = 10;
+    mobileDefaults.reviewSize = 8;
+    mobileDefaults.priceAmountSize = 12;
+    mobileDefaults.priceFromSize = 9;
+
+    return mobileDefaults;
+};
 
 export const createDefaultSimplePart = () => ({
     backgroundType: 'solid',
@@ -253,9 +284,24 @@ export const createDefaultSimplePart = () => ({
     buttonMinWidth: 72,
 });
 
+// START: NEW DEFAULT FOR SIMPLE BANNER MOBILE
+export const createDefaultSimpleBannerMobilePart = () => {
+    const mobileDefaults = createDefaultSimplePart();
+    mobileDefaults.height = 'auto';
+    mobileDefaults.paddingY = 15;
+    mobileDefaults.paddingX = 15;
+    mobileDefaults.textSize = 14;
+    mobileDefaults.buttonFontSize = 12;
+    mobileDefaults.buttonPaddingY = 8;
+    mobileDefaults.buttonPaddingX = 12;
+    mobileDefaults.buttonMinWidth = 0;
+    return mobileDefaults;
+};
+// END: NEW DEFAULT FOR SIMPLE BANNER MOBILE
+
 export const createDefaultPromotionPart = () => ({
     borderWidth: 1,
-    borderColor: '#ffad1e57',
+    borderColor: '#FFAD1E',
     borderRadius: 12,
     direction: 'ltr',
     headerBackgroundType: 'solid',
@@ -272,8 +318,8 @@ export const createDefaultPromotionPart = () => ({
     headerFontSize: 18,
     headerFontWeight: '700',
     bodyBackgroundType: 'solid',
-    bodyBgColor: '#f071001f',
-    bodyGradientColor1: '#f071001f',
+    bodyBgColor: '#FFF0E5',
+    bodyGradientColor1: '#FFF0E5',
     bodyGradientColor2: '#FFFFFF',
     bodyGradientAngle: 90,
     bodyPaddingX: 20,

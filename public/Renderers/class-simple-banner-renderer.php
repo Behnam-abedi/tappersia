@@ -11,27 +11,50 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
                 return '';
             }
             
-            $b = $this->data['simple'];
+            $desktop_b = $this->data['simple'];
+            $mobile_b = $this->data['simple_mobile'] ?? $desktop_b; 
             $banner_id = $this->banner_id;
             
             ob_start();
             ?>
-            <div class="yab-simple-banner-wrapper" 
+            <style>
+                .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-mobile { display: none; }
+                .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-desktop { display: flex; }
+                
+                @media (max-width: 768px) {
+                    .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-desktop { display: none; }
+                    .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-mobile { display: flex; flex-direction: column; height: auto !important; min-height: fit-content; gap: 15px; }
+                }
+            </style>
+            
+            <div class="yab-wrapper yab-simple-banner-wrapper-<?php echo $banner_id; ?>" style="width: 100%; direction: ltr;">
+                <?php echo $this->render_view($desktop_b, 'desktop', $banner_id); ?>
+                <?php echo $this->render_view($mobile_b, 'mobile', $banner_id); ?>
+            </div>
+            <?php
+            return ob_get_clean();
+        }
+
+        private function render_view($b, $view, $banner_id) {
+             ob_start();
+            ?>
+            <div class="yab-banner-item yab-banner-<?php echo $view; ?>" 
                  style="width: 100%; 
                         height: <?php echo esc_attr($b['height']); ?>px; 
                         min-height: <?php echo esc_attr($b['height']); ?>px;
                         border-radius: <?php echo esc_attr($b['borderRadius']); ?>px; 
                         <?php echo $this->get_background_style($b); ?>;
                         padding: <?php echo esc_attr($b['paddingY']); ?>px <?php echo esc_attr($b['paddingX']); ?>px;
-                        display: flex;
                         align-items: center;
                         justify-content: space-between;
                         box-sizing: border-box;
                         direction: <?php echo $b['direction'] === 'rtl' ? 'rtl' : 'ltr'; ?>;
+                        flex-direction: <?php echo $b['direction'] === 'rtl' ? 'row-reverse' : 'row'; ?>;
                         ">
                 <span style="font-size: <?php echo esc_attr($b['textSize']); ?>px;
                              font-weight: <?php echo esc_attr($b['textWeight']); ?>;
-                             color: <?php echo esc_attr($b['textColor']); ?>;">
+                             color: <?php echo esc_attr($b['textColor']); ?>;
+                             text-align: <?php echo $b['direction'] === 'rtl' ? 'right' : 'left'; ?>;">
                     <?php echo esc_html($b['text']); ?>
                 </span>
                 <a href="<?php echo esc_url($b['buttonLink']); ?>" 
@@ -45,7 +68,8 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
                           min-width: <?php echo esc_attr($b['buttonMinWidth']); ?>px;
                           text-decoration: none;
                           text-align: center;
-                          box-sizing: border-box;">
+                          box-sizing: border-box;
+                          flex-shrink: 0;">
                     <?php echo esc_html($b['buttonText']); ?>
                 </a>
             </div>

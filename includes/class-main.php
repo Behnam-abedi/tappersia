@@ -41,21 +41,76 @@ class Yab_Main {
         add_action( 'wp_ajax_yab_fetch_tours_from_api', array( $ajax_handler, 'fetch_tours_from_api' ) );
         add_action( 'wp_ajax_yab_fetch_tour_cities_from_api', array( $ajax_handler, 'fetch_tour_cities_from_api' ) );
         add_action( 'wp_ajax_yab_fetch_tour_details_from_api', array( $ajax_handler, 'yab_fetch_tour_details_from_api' ) );
+        
+        add_action( 'wp_ajax_nopriv_yab_fetch_api_banner_html', array( $ajax_handler, 'fetch_api_banner_html' ) );
+        add_action( 'wp_ajax_yab_fetch_api_banner_html', array( $ajax_handler, 'fetch_api_banner_html' ) );
     }
     
     private function define_public_hooks() {
         $shortcode_handler = new Yab_Shortcode_Handler();
         add_action('init', array($shortcode_handler, 'register_shortcodes'));
         
-        // Add hook for public-facing scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_public_styles_and_scripts'));
+
+        // START: Add action to render sticky banner in the footer
+        add_action('wp_footer', array($this, 'display_sticky_banner_in_footer'));
+        // END: Add action
     }
     
-    public function enqueue_public_styles_and_scripts() {
-        // Enqueue Google Fonts
-        wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
+    // START: New function to display sticky banner
+    public function display_sticky_banner_in_footer() {
+        global $post;
+        if (!is_singular() && !is_category() && !is_archive()) {
+            return;
+        }
 
-        // Enqueue a new public CSS file for global banner styles
+        $args = [
+            'post_type' => 'yab_banner',
+            'posts_per_page' => 1,
+            'post_status' => 'publish',
+            'meta_query' => [
+                'relation' => 'AND',
+                ['key' => '_yab_display_method', 'value' => 'Fixed'],
+                ['key' => '_yab_is_active', 'value' => true],
+                ['key' => '_yab_banner_type', 'value' => 'sticky-simple-banner']
+            ]
+        ];
+
+        $banners = get_posts($args);
+
+        if (empty($banners)) {
+            return;
+        }
+
+        $banner_post = $banners[0];
+        $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
+        
+        if (empty($data['displayOn'])) {
+            return;
+        }
+
+        $cond = $data['displayOn'];
+        $post_ids = !empty($cond['posts']) ? array_map('intval', $cond['posts']) : [];
+        $page_ids = !empty($cond['pages']) ? array_map('intval', $cond['pages']) : [];
+        $cat_ids  = !empty($cond['categories']) ? array_map('intval', $cond['categories']) : [];
+        
+        $queried_object_id = get_queried_object_id();
+        $should_display = false;
+
+        if (is_singular('post') && in_array($queried_object_id, $post_ids)) $should_display = true;
+        if (is_page() && in_array($queried_object_id, $page_ids)) $should_display = true;
+        if (!empty($cat_ids) && (is_category($cat_ids) || (is_singular('post') && has_category($cat_ids, $post)))) $should_display = true;
+
+        if ($should_display) {
+            require_once YAB_PLUGIN_DIR . 'public/Renderers/class-sticky-simple-banner-renderer.php';
+            $renderer = new Yab_Sticky_Simple_Banner_Renderer($data, $banner_post->ID);
+            echo $renderer->render();
+        }
+    }
+    // END: New function
+
+    public function enqueue_public_styles_and_scripts() {
+        wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
         wp_enqueue_style( 'yab-public-style', YAB_PLUGIN_URL . 'assets/css/public-style.css', array('yab-roboto-font'), $this->version, 'all' );
     }
 
