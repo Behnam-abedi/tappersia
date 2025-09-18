@@ -45,12 +45,11 @@ export function initializeApp(yabData) {
                     mobile.imagePosRight = desktop.imagePosRight;
                     mobile.imagePosBottom = desktop.imagePosBottom;
                     mobile.titleWeight = desktop.titleWeight;
+                    mobile.titleLineHeight = desktop.titleLineHeight;
                     mobile.descWeight = desktop.descWeight;
+                    mobile.descLineHeight = desktop.descLineHeight;
                     mobile.buttonFontWeight = desktop.buttonFontWeight;
-                    mobile.buttonWidth = desktop.buttonWidth;
-                    mobile.buttonWidthUnit = desktop.buttonWidthUnit;
-                    mobile.buttonHeight = desktop.buttonHeight;
-                    mobile.buttonHeightUnit = desktop.buttonHeightUnit;
+                    mobile.buttonLineHeight = desktop.buttonLineHeight;
                     mobile.buttonBorderRadius = desktop.buttonBorderRadius;
 
                     banner.isMobileConfigured = true; // Mark as configured
@@ -158,9 +157,10 @@ export function initializeApp(yabData) {
                 return {
                     width: settings.enableCustomDimensions ? `${settings.width}${settings.widthUnit}` : '100%',
                     height: 'auto',
-                    minHeight: settings.enableCustomDimensions ? `${settings.minHeight}${settings.minHeightUnit}` : (view === 'desktop' ? '183px' : '110px'),
+                    minHeight: settings.enableCustomDimensions ? `${settings.minHeight}${settings.minHeightUnit}` : (view === 'desktop' ? '190px' : '145px'),
                     border: settings.enableBorder ? `${settings.borderWidth}px solid ${settings.borderColor}` : 'none',
-                    borderRadius: `${settings.borderRadius}px`
+                    borderRadius: `${settings.borderRadius}px`,
+                    fontFamily: 'Roboto, sans-serif'
                 };
             };
             
@@ -179,6 +179,7 @@ export function initializeApp(yabData) {
                         color: settings.titleColor,
                         fontSize: `${settings.titleSize}px`,
                         fontWeight: settings.titleWeight,
+                        lineHeight: settings.titleLineHeight,
                         margin: 0,
                     },
                     descriptionStyles: {
@@ -186,11 +187,11 @@ export function initializeApp(yabData) {
                         fontSize: `${settings.descSize}px`,
                         fontWeight: settings.descWeight,
                         whiteSpace: 'pre-wrap',
-                        marginTop: `${settings.marginTopDescription || 10}px`,
-                        marginBottom: '10px',
-                        lineHeight: settings.descLineHeight || 1.1,
-                        width: `${settings.descWidth}${settings.descWidthUnit}`, // *** ADDED: Description width ***
-                        wordWrap: 'break-word' // *** ADDED: Word wrap behavior ***
+                        marginTop: `${settings.marginTopDescription}px`,
+                        marginBottom: `0px`,
+                        lineHeight: settings.descLineHeight,
+                        width: `${settings.descWidth}${settings.descWidthUnit}`,
+                        wordWrap: 'break-word'
                     },
                     buttonStyles: {
                         backgroundColor: settings.buttonBgColor,
@@ -198,17 +199,14 @@ export function initializeApp(yabData) {
                         fontSize: `${settings.buttonFontSize}px`,
                         fontWeight: settings.buttonFontWeight,
                         alignSelf: settings.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start'),
-                        width: settings.buttonWidth ? `${settings.buttonWidth}${settings.buttonWidthUnit}` : 'auto',
-                        height: settings.buttonHeight ? `${settings.buttonHeight}${settings.buttonHeightUnit}` : 'auto',
-                        minWidth: settings.buttonMinWidth ? `${settings.buttonMinWidth}${settings.buttonMinWidthUnit}` : 'auto',
                         borderRadius: `${settings.buttonBorderRadius}px`,
-                        padding: `${settings.buttonPaddingY}px ${settings.buttonPaddingX}px`,
+                        padding: `${settings.buttonPaddingTop}px ${settings.buttonPaddingRight}px ${settings.buttonPaddingBottom}px ${settings.buttonPaddingLeft}px`,
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         textDecoration: 'none',
-                        marginTop: 'auto',
-                        lineHeight: '1.15',
+                        lineHeight: settings.buttonLineHeight,
+                        marginTop: `${settings.marginBottomDescription}px`
                     }
                 };
             };
@@ -403,4 +401,3 @@ export function initializeApp(yabData) {
         }
     }).mount('#yab-app');
 }
-

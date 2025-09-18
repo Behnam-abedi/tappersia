@@ -27,6 +27,9 @@ class Yab_Admin_Menu {
         if ( strpos($hook, $this->plugin_name) === false ) {
             return;
         }
+        
+        // Enqueue Roboto font for admin panel
+        wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
 
         wp_enqueue_media();
         wp_enqueue_script( 'yab-tailwind', 'https://cdn.tailwindcss.com', array(), null, false );

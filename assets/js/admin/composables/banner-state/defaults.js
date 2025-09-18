@@ -10,13 +10,14 @@ export const createDefaultPart = () => ({
     ],
     titleText: 'Awesome Title',
     titleColor: '#ffffff',
-    titleSize: 20,
+    titleSize: 24,
     titleWeight: '700',
+    titleLineHeight: 1,
     descText: 'A short and engaging description.',
     descColor: '#ffffff',
-    descSize: 12,
+    descSize: 14,
     descWeight: '500',
-    descLineHeight: 1.1,
+    descLineHeight: 1.5,
     descWidth: 100, 
     descWidthUnit: '%',
     buttonText: 'Learn More',
@@ -25,7 +26,8 @@ export const createDefaultPart = () => ({
     buttonTextColor: '#ffffff',
     buttonFontSize: 14,
     buttonBgHoverColor: '#10447B',
-    buttonFontWeight: '600',
+    buttonFontWeight: '500',
+    buttonLineHeight: 1,
     imageUrl: '',
     enableCustomImageSize: false,
     imageWidth: null,
@@ -38,51 +40,49 @@ export const createDefaultPart = () => ({
     width: 100,
     widthUnit: '%',
     height: 'auto',
-    minHeight: 183,
+    minHeight: 190,
     minHeightUnit: 'px',
     enableBorder: false,
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 16,
-    paddingTop: 41.8,
-    paddingRight: 50,
-    paddingBottom: 26,
-    paddingLeft: 50,
-    buttonWidth: null,
-    buttonWidthUnit: 'px',
-    buttonHeight: null,
-    buttonHeightUnit: 'px',
-    buttonMinWidth: 118,
-    buttonMinWidthUnit: 'px',
-    buttonBorderRadius: 5,
-    marginTopDescription: 10,
-    buttonPaddingX: 23,
-    buttonPaddingY: 9,
+    paddingTop: 34,
+    paddingRight: 34,
+    paddingBottom: 34,
+    paddingLeft: 34,
+    buttonBorderRadius: 8,
+    marginTopDescription: 12,
+    marginBottomDescription: 15, // New default for margin-bottom
+    buttonPaddingTop: 12,
+    buttonPaddingRight: 24,
+    buttonPaddingBottom: 12,
+    buttonPaddingLeft: 24,
 });
 
 export const createDefaultMobilePart = () => {
     const mobileDefaults = createDefaultPart();
     
-    mobileDefaults.width = 100;
-    mobileDefaults.widthUnit = '%';
-    mobileDefaults.height = 'auto';
-    mobileDefaults.minHeight = 110;
-    mobileDefaults.minHeightUnit = 'px';
-    mobileDefaults.borderRadius = 16;
-    mobileDefaults.paddingTop = 15;
-    mobileDefaults.paddingRight = 12;
+    // Mobile specific overrides
+    mobileDefaults.minHeight = 145;
+    mobileDefaults.paddingTop = 20;
+    mobileDefaults.paddingRight = 22;
     mobileDefaults.paddingBottom = 15;
-    mobileDefaults.paddingLeft = 12;
-    mobileDefaults.marginTopDescription = 5;
+    mobileDefaults.paddingLeft = 22;
+    
     mobileDefaults.titleSize = 14;
-    mobileDefaults.descSize = 9;
-    mobileDefaults.descLineHeight = 1.2;
-    mobileDefaults.descWidth = 100;
-    mobileDefaults.descWidthUnit = '%';
-    mobileDefaults.buttonPaddingX = 18;
-    mobileDefaults.buttonPaddingY = 9;
-    mobileDefaults.buttonFontSize = 9;
-    mobileDefaults.buttonMinWidth = 80; // *** ADDED: Default button min-width for mobile ***
+    mobileDefaults.titleLineHeight = 1.4;
+
+    mobileDefaults.descSize = 12;
+    mobileDefaults.descLineHeight = 1.4;
+    mobileDefaults.marginTopDescription = 12;
+
+    mobileDefaults.buttonFontSize = 11;
+    mobileDefaults.buttonPaddingTop = 10;
+    mobileDefaults.buttonPaddingRight = 16;
+    mobileDefaults.buttonPaddingBottom = 10;
+    mobileDefaults.buttonPaddingLeft = 16;
+    mobileDefaults.marginBottomDescription = 15;
+
 
     return mobileDefaults;
 };
@@ -281,4 +281,3 @@ export const createDefaultHtmlPart = () => ({
 export const createDefaultHtmlSidebarPart = () => ({
     html: '<div style="padding: 15px; border: 1px solid #ddd; text-align: center;">\n  <h4 style="color: #333; margin-top: 0;">Sidebar Content</h4>\n</div>'
 });
-

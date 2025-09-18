@@ -24,8 +24,8 @@ export const imageStyleObject = (b) => {
 
     if (b.enableCustomImageSize) {
         // Use custom values if they exist, otherwise fallback to default
-        style.width = b.imageWidth ? `${b.imageWidth}${b.imageWidthUnit}` : 'auto';
-        style.height = b.imageHeight ? `${b.imageHeight}${b.imageHeightUnit}` : '100%';
+        style.width = (b.imageWidth !== null && b.imageWidth !== '') ? `${b.imageWidth}${b.imageWidthUnit}` : 'auto';
+        style.height = (b.imageHeight !== null && b.imageHeight !== '') ? `${b.imageHeight}${b.imageHeightUnit}` : '100%';
     } else {
         // Default behavior
         style.width = 'auto';

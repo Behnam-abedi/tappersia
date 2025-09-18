@@ -46,8 +46,19 @@ class Yab_Main {
     private function define_public_hooks() {
         $shortcode_handler = new Yab_Shortcode_Handler();
         add_action('init', array($shortcode_handler, 'register_shortcodes'));
+        
+        // Add hook for public-facing scripts and styles
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_public_styles_and_scripts'));
     }
     
+    public function enqueue_public_styles_and_scripts() {
+        // Enqueue Google Fonts
+        wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
+
+        // Enqueue a new public CSS file for global banner styles
+        wp_enqueue_style( 'yab-public-style', YAB_PLUGIN_URL . 'assets/css/public-style.css', array('yab-roboto-font'), $this->version, 'all' );
+    }
+
     public function register_banner_cpt() {
         $labels = array(
             'name'                  => _x( 'Banners', 'Post type general name', 'yab' ),

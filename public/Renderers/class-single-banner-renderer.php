@@ -29,7 +29,7 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                 .yab-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-mobile .yab-button:hover { background-color: <?php echo esc_attr($mobile_b['buttonBgHoverColor'] ?? '#008a7b'); ?> !important; }
             </style>
             
-            <div class="yab-wrapper yab-banner-wrapper-<?php echo $banner_id; ?>" style="width: 100%; line-height: 1.2 !important; direction: ltr;">
+            <div class="yab-wrapper yab-banner-wrapper-<?php echo $banner_id; ?>" style="width: 100%; direction: ltr;">
                 <?php echo $this->render_view($desktop_b, 'desktop', $banner_id); ?>
                 <?php echo $this->render_view($mobile_b, 'mobile', $banner_id); ?>
             </div>
@@ -38,48 +38,65 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
         }
 
         private function render_view($b, $view, $banner_id) {
+             $is_desktop = $view === 'desktop';
+             
              $banner_styles = [
                 'width' => !empty($b['enableCustomDimensions']) ? esc_attr($b['width'] . $b['widthUnit']) : '100%',
                 'height' => 'auto',
-                'min-height' => !empty($b['enableCustomDimensions']) ? esc_attr($b['minHeight'] . ($b['minHeightUnit'] ?? 'px')) : ($view === 'desktop' ? '183px' : '110px'),
+                'min-height' => !empty($b['enableCustomDimensions']) ? esc_attr($b['minHeight'] . ($b['minHeightUnit'] ?? 'px')) : ($is_desktop ? '190px' : '145px'),
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
-                'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0',
+                'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0'
             ];
              if (!empty($b['enableBorder'])) { $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 1) . 'px solid ' . esc_attr($b['borderColor'] ?? '#E0E0E0'); }
 
             $content_styles = [
-                'width' => '100%',
-                'padding' => sprintf('%spx %spx %spx %spx', esc_attr($b['paddingTop'] ?? 15), esc_attr($b['paddingRight'] ?? 12), esc_attr($b['paddingBottom'] ?? 15), esc_attr($b['paddingLeft'] ?? 12)),
-                'display' => 'flex', 'flex-direction' => 'column', 'z-index' => '10', 'position' => 'relative', 'flex-grow' => '1',
+                'padding' => sprintf('%spx %spx %spx %spx', 
+                    esc_attr($b['paddingTop'] ?? ($is_desktop ? 34 : 20)), 
+                    esc_attr($b['paddingRight'] ?? ($is_desktop ? 34 : 22)), 
+                    esc_attr($b['paddingBottom'] ?? ($is_desktop ? 34 : 15)), 
+                    esc_attr($b['paddingLeft'] ?? ($is_desktop ? 34 : 22))
+                ),
+                'display' => 'flex', 'flex-direction' => 'column', 'z-index' => '10', 'position' => 'relative', 'flex-grow' => '1', 'width' => '100%'
             ];
             
             $alignment_style = $this->get_alignment_style($b);
             
+            $title_styles = [
+                'font-weight' => esc_attr($b['titleWeight'] ?? '700'),
+                'color' => esc_attr($b['titleColor'] ?? '#ffffff'),
+                'font-size' => esc_attr($b['titleSize'] ?? ($is_desktop ? 24 : 14)) . 'px',
+                'line-height' => esc_attr($b['titleLineHeight'] ?? ($is_desktop ? 1 : 1.4)),
+                'margin' => 0,
+            ];
+
             $desc_styles = [
                 'font-weight' => esc_attr($b['descWeight'] ?? '500'),
                 'color' => esc_attr($b['descColor'] ?? '#ffffff'),
-                'font-size' => esc_attr($b['descSize'] ?? ($view === 'desktop' ? 12 : 9)) . 'px',
-                'margin-top' => esc_attr($b['marginTopDescription'] ?? ($view === 'desktop' ? 10 : 2)) . 'px',
-                'margin-bottom' => '10px',
-                'line-height' => esc_attr($b['descLineHeight'] ?? ($view === 'desktop' ? 1.1 : 1.2)),
-                'width' => !empty($b['descWidth']) ? esc_attr($b['descWidth'] . ($b['descWidthUnit'] ?? '%')) : '100%', // *** ADDED: Description width ***
-                'word-wrap' => 'break-word', // *** ADDED: Word wrap behavior ***
+                'font-size' => esc_attr($b['descSize'] ?? ($is_desktop ? 14 : 12)) . 'px',
+                'margin-top' => esc_attr($b['marginTopDescription'] ?? 12) . 'px',
+                'margin-bottom' => '0',
+                'line-height' => esc_attr($b['descLineHeight'] ?? 1.5),
+                'width' => !empty($b['descWidth']) ? esc_attr($b['descWidth'] . ($b['descWidthUnit'] ?? '%')) : '100%',
+                'word-wrap' => 'break-word',
             ];
 
             $button_styles = [
                 'text-decoration' => 'none', 'display' => 'inline-flex', 'align-items' => 'center',
                 'justify-content' => 'center', 'transition' => 'background-color 0.3s',
-                'padding' => sprintf('%spx %spx', esc_attr($b['buttonPaddingY'] ?? 9), esc_attr($b['buttonPaddingX'] ?? ($view === 'desktop' ? 23 : 18))),
-                'background-color' => esc_attr($b['buttonBgColor'] ?? '#124C88'), 'color' => esc_attr($b['buttonTextColor'] ?? '#ffffff'),
-                'font-size' => esc_attr($b['buttonFontSize'] ?? ($view === 'desktop' ? 14 : 9)) . 'px',
-                'width' => !empty($b['buttonWidth']) ? esc_attr($b['buttonWidth'] . $b['buttonWidthUnit']) : 'auto',
-                'height' => !empty($b['buttonHeight']) ? esc_attr($b['buttonHeight'] . $b['buttonHeightUnit']) : 'auto',
-                'min-width' => esc_attr($b['buttonMinWidth'] ?? ($view === 'desktop' ? 118 : 80)) . 'px',
-                'border-radius' => esc_attr($b['buttonBorderRadius'] ?? 5) . 'px',
-                'margin-top' => 'auto', // Pushes the button to the bottom
-                'font-weight' => esc_attr($b['buttonFontWeight'] ?? '600'),
+                'padding' => sprintf('%spx %spx %spx %spx', 
+                    esc_attr($b['buttonPaddingTop'] ?? ($is_desktop ? 12 : 10)),
+                    esc_attr($b['buttonPaddingRight'] ?? ($is_desktop ? 24 : 16)),
+                    esc_attr($b['buttonPaddingBottom'] ?? ($is_desktop ? 12 : 10)),
+                    esc_attr($b['buttonPaddingLeft'] ?? ($is_desktop ? 24 : 16))
+                ),
+                'background-color' => esc_attr($b['buttonBgColor'] ?? '#124C88'), 
+                'color' => esc_attr($b['buttonTextColor'] ?? '#ffffff'),
+                'font-size' => esc_attr($b['buttonFontSize'] ?? ($is_desktop ? 14 : 11)) . 'px',
+                'border-radius' => esc_attr($b['buttonBorderRadius'] ?? 8) . 'px',
+                'font-weight' => esc_attr($b['buttonFontWeight'] ?? '500'),
                 'align-self' => $alignment_style['align_self'],
-                'line-height' => '1.15',
+                'line-height' => esc_attr($b['buttonLineHeight'] ?? 1),
+                'margin-top' => esc_attr($b['marginBottomDescription'] ?? 15) . 'px',
             ];
 
             ob_start();
@@ -92,10 +109,14 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                 <div class="yab-banner-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; <?php echo $this->get_background_style($b); ?>"></div>
 
                 <div class="yab-banner-content" style="<?php echo $this->get_inline_style_attr($content_styles); ?> z-index: 3; text-align: <?php echo $alignment_style['text_align']; ?>; align-items: <?php echo $alignment_style['align_items']; ?>;">
-                    <h4 style="font-weight: <?php echo esc_attr($b['titleWeight'] ?? '700'); ?>; color: <?php echo esc_attr($b['titleColor'] ?? '#ffffff'); ?>; font-size: <?php echo intval($b['titleSize'] ?? ($view === 'desktop' ? 20 : 14)); ?>px; margin: 0;"><?php echo esc_html($b['titleText'] ?? ''); ?></h4>
-                    <p style="<?php echo $this->get_inline_style_attr($desc_styles); ?>">
-                        <?php echo wp_kses_post(trim($b['descText'] ?? '')); ?>
-                    </p>
+                    
+                    <div style="flex-grow: 1;">
+                        <h2 style="<?php echo $this->get_inline_style_attr($title_styles); ?>"><?php echo esc_html($b['titleText'] ?? ''); ?></h2>
+                        <p style="<?php echo $this->get_inline_style_attr($desc_styles); ?>">
+                            <?php echo wp_kses_post(trim($b['descText'] ?? '')); ?>
+                        </p>
+                    </div>
+
                     <?php if(!empty($b['buttonText'])): ?>
                     <a href="<?php echo esc_url($b['buttonLink'] ?? '#'); ?>" target="_blank" class="yab-button" style="<?php echo $this->get_inline_style_attr($button_styles); ?>"><?php echo esc_html($b['buttonText']); ?></a>
                     <?php endif; ?>

@@ -50,8 +50,8 @@ if (!class_exists('Yab_Abstract_Banner_Renderer')) {
                 $width_unit = isset($b['imageWidthUnit']) && in_array($b['imageWidthUnit'], ['px', '%']) ? $b['imageWidthUnit'] : 'px';
                 $height_unit = isset($b['imageHeightUnit']) && in_array($b['imageHeightUnit'], ['px', '%']) ? $b['imageHeightUnit'] : 'px';
 
-                $width = isset($b['imageWidth']) && $b['imageWidth'] !== null ? intval($b['imageWidth']) . $width_unit : 'auto';
-                $height = isset($b['imageHeight']) && $b['imageHeight'] !== null ? intval($b['imageHeight']) . $height_unit : '100%';
+                $width = isset($b['imageWidth']) && $b['imageWidth'] !== null && $b['imageWidth'] !== '' ? intval($b['imageWidth']) . $width_unit : 'auto';
+                $height = isset($b['imageHeight']) && $b['imageHeight'] !== null && $b['imageHeight'] !== '' ? intval($b['imageHeight']) . $height_unit : '100%';
                 
                 $style .= "width: {$width}; height: {$height};";
             } else {

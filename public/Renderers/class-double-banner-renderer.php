@@ -23,7 +23,6 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
                     gap: 20px;
                     width: 100%;
                     justify-content: center;
-                    line-height: 1.2 !important;
                     direction: ltr;
                 }
                 .yab-double-banner-wrapper-<?php echo $banner_id; ?> .yab-d-mobile { display: none; }
@@ -76,7 +75,7 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
             $alignment_style = $this->get_alignment_style($b);
 
             $content_styles = [
-                'width' => '100%', 'height' => '100%',
+                'width' => '100%',
                 'padding' => sprintf('%spx %spx %spx %spx', esc_attr($b['paddingTop']), esc_attr($b['paddingRight']), esc_attr($b['paddingBottom']), esc_attr($b['paddingLeft'])),
                 'display' => 'flex', 'flex-direction' => 'column', 'position' => 'relative', 'z-index' => 3,
                 'align-items' => $alignment_style['align_items'],
@@ -133,4 +132,3 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
         }
     }
 }
-

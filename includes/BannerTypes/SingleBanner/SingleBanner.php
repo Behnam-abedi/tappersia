@@ -158,14 +158,13 @@ class Yab_Single_Banner {
                     case 'buttonBgColor':
                     case 'buttonTextColor':
                     case 'buttonBgHoverColor':
-                    case 'borderColor': // Added for border color
+                    case 'borderColor':
                         $sanitized[$key] = sanitize_hex_color($value);
                         break;
-                    case 'widthUnit': // Added for dimension units
+                    case 'widthUnit':
                     case 'heightUnit':
-                    case 'buttonWidthUnit':
-                    case 'buttonHeightUnit':
-                    case 'buttonMinWidthUnit':
+                    case 'minHeightUnit':
+                    case 'descWidthUnit':
                          $sanitized[$key] = in_array($value, ['px', '%']) ? $value : 'px';
                         break;
                     default:

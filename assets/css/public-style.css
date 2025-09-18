@@ -1,0 +1,27 @@
+/*
+ * Tappersia Public Styles
+ * This file contains styles for banners on the front-end.
+ */
+
+/*
+ * Force Roboto font on all banner wrappers and their children with high specificity.
+ * This ensures the theme's font styles are overridden.
+ */
+body .yab-wrapper,
+body [class*="yab-double-banner-wrapper-"],
+body .yab-promo-banner-wrapper,
+body .yab-simple-banner-wrapper,
+body .yab-sticky-simple-banner-wrapper,
+body .yab-api-banner-wrapper {
+    font-family: 'Roboto', sans-serif !important;
+}
+
+/* Ensure child elements like buttons and inputs also inherit the font correctly */
+body .yab-wrapper *,
+body [class*="yab-double-banner-wrapper-"] *,
+body .yab-promo-banner-wrapper *,
+body .yab-simple-banner-wrapper *,
+body .yab-sticky-simple-banner-wrapper *,
+body .yab-api-banner-wrapper * {
+    font-family: inherit !important;
+}

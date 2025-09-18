@@ -208,6 +208,10 @@
                     </select>
                 </div>
             </div>
+            <div class="col-span-2">
+                <label class="setting-label-sm">Line Height</label>
+                <input type="number" v-model.number="settings.titleLineHeight" step="0.1" class="yab-form-input" placeholder="e.g., 1.2">
+            </div>
         </div>
     </div>
     <hr class="section-divider">
@@ -238,11 +242,27 @@
                 </div>
             </div>
         </div>
-        <div class="mt-2">
-            <label class="setting-label-sm">Description Width</label>
-            <div class="flex items-center gap-1">
-                <input type="number" v-model.number="settings.descWidth" class="yab-form-input" placeholder="100">
-                <select v-model="settings.descWidthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select>
+        <div class="grid grid-cols-2 gap-2 mt-2">
+            <div>
+                <label class="setting-label-sm">Description Width</label>
+                <div class="flex items-center gap-1">
+                    <input type="number" v-model.number="settings.descWidth" class="yab-form-input" placeholder="100">
+                    <select v-model="settings.descWidthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select>
+                </div>
+            </div>
+            <div>
+                <label class="setting-label-sm">Line Height</label>
+                <input type="number" v-model.number="settings.descLineHeight" step="0.1" class="yab-form-input" placeholder="e.g., 1.5">
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-2">
+            <div>
+                <label class="setting-label-sm">Margin Top (px)</label>
+                <input type="number" v-model.number="settings.marginTopDescription" class="yab-form-input" placeholder="e.g., 12">
+            </div>
+             <div>
+                <label class="setting-label-sm">Margin Bottom (px)</label>
+                <input type="number" v-model.number="settings.marginBottomDescription" class="yab-form-input" placeholder="e.g., 15">
             </div>
         </div>
     </div>
@@ -285,31 +305,35 @@
             </div>
         </div>
         <div class="grid grid-cols-2 gap-2 mt-2">
-            <div>
-                <label class="setting-label-sm">Width</label>
-                <div class="flex items-center gap-1">
-                    <input type="number" v-model.number="settings.buttonWidth" class="yab-form-input" placeholder="Width">
-                    <select v-model="settings.buttonWidthUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
-                </div>
-            </div>
-            <div>
-                <label class="setting-label-sm">Height</label>
-                <div class="flex items-center gap-1">
-                     <input type="number" v-model.number="settings.buttonHeight" class="yab-form-input" placeholder="Height">
-                    <select v-model="settings.buttonHeightUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
-                </div>
-            </div>
              <div>
-                <label class="setting-label-sm">Min-Width</label>
-                <div class="flex items-center gap-1">
-                     <input type="number" v-model.number="settings.buttonMinWidth" class="yab-form-input" placeholder="Min-Width">
-                    <select v-model="settings.buttonMinWidthUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
-                </div>
+                 <label class="setting-label-sm">Border Radius (px)</label>
+                 <input type="number" v-model.number="settings.buttonBorderRadius" class="yab-form-input" placeholder="e.g., 8">
             </div>
             <div>
-                 <label class="setting-label-sm">Border Radius (px)</label>
-                 <input type="number" v-model.number="settings.buttonBorderRadius" class="yab-form-input" placeholder="e.g., 4">
+                <label class="setting-label-sm">Line Height</label>
+                <input type="number" v-model.number="settings.buttonLineHeight" step="0.1" class="yab-form-input" placeholder="e.g., 1">
             </div>
+        </div>
+        <div>
+             <h4 class="section-title mt-4">Button Padding (px)</h4>
+             <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="setting-label-sm">Top</label>
+                    <input type="number" v-model.number="settings.buttonPaddingTop" class="yab-form-input" placeholder="Top">
+                </div>
+                <div>
+                    <label class="setting-label-sm">Right</label>
+                    <input type="number" v-model.number="settings.buttonPaddingRight" class="yab-form-input" placeholder="Right">
+                </div>
+                <div>
+                     <label class="setting-label-sm">Bottom</label>
+                    <input type="number" v-model.number="settings.buttonPaddingBottom" class="yab-form-input" placeholder="Bottom">
+                </div>
+                <div>
+                    <label class="setting-label-sm">Left</label>
+                    <input type="number" v-model.number="settings.buttonPaddingLeft" class="yab-form-input" placeholder="Left">
+                </div>
+             </div>
         </div>
     </div>
 </div>
