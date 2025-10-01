@@ -8,13 +8,11 @@ import {
     createDefaultApiDesign, 
     createDefaultApiMobileDesign,
     createDefaultSimplePart, 
-    // START: Import new default function
     createDefaultSimpleBannerMobilePart,
-    // END: Import new default function
     createDefaultPromotionPart, 
     createDefaultHtmlPart, 
     createDefaultHtmlSidebarPart 
-} from './defaults.js';
+} from './defaults/index.js'; // مسير مستقيم به پوشه مقادير پيش‌فرض
 
 export function useBannerState() {
     const createDefaultBanner = () => ({

@@ -31,19 +31,7 @@ class Yab_Main {
         add_action( 'admin_menu', array( $admin_menu, 'add_plugin_admin_menu' ) );
         add_action( 'admin_enqueue_scripts', array( $admin_menu, 'enqueue_styles_and_scripts' ) );
 
-        $ajax_handler = new Yab_Ajax_Handler();
-        add_action( 'wp_ajax_yab_save_banner', array( $ajax_handler, 'save_banner' ) );
-        add_action( 'wp_ajax_yab_search_content', array( $ajax_handler, 'search_content' ) );
-        add_action( 'wp_ajax_yab_fetch_hotels_from_api', array( $ajax_handler, 'fetch_hotels_from_api' ) );
-        add_action( 'wp_ajax_yab_delete_banner', array( $ajax_handler, 'delete_banner' ) );
-        add_action( 'wp_ajax_yab_fetch_cities_from_api', array( $ajax_handler, 'yab_fetch_cities_from_api' ) );
-        add_action( 'wp_ajax_yab_fetch_hotel_details_from_api', array( $ajax_handler, 'yab_fetch_hotel_details_from_api' ) );
-        add_action( 'wp_ajax_yab_fetch_tours_from_api', array( $ajax_handler, 'fetch_tours_from_api' ) );
-        add_action( 'wp_ajax_yab_fetch_tour_cities_from_api', array( $ajax_handler, 'fetch_tour_cities_from_api' ) );
-        add_action( 'wp_ajax_yab_fetch_tour_details_from_api', array( $ajax_handler, 'yab_fetch_tour_details_from_api' ) );
-        
-        add_action( 'wp_ajax_nopriv_yab_fetch_api_banner_html', array( $ajax_handler, 'fetch_api_banner_html' ) );
-        add_action( 'wp_ajax_yab_fetch_api_banner_html', array( $ajax_handler, 'fetch_api_banner_html' ) );
+        new Yab_Ajax_Handler();
     }
     
     private function define_public_hooks() {
