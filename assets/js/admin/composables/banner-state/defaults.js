@@ -236,16 +236,16 @@ export const createDefaultApiMobileDesign = () => {
     
     // Mobile specific overrides
     mobileDefaults.height = 80;
-    mobileDefaults.imageContainerWidth = 200;
+    mobileDefaults.imageContainerWidth = 140;
 
     mobileDefaults.paddingTop = 12;
     mobileDefaults.paddingBottom = 12;
-    mobileDefaults.paddingLeft = 15;
+    mobileDefaults.paddingLeft = 24;
     mobileDefaults.paddingRight = 15;
 
-    mobileDefaults.titleSize = 8;
-    mobileDefaults.starSize = 10;
-    mobileDefaults.citySize = 9;
+    mobileDefaults.titleSize = 16;
+    mobileDefaults.starSize = 11;
+    mobileDefaults.citySize = 11;
     mobileDefaults.ratingBoxSize = 10;
     mobileDefaults.ratingTextSize = 10;
     mobileDefaults.reviewSize = 8;
@@ -263,15 +263,19 @@ export const createDefaultSimplePart = () => ({
         { color: '#F0F2F5', stop: 0 },
         { color: '#FFFFFF', stop: 100 }
     ],
-    height: 74,
+    height: 'auto',
+    minHeight: 74,
     borderRadius: 10,
     paddingY: 26,
     paddingX: 40,
+    paddingXUnit: 'px',
     direction: 'ltr',
     text: 'This is a simple banner text.',
     textColor: '#000000',
     textSize: 17,
     textWeight: '700',
+    textWidth: 100,
+    textWidthUnit: '%',
     buttonText: 'Click Here',
     buttonLink: '#',
     buttonBgColor: '#1EC2AF',
@@ -287,10 +291,11 @@ export const createDefaultSimplePart = () => ({
 // START: NEW DEFAULT FOR SIMPLE BANNER MOBILE
 export const createDefaultSimpleBannerMobilePart = () => {
     const mobileDefaults = createDefaultSimplePart();
-    mobileDefaults.height = 'auto';
+    mobileDefaults.minHeight = 0;
     mobileDefaults.paddingY = 15;
     mobileDefaults.paddingX = 15;
     mobileDefaults.textSize = 14;
+    mobileDefaults.textWidth = 60;
     mobileDefaults.buttonFontSize = 12;
     mobileDefaults.buttonPaddingY = 8;
     mobileDefaults.buttonPaddingX = 12;

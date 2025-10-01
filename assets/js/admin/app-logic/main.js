@@ -164,6 +164,7 @@ export function initializeApp(yabData) {
                 text: banner.simple.text,
                 buttonText: banner.simple.buttonText,
                 buttonLink: banner.simple.buttonLink,
+                direction: banner.simple.direction,
                 // Also sync some design properties unless overridden
                 backgroundType: banner.simple.backgroundType,
                 bgColor: banner.simple.bgColor,

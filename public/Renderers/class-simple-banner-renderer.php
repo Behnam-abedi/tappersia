@@ -13,6 +13,8 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
             
             $desktop_b = $this->data['simple'];
             $mobile_b = $this->data['simple_mobile'] ?? $desktop_b; 
+            // Ensure mobile view inherits the direction from desktop settings explicitly
+            $mobile_b['direction'] = $desktop_b['direction'] ?? 'ltr';
             $banner_id = $this->banner_id;
             
             ob_start();
@@ -23,7 +25,7 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
                 
                 @media (max-width: 768px) {
                     .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-desktop { display: none; }
-                    .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-mobile { display: flex; flex-direction: column; height: auto !important; min-height: fit-content; gap: 15px; }
+                    .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-mobile { display: flex; }
                 }
             </style>
             
@@ -40,21 +42,23 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
             ?>
             <div class="yab-banner-item yab-banner-<?php echo $view; ?>" 
                  style="width: 100%; 
-                        height: <?php echo esc_attr($b['height']); ?>px; 
-                        min-height: <?php echo esc_attr($b['height']); ?>px;
+                        height: auto; 
+                        min-height: <?php echo esc_attr($b['minHeight']); ?>px;
                         border-radius: <?php echo esc_attr($b['borderRadius']); ?>px; 
                         <?php echo $this->get_background_style($b); ?>;
-                        padding: <?php echo esc_attr($b['paddingY']); ?>px <?php echo esc_attr($b['paddingX']); ?>px;
+                        padding: <?php echo esc_attr($b['paddingY']); ?>px <?php echo esc_attr($b['paddingX'] . ($b['paddingXUnit'] ?? 'px')); ?>;
+                        display: flex;
                         align-items: center;
                         justify-content: space-between;
                         box-sizing: border-box;
-                        direction: <?php echo $b['direction'] === 'rtl' ? 'rtl' : 'ltr'; ?>;
-                        flex-direction: <?php echo $b['direction'] === 'rtl' ? 'row-reverse' : 'row'; ?>;
+                        flex-direction: <?php echo ($b['direction'] === 'rtl') ? 'row-reverse' : 'row'; ?>;
+                        gap: 15px;
                         ">
                 <span style="font-size: <?php echo esc_attr($b['textSize']); ?>px;
                              font-weight: <?php echo esc_attr($b['textWeight']); ?>;
                              color: <?php echo esc_attr($b['textColor']); ?>;
-                             text-align: <?php echo $b['direction'] === 'rtl' ? 'right' : 'left'; ?>;">
+                             width: <?php echo esc_attr($b['textWidth'] . ($b['textWidthUnit'] ?? '%')); ?>;
+                             text-align: <?php echo esc_attr($b['direction'] === 'rtl' ? 'right' : 'left'); ?>;">
                     <?php echo esc_html($b['text']); ?>
                 </span>
                 <a href="<?php echo esc_url($b['buttonLink']); ?>" 

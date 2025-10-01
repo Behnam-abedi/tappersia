@@ -29,11 +29,11 @@
                         <div class="yab-simple-banner-wrapper" 
                             :style="{ 
                                 width: '100%', 
-                                height: banner.simple.height + 'px', 
-                                minHeight: banner.simple.height + 'px',
+                                height: 'auto', 
+                                minHeight: banner.simple.minHeight + 'px',
                                 borderRadius: banner.simple.borderRadius + 'px', 
                                 background: bannerStyles(banner.simple),
-                                padding: banner.simple.paddingY + 'px ' + banner.simple.paddingX + 'px',
+                                padding: banner.simple.paddingY + 'px ' + banner.simple.paddingX + banner.simple.paddingXUnit,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
@@ -44,7 +44,9 @@
                             <span :style="{ 
                                 fontSize: banner.simple.textSize + 'px',
                                 fontWeight: banner.simple.textWeight,
-                                color: banner.simple.textColor
+                                color: banner.simple.textColor,
+                                width: banner.simple.textWidth + banner.simple.textWidthUnit,
+                                textAlign: banner.simple.direction === 'rtl' ? 'right' : 'left'
                             }">
                                 {{ banner.simple.text }}
                             </span>
@@ -60,7 +62,8 @@
                                   minWidth: banner.simple.buttonMinWidth + 'px',
                                   textDecoration: 'none',
                                   textAlign: 'center',
-                                  boxSizing: 'border-box'
+                                  boxSizing: 'border-box',
+                                  flexShrink: 0
                                }">
                                 {{ banner.simple.buttonText }}
                             </a>
@@ -73,41 +76,44 @@
                     <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
                         <div class="yab-simple-banner-wrapper w-full" 
                             :style="{ 
-                                height: 'auto', 
-                                minHeight: 'fit-content',
+                                height: 'auto',
+                                minHeight: banner.simple_mobile.minHeight + 'px',
                                 borderRadius: banner.simple_mobile.borderRadius + 'px', 
                                 background: bannerStyles(banner.simple_mobile),
-                                padding: banner.simple_mobile.paddingY + 'px ' + banner.simple_mobile.paddingX + 'px',
+                                padding: banner.simple_mobile.paddingY + 'px ' + banner.simple_mobile.paddingX + banner.simple_mobile.paddingXUnit,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 boxSizing: 'border-box',
-                                flexDirection: 'column',
+                                direction: banner.simple.direction,
+                                flexDirection: banner.simple.direction === 'rtl' ? 'row-reverse' : 'row',
                                 gap: '15px'
                             }">
                             <span :style="{ 
                                 fontSize: banner.simple_mobile.textSize + 'px',
                                 fontWeight: banner.simple_mobile.textWeight,
-                                color: banner.simple_mobile.textColor,
-                                textAlign: 'center'
+                                color: banner.simple.textColor,
+                                width: banner.simple_mobile.textWidth + banner.simple_mobile.textWidthUnit,
+                                textAlign: banner.simple.direction === 'rtl' ? 'right' : 'left'
                             }">
-                                {{ banner.simple_mobile.text }}
+                                {{ banner.simple.text }}
                             </span>
-                            <a :href="banner.simple_mobile.buttonLink" 
+                            <a :href="banner.simple.buttonLink" 
                                target="_blank" 
                                :style="{ 
-                                  backgroundColor: banner.simple_mobile.buttonBgColor,
+                                  backgroundColor: banner.simple.buttonBgColor,
                                   borderRadius: banner.simple_mobile.buttonBorderRadius + 'px',
-                                  color: banner.simple_mobile.buttonTextColor,
+                                  color: banner.simple.buttonTextColor,
                                   fontSize: banner.simple_mobile.buttonFontSize + 'px',
                                   fontWeight: banner.simple_mobile.buttonFontWeight,
                                   padding: banner.simple_mobile.buttonPaddingY + 'px ' + banner.simple_mobile.buttonPaddingX + 'px',
                                   minWidth: banner.simple_mobile.buttonMinWidth + 'px',
                                   textDecoration: 'none',
                                   textAlign: 'center',
-                                  boxSizing: 'border-box'
+                                  boxSizing: 'border-box',
+                                  flexShrink: 0
                                }">
-                                {{ banner.simple_mobile.buttonText }}
+                                {{ banner.simple.buttonText }}
                             </a>
                         </div>
                     </div>

@@ -48,8 +48,8 @@
         <h4 class="section-title">Layout</h4>
          <div class="grid grid-cols-2 gap-2">
             <div>
-                <label class="setting-label-sm">Height (px)</label>
-                <input type="number" v-model.number="settings.height" class="yab-form-input" placeholder="e.g., 74">
+                <label class="setting-label-sm">Min Height (px)</label>
+                <input type="number" v-model.number="settings.minHeight" class="yab-form-input" placeholder="e.g., 74">
              </div>
              <div>
                 <label class="setting-label-sm">Border Radius (px)</label>
@@ -66,15 +66,18 @@
     </div>
     <hr class="section-divider">
     <div>
-         <h4 class="section-title">Content Padding (px)</h4>
+         <h4 class="section-title">Content Padding</h4>
          <div class="grid grid-cols-2 gap-2">
              <div>
-                <label class="setting-label-sm">Top/Bottom</label>
+                <label class="setting-label-sm">Top/Bottom (px)</label>
                 <input type="number" v-model.number="settings.paddingY" class="yab-form-input" placeholder="e.g., 26">
              </div>
              <div>
                 <label class="setting-label-sm">Left/Right</label>
-                <input type="number" v-model.number="settings.paddingX" class="yab-form-input" placeholder="e.g., 40">
+                <div class="flex items-center gap-1">
+                    <input type="number" v-model.number="settings.paddingX" class="yab-form-input" placeholder="e.g., 40">
+                    <select v-model="settings.paddingXUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
+                </div>
             </div>
          </div>
     </div>
@@ -104,6 +107,13 @@
                         <option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option>
                     </select>
                 </div>
+            </div>
+        </div>
+        <div class="mt-2">
+            <label class="setting-label-sm">Text Width</label>
+            <div class="flex items-center gap-1">
+                <input type="number" v-model.number="settings.textWidth" class="yab-form-input" placeholder="100">
+                <select v-model="settings.textWidthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select>
             </div>
         </div>
     </div>
