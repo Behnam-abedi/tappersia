@@ -90,7 +90,7 @@
 
             <div v-if="currentView === 'desktop'">
                 <h4 class="section-title">Layers Control</h4>
-                <div class="flex rounded-lg bg-[#434343] overflow-hidden">
+                <div class="flex rounded-lg bg-[#292929] overflow-hidden">
                     <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Image Below Color</button>
                     <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Color Below Image</button>
                 </div>
@@ -99,9 +99,9 @@
 
             <div>
                 <h4 class="section-title">Background Overlay</h4>
-                <div class="flex gap-2 mb-2 bg-[#434343] rounded-lg">
-                    <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg">Solid</button>
-                    <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg">Gradient</button>
+                <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg p-1">
+                    <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-md">Solid</button>
+                    <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-md">Gradient</button>
                 </div>
                 <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
                      <label class="setting-label-sm">Color (supports transparency)</label>
@@ -153,7 +153,7 @@
                 </div>
             </div>
              <div v-if="settings.imageUrl" class="mt-3 space-y-3">
-                <div class="flex items-center justify-between bg-[#434343] p-2 rounded-md">
+                <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
                     <label class="setting-label-sm">Enable Custom Image Size</label>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" v-model="settings.enableCustomImageSize" class="sr-only peer">
@@ -187,10 +187,10 @@
                 <h4 class="section-title">Content</h4>
                  <div v-if="currentView === 'desktop'">
                     <label class="setting-label-sm">Alignment</label>
-                     <div class="flex rounded-lg bg-[#434343] overflow-hidden mb-4">
-                        <button @click="settings.alignment = 'left'" :class="settings.alignment === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Left</button>
-                        <button @click="settings.alignment = 'center'" :class="settings.alignment === 'center' ? 'active-tab' : ''" class="flex-1 tab-button">Center</button>
-                        <button @click="settings.alignment = 'right'" :class="settings.alignment === 'right' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Right</button>
+                     <div class="flex rounded-lg bg-[#292929] overflow-hidden mb-4 p-1">
+                        <button @click="settings.alignment = 'left'" :class="settings.alignment === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Left</button>
+                        <button @click="settings.alignment = 'center'" :class="settings.alignment === 'center' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Center</button>
+                        <button @click="settings.alignment = 'right'" :class="settings.alignment === 'right' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Right</button>
                     </div>
                  </div>
                 <div class="space-y-2 mb-3">

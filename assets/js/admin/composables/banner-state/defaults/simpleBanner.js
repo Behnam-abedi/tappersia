@@ -10,7 +10,7 @@ export const createDefaultSimplePart = () => ({
     height: 'auto',
     minHeight: 74,
     borderRadius: 10,
-    paddingY: 26,
+    paddingY: 24,
     paddingX: 40,
     paddingXUnit: 'px',
     direction: 'ltr',
@@ -18,8 +18,6 @@ export const createDefaultSimplePart = () => ({
     textColor: '#000000',
     textSize: 17,
     textWeight: '700',
-    textWidth: 100,
-    textWidthUnit: '%',
     buttonText: 'Click Here',
     buttonLink: '#',
     buttonBgColor: '#1EC2AF',
@@ -27,19 +25,18 @@ export const createDefaultSimplePart = () => ({
     buttonBorderRadius: 3,
     buttonFontSize: 8,
     buttonFontWeight: '600',
-    buttonPaddingY: 7,
+    buttonPaddingY: 8,
     buttonPaddingX: 15,
     buttonMinWidth: 72,
 });
 
 export const createDefaultSimpleBannerMobilePart = () => {
     const mobileDefaults = createDefaultSimplePart();
-    mobileDefaults.minHeight = 0;
-    mobileDefaults.paddingY = 15;
-    mobileDefaults.paddingX = 15;
-    mobileDefaults.textSize = 14;
-    mobileDefaults.textWidth = 60;
-    mobileDefaults.buttonFontSize = 12;
+    mobileDefaults.minHeight = 7;
+    mobileDefaults.paddingY = 24;
+    mobileDefaults.paddingX = 20;
+    mobileDefaults.textSize = 17;
+    mobileDefaults.buttonFontSize = 8;
     mobileDefaults.buttonPaddingY = 8;
     mobileDefaults.buttonPaddingX = 12;
     mobileDefaults.buttonMinWidth = 0;

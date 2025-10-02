@@ -23,12 +23,12 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
 
             if (array_key_exists($banner_type_slug, $handlers)) {
                 $class_name = $handlers[$banner_type_slug];
-                $file_path = YAB_PLUGIN_DIR . 'includes/BannerTypes/' . str_replace('_', '', ucwords(str_replace('-', '_', $class_name), '_')) . '/' . $class_name . '.php';
                 
-                // A more robust way to generate the file path
-                $folder_name = str_replace('Yab_', '', $class_name);
+                // *** FIX START: Correctly generate the folder name by removing "Yab_" and underscores. ***
+                // This converts class names like "Yab_Simple_Banner" to "SimpleBanner", matching the folder structure.
+                $folder_name = str_replace('_', '', str_replace('Yab_', '', $class_name));
                 $file_path = YAB_PLUGIN_DIR . 'includes/BannerTypes/' . $folder_name . '/' . $folder_name . '.php';
-
+                // *** FIX END ***
 
                 if (file_exists($file_path)) {
                     require_once $file_path;

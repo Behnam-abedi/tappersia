@@ -38,14 +38,14 @@
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 boxSizing: 'border-box',
-                                direction: banner.simple.direction,
-                                flexDirection: banner.simple.direction === 'rtl' ? 'row-reverse' : 'row'
+                                flexDirection: banner.simple.direction === 'rtl' ? 'row-reverse' : 'row',
+                                gap: '15px'
                             }">
                             <span :style="{ 
                                 fontSize: banner.simple.textSize + 'px',
                                 fontWeight: banner.simple.textWeight,
                                 color: banner.simple.textColor,
-                                width: banner.simple.textWidth + banner.simple.textWidthUnit,
+                                flexGrow: 1,
                                 textAlign: banner.simple.direction === 'rtl' ? 'right' : 'left'
                             }">
                                 {{ banner.simple.text }}
@@ -63,7 +63,8 @@
                                   textDecoration: 'none',
                                   textAlign: 'center',
                                   boxSizing: 'border-box',
-                                  flexShrink: 0
+                                  flexShrink: 0,
+                                  lineHeight: 1,
                                }">
                                 {{ banner.simple.buttonText }}
                             </a>
@@ -85,7 +86,6 @@
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 boxSizing: 'border-box',
-                                direction: banner.simple.direction,
                                 flexDirection: banner.simple.direction === 'rtl' ? 'row-reverse' : 'row',
                                 gap: '15px'
                             }">
@@ -93,7 +93,7 @@
                                 fontSize: banner.simple_mobile.textSize + 'px',
                                 fontWeight: banner.simple_mobile.textWeight,
                                 color: banner.simple.textColor,
-                                width: banner.simple_mobile.textWidth + banner.simple_mobile.textWidthUnit,
+                                flexGrow: 1,
                                 textAlign: banner.simple.direction === 'rtl' ? 'right' : 'left'
                             }">
                                 {{ banner.simple.text }}
@@ -111,7 +111,8 @@
                                   textDecoration: 'none',
                                   textAlign: 'center',
                                   boxSizing: 'border-box',
-                                  flexShrink: 0
+                                  flexShrink: 0,
+                                  lineHeight: 1,
                                }">
                                 {{ banner.simple.buttonText }}
                             </a>

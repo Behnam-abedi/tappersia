@@ -47,7 +47,6 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
                         border-radius: <?php echo esc_attr($b['borderRadius']); ?>px; 
                         <?php echo $this->get_background_style($b); ?>;
                         padding: <?php echo esc_attr($b['paddingY']); ?>px <?php echo esc_attr($b['paddingX'] . ($b['paddingXUnit'] ?? 'px')); ?>;
-                        display: flex;
                         align-items: center;
                         justify-content: space-between;
                         box-sizing: border-box;
@@ -57,7 +56,7 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
                 <span style="font-size: <?php echo esc_attr($b['textSize']); ?>px;
                              font-weight: <?php echo esc_attr($b['textWeight']); ?>;
                              color: <?php echo esc_attr($b['textColor']); ?>;
-                             width: <?php echo esc_attr($b['textWidth'] . ($b['textWidthUnit'] ?? '%')); ?>;
+                             flex-grow: 1;
                              text-align: <?php echo esc_attr($b['direction'] === 'rtl' ? 'right' : 'left'); ?>;">
                     <?php echo esc_html($b['text']); ?>
                 </span>
@@ -73,7 +72,9 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
                           text-decoration: none;
                           text-align: center;
                           box-sizing: border-box;
-                          flex-shrink: 0;">
+                          flex-shrink: 0;
+                          line-height: 1;
+                          ">
                     <?php echo esc_html($b['buttonText']); ?>
                 </a>
             </div>

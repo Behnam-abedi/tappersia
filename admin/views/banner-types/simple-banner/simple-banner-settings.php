@@ -109,13 +109,6 @@
                 </div>
             </div>
         </div>
-        <div class="mt-2">
-            <label class="setting-label-sm">Text Width</label>
-            <div class="flex items-center gap-1">
-                <input type="number" v-model.number="settings.textWidth" class="yab-form-input" placeholder="100">
-                <select v-model="settings.textWidthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select>
-            </div>
-        </div>
     </div>
     <hr class="section-divider">
     <div class="space-y-2">
