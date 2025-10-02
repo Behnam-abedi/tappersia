@@ -1,0 +1,232 @@
+/*
+ * Tappersia Admin Styles
+ */
+
+/* Force Roboto font for the entire Vue app wrapper in the admin panel */
+#yab-app {
+    font-family: 'Roboto', sans-serif !important;
+}
+
+/* * Ensure child elements inherit the font correctly,
+ * but exclude WordPress Dashicons to prevent them from breaking.
+*/
+#yab-app *:not([class*="dashicons"]) {
+    font-family: inherit !important;
+}
+
+
+/* --- General Styles --- */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+  border-radius: 10px;
+}
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #434343;
+  border-radius: 10px;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #656565;
+  border-radius: 10px;
+  border: 2px solid #434343;
+}
+
+#wpbody-content {
+    padding-bottom: 0 !important;
+}
+
+.yab-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+.metabox-prefs, .hide-if-no-js, .screen-meta-toggle,#wpfooter {
+  display: none!important;
+}
+#wpbody{
+  background-color:#232323!important ;
+}
+.yab-spinner {
+    border: 4px solid rgba(0, 186, 164, 0.2); /* Lighter track color */
+    border-top: 4px solid #00baa4; /* Blue spinner color */
+    border-radius: 50%;
+    animation: yab-spin 1s linear infinite;
+}
+
+
+.yab-image-loader-container {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+    background-color: #292929;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+.yab-skeleton-loader {
+    position: absolute;
+    inset: 0;
+    background-color: #434343;
+}
+.yab-skeleton-loader::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, #656565, transparent);
+    animation: yab-shimmer 1.5s infinite;
+}
+.yab-image-loader-container img {
+    transition: opacity 0.3s ease-in-out;
+}
+
+@keyframes yab-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes yab-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.filter-label { display: block; font-size: 0.875rem; font-weight: 500; color: #d1d5db; margin-bottom: 8px; }
+.filter-input { width: 100%; background: #434343; border: 1px solid #6b7280; color: white; padding: 8px 12px; border-radius: 6px; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: #4b5563; border-radius: 5px; outline: none; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #00baa4; cursor: pointer; border-radius: 50%; }
+input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: #00baa4; cursor: pointer; border-radius: 50%; }
+.yab-modal-fade-enter-active,
+.yab-modal-fade-leave-active {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.yab-modal-fade-enter-from,
+.yab-modal-fade-leave-to {
+  opacity: 0;
+}
+
+.yab-modal-fade-enter-active .transform,
+.yab-modal-fade-leave-active .transform {
+  transition: all 0.3s ease-in-out;
+}
+
+.yab-modal-fade-enter-from .transform,
+.yab-modal-fade-leave-to .transform {
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+/* Page Fade Animation */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+
+/* New & Updated UI Helper Classes */
+.setting-label {
+    display: block;
+    font-size: 0.875rem; /* 14px */
+    font-weight: 500;
+    color: #d1d5db; /* gray-300 */
+    margin-bottom: 8px;
+}
+.setting-label-sm {
+    display: block;
+    font-size: 0.75rem; /* 12px */
+    font-weight: 500;
+    color: #9ca3af; /* gray-400 */
+    margin-bottom: 4px;
+}
+
+/* Modern Form Inputs */
+.yab-form-input {
+    width: 100%;
+    height: 40px;
+    background: #292929;
+    border: 1px solid #656565;
+    border-radius: 6px;
+    padding: 0 12px;
+    color: #ffffff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.yab-form-input:focus {
+    outline: none;
+    border-color: #00baa4;
+    box-shadow: 0 0 0 2px rgba(0, 186, 164, 0.5);
+}
+textarea.yab-form-input {
+    height: auto;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* Custom Color Picker Component */
+.yab-color-input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    background: #292929;
+    border: 1px solid #656565;
+    color: #ffffff;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.yab-color-input-wrapper .yab-color-picker {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    margin-left: 1px;
+    border-radius: 14px;
+}
+
+.yab-color-input-wrapper .yab-color-picker:focus,
+.yab-color-input-wrapper .yab-hex-input:focus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.yab-color-input-wrapper .yab-color-picker:active {
+    outline: none !important;
+    border: none !important;
+}
+
+.yab-color-input-wrapper .yab-color-picker::-webkit-color-swatch {
+    border-radius: 0;
+    border: none;
+}
+
+.yab-color-input-wrapper .yab-color-picker::-moz-color-swatch {
+    border-radius: 0;
+    border: none;
+}
+
+.yab-color-input-wrapper .yab-hex-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    padding-left: 12px;
+    height: 100%;
+    border-left: 1px solid #656565;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: 1px;
+}

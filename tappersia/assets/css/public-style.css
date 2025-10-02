@@ -1,0 +1,51 @@
+/*
+ * Tappersia Public Styles
+ * This file contains styles for banners on the front-end.
+ */
+
+/*
+ * Force Roboto font on all banner wrappers and their children with high specificity.
+ * This ensures the theme's font styles are overridden.
+ */
+body .yab-wrapper,
+body [class*="yab-double-banner-wrapper-"],
+body .yab-promo-banner-wrapper,
+body .yab-simple-banner-wrapper,
+body .yab-sticky-simple-banner-wrapper,
+body .yab-api-banner-wrapper,
+body .yab-api-banner-placeholder { /* Added placeholder */
+    font-family: 'Roboto', sans-serif !important;
+}
+
+/* Ensure child elements like buttons and inputs also inherit the font correctly */
+body .yab-wrapper *,
+body [class*="yab-double-banner-wrapper-"] *,
+body .yab-promo-banner-wrapper *,
+body .yab-simple-banner-wrapper *,
+body .yab-sticky-simple-banner-wrapper *,
+body .yab-api-banner-wrapper *,
+body .yab-api-banner-placeholder * { /* Added placeholder */
+    font-family: inherit !important;
+}
+
+/* START: SKELETON LOADER STYLES */
+.yab-skeleton-loader {
+    position: relative;
+    overflow: hidden; /* Important for the shimmer effect */
+}
+
+.yab-skeleton-loader::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: yab-shimmer 1.5s infinite;
+}
+
+@keyframes yab-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+/* END: SKELETON LOADER STYLES */
