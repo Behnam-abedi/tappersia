@@ -11,12 +11,38 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
                 return '';
             }
             
-            $b = $this->data['promotion'];
+            $desktop_b = $this->data['promotion'];
+            $mobile_b = $this->data['promotion_mobile'] ?? $desktop_b;
             $banner_id = $this->banner_id;
 
-            $body_text = esc_html($b['bodyText']);
-            if (!empty($b['links']) && is_array($b['links'])) {
-                foreach ($b['links'] as $link) {
+            ob_start();
+            ?>
+            <style>
+                .yab-promo-banner-wrapper-<?php echo $banner_id; ?> .yab-promo-mobile { display: none; }
+                .yab-promo-banner-wrapper-<?php echo $banner_id; ?> .yab-promo-desktop { display: block; }
+                
+                @media (max-width: 768px) {
+                    .yab-promo-banner-wrapper-<?php echo $banner_id; ?> .yab-promo-desktop { display: none; }
+                    .yab-promo-banner-wrapper-<?php echo $banner_id; ?> .yab-promo-mobile { display: block; }
+                }
+            </style>
+
+            <div class="yab-wrapper yab-promo-banner-wrapper-<?php echo $banner_id; ?>" style="width: 100%; direction: ltr;">
+                <div class="yab-promo-desktop">
+                    <?php echo $this->render_view($desktop_b, $desktop_b); ?>
+                </div>
+                 <div class="yab-promo-mobile">
+                    <?php echo $this->render_view($mobile_b, $desktop_b); ?>
+                </div>
+            </div>
+            <?php
+            return ob_get_clean();
+        }
+
+        private function render_view($b, $desktop_b) {
+            $body_text = esc_html($desktop_b['bodyText']);
+            if (!empty($desktop_b['links']) && is_array($desktop_b['links'])) {
+                foreach ($desktop_b['links'] as $link) {
                     if (!empty($link['placeholder']) && !empty($link['url'])) {
                         $placeholder = '[[' . $link['placeholder'] . ']]';
                         $link_html = sprintf(
@@ -30,32 +56,37 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
                 }
             }
             
-            $overall_direction = $b['direction'] ?? 'ltr'; // Get overall direction
+            $overall_direction = $desktop_b['direction'] ?? 'ltr';
             $flex_direction_style = 'flex-direction: ' . ($overall_direction === 'rtl' ? 'row-reverse' : 'row') . ';';
             $text_align_style = 'text-align: ' . ($overall_direction === 'rtl' ? 'right' : 'left') . ';';
 
             ob_start();
             ?>
-            <div class="yab-promo-banner-wrapper" 
-                 style="border: <?php echo esc_attr($b['borderWidth']); ?>px solid <?php echo esc_attr($b['borderColor']); ?>;
-                        border-radius: <?php echo esc_attr($b['borderRadius']); ?>px;
+            <div class="yab-promo-banner-inner-wrapper" 
+                 style="border-radius: <?php echo esc_attr($b['borderRadius']); ?>px;
                         overflow: hidden;
                         width: 100%;
-                        box-sizing: border-box;
-                        direction: <?php echo esc_attr($overall_direction); ?>;"> <div class="yab-promo-header"
+                        position: relative;
+                        direction: <?php echo esc_attr($overall_direction); ?>;">
+                
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit; box-shadow: inset 0 0 0 <?php echo esc_attr($b['borderWidth']); ?>px <?php echo esc_attr($b['borderColor']); ?>; z-index: 10; pointer-events: none;"></div>
+
+                <div class="yab-promo-header"
                      style="<?php echo $this->get_background_style($b, 'header'); ?>;
                             padding: <?php echo esc_attr($b['headerPaddingY']); ?>px <?php echo esc_attr($b['headerPaddingX']); ?>px;
                             display: flex;
                             align-items: center;
                             gap: 10px;
                             box-sizing: border-box;
-                            <?php echo $flex_direction_style; ?>"> <?php if (!empty($b['iconUrl'])): ?>
-                        <img src="<?php echo esc_url($b['iconUrl']); ?>" alt="icon" style="width: <?php echo esc_attr($b['iconSize']); ?>px; height: <?php echo esc_attr($b['iconSize']); ?>px;">
+                            <?php echo $flex_direction_style; ?>">
+                    <?php if (!empty($desktop_b['iconUrl'])): ?>
+                        <img src="<?php echo esc_url($desktop_b['iconUrl']); ?>" alt="icon" style="width: <?php echo esc_attr($b['iconSize']); ?>px; height: <?php echo esc_attr($b['iconSize']); ?>px;">
                     <?php endif; ?>
                     <span style="color: <?php echo esc_attr($b['headerTextColor']); ?>;
                                  font-size: <?php echo esc_attr($b['headerFontSize']); ?>px;
                                  font-weight: <?php echo esc_attr($b['headerFontWeight']); ?>;
-                                 <?php echo $text_align_style; ?>"> <?php echo esc_html($b['headerText']); ?>
+                                 <?php echo $text_align_style; ?> flex-grow: 1;">
+                        <?php echo esc_html($desktop_b['headerText']); ?>
                     </span>
                 </div>
 
@@ -67,14 +98,15 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
                               font-size: <?php echo esc_attr($b['bodyFontSize']); ?>px;
                               font-weight: <?php echo esc_attr($b['bodyFontWeight']); ?>;
                               line-height: <?php echo esc_attr($b['bodyLineHeight']); ?>;
-                              <?php echo $text_align_style; ?>; margin: 0;">
-                        <?php echo $body_text; // It's now safe to output directly ?>
+                              <?php echo $text_align_style; ?> margin: 0;">
+                        <?php echo $body_text; ?>
                     </p>
                 </div>
             </div>
             <?php
             return ob_get_clean();
         }
+
 
         protected function get_background_style(array $b, string $section = 'header'): string {
             $prefix = $section;

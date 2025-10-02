@@ -9,10 +9,13 @@ import {
     createDefaultApiMobileDesign,
     createDefaultSimplePart, 
     createDefaultSimpleBannerMobilePart,
+    createDefaultStickySimplePart,
+    createDefaultStickySimpleMobilePart,
     createDefaultPromotionPart, 
+    createDefaultPromotionMobilePart, // Import new function
     createDefaultHtmlPart, 
     createDefaultHtmlSidebarPart 
-} from './defaults/index.js'; // مسير مستقيم به پوشه مقادير پيش‌فرض
+} from './defaults/index.js';
 
 export function useBannerState() {
     const createDefaultBanner = () => ({
@@ -20,11 +23,9 @@ export function useBannerState() {
         isMobileConfigured: false, 
         displayOn: { posts: [], pages: [], categories: [] },
         
-        // Single Banner State
         single: createDefaultPart(),
         single_mobile: createDefaultMobilePart(),
 
-        // START: NEW DOUBLE BANNER STATE
         double: {
             isMobileConfigured: false,
             desktop: {
@@ -36,16 +37,19 @@ export function useBannerState() {
                 right: createDefaultDoubleBannerMobilePart()
             }
         },
-        // END: NEW DOUBLE BANNER STATE
 
-        // START: ADDED simple_mobile state
         simple: createDefaultSimplePart(),
         simple_mobile: createDefaultSimpleBannerMobilePart(),
-        // END: ADDED simple_mobile state
-        sticky_simple: createDefaultSimplePart(),
+        
+        sticky_simple: createDefaultStickySimplePart(),
+        sticky_simple_mobile: createDefaultStickySimpleMobilePart(),
+
         promotion: createDefaultPromotionPart(),
+        promotion_mobile: createDefaultPromotionMobilePart(), // Use the new function
+
         content_html: createDefaultHtmlPart(),
         content_html_sidebar: createDefaultHtmlSidebarPart(),
+        
         api: { 
             apiType: null, 
             selectedHotel: null, 
@@ -70,7 +74,6 @@ export function useBannerState() {
     });
     
     const mergeWithExisting = (existingData) => {
-        // --- Deep merge helper ---
         const deepMerge = (target, source) => {
             for (const key in source) {
                 if (source.hasOwnProperty(key)) {
@@ -83,7 +86,6 @@ export function useBannerState() {
             }
         };
 
-        // If loading an existing banner, mark mobile as "configured" to prevent auto-copying
         if (existingData.id) {
             existingData.isMobileConfigured = true;
             if (existingData.double) {
@@ -96,7 +98,6 @@ export function useBannerState() {
         
         deepMerge(banner, existingData);
         
-        // --- Final checks and sanitization after merge ---
         if (!banner.displayOn) {
             banner.displayOn = { posts: [], pages: [], categories: [] };
         } else {

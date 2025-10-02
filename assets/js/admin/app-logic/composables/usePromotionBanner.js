@@ -10,7 +10,7 @@ export function usePromotionBanner(banner, showModal) {
              banner.promotion.links.push({
                 placeholder: placeholder,
                 url: '#',
-                color: '#f07100'
+                color: '#FF731B'
             });
         }
     };
