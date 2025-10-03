@@ -12,9 +12,10 @@ import {
     createDefaultStickySimplePart,
     createDefaultStickySimpleMobilePart,
     createDefaultPromotionPart, 
-    createDefaultPromotionMobilePart, // Import new function
+    createDefaultPromotionMobilePart,
     createDefaultHtmlPart, 
-    createDefaultHtmlSidebarPart 
+    createDefaultHtmlSidebarPart,
+    createDefaultTourCarouselPart // Import new function
 } from './defaults/index.js';
 
 export function useBannerState() {
@@ -45,7 +46,7 @@ export function useBannerState() {
         sticky_simple_mobile: createDefaultStickySimpleMobilePart(),
 
         promotion: createDefaultPromotionPart(),
-        promotion_mobile: createDefaultPromotionMobilePart(), // Use the new function
+        promotion_mobile: createDefaultPromotionMobilePart(),
 
         content_html: createDefaultHtmlPart(),
         content_html_sidebar: createDefaultHtmlSidebarPart(),
@@ -58,6 +59,8 @@ export function useBannerState() {
             design_mobile: createDefaultApiMobileDesign(),
             isMobileConfigured: false,
         },
+
+        tour_carousel: createDefaultTourCarouselPart(), // Add this line
     });
 
     const banner = reactive(createDefaultBanner());

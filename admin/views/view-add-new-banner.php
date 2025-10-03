@@ -37,6 +37,10 @@
                         <span class="dashicons dashicons-align-pull-right text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Content HTML Sidebar</h3>
                     </div>
+                    <div @click="selectElementType('tour-carousel')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-slides text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Tour Carousel</h3>
+                    </div>
                     </div>
             </div>
         </div>
@@ -66,6 +70,9 @@
             <div v-if="banner.type === 'content-html-sidebar-banner'">
                 <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/content-html-sidebar-banner/content-html-sidebar-editor.php'; ?>
             </div>
+            <div v-if="banner.type === 'tour-carousel'">
+                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/tour-carousel/tour-carousel-editor.php'; ?>
+            </div>
             </div>
 
         <div v-else-if="appState === 'loading'" key="loading" class="flex items-center justify-center h-screen">
@@ -75,7 +82,14 @@
 
     <yab-modal ref="modalComponent"></yab-modal>
 
+    <?php // Add modals INSIDE the main app div
+    require_once YAB_PLUGIN_DIR . 'admin/views/components/hotel-modal.php';
+    require_once YAB_PLUGIN_DIR . 'admin/views/components/tour-modal.php';
+    ?>
+
 </div>
+
+<?php // Remove modals from here ?>
 
 <style>
     [v-cloak] { display: none; }

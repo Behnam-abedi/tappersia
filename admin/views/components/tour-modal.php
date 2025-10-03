@@ -53,15 +53,18 @@
                     </div>
                 </div>
                 <div class="mt-auto pt-4">
-                    <button @click="confirmTourSelection" :disabled="!tempSelectedTour" class="w-full bg-[#00baa4] text-white font-bold px-4 py-3 rounded-lg hover:bg-opacity-80 transition-all disabled:bg-gray-500 disabled:cursor-not-allowed">
-                        Confirm Selection
+                    <button @click="confirmTourSelection" :disabled="tempSelectedTours.length === 0" class="w-full bg-[#00baa4] text-white font-bold px-4 py-3 rounded-lg hover:bg-opacity-80 transition-all disabled:bg-gray-500 disabled:cursor-not-allowed">
+                        Confirm Selection ({{ tempSelectedTours.length }})
                     </button>
                 </div>
             </aside>
 
             <div class="w-3/4 flex flex-col">
                 <header class="bg-[#434343] p-4 flex items-center justify-between flex-shrink-0">
-                    <h2 class="text-xl font-bold text-white">Select a Tour</h2>
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Select a Tour</h2>
+                        <p v-if="isMultiSelect" class="text-xs text-gray-400">You can select multiple tours.</p>
+                    </div>
                     <button @click="closeTourModal" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                 </header>
                 <div class="p-4 border-b border-gray-700">
@@ -82,7 +85,7 @@
                     </div>
                     <template v-else>
                         <ul class="p-4 space-y-3">
-                            <li v-for="tour in sortedTourResults" :key="tour.id" @click="selectTour(tour)" class="p-3 bg-[#434343] rounded-lg flex items-center gap-4 cursor-pointer border-2 transition-all duration-200" :class="tempSelectedTour && tempSelectedTour.id === tour.id ? 'border-[#00baa4] shadow-lg' : 'border-transparent hover:border-gray-600'">
+                            <li v-for="tour in sortedTourResults" :key="tour.id" @click="selectTour(tour)" class="p-3 bg-[#434343] rounded-lg flex items-center gap-4 cursor-pointer border-2 transition-all duration-200" :class="isTourSelected(tour) ? 'border-[#00baa4] shadow-lg' : 'border-transparent hover:border-gray-600'">
                                 <image-loader 
                                     :src="tour.bannerImage ? tour.bannerImage.url : 'https://placehold.co/100x100/292929/434343?text=No+Image'"
                                     :alt="tour.title"

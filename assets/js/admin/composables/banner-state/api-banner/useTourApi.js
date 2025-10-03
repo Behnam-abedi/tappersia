@@ -11,7 +11,8 @@ export function useTourApi(banner, showModal, ajax) {
     const tourCurrentPage = ref(1);
     const canLoadMoreTours = ref(true);
     const tourModalListRef = ref(null);
-    const tempSelectedTour = ref(null);
+    const tempSelectedTours = ref([]); // Changed from single object to array
+    const isMultiSelect = ref(false); // New state to control modal behavior
     const tourCities = ref([]);
     const isTourCityDropdownOpen = ref(false);
     let debounceTimeout = null;
@@ -30,13 +31,13 @@ export function useTourApi(banner, showModal, ajax) {
     ];
 
     const sortedTourResults = computed(() => {
-        if (!tempSelectedTour.value) return tourResults;
-        const selectedId = tempSelectedTour.value.id;
-        const selectedTour = tourResults.find(t => t.id === selectedId);
-        if (!selectedTour) return tourResults;
-        const otherTours = tourResults.filter(t => t.id !== selectedId);
-        return [selectedTour, ...otherTours];
+        if (tempSelectedTours.value.length === 0) return tourResults;
+        const selectedIds = new Set(tempSelectedTours.value.map(t => t.id));
+        const selected = tourResults.filter(t => selectedIds.has(t.id));
+        const unselected = tourResults.filter(t => !selectedIds.has(t.id));
+        return [...selected, ...unselected];
     });
+
 
     const selectedTourCityName = computed(() => {
         if (!tourFilters.province) return 'All Cities';
@@ -56,16 +57,29 @@ export function useTourApi(banner, showModal, ajax) {
             banner.api.selectedTour = tourDetails;
         } catch (error) {
             showModal('Error', `Could not fetch tour details: ${error.message}`);
-            banner.api.selectedTour = tempSelectedTour.value;
+            // In case of error, use the partial data
+            if (banner.api.selectedTour) {
+                 banner.api.selectedTour = tempSelectedTours.value.length > 0 ? tempSelectedTours.value[0] : null;
+            }
         } finally {
             isTourDetailsLoading.value = false;
         }
     };
     
-    const openTourModal = () => {
-        banner.api.apiType = 'tour';
+    // Updated to accept options object
+    const openTourModal = (options = { multiSelect: false }) => {
+        isMultiSelect.value = options.multiSelect;
+
+        if (isMultiSelect.value) {
+            // For Carousel: clone the existing array to avoid direct mutation
+            tempSelectedTours.value = banner.tour_carousel.selectedTours ? [...banner.tour_carousel.selectedTours] : [];
+        } else {
+            // For API Banner: put the single tour into an array for the modal
+            banner.api.apiType = 'tour';
+            tempSelectedTours.value = banner.api.selectedTour ? [banner.api.selectedTour] : [];
+        }
+        
         isTourModalOpen.value = true;
-        tempSelectedTour.value = banner.api.selectedTour;
 
         if (tourCities.value.length === 0) fetchTourCities();
         if (tourResults.length === 0) searchTours(true);
@@ -81,12 +95,19 @@ export function useTourApi(banner, showModal, ajax) {
     };
 
     const confirmTourSelection = () => {
-        banner.api.selectedHotel = null; 
-        if (tempSelectedTour.value) {
-            banner.api.selectedTour = tempSelectedTour.value;
-            fetchFullTourDetails(tempSelectedTour.value.id);
+        if (isMultiSelect.value) {
+            // For Carousel: assign the array of selected tours
+            banner.tour_carousel.selectedTours = [...tempSelectedTours.value];
         } else {
-            banner.api.selectedTour = null;
+            // For API Banner: assign the first selected tour, or null
+            banner.api.selectedHotel = null; 
+            const selected = tempSelectedTours.value.length > 0 ? tempSelectedTours.value[0] : null;
+            if (selected) {
+                banner.api.selectedTour = selected;
+                fetchFullTourDetails(selected.id);
+            } else {
+                banner.api.selectedTour = null;
+            }
         }
         closeTourModal();
     };
@@ -176,13 +197,32 @@ export function useTourApi(banner, showModal, ajax) {
         });
     };
     
+    // Updated to handle both single and multi select
     const selectTour = (tour) => {
-        if (tempSelectedTour.value && tempSelectedTour.value.id === tour.id) {
-            tempSelectedTour.value = null;
+        const index = tempSelectedTours.value.findIndex(t => t.id === tour.id);
+
+        if (isMultiSelect.value) {
+            // Multi-select logic (add/remove from array)
+            if (index > -1) {
+                tempSelectedTours.value.splice(index, 1);
+            } else {
+                tempSelectedTours.value.push(tour);
+            }
         } else {
-            tempSelectedTour.value = tour;
+            // Single-select logic (replace the array)
+            if (index > -1) {
+                tempSelectedTours.value = [];
+            } else {
+                tempSelectedTours.value = [tour];
+            }
         }
     };
+
+    // New computed property to check if a tour is selected
+    const isTourSelected = (tour) => {
+        return tempSelectedTours.value.some(t => t.id === tour.id);
+    };
+
     
     const handleTourScroll = () => {
         const el = tourModalListRef.value;
@@ -197,12 +237,15 @@ export function useTourApi(banner, showModal, ajax) {
         isTourModalOpen, isTourLoading, isMoreTourLoading, sortedTourResults,
         isTourDetailsLoading,
         openTourModal, closeTourModal, selectTour, tourModalListRef,
-        tempSelectedTour, confirmTourSelection,
+        tempSelectedTours, // Changed name for clarity
+        confirmTourSelection,
         tourFilters, tourCities, tourTypes,
         debouncedTourSearch, toggleTourType, resetTourFilters,
         isTourCityDropdownOpen, selectedTourCityName, selectTourCity,
         fetchFullTourDetails,
         getRatingLabel,
         formatRating,
+        isTourSelected, // Expose new computed
+        isMultiSelect, // Expose for use in template
     };
 }

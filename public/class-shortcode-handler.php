@@ -16,7 +16,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
     class Yab_Shortcode_Handler {
 
         public function register_shortcodes() {
-            $banner_types = ['singlebanner', 'doublebanner', 'apibanner', 'simplebanner', 'stickysimplebanner', 'promotionbanner', 'contenthtml', 'contenthtmlsidebar'];
+            $banner_types = ['singlebanner', 'doublebanner', 'apibanner', 'simplebanner', 'stickysimplebanner', 'promotionbanner', 'contenthtml', 'contenthtmlsidebar', 'tourcarousel']; // Add 'tourcarousel'
             foreach ($banner_types as $type) {
                 add_shortcode($type, [$this, 'render_embeddable_banner']);
                 add_shortcode($type . '_fixed', [$this, 'render_fixed_banner']);
@@ -36,6 +36,8 @@ if (!class_exists('Yab_Shortcode_Handler')) {
                 $banner_type_slug = 'content-html-banner';
             } elseif ($tag === 'contenthtmlsidebar') {
                 $banner_type_slug = 'content-html-sidebar-banner';
+            } elseif ($tag === 'tourcarousel') { // Add this condition
+                $banner_type_slug = 'tour-carousel';
             }
 
             if (!$this->is_valid_banner($banner_post, $banner_type_slug, 'Embeddable')) {
@@ -105,6 +107,13 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             }
             $banner_type = get_post_meta($banner_post->ID, '_yab_banner_type', true);
             $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
+
+            // Tour Carousel is always embeddable
+            if ($expected_type === 'tour-carousel') {
+                return $banner_type === $expected_type &&
+                       !empty($data) &&
+                       !empty($data['isActive']);
+            }
 
             return $banner_type === $expected_type &&
                    !empty($data) &&

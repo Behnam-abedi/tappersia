@@ -2,7 +2,7 @@
 const { createApp, ref, onMounted } = Vue;
 
 import { useAjax } from '../composables/useAjax.js';
-// مسير مستقيم به فايل اصلي
+// مسیر مستقیم به فایل اصلی
 import { useBannerState } from '../composables/banner-state/bannerState.js'; 
 import { useApiBanner } from '../composables/useApiBanner.js';
 import { useDisplayConditions } from '../composables/useDisplayConditions.js';

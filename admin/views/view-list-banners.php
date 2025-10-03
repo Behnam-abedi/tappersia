@@ -37,6 +37,10 @@
                         <span class="dashicons dashicons-align-pull-right text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Content HTML Sidebar</h3>
                     </div>
+                    <div @click="selectType('tour-carousel')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-slides text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Tour Carousels</h3>
+                    </div>
                     </div>
             </div>
         </div>

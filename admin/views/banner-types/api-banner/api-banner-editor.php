@@ -9,7 +9,7 @@
                     <span class="dashicons dashicons-building"></span>
                     {{ banner.api.selectedHotel ? 'Change Hotel' : 'Select Hotel' }}
                 </button>
-                <button @click="openTourModal" class="w-1/2 flex gap-2 justify-center items-center bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">
+                <button @click="openTourModal({ multiSelect: false })" class="w-1/2 flex gap-2 justify-center items-center bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">
                     <span class="dashicons dashicons-palmtree"></span>
                     {{ banner.api.selectedTour ? 'Change Tour' : 'Select Tour' }}
                 </button>
@@ -106,6 +106,3 @@
         </transition>
     </div>
 </main>
-
-<?php require_once YAB_PLUGIN_DIR . 'admin/views/components/hotel-modal.php'; ?>
-<?php require_once YAB_PLUGIN_DIR . 'admin/views/components/tour-modal.php'; ?>

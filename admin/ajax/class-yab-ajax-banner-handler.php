@@ -19,14 +19,14 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
                 'promotion-banner' => 'Yab_Promotion_Banner',
                 'content-html-banner' => 'Yab_Content_Html_Banner',
                 'content-html-sidebar-banner' => 'Yab_Content_Html_Sidebar_Banner',
+                'tour-carousel' => 'Yab_Tour_Carousel', // Add this line
             ];
 
             if (array_key_exists($banner_type_slug, $handlers)) {
                 $class_name = $handlers[$banner_type_slug];
                 
-                // *** FIX START: Correctly generate the folder name by removing "Yab_" and underscores. ***
-                // This converts class names like "Yab_Simple_Banner" to "SimpleBanner", matching the folder structure.
                 $folder_name = str_replace('_', '', str_replace('Yab_', '', $class_name));
+                // *** FIX START: Correctly generate path for TourCarousel which is not in a subfolder ***
                 $file_path = YAB_PLUGIN_DIR . 'includes/BannerTypes/' . $folder_name . '/' . $folder_name . '.php';
                 // *** FIX END ***
 
