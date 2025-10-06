@@ -1,4 +1,4 @@
-// tappersia/assets/js/admin/composables/api-banner/useTourApi.js
+// tappersia/assets/js/admin/composables/banner-state/api-banner/useTourApi.js
 const { ref, reactive, computed, nextTick, watch } = Vue;
 import { getRatingLabel, formatRating } from './utils.js';
 
@@ -11,8 +11,8 @@ export function useTourApi(banner, showModal, ajax) {
     const tourCurrentPage = ref(1);
     const canLoadMoreTours = ref(true);
     const tourModalListRef = ref(null);
-    const tempSelectedTours = ref([]); // Changed from single object to array
-    const isMultiSelect = ref(false); // New state to control modal behavior
+    const tempSelectedTours = ref([]);
+    const isMultiSelect = ref(false);
     const tourCities = ref([]);
     const isTourCityDropdownOpen = ref(false);
     let debounceTimeout = null;
@@ -57,7 +57,6 @@ export function useTourApi(banner, showModal, ajax) {
             banner.api.selectedTour = tourDetails;
         } catch (error) {
             showModal('Error', `Could not fetch tour details: ${error.message}`);
-            // In case of error, use the partial data
             if (banner.api.selectedTour) {
                  banner.api.selectedTour = tempSelectedTours.value.length > 0 ? tempSelectedTours.value[0] : null;
             }
@@ -66,21 +65,40 @@ export function useTourApi(banner, showModal, ajax) {
         }
     };
     
-    // Updated to accept options object
-    const openTourModal = (options = { multiSelect: false }) => {
+    const fetchToursByIds = async (ids) => {
+        if (!ids || ids.length === 0) return [];
+        try {
+            const toursData = await ajax.post('yab_fetch_tour_details_by_ids', { tour_ids: ids });
+            return toursData;
+        } catch (error) {
+            showModal('Error', `Could not fetch details for selected tours: ${error.message}`);
+            return [];
+        }
+    };
+
+    const openTourModal = async (options = { multiSelect: false }) => {
         isMultiSelect.value = options.multiSelect;
+        isTourModalOpen.value = true;
 
         if (isMultiSelect.value) {
-            // For Carousel: clone the existing array to avoid direct mutation
-            tempSelectedTours.value = banner.tour_carousel.selectedTours ? [...banner.tour_carousel.selectedTours] : [];
+            const selectedIds = banner.tour_carousel.selectedTours || [];
+            if (selectedIds.length > 0 && typeof selectedIds[0] === 'number') { 
+                const selectedTourObjects = await fetchToursByIds(selectedIds);
+                tempSelectedTours.value = selectedTourObjects;
+
+                const existingIds = new Set(tourResults.map(t => t.id));
+                const missingTours = selectedTourObjects.filter(t => !existingIds.has(t.id));
+                if (missingTours.length > 0) {
+                    tourResults.unshift(...missingTours);
+                }
+            } else { 
+                tempSelectedTours.value = banner.tour_carousel.selectedTours ? [...banner.tour_carousel.selectedTours] : [];
+            }
         } else {
-            // For API Banner: put the single tour into an array for the modal
             banner.api.apiType = 'tour';
             tempSelectedTours.value = banner.api.selectedTour ? [banner.api.selectedTour] : [];
         }
         
-        isTourModalOpen.value = true;
-
         if (tourCities.value.length === 0) fetchTourCities();
         if (tourResults.length === 0) searchTours(true);
 
@@ -96,10 +114,10 @@ export function useTourApi(banner, showModal, ajax) {
 
     const confirmTourSelection = () => {
         if (isMultiSelect.value) {
-            // For Carousel: assign the array of selected tour IDs
-            banner.tour_carousel.selectedTours = tempSelectedTours.value.map(tour => tour.id);
+            const newTourIds = tempSelectedTours.value.map(tour => tour.id);
+            banner.tour_carousel.selectedTours.length = 0;
+            banner.tour_carousel.selectedTours.push(...newTourIds);
         } else {
-            // For API Banner: assign the first selected tour, or null
             banner.api.selectedHotel = null; 
             const selected = tempSelectedTours.value.length > 0 ? tempSelectedTours.value[0] : null;
             if (selected) {
@@ -143,7 +161,9 @@ export function useTourApi(banner, showModal, ajax) {
             const data = await ajax.post('yab_fetch_tours_from_api', params);
 
             if (data.data && data.data.length > 0) {
-                tourResults.push(...data.data);
+                const existingIds = new Set(tourResults.map(t => t.id));
+                const uniqueNewResults = data.data.filter(t => !existingIds.has(t.id));
+                tourResults.push(...uniqueNewResults);
                 tourCurrentPage.value++;
             } else {
                 canLoadMoreTours.value = false;
@@ -197,19 +217,16 @@ export function useTourApi(banner, showModal, ajax) {
         });
     };
     
-    // Updated to handle both single and multi select
     const selectTour = (tour) => {
         const index = tempSelectedTours.value.findIndex(t => t.id === tour.id);
 
         if (isMultiSelect.value) {
-            // Multi-select logic (add/remove from array)
             if (index > -1) {
                 tempSelectedTours.value.splice(index, 1);
             } else {
                 tempSelectedTours.value.push(tour);
             }
         } else {
-            // Single-select logic (replace the array)
             if (index > -1) {
                 tempSelectedTours.value = [];
             } else {
@@ -218,7 +235,6 @@ export function useTourApi(banner, showModal, ajax) {
         }
     };
 
-    // New computed property to check if a tour is selected
     const isTourSelected = (tour) => {
         return tempSelectedTours.value.some(t => t.id === tour.id);
     };
@@ -237,7 +253,7 @@ export function useTourApi(banner, showModal, ajax) {
         isTourModalOpen, isTourLoading, isMoreTourLoading, sortedTourResults,
         isTourDetailsLoading,
         openTourModal, closeTourModal, selectTour, tourModalListRef,
-        tempSelectedTours, // Changed name for clarity
+        tempSelectedTours,
         confirmTourSelection,
         tourFilters, tourCities, tourTypes,
         debouncedTourSearch, toggleTourType, resetTourFilters,
@@ -245,7 +261,7 @@ export function useTourApi(banner, showModal, ajax) {
         fetchFullTourDetails,
         getRatingLabel,
         formatRating,
-        isTourSelected, // Expose new computed
-        isMultiSelect, // Expose for use in template
+        isTourSelected,
+        isMultiSelect,
     };
 }

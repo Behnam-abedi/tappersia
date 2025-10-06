@@ -101,19 +101,29 @@ class Yab_Tour_Carousel {
         foreach ($data as $key => $value) {
             if ($key === 'tour_carousel' && is_array($value)) {
                 $sanitized['tour_carousel'] = [];
-                // Sanitize selected tours - ensure it's an array of tour IDs (integers)
+                
                 if (isset($value['selectedTours']) && is_array($value['selectedTours'])) {
-                    // We only store the IDs now.
                     $sanitized['tour_carousel']['selectedTours'] = array_map('intval', $value['selectedTours']);
                 } else {
                     $sanitized['tour_carousel']['selectedTours'] = [];
                 }
-                // We can add more specific carousel settings sanitization here later
+
+                if (isset($value['settings']) && is_array($value['settings'])) {
+                    $settings = $value['settings'];
+                    $sanitized['tour_carousel']['settings'] = [
+                        'slidesPerView' => isset($settings['slidesPerView']) ? intval($settings['slidesPerView']) : 3,
+                        'loop' => isset($settings['loop']) ? boolval($settings['loop']) : false,
+                        'spaceBetween' => isset($settings['spaceBetween']) ? intval($settings['spaceBetween']) : 22,
+                        'pagination' => isset($settings['pagination']) && is_array($settings['pagination']) ? $settings['pagination'] : ['el' => '.swiper-pagination', 'clickable' => true],
+                        'navigation' => isset($settings['navigation']) && is_array($settings['navigation']) ? $settings['navigation'] : ['nextEl' => '.tappersia-carusel-next', 'prevEl' => '.tappersia-carusel-perv'],
+                    ];
+                }
+
             } elseif (is_array($value)) {
                 $sanitized[$key] = $this->sanitize_banner_data($value);
             } elseif (is_bool($value)) {
                 $sanitized[$key] = $value;
-            } elseif (is_numeric($value)) {
+            } elseif (is_numeric($value) || $value === null) {
                 $sanitized[$key] = $value;
             } else {
                 $sanitized[$key] = sanitize_text_field(trim($value));
