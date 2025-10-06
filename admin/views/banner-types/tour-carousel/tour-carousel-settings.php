@@ -14,6 +14,27 @@
 <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
     <h3 class="font-bold text-xl text-white tracking-wide mb-5">Carousel Settings</h3>
     <div class="space-y-4">
-        <p class="text-gray-400 text-sm">Carousel layout and design settings will be added here in the next steps.</p>
+        <div>
+            <label class="setting-label-sm">Slides Per View</label>
+            <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
+                <button v-for="num in [1, 2, 3, 4]" :key="num" @click="banner.tour_carousel.settings.slidesPerView = num" 
+                        :class="{'active-tab': banner.tour_carousel.settings.slidesPerView === num}" 
+                        class="flex-1 tab-button rounded-md">
+                    {{ num }}
+                </button>
+            </div>
+            <p class="text-gray-400 text-xs mt-2">Set the number of slides to show at once.</p>
         </div>
+        <hr class="section-divider">
+        <div>
+            <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
+                <label class="setting-label-sm !mb-0">Loop Slides</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="banner.tour_carousel.settings.loop" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
+            </div>
+             <p class="text-gray-400 text-xs mt-2">Enable to repeat the carousel from the beginning after the last slide.</p>
+        </div>
+    </div>
 </div>

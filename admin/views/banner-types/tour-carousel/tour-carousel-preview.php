@@ -8,11 +8,12 @@
         <p class="text-gray-500">Please select tours to see the preview.</p>
     </div>
 
-    <div v-else class="bg-[#292929] rounded-lg p-4">
+    <div v-else class="bg-[#292929] rounded-lg p-4 flex justify-center">
         <tour-carousel-logic 
             :tour-ids="banner.tour_carousel.selectedTours" 
-            :ajax="ajax" 
-            :key="banner.tour_carousel.selectedTours.join(',')">
+            :ajax="ajax"
+            :settings="banner.tour_carousel.settings"
+            :key="banner.tour_carousel.selectedTours.join(',') + banner.tour_carousel.settings.slidesPerView">
         </tour-carousel-logic>
     </div>
 </div>
