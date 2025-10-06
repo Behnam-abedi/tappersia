@@ -100,6 +100,10 @@ class Yab_Main {
     public function enqueue_public_styles_and_scripts() {
         wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
         wp_enqueue_style( 'yab-public-style', YAB_PLUGIN_URL . 'assets/css/public-style.css', array('yab-roboto-font'), $this->version, 'all' );
+        
+        // Enqueue Swiper for frontend if a tour-carousel might be present
+        wp_enqueue_style( 'swiper-css', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css', array(), '12.0.2' );
+        wp_enqueue_script( 'swiper-js', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js', array(), '12.0.2', true );
     }
 
     public function register_banner_cpt() {

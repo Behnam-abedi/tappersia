@@ -15,9 +15,11 @@ import { useBannerSync } from './composables/useBannerSync.js';
 import { useBannerStyling } from './composables/useBannerStyling.js';
 import { useComputedProperties } from './composables/useComputedProperties.js';
 import { usePromotionBanner } from './composables/usePromotionBanner.js';
+import { useTourCarousel } from './composables/useTourCarousel.js';
+
 
 export function initializeApp(yabData) {
-    createApp({
+    const app = createApp({
         setup() {
             // --- Core State & Composables ---
             const { banner, shortcode, mergeWithExisting, resetBannerState } = useBannerState();
@@ -84,6 +86,7 @@ export function initializeApp(yabData) {
                 ...bannerActions,
                 
                 // Composables
+                ajax, // <<< FIX: Expose ajax object to the template
                 ...apiBannerLogic,
                 ...displayConditionsLogic,
                 ...promotionBannerLogic,
@@ -98,5 +101,10 @@ export function initializeApp(yabData) {
             'yab-modal': YabModal,
             'image-loader': ImageLoader,
         }
-    }).mount('#yab-app');
+    });
+    
+    // Register the tour carousel component globally
+    app.component('TourCarouselLogic', useTourCarousel());
+
+    app.mount('#yab-app');
 }

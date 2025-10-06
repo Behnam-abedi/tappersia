@@ -13,6 +13,38 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             add_action('wp_ajax_yab_fetch_tour_details_from_api', [$this, 'fetch_tour_details_from_api']);
             add_action('wp_ajax_nopriv_yab_fetch_api_banner_html', [$this, 'fetch_api_banner_html']);
             add_action('wp_ajax_yab_fetch_api_banner_html', [$this, 'fetch_api_banner_html']);
+            add_action('wp_ajax_yab_fetch_tour_details_by_ids', [$this, 'fetch_tour_details_by_ids']);
+            add_action('wp_ajax_nopriv_yab_fetch_tour_details_by_ids', [$this, 'fetch_tour_details_by_ids']);
+        }
+
+        public function fetch_tour_details_by_ids() {
+            // Nonce is checked for logged-in users, public access doesn't need it.
+            if (is_user_logged_in()) {
+                check_ajax_referer('yab_nonce', 'nonce');
+            }
+
+            if (empty($_POST['tour_ids']) || !is_array($_POST['tour_ids'])) {
+                wp_send_json_error(['message' => 'Invalid or empty tour IDs provided.'], 400);
+                return;
+            }
+        
+            $tour_ids = array_map('intval', $_POST['tour_ids']);
+            $tour_details = [];
+        
+            foreach ($tour_ids as $tour_id) {
+                $details = $this->fetch_full_tour_details_data($tour_id);
+                if ($details) {
+                    $tour_details[] = $details;
+                }
+            }
+        
+            if (!empty($tour_details)) {
+                wp_send_json_success($tour_details);
+            } else {
+                wp_send_json_error(['message' => 'Could not fetch details for the provided tour IDs.'], 500);
+            }
+        
+            wp_die();
         }
 
         public function fetch_api_banner_html() {

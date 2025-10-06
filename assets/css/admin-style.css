@@ -230,3 +230,13 @@ textarea.yab-form-input {
     border-bottom-left-radius: 0;
     margin-left: 1px;
 }
+
+.swiper-pagination-bullet{
+    width: 20px !important;
+    height: 6px!important;
+    border-radius: 4px!important;
+    background-color: rgba(0, 186, 164, 0.31);
+}
+.swiper-pagination-bullet-active{
+    background-color: #00BAA4!important;
+}

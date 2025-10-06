@@ -5,9 +5,15 @@ export const createDefaultTourCarouselPart = () => ({
     selectedTours: [],
     // Swiper.js and other design settings will be added here later
     settings: {
-        slidesPerView: 3,
-        spaceBetween: 20,
-        navigation: true,
-        pagination: true,
+    slidesPerView: 3,
+    spaceBetween: 22,
+    pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+    },
+    navigation: {
+        nextEl: '.tappersia-carusel-next',
+        prevEl: '.tappersia-carusel-perv',
+    },
     }
 });

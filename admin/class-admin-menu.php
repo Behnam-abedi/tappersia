@@ -31,6 +31,10 @@ class Yab_Admin_Menu {
         // Enqueue Roboto font for admin panel
         wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
 
+        // Enqueue Swiper JS and CSS
+        wp_enqueue_style( 'swiper-css', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css', array(), '12.0.2' );
+        wp_enqueue_script( 'swiper-js', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js', array(), '12.0.2', true );
+
         wp_enqueue_media();
         wp_enqueue_script( 'yab-tailwind', 'https://cdn.tailwindcss.com', array(), null, false );
         wp_enqueue_script( 'yab-vue', 'https://unpkg.com/vue@3/dist/vue.global.js', array(), '3.4.27', true );
@@ -48,7 +52,7 @@ class Yab_Admin_Menu {
             } else {
                 // **MODIFIED SECTION FOR MODULAR JS**
                 // 1. Enqueue the new main app file. The handle must be unique.
-                wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component' ), $this->version, true );
+                wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component', 'swiper-js' ), $this->version, true );
                 
                 // 2. Use a filter to add `type="module"` to our specific script tag.
                 // This is the standard and safe way to load ES modules in WordPress.

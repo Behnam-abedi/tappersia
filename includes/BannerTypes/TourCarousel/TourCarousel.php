@@ -97,15 +97,14 @@ class Yab_Tour_Carousel {
         if (!is_array($data)) {
             return $sanitized;
         }
-
+    
         foreach ($data as $key => $value) {
             if ($key === 'tour_carousel' && is_array($value)) {
                 $sanitized['tour_carousel'] = [];
-                // Sanitize selected tours - ensure it's an array of tour objects
+                // Sanitize selected tours - ensure it's an array of tour IDs (integers)
                 if (isset($value['selectedTours']) && is_array($value['selectedTours'])) {
-                    // We trust the structure of the tour objects coming from our own API modal
-                    // but we can add more specific sanitization if needed.
-                    $sanitized['tour_carousel']['selectedTours'] = $value['selectedTours'];
+                    // We only store the IDs now.
+                    $sanitized['tour_carousel']['selectedTours'] = array_map('intval', $value['selectedTours']);
                 } else {
                     $sanitized['tour_carousel']['selectedTours'] = [];
                 }

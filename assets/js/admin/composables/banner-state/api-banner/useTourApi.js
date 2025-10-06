@@ -96,8 +96,8 @@ export function useTourApi(banner, showModal, ajax) {
 
     const confirmTourSelection = () => {
         if (isMultiSelect.value) {
-            // For Carousel: assign the array of selected tours
-            banner.tour_carousel.selectedTours = [...tempSelectedTours.value];
+            // For Carousel: assign the array of selected tour IDs
+            banner.tour_carousel.selectedTours = tempSelectedTours.value.map(tour => tour.id);
         } else {
             // For API Banner: assign the first selected tour, or null
             banner.api.selectedHotel = null; 
