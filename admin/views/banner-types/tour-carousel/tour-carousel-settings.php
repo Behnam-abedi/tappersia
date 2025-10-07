@@ -31,7 +31,7 @@
                 <label class="setting-label-sm !mb-0">Loop Slides</label>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" v-model="banner.tour_carousel.settings.loop" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                 </label>
             </div>
              <p class="text-gray-400 text-xs mt-2">Enable to repeat the carousel from the beginning after the last slide.</p>

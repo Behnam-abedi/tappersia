@@ -20,32 +20,61 @@ export function useTourCarousel() {
                 return (cardWidth * slidesPerView) + (spaceBetween * (slidesPerView - 1));
             });
             
-            // *** FIX: New computed property to handle slide cloning correctly based on the final logic ***
+            // *** FIX: Final computed property to handle slide cloning correctly based on the detailed scenario ***
             const slidesToRender = computed(() => {
                 const tours = props.tourIds;
                 const settings = props.settings;
                 const tourCount = tours.length;
                 
-                // If loop is off, or there are more tours than slidesPerView, no cloning is needed.
-                if (!settings.loop || tourCount === 0 || tourCount > settings.slidesPerView) {
+                if (!settings.loop || tourCount === 0) {
                     return tours;
                 }
-
-                // If loop is on and not enough slides, duplicate the array to ensure loop works smoothly.
-                if (tourCount <= settings.slidesPerView) {
-                    return [...tours, ...tours];
+                
+                // Case 1: Only one tour is selected.
+                if (tourCount === 1) {
+                    const clonedTours = [...tours];
+                    for (let i = 0; i < settings.slidesPerView; i++) {
+                        clonedTours.push(tours[0]);
+                    }
+                    return clonedTours;
                 }
 
+                // Case 2: More than one tour, but less than or equal to slidesPerView.
+                if (tourCount > 1 && tourCount <= settings.slidesPerView) {
+                    let clonedTours = [...tours];
+                    while (clonedTours.length < settings.slidesPerView * 2) {
+                        clonedTours = [...clonedTours, ...tours];
+                    }
+                    return clonedTours;
+                }
+
+                // Default case: tourCount > slidesPerView, no cloning needed.
                 return tours;
             });
 
             const generateTourCardHTML = (tour) => {
-                if (!tour) return '<div class="yab-tour-card-skeleton" style="width: 295px; height: 375px; background-color: #e0e0e0; border-radius: 14px; animation: pulse 1.5s infinite ease-in-out;"></div>';
+                // *** FIX: Improved skeleton loader markup and logic ***
+                if (!tour) {
+                    return `
+                    <div class="yab-tour-card-skeleton yab-skeleton-loader" style="width: 295px; height: 375px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
+                        <div class="yab-skeleton-image" style="width: 100%; height: 204px; background-color: #f0f0f0; border-radius: 14px;"></div>
+                        <div style="padding: 14px 5px 5px 5px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
+                            <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                            <div class="yab-skeleton-text" style="width: 40%; height: 16px; background-color: transparent; border-radius: 4px;"></div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-bottom: 5px;">
+                                <div class="yab-skeleton-text" style="width: 40%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                                <div class="yab-skeleton-text" style="width: 30%; height: 16px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                            </div>
+                            <div class="yab-skeleton-text" style="height: 33px; width: 100%; margin-top: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                        </div>
+                    </div>`;
+                }
                 const salePrice = tour.salePrice ? tour.salePrice.toFixed(2) : '0.00';
                 const rate = tour.rate ? tour.rate.toFixed(1) : '0.0';
 
+                // *** FIX: Removed anchor from the main card wrapper ***
                 return `
-                    <a href="${tour.detailUrl}" target="_blank" class="yab-tour-card" style="position: relative; text-decoration: none; color: inherit; display: block; width: 295px; height: 375px; background-color: #FFF; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 9px;">
+                    <div class="yab-tour-card" style="position: relative; text-decoration: none; color: inherit; display: block; width: 295px; height: 375px; background-color: #FFF; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 9px;">
                         <div style="position: relative; width: 100%; height: 204px;">
                             <img src="${tour.bannerImage.url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;" />
                             <div style="position: absolute; bottom: 0; right: 0; margin: 0 11px 9px 0; min-height: 23px; min-width: 65px; display: flex; align-items: center; justify-content: center; border-radius: 29px; background: rgba(14,14,14,0.2); padding: 0 11px; backdrop-filter: blur(3px);">
@@ -54,7 +83,7 @@ export function useTourCarousel() {
                         </div>
                         <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px;">
                             <div>
-                                <h4 style="font-weight: 600; font-size: 14px; line-height: 24px; color: black; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin: 0;">${tour.title}</h4>
+                                <h4 style="font-weight: 600; font-size: 14px; line-height: 24px; color: black; text-overflow: ellipsis; overflow: hidden; white-space: wrap; margin: 0;">${tour.title}</h4>
                             </div>
                             <div style="margin-top: auto; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px;">
                                 <div style="display: flex; flex-direction: row; gap: 4px; align-items: baseline;">
@@ -67,13 +96,13 @@ export function useTourCarousel() {
                                 </div>
                             </div>
                             <div style="padding: 0 4px;">
-                                <div class="flex h-[33px] w-full items-center justify-between rounded-[5px] bg-[#00BAA4] px-[20px]" style="display:flex; height: 33px; width: 100%; align-items: center; justify-content: space-between; border-radius: 5px; background-color: #00BAA4; padding: 0 20px;">
+                                <a href="${tour.detailUrl}" target="_blank" class="flex h-[33px] w-full items-center justify-between rounded-[5px] bg-[#00BAA4] px-[20px]" style="display:flex; height: 33px; width: 100%; align-items: center; justify-content: space-between; border-radius: 5px; background-color: #00BAA4; padding: 0 20px; text-decoration: none;">
                                     <span style="font-size: 13px; font-weight: 600; line-height: 16px; color: white;">View More</span>
                                     <div style="width: 10px; height: 10px; border-top: 2px solid white; border-right: 2px solid white; transform: rotate(45deg); border-radius: 2px;"></div>
-                                </div>
+                                </a>
                             </div>
                         </div>
-                    </a>`;
+                    </div>`;
             };
 
             const fetchAndRenderTours = async (idsToFetch) => {
@@ -136,7 +165,6 @@ export function useTourCarousel() {
                     const wrapper = swiperRef.value.querySelector('.swiper-wrapper');
                     wrapper.innerHTML = '';
                     
-                    // *** FIX: Use the new computed property to render slides with proper clones ***
                     slidesToRender.value.forEach(id => {
                         const slideEl = document.createElement('div');
                         slideEl.className = 'swiper-slide';
