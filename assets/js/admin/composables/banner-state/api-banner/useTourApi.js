@@ -7,6 +7,7 @@ export function useTourApi(banner, showModal, ajax) {
     const isTourLoading = ref(false);
     const isMoreTourLoading = ref(false);
     const isTourDetailsLoading = ref(false);
+    const isTourSelectionLoading = ref(false); // State to control initial loading
     const tourResults = reactive([]);
     const tourCurrentPage = ref(1);
     const canLoadMoreTours = ref(true);
@@ -66,7 +67,7 @@ export function useTourApi(banner, showModal, ajax) {
     };
     
     const fetchToursByIds = async (ids) => {
-        if (!ids || ids.length === 0) return []; // <-- FIX: Prevent AJAX call with empty array
+        if (!ids || ids.length === 0) return [];
         try {
             const toursData = await ajax.post('yab_fetch_tour_details_by_ids', { tour_ids: ids });
             return toursData;
@@ -76,36 +77,50 @@ export function useTourApi(banner, showModal, ajax) {
         }
     };
 
+    // *** FIX START: Refactored function to prevent race conditions ***
     const openTourModal = async (options = { multiSelect: false }) => {
         isMultiSelect.value = options.multiSelect;
         isTourModalOpen.value = true;
+        isTourSelectionLoading.value = true; // Activate loading state immediately
 
-        if (isMultiSelect.value) {
-            const selectedIds = banner.tour_carousel.selectedTours || [];
-            if (selectedIds.length > 0 && typeof selectedIds[0] === 'number') { 
-                const selectedTourObjects = await fetchToursByIds(selectedIds);
-                tempSelectedTours.value = selectedTourObjects;
+        // First, fetch static data and initial tour list if they don't exist
+        const citiesPromise = tourCities.value.length === 0 ? fetchTourCities() : Promise.resolve();
+        const toursPromise = tourResults.length === 0 ? searchTours(true) : Promise.resolve();
+        
+        await Promise.all([citiesPromise, toursPromise]);
 
-                const existingIds = new Set(tourResults.map(t => t.id));
-                const missingTours = selectedTourObjects.filter(t => !existingIds.has(t.id));
-                if (missingTours.length > 0) {
-                    tourResults.unshift(...missingTours);
+        try {
+            // Now, handle the selected tours
+            if (isMultiSelect.value) {
+                const selectedIds = banner.tour_carousel.selectedTours || [];
+                if (selectedIds.length > 0) {
+                    const selectedTourObjects = await fetchToursByIds(selectedIds);
+                    tempSelectedTours.value = selectedTourObjects;
+
+                    // Add tours to the main list if they are not already there
+                    const existingIds = new Set(tourResults.map(t => t.id));
+                    const missingTours = selectedTourObjects.filter(t => !existingIds.has(t.id));
+                    if (missingTours.length > 0) {
+                        tourResults.unshift(...missingTours);
+                    }
+                } else {
+                    tempSelectedTours.value = [];
                 }
-            } else { 
-                tempSelectedTours.value = banner.tour_carousel.selectedTours ? [...banner.tour_carousel.selectedTours] : [];
+            } else { // Single select mode for API banner
+                banner.api.apiType = 'tour';
+                tempSelectedTours.value = banner.api.selectedTour ? [banner.api.selectedTour] : [];
             }
-        } else {
-            banner.api.apiType = 'tour';
-            tempSelectedTours.value = banner.api.selectedTour ? [banner.api.selectedTour] : [];
+        } catch (error) {
+            showModal('Error', `Could not load selected tours: ${error.message}`);
+        } finally {
+            isTourSelectionLoading.value = false; // Deactivate loading state AFTER all data is ready
         }
         
-        if (tourCities.value.length === 0) fetchTourCities();
-        if (tourResults.length === 0) searchTours(true);
-
         nextTick(() => {
             tourModalListRef.value?.addEventListener('scroll', handleTourScroll);
         });
     };
+    // *** FIX END ***
 
     const closeTourModal = () => {
         isTourModalOpen.value = false;
@@ -142,7 +157,9 @@ export function useTourApi(banner, showModal, ajax) {
         if (isNewSearch) {
             tourCurrentPage.value = 1;
             canLoadMoreTours.value = true;
-            tourResults.splice(0);
+            if (!isTourSelectionLoading.value) { // Prevent clearing list during initial selection load
+                tourResults.splice(0);
+            }
             isTourLoading.value = true;
         } else {
             isMoreTourLoading.value = true;
@@ -175,7 +192,7 @@ export function useTourApi(banner, showModal, ajax) {
             isMoreTourLoading.value = false;
         }
     };
-
+    
     const debouncedTourSearch = () => {
         clearTimeout(debounceTimeout);
         debounceTimeout = setTimeout(() => searchTours(true), 500);
@@ -252,6 +269,7 @@ export function useTourApi(banner, showModal, ajax) {
     return {
         isTourModalOpen, isTourLoading, isMoreTourLoading, sortedTourResults,
         isTourDetailsLoading,
+        isTourSelectionLoading, // Expose the new state
         openTourModal, closeTourModal, selectTour, tourModalListRef,
         tempSelectedTours,
         confirmTourSelection,
@@ -263,5 +281,6 @@ export function useTourApi(banner, showModal, ajax) {
         formatRating,
         isTourSelected,
         isMultiSelect,
+        ceil: Math.ceil
     };
 }

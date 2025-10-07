@@ -2,7 +2,7 @@
 const { createApp, ref, onMounted, watch } = Vue;
 
 import { useAjax } from '../composables/useAjax.js';
-// مسیر مستقیم به فایل اصلی
+// The path is a direct import from the main file
 import { useBannerState } from '../composables/banner-state/bannerState.js'; 
 import { useApiBanner } from '../composables/useApiBanner.js';
 import { useDisplayConditions } from '../composables/useDisplayConditions.js';
@@ -16,6 +16,9 @@ import { useBannerStyling } from './composables/useBannerStyling.js';
 import { useComputedProperties } from './composables/useComputedProperties.js';
 import { usePromotionBanner } from './composables/usePromotionBanner.js';
 import { useTourCarousel } from './composables/useTourCarousel.js';
+// *** FIX START: Import the new composable for loop validation ***
+import { useTourCarouselLoop } from './composables/useTourCarouselLoop.js';
+// *** FIX END ***
 
 
 export function initializeApp(yabData) {
@@ -40,35 +43,10 @@ export function initializeApp(yabData) {
             
             useBannerSync(banner, currentView); // Handles all watchers
             
-            // --- Tour Carousel Validation ---
-            const lastValidSlidesPerView = ref(banner.tour_carousel.settings.slidesPerView);
-            watch(() => banner.tour_carousel.settings.slidesPerView, (newVal, oldVal) => {
-                if (newVal !== oldVal) {
-                    lastValidSlidesPerView.value = oldVal;
-                }
-            });
-            
-            watch(() => [banner.tour_carousel.settings.loop, banner.tour_carousel.settings.slidesPerView, banner.tour_carousel.selectedTours.length],
-                async ([loop, slidesPerView, tourCount], [oldLoop, oldSlidesPerView, oldTourCount]) => {
-                    if (banner.type !== 'tour-carousel' || tourCount === 0) return;
-
-                    // Scenario 1: Loop is on, but not enough tours
-                    if (loop && tourCount <= slidesPerView) {
-                        await showModal('Validation Error', `To enable loop with ${slidesPerView} slides per view, you need at least ${slidesPerView + 1} tours. You have ${tourCount}.`);
-                        // Revert to a valid state
-                        if (tourCount > 1) {
-                            banner.tour_carousel.settings.slidesPerView = tourCount - 1;
-                        } else {
-                             banner.tour_carousel.settings.loop = false;
-                        }
-                    }
-                    // Scenario 2: Loop is off, not enough tours
-                    else if (!loop && tourCount < slidesPerView) {
-                         await showModal('Validation Error', `You need at least ${slidesPerView} tours for the current Slides Per View setting. You have ${tourCount}.`);
-                         banner.tour_carousel.settings.slidesPerView = tourCount > 0 ? tourCount : 1;
-                    }
-                }, { deep: true }
-            );
+            // *** FIX START: Use the new composable for clean validation ***
+            // This composable now handles the specific validation logic for when loop is disabled.
+            useTourCarouselLoop(banner, showModal);
+            // *** FIX END: Old validation logic is removed ***
 
 
             // --- Lifecycle Hooks ---

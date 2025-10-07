@@ -18,15 +18,12 @@ class Yab_Tour_Carousel {
             $slides_per_view = $settings['slidesPerView'] ?? 3;
             $loop = $settings['loop'] ?? false;
 
-            if ($loop && $selected_tours_count > 0 && $selected_tours_count <= $slides_per_view) {
-                wp_send_json_error(['message' => "To enable loop, you need more tours than 'Slides Per View'. Please add more tours or disable loop."], 400);
-                return;
-            }
-
+            // *** FIX START: Validation is now only active when loop is OFF ***
             if (!$loop && $selected_tours_count > 0 && $selected_tours_count < $slides_per_view) {
-                 wp_send_json_error(['message' => "You need at least {$slides_per_view} tours to match 'Slides Per View'. Please add more tours."], 400);
+                 wp_send_json_error(['message' => "You need at least {$slides_per_view} tours to match 'Slides Per View' when loop is disabled. Please add more tours or reduce the 'Slides Per View' value."], 400);
                 return;
             }
+            // *** FIX END ***
         }
 
 

@@ -6,6 +6,27 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
 
     class Yab_Tour_Carousel_Renderer extends Yab_Abstract_Banner_Renderer {
 
+        /**
+         * Clones slides for loop mode based on the final specified logic.
+         * Cloning happens only if loop is enabled and tour count is less than or equal to slidesPerView.
+         * In that case, the slide array is duplicated.
+         *
+         * @param array $tours The array of selected tour IDs.
+         * @param int $slides_per_view The number of slides visible at once.
+         * @return array The correctly adjusted array of tour IDs for the carousel loop.
+         */
+        private function get_cloned_slides_for_loop(array $tours, int $slides_per_view): array {
+            $tour_count = count($tours);
+            
+            // If there are tours and their count is less than or equal to slidesPerView, duplicate the array.
+            if ($tour_count > 0 && $tour_count <= $slides_per_view) {
+                return array_merge($tours, $tours);
+            }
+
+            // Otherwise, return the original array. No cloning needed.
+            return $tours;
+        }
+
         public function render(): string {
             if (empty($this->data['tour_carousel']) || empty($this->data['tour_carousel']['selectedTours'])) {
                 return '';
@@ -18,17 +39,10 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
             $loop = $settings['loop'] ?? false;
             $centered_slides = $loop; 
 
-            // Logic to clone slides if loop is enabled and not enough slides
+            // *** FIX: Apply the final, corrected cloning logic ***
             $selected_tours = $this->data['tour_carousel']['selectedTours'];
-            if ($loop && count($selected_tours) <= $slides_per_view && count($selected_tours) > 0) {
-                $cloned_tours = $selected_tours;
-                while (count($cloned_tours) <= $slides_per_view + 1) {
-                    foreach ($selected_tours as $tour_id) {
-                        $cloned_tours[] = $tour_id;
-                        if (count($cloned_tours) > $slides_per_view + 1) break;
-                    }
-                }
-                $selected_tours = $cloned_tours;
+            if ($loop) {
+                $selected_tours = $this->get_cloned_slides_for_loop($selected_tours, $slides_per_view);
             }
 
             $card_width = 295;

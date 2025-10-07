@@ -19,6 +19,25 @@ export function useTourCarousel() {
                 const slidesPerView = props.settings.slidesPerView || 3;
                 return (cardWidth * slidesPerView) + (spaceBetween * (slidesPerView - 1));
             });
+            
+            // *** FIX: New computed property to handle slide cloning correctly based on the final logic ***
+            const slidesToRender = computed(() => {
+                const tours = props.tourIds;
+                const settings = props.settings;
+                const tourCount = tours.length;
+                
+                // If loop is off, or there are more tours than slidesPerView, no cloning is needed.
+                if (!settings.loop || tourCount === 0 || tourCount > settings.slidesPerView) {
+                    return tours;
+                }
+
+                // If loop is on and not enough slides, duplicate the array to ensure loop works smoothly.
+                if (tourCount <= settings.slidesPerView) {
+                    return [...tours, ...tours];
+                }
+
+                return tours;
+            });
 
             const generateTourCardHTML = (tour) => {
                 if (!tour) return '<div class="yab-tour-card-skeleton" style="width: 295px; height: 375px; background-color: #e0e0e0; border-radius: 14px; animation: pulse 1.5s infinite ease-in-out;"></div>';
@@ -116,7 +135,9 @@ export function useTourCarousel() {
                 if (swiperRef.value) {
                     const wrapper = swiperRef.value.querySelector('.swiper-wrapper');
                     wrapper.innerHTML = '';
-                    props.tourIds.forEach(id => {
+                    
+                    // *** FIX: Use the new computed property to render slides with proper clones ***
+                    slidesToRender.value.forEach(id => {
                         const slideEl = document.createElement('div');
                         slideEl.className = 'swiper-slide';
                         slideEl.setAttribute('data-tour-id', id);

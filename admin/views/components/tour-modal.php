@@ -59,7 +59,7 @@
                 </div>
             </aside>
 
-            <div class="w-3/4 flex flex-col">
+            <div class="w-3/4 flex flex-col relative">
                 <header class="bg-[#434343] p-4 flex items-center justify-between flex-shrink-0">
                     <div>
                         <h2 class="text-xl font-bold text-white">Select a Tour</h2>
@@ -76,13 +76,16 @@
                         </div>
                     </div>
                 </div>
+                
                 <main class="flex-grow relative overflow-y-auto" ref="tourModalListRef">
-                    <div v-if="isTourLoading && sortedTourResults.length === 0" class="absolute inset-0 flex items-center justify-center bg-[#2d2d2d]/80 z-10">
+                    <div v-if="isTourLoading || isTourSelectionLoading" class="absolute inset-0 flex items-center justify-center bg-[#2d2d2d]/80 z-10">
                         <div class="yab-spinner w-12 h-12"></div>
                     </div>
-                    <div v-else-if="!isTourLoading && sortedTourResults.length === 0" class="text-center text-gray-400 py-16">
+
+                    <div v-else-if="sortedTourResults.length === 0" class="text-center text-gray-400 py-16">
                         <p class="text-lg">No tours found matching your criteria.</p>
                     </div>
+                    
                     <template v-else>
                         <ul class="p-4 space-y-3">
                             <li v-for="tour in sortedTourResults" :key="tour.id" @click="selectTour(tour)" class="p-3 bg-[#434343] rounded-lg flex items-center gap-4 cursor-pointer border-2 transition-all duration-200" :class="isTourSelected(tour) ? 'border-[#00baa4] shadow-lg' : 'border-transparent hover:border-gray-600'">
@@ -121,7 +124,7 @@
                         </div>
                     </template>
                 </main>
-            </div>
+                </div>
         </div>
     </div>
 </transition>
