@@ -10,6 +10,26 @@ class Yab_Tour_Carousel {
             return;
         }
 
+        // Server-side validation for tour carousel settings
+        if (isset($banner_data['tour_carousel'])) {
+            $tour_carousel = $banner_data['tour_carousel'];
+            $settings = $tour_carousel['settings'] ?? [];
+            $selected_tours_count = isset($tour_carousel['selectedTours']) ? count($tour_carousel['selectedTours']) : 0;
+            $slides_per_view = $settings['slidesPerView'] ?? 3;
+            $loop = $settings['loop'] ?? false;
+
+            if ($loop && $selected_tours_count > 0 && $selected_tours_count <= $slides_per_view) {
+                wp_send_json_error(['message' => "To enable loop, you need more tours than 'Slides Per View'. Please add more tours or disable loop."], 400);
+                return;
+            }
+
+            if (!$loop && $selected_tours_count > 0 && $selected_tours_count < $slides_per_view) {
+                 wp_send_json_error(['message' => "You need at least {$slides_per_view} tours to match 'Slides Per View'. Please add more tours."], 400);
+                return;
+            }
+        }
+
+
         if ($banner_data['displayMethod'] === 'Fixed') {
             $conflict = $this->check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
             if ($conflict['has_conflict']) {

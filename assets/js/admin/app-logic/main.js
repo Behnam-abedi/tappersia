@@ -1,5 +1,5 @@
 // tappersia/assets/js/admin/app-logic/main.js
-const { createApp, ref, onMounted } = Vue;
+const { createApp, ref, onMounted, watch } = Vue;
 
 import { useAjax } from '../composables/useAjax.js';
 // مسیر مستقیم به فایل اصلی
@@ -39,6 +39,37 @@ export function initializeApp(yabData) {
             const computedProperties = useComputedProperties(banner, currentView, selectedDoubleBanner);
             
             useBannerSync(banner, currentView); // Handles all watchers
+            
+            // --- Tour Carousel Validation ---
+            const lastValidSlidesPerView = ref(banner.tour_carousel.settings.slidesPerView);
+            watch(() => banner.tour_carousel.settings.slidesPerView, (newVal, oldVal) => {
+                if (newVal !== oldVal) {
+                    lastValidSlidesPerView.value = oldVal;
+                }
+            });
+            
+            watch(() => [banner.tour_carousel.settings.loop, banner.tour_carousel.settings.slidesPerView, banner.tour_carousel.selectedTours.length],
+                async ([loop, slidesPerView, tourCount], [oldLoop, oldSlidesPerView, oldTourCount]) => {
+                    if (banner.type !== 'tour-carousel' || tourCount === 0) return;
+
+                    // Scenario 1: Loop is on, but not enough tours
+                    if (loop && tourCount <= slidesPerView) {
+                        await showModal('Validation Error', `To enable loop with ${slidesPerView} slides per view, you need at least ${slidesPerView + 1} tours. You have ${tourCount}.`);
+                        // Revert to a valid state
+                        if (tourCount > 1) {
+                            banner.tour_carousel.settings.slidesPerView = tourCount - 1;
+                        } else {
+                             banner.tour_carousel.settings.loop = false;
+                        }
+                    }
+                    // Scenario 2: Loop is off, not enough tours
+                    else if (!loop && tourCount < slidesPerView) {
+                         await showModal('Validation Error', `You need at least ${slidesPerView} tours for the current Slides Per View setting. You have ${tourCount}.`);
+                         banner.tour_carousel.settings.slidesPerView = tourCount > 0 ? tourCount : 1;
+                    }
+                }, { deep: true }
+            );
+
 
             // --- Lifecycle Hooks ---
             onMounted(() => {
@@ -86,7 +117,7 @@ export function initializeApp(yabData) {
                 ...bannerActions,
                 
                 // Composables
-                ajax, // <<< FIX: Expose ajax object to the template
+                ajax,
                 ...apiBannerLogic,
                 ...displayConditionsLogic,
                 ...promotionBannerLogic,

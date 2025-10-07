@@ -66,7 +66,7 @@ export function useTourApi(banner, showModal, ajax) {
     };
     
     const fetchToursByIds = async (ids) => {
-        if (!ids || ids.length === 0) return [];
+        if (!ids || ids.length === 0) return []; // <-- FIX: Prevent AJAX call with empty array
         try {
             const toursData = await ajax.post('yab_fetch_tour_details_by_ids', { tour_ids: ids });
             return toursData;

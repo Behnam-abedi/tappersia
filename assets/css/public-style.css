@@ -49,3 +49,8 @@ body .yab-api-banner-placeholder * { /* Added placeholder */
     }
 }
 /* END: SKELETON LOADER STYLES */
+
+@keyframes yab-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
