@@ -11,12 +11,36 @@ export function useTourCarousel() {
             const swiperRef = ref(null);
             const swiperInstance = ref(null);
             const fetchedIds = reactive(new Set());
+            const styleTag = ref(null); // <-- تگ استایل جدید
 
             const isRTL = computed(() => props.settings.direction === 'rtl');
             const headerSettings = computed(() => props.settings.header || {});
-            // --- START: ADDED ---
             const cardSettings = computed(() => props.settings.card || {});
-            // --- END: ADDED ---
+            
+            // --- START: ایجاد استایل داینامیک برای پیجینیشن ---
+            const updatePaginationStyles = () => {
+                if (!swiperRef.value) return;
+                const paginationSettings = props.settings.pagination || {};
+                const color = paginationSettings.paginationColor || 'rgba(0, 186, 164, 0.31)';
+                const activeColor = paginationSettings.paginationActiveColor || '#00BAA4';
+
+                const css = `
+                    .swiper-pagination-bullet {
+                        background-color: ${color} !important;
+                    }
+                    .swiper-pagination-bullet-active {
+                        background-color: ${activeColor} !important;
+                    }
+                `;
+
+                if (!styleTag.value) {
+                    styleTag.value = document.createElement('style');
+                    swiperRef.value.appendChild(styleTag.value);
+                }
+                styleTag.value.innerHTML = css;
+            };
+            // --- END: ایجاد استایل داینامیک ---
+
 
             const containerWidth = computed(() => {
                 const cardWidth = 295;
@@ -26,9 +50,7 @@ export function useTourCarousel() {
             });
             
             const gridHeight = computed(() => {
-                // --- START: MODIFIED ---
                 const cardHeight = cardSettings.value.height || 375;
-                // --- END: MODIFIED ---
                 const verticalSpace = 20;
                 return (cardHeight * 2) + verticalSpace;
             });
@@ -65,7 +87,6 @@ export function useTourCarousel() {
                 return originalTours;
             });
 
-            // --- START: ADDED ---
             const getCardBackground = (settings) => {
                 if (!settings) return '#FFFFFF';
                 if (settings.backgroundType === 'gradient') {
@@ -74,10 +95,8 @@ export function useTourCarousel() {
                 }
                 return settings.bgColor;
             };
-            // --- END: ADDED ---
 
             const generateTourCardHTML = (tour) => {
-                // --- START: MODIFIED ---
                 const card = cardSettings.value;
                 if (!tour) {
                     return `
@@ -138,7 +157,6 @@ export function useTourCarousel() {
                             </div>
                         </div>
                     </div>`;
-                // --- END: MODIFIED ---
             };
             
             const fetchAndRenderTours = async (idsToFetch) => {
@@ -197,6 +215,10 @@ export function useTourCarousel() {
                         slideEl.innerHTML = generateTourCardHTML(null);
                         wrapper.appendChild(slideEl);
                     });
+                    
+                    // --- START: اعمال استایل پیجینیشن ---
+                    updatePaginationStyles();
+                    // --- END: اعمال استایل پیجینیشن ---
 
                     const swiperOptions = {
                         slidesPerView: props.settings.slidesPerView,

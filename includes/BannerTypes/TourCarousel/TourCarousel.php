@@ -38,7 +38,11 @@ class Yab_Tour_Carousel {
 
 
         if (($banner_data['displayMethod'] ?? 'Embeddable') === 'Fixed') {
-            // No conflict check for carousels
+            $conflict = $this->check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
+            if ($conflict['has_conflict']) {
+                wp_send_json_error(['message' => $conflict['message']]);
+                return;
+            }
         }
 
         $sanitized_data = $this->sanitize_banner_data($banner_data);
@@ -62,7 +66,44 @@ class Yab_Tour_Carousel {
     }
     
     private function check_for_banner_conflict($displayOn, $current_banner_id) {
-        return ['has_conflict' => false, 'message' => ''];
+        $conflict = ['has_conflict' => false, 'message' => ''];
+        $post_ids = !empty($displayOn['posts']) ? array_map('intval', $displayOn['posts']) : [];
+        $page_ids = !empty($displayOn['pages']) ? array_map('intval', $displayOn['pages']) : [];
+        $cat_ids  = !empty($displayOn['categories']) ? array_map('intval', $displayOn['categories']) : [];
+
+        if (empty($post_ids) && empty($page_ids) && empty($cat_ids)) {
+            return $conflict;
+        }
+
+        $args = [
+            'post_type'    => 'yab_banner',
+            'posts_per_page' => -1,
+            'post_status'  => 'publish',
+            'meta_query'   => [
+                'relation' => 'AND',
+                ['key' => '_yab_display_method', 'value' => 'Fixed', 'compare' => '='],
+                ['key' => '_yab_banner_type', 'value' => 'tour-carousel', 'compare' => '=']
+            ],
+            'post__not_in' => $current_banner_id ? [intval($current_banner_id)] : [],
+        ];
+
+        $other_banners_query = new WP_Query($args);
+
+        foreach ($other_banners_query->posts as $banner_post) {
+            $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
+            if (empty($data) || empty($data['displayOn'])) continue;
+
+            $other_post_ids = !empty($data['displayOn']['posts']) ? array_map('intval', $data['displayOn']['posts']) : [];
+            if (!empty(array_intersect($post_ids, $other_post_ids))) {
+                return ['has_conflict' => true, 'message' => 'A Tour Carousel is already assigned to one of the selected posts.'];
+            }
+
+            $other_page_ids = !empty($data['displayOn']['pages']) ? array_map('intval', $data['displayOn']['pages']) : [];
+            if (!empty(array_intersect($page_ids, $other_page_ids))) {
+                 return ['has_conflict' => true, 'message' => 'A Tour Carousel is already assigned to one of the selected pages.'];
+            }
+        }
+        return $conflict;
     }
 
     private function sanitize_settings_object($settings) {
@@ -90,7 +131,11 @@ class Yab_Tour_Carousel {
             'delay' => isset($settings['autoplay']['delay']) ? intval($settings['autoplay']['delay']) : 3000,
         ];
         $sanitized['navigation'] = [ 'enabled' => isset($settings['navigation']['enabled']) ? boolval($settings['navigation']['enabled']) : true ];
-        $sanitized['pagination'] = [ 'enabled' => isset($settings['pagination']['enabled']) ? boolval($settings['pagination']['enabled']) : true ];
+        $sanitized['pagination'] = [ 
+            'enabled' => isset($settings['pagination']['enabled']) ? boolval($settings['pagination']['enabled']) : true,
+            'paginationColor' => isset($settings['pagination']['paginationColor']) ? sanitize_text_field($settings['pagination']['paginationColor']) : 'rgba(0, 186, 164, 0.31)',
+            'paginationActiveColor' => isset($settings['pagination']['paginationActiveColor']) ? sanitize_text_field($settings['pagination']['paginationActiveColor']) : '#00BAA4',
+        ];
 
         return $sanitized;
     }

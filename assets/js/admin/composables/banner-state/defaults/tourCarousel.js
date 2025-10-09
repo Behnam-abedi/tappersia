@@ -44,7 +44,11 @@ export const createDefaultTourCarouselDesktopPart = () => ({
     },
     autoplay: { enabled: false, delay: 3000 },
     navigation: { enabled: true },
-    pagination: { enabled: true },
+    pagination: { 
+        enabled: true,
+        paginationColor: 'rgba(0, 186, 164, 0.31)',
+        paginationActiveColor: '#00BAA4',
+    },
 });
 
 export const createDefaultTourCarouselMobilePart = () => {

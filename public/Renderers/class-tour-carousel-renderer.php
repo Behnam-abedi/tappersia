@@ -56,6 +56,8 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
             $autoplay_delay = $settings['autoplay']['delay'] ?? 3000;
             $navigation_enabled = $settings['navigation']['enabled'] ?? true;
             $pagination_enabled = $settings['pagination']['enabled'] ?? true;
+            $pagination_color = $settings['pagination']['paginationColor'] ?? 'rgba(0, 186, 164, 0.31)';
+            $pagination_active_color = $settings['pagination']['paginationActiveColor'] ?? '#00BAA4';
 
             $slides_to_render = $original_tours_ids;
 
@@ -112,6 +114,13 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
                     transform: rotate(<?php echo $is_rtl ? '-135deg' : '45deg'; ?>); 
                 }
                 .is-loaded .yab-tour-card { animation: yab-fade-in 0.5s ease-in-out; }
+
+                #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .swiper-pagination-bullet {
+                    background-color: <?php echo esc_attr($pagination_color); ?> !important;
+                }
+                #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .swiper-pagination-bullet-active {
+                    background-color: <?php echo esc_attr($pagination_active_color); ?> !important;
+                }
             </style>
             <div id="yab-tour-carousel-<?php echo esc_attr($unique_id); ?>" dir="<?php echo esc_attr($direction); ?>">
                 <div style="max-width: <?php echo esc_attr($container_width); ?>px; margin: 0 auto; position: relative;">

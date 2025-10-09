@@ -55,6 +55,24 @@
                     <h4 class="section-title">Controls</h4>
                     <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2"><label class="setting-label-sm !mb-0">Enable Navigation</label><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" v-model="settings.navigation.enabled" class="sr-only peer"><div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div></label></div>
                     <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md"><label class="setting-label-sm !mb-0">Enable Pagination</label><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" v-model="settings.pagination.enabled" class="sr-only peer"><div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div></label></div>
+                    <div v-if="settings.pagination.enabled && currentView === 'desktop'" class="mt-4 space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="setting-label-sm">Pagination Color</label>
+                                <div class="yab-color-input-wrapper">
+                                    <input type="color" v-model="settings.pagination.paginationColor" class="yab-color-picker">
+                                    <input type="text" v-model="settings.pagination.paginationColor" class="yab-hex-input">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="setting-label-sm">Pagination Active Color</label>
+                                <div class="yab-color-input-wrapper">
+                                    <input type="color" v-model="settings.pagination.paginationActiveColor" class="yab-color-picker">
+                                    <input type="text" v-model="settings.pagination.paginationActiveColor" class="yab-hex-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
