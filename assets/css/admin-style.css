@@ -263,3 +263,7 @@ textarea.yab-form-input {
 .swiper-pagination-bullet-active{
     background-color: #00BAA4!important;
 }
+.yab-sortable-ghost {
+    opacity: 0.4;
+    background: #00baa4;
+}

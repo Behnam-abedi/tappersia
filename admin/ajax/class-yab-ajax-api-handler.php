@@ -18,10 +18,9 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
         }
 
         public function fetch_tour_details_by_ids() {
-            // Nonce is checked for logged-in users, public access doesn't need it.
-            if (is_user_logged_in()) {
-                check_ajax_referer('yab_nonce', 'nonce');
-            }
+            // --- FIX START: Removed nonce check that caused 403 Forbidden error for logged-in users on front-end ---
+            // The nonce check is not necessary here as this is a public endpoint fetching public data.
+            // --- FIX END ---
 
             if (empty($_POST['tour_ids']) || !is_array($_POST['tour_ids'])) {
                 wp_send_json_error(['message' => 'Invalid or empty tour IDs provided.'], 400);

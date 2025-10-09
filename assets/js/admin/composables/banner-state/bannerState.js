@@ -15,7 +15,7 @@ import {
     createDefaultPromotionMobilePart,
     createDefaultHtmlPart, 
     createDefaultHtmlSidebarPart,
-    createDefaultTourCarouselPart // Import new function
+    createDefaultTourCarouselPart
 } from './defaults/index.js';
 
 export function useBannerState() {
@@ -60,7 +60,7 @@ export function useBannerState() {
             isMobileConfigured: false,
         },
 
-        tour_carousel: createDefaultTourCarouselPart(), // Add this line
+        tour_carousel: createDefaultTourCarouselPart(),
     });
 
     const banner = reactive(createDefaultBanner());
@@ -96,6 +96,9 @@ export function useBannerState() {
             }
             if (existingData.api) {
                 existingData.api.isMobileConfigured = true;
+            }
+             if (existingData.tour_carousel) {
+                existingData.tour_carousel.isMobileConfigured = true;
             }
         }
         

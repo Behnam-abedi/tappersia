@@ -29,12 +29,6 @@ require YAB_PLUGIN_DIR . 'admin/views/components/banner-editor-header.php';
                         </div>
                     </div>
                 </div>
-                <style>
-                    .yab-sortable-ghost {
-                        opacity: 0.4;
-                        background: #00baa4;
-                    }
-                </style>
             </div>
 
             <transition name="fade">

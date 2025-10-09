@@ -10,38 +10,35 @@ class Yab_Tour_Carousel {
             return;
         }
 
-        if (isset($banner_data['tour_carousel'])) {
-            $tour_carousel = $banner_data['tour_carousel'];
-            $settings = $tour_carousel['settings'] ?? [];
-            $selected_tours_count = isset($tour_carousel['selectedTours']) ? count($tour_carousel['selectedTours']) : 0;
-            $slides_per_view = $settings['slidesPerView'] ?? 3;
-            $loop = $settings['loop'] ?? false;
-            $is_doubled = $settings['isDoubled'] ?? false;
-
-            if ($is_doubled && !$loop) {
-                if ($selected_tours_count % 2 !== 0) {
-                    wp_send_json_error(['message' => "Validation failed: The number of tours for a double carousel must be an even number. You have selected {$selected_tours_count} tours."], 400);
-                    return;
-                }
-                $max_slides = ($selected_tours_count > 0 && $selected_tours_count < 8) ? floor($selected_tours_count / 2) : 4;
-                if ($slides_per_view > $max_slides) {
-                    wp_send_json_error(['message' => "Validation failed: With {$selected_tours_count} tours, the maximum 'Slides Per View' for a double carousel is {$max_slides}."], 400);
-                    return;
-                }
+        // --- Desktop Validation ---
+        if (isset($banner_data['tour_carousel']['settings'])) {
+            $desktop_settings = $banner_data['tour_carousel']['settings'];
+            $tour_count = count($banner_data['tour_carousel']['selectedTours'] ?? []);
+            
+            if (($desktop_settings['isDoubled'] ?? false) && !($desktop_settings['loop'] ?? false) && $tour_count % 2 !== 0) {
+                wp_send_json_error(['message' => "Desktop validation failed: Double carousel requires an even number of tours. You have {$tour_count}."], 400);
+                return;
             }
+             if (!($desktop_settings['loop'] ?? false) && !($desktop_settings['isDoubled'] ?? false) && $tour_count > 0 && $tour_count < ($desktop_settings['slidesPerView'] ?? 3)) {
+                wp_send_json_error(['message' => "Desktop validation failed: You need at least {$desktop_settings['slidesPerView']} tours when loop is disabled."], 400);
+                return;
+            }
+        }
+        
+        // --- Mobile Validation ---
+        if (isset($banner_data['tour_carousel']['settings_mobile'])) {
+            $mobile_settings = $banner_data['tour_carousel']['settings_mobile'];
+            $tour_count = count($banner_data['tour_carousel']['selectedTours'] ?? []);
 
-            if (!$loop && !$is_doubled && $selected_tours_count > 0 && $selected_tours_count < $slides_per_view) {
-                 wp_send_json_error(['message' => "Validation failed: You need at least {$slides_per_view} tours to match 'Slides Per View' when loop is disabled."], 400);
+            if (($mobile_settings['isDoubled'] ?? false) && !($mobile_settings['loop'] ?? false) && $tour_count % 2 !== 0) {
+                wp_send_json_error(['message' => "Mobile validation failed: Double carousel requires an even number of tours. You have {$tour_count}."], 400);
                 return;
             }
         }
 
-        if ($banner_data['displayMethod'] === 'Fixed') {
-            $conflict = $this->check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
-            if ($conflict['has_conflict']) {
-                wp_send_json_error(['message' => $conflict['message']]);
-                return;
-            }
+
+        if (($banner_data['displayMethod'] ?? 'Embeddable') === 'Fixed') {
+            // No conflict check for carousels
         }
 
         $sanitized_data = $this->sanitize_banner_data($banner_data);
@@ -68,6 +65,36 @@ class Yab_Tour_Carousel {
         return ['has_conflict' => false, 'message' => ''];
     }
 
+    private function sanitize_settings_object($settings) {
+        $sanitized = [];
+        $sanitized['slidesPerView'] = isset($settings['slidesPerView']) ? intval($settings['slidesPerView']) : 3;
+        $sanitized['loop'] = isset($settings['loop']) ? boolval($settings['loop']) : false;
+        $sanitized['spaceBetween'] = isset($settings['spaceBetween']) ? intval($settings['spaceBetween']) : 22;
+        $sanitized['isDoubled'] = isset($settings['isDoubled']) ? boolval($settings['isDoubled']) : false;
+        $sanitized['gridFill'] = isset($settings['gridFill']) ? sanitize_text_field($settings['gridFill']) : 'column';
+        $sanitized['direction'] = isset($settings['direction']) ? sanitize_text_field($settings['direction']) : 'ltr';
+        
+        $sanitized['header'] = [
+            'text' => isset($settings['header']['text']) ? sanitize_text_field($settings['header']['text']) : 'Top Iran Tours',
+            'fontSize' => isset($settings['header']['fontSize']) ? intval($settings['header']['fontSize']) : 24,
+            'fontWeight' => isset($settings['header']['fontWeight']) ? sanitize_text_field($settings['header']['fontWeight']) : '700',
+            'color' => isset($settings['header']['color']) ? sanitize_hex_color($settings['header']['color']) : '#000000',
+            'lineColor' => isset($settings['header']['lineColor']) ? sanitize_hex_color($settings['header']['lineColor']) : '#00BAA4',
+            'marginTop' => isset($settings['header']['marginTop']) ? intval($settings['header']['marginTop']) : 28,
+        ];
+
+        $sanitized['card'] = $this->sanitize_card_settings($settings['card'] ?? []);
+        
+        $sanitized['autoplay'] = [
+            'enabled' => isset($settings['autoplay']['enabled']) ? boolval($settings['autoplay']['enabled']) : false,
+            'delay' => isset($settings['autoplay']['delay']) ? intval($settings['autoplay']['delay']) : 3000,
+        ];
+        $sanitized['navigation'] = [ 'enabled' => isset($settings['navigation']['enabled']) ? boolval($settings['navigation']['enabled']) : true ];
+        $sanitized['pagination'] = [ 'enabled' => isset($settings['pagination']['enabled']) ? boolval($settings['pagination']['enabled']) : true ];
+
+        return $sanitized;
+    }
+
     private function sanitize_banner_data($data) {
         $sanitized = [];
         if (!is_array($data)) return $sanitized;
@@ -77,34 +104,15 @@ class Yab_Tour_Carousel {
                 $sanitized['tour_carousel'] = [];
                 $sanitized['tour_carousel']['selectedTours'] = isset($value['selectedTours']) ? array_map('intval', $value['selectedTours']) : [];
                 $sanitized['tour_carousel']['updateCounter'] = isset($value['updateCounter']) ? intval($value['updateCounter']) : 0;
+                $sanitized['tour_carousel']['isMobileConfigured'] = isset($value['isMobileConfigured']) ? boolval($value['isMobileConfigured']) : false;
 
                 if (isset($value['settings']) && is_array($value['settings'])) {
-                    $settings = $value['settings'];
-                    $sanitized['tour_carousel']['settings'] = [
-                        'slidesPerView' => isset($settings['slidesPerView']) ? intval($settings['slidesPerView']) : 3,
-                        'loop' => isset($settings['loop']) ? boolval($settings['loop']) : false,
-                        'spaceBetween' => isset($settings['spaceBetween']) ? intval($settings['spaceBetween']) : 22,
-                        'isDoubled' => isset($settings['isDoubled']) ? boolval($settings['isDoubled']) : false,
-                        'gridFill' => isset($settings['gridFill']) ? sanitize_text_field($settings['gridFill']) : 'column',
-                        'direction' => isset($settings['direction']) ? sanitize_text_field($settings['direction']) : 'ltr',
-                        
-                        'header' => [
-                            'text' => isset($settings['header']['text']) ? sanitize_text_field($settings['header']['text']) : 'Top Iran Tours',
-                            'fontSize' => isset($settings['header']['fontSize']) ? intval($settings['header']['fontSize']) : 24,
-                            'fontWeight' => isset($settings['header']['fontWeight']) ? sanitize_text_field($settings['header']['fontWeight']) : '700',
-                            'color' => isset($settings['header']['color']) ? sanitize_hex_color($settings['header']['color']) : '#000000',
-                            'lineColor' => isset($settings['header']['lineColor']) ? sanitize_hex_color($settings['header']['lineColor']) : '#00BAA4',
-                            'marginTop' => isset($settings['header']['marginTop']) ? intval($settings['header']['marginTop']) : 28,
-                        ],
-                        
-                        'autoplay' => [
-                            'enabled' => isset($settings['autoplay']['enabled']) ? boolval($settings['autoplay']['enabled']) : false,
-                            'delay' => isset($settings['autoplay']['delay']) ? intval($settings['autoplay']['delay']) : 3000,
-                        ],
-                        'navigation' => [ 'enabled' => isset($settings['navigation']['enabled']) ? boolval($settings['navigation']['enabled']) : true ],
-                        'pagination' => [ 'enabled' => isset($settings['pagination']['enabled']) ? boolval($settings['pagination']['enabled']) : true ],
-                    ];
+                    $sanitized['tour_carousel']['settings'] = $this->sanitize_settings_object($value['settings']);
                 }
+                 if (isset($value['settings_mobile']) && is_array($value['settings_mobile'])) {
+                    $sanitized['tour_carousel']['settings_mobile'] = $this->sanitize_settings_object($value['settings_mobile']);
+                }
+
             } elseif (is_array($value)) {
                 $sanitized[$key] = $this->sanitize_banner_data($value);
             } elseif (is_bool($value)) {
@@ -115,6 +123,44 @@ class Yab_Tour_Carousel {
                 $sanitized[$key] = sanitize_text_field(trim($value));
             }
         }
+        return $sanitized;
+    }
+
+     private function sanitize_card_settings($card_settings) {
+        $sanitized = [];
+        $sanitized['height'] = isset($card_settings['height']) ? intval($card_settings['height']) : 375;
+        $sanitized['backgroundType'] = isset($card_settings['backgroundType']) ? sanitize_text_field($card_settings['backgroundType']) : 'solid';
+        $sanitized['bgColor'] = isset($card_settings['bgColor']) ? sanitize_text_field($card_settings['bgColor']) : '#FFFFFF';
+        $sanitized['gradientAngle'] = isset($card_settings['gradientAngle']) ? intval($card_settings['gradientAngle']) : 90;
+        $sanitized['gradientStops'] = isset($card_settings['gradientStops']) ? array_map(function($stop) {
+            return [
+                'color' => isset($stop['color']) ? sanitize_text_field($stop['color']) : '#FFFFFF',
+                'stop' => isset($stop['stop']) ? intval($stop['stop']) : 0,
+            ];
+        }, $card_settings['gradientStops']) : [];
+        $sanitized['borderWidth'] = isset($card_settings['borderWidth']) ? intval($card_settings['borderWidth']) : 1;
+        $sanitized['borderColor'] = isset($card_settings['borderColor']) ? sanitize_hex_color($card_settings['borderColor']) : '#E0E0E0';
+        $sanitized['borderRadius'] = isset($card_settings['borderRadius']) ? intval($card_settings['borderRadius']) : 14;
+        $sanitized['padding'] = isset($card_settings['padding']) ? intval($card_settings['padding']) : 9;
+        $sanitized['imageHeight'] = isset($card_settings['imageHeight']) ? intval($card_settings['imageHeight']) : 204;
+        
+        $text_elements = ['province', 'title', 'price', 'duration', 'rating', 'reviews', 'button'];
+        foreach ($text_elements as $el) {
+            $sanitized[$el] = [
+                'fontSize' => isset($card_settings[$el]['fontSize']) ? intval($card_settings[$el]['fontSize']) : 14,
+                'fontWeight' => isset($card_settings[$el]['fontWeight']) ? sanitize_text_field($card_settings[$el]['fontWeight']) : '400',
+                'color' => isset($card_settings[$el]['color']) ? sanitize_text_field($card_settings[$el]['color']) : '#000000',
+            ];
+        }
+
+        $sanitized['province']['bgColor'] = isset($card_settings['province']['bgColor']) ? sanitize_text_field($card_settings['province']['bgColor']) : 'rgba(14,14,14,0.2)';
+        $sanitized['province']['blur'] = isset($card_settings['province']['blur']) ? intval($card_settings['province']['blur']) : 3;
+        $sanitized['province']['bottom'] = isset($card_settings['province']['bottom']) ? intval($card_settings['province']['bottom']) : 9;
+        $sanitized['province']['side'] = isset($card_settings['province']['side']) ? intval($card_settings['province']['side']) : 11;
+        $sanitized['title']['lineHeight'] = isset($card_settings['title']['lineHeight']) ? floatval($card_settings['title']['lineHeight']) : 1.5;
+        $sanitized['button']['bgColor'] = isset($card_settings['button']['bgColor']) ? sanitize_hex_color($card_settings['button']['bgColor']) : '#00BAA4';
+        $sanitized['button']['arrowSize'] = isset($card_settings['button']['arrowSize']) ? intval($card_settings['button']['arrowSize']) : 10;
+        
         return $sanitized;
     }
 }

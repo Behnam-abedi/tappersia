@@ -8,12 +8,28 @@
         <p class="text-gray-500">Please select tours to see the preview.</p>
     </div>
 
-    <div v-else class="bg-[#292929] rounded-lg p-4 flex justify-center">
-        <tour-carousel-logic 
-            :tour-ids="banner.tour_carousel.selectedTours" 
-            :ajax="ajax"
-            :settings="banner.tour_carousel.settings"
-            :key="banner.tour_carousel.updateCounter + '_' + banner.tour_carousel.selectedTours.join(',') + JSON.stringify(banner.tour_carousel.settings)">
-        </tour-carousel-logic>
+    <div v-else>
+        <transition name="fade" mode="out-in">
+            <div v-if="currentView === 'desktop'" class="bg-[#292929] rounded-lg p-4 flex justify-center">
+                <tour-carousel-logic 
+                    :tour-ids="banner.tour_carousel.selectedTours" 
+                    :ajax="ajax"
+                    :settings="banner.tour_carousel.settings"
+                    :key="'desktop_' + banner.tour_carousel.updateCounter + '_' + banner.tour_carousel.selectedTours.join(',') + JSON.stringify(banner.tour_carousel.settings)">
+                </tour-carousel-logic>
+            </div>
+            
+            <div v-else-if="currentView === 'mobile'" class="flex flex-col items-center">
+                <span class="text-xs text-gray-400 mb-2">Mobile View</span>
+                 <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
+                    <tour-carousel-logic 
+                        :tour-ids="banner.tour_carousel.selectedTours" 
+                        :ajax="ajax"
+                        :settings="banner.tour_carousel.settings_mobile"
+                        :key="'mobile_' + banner.tour_carousel.updateCounter + '_' + banner.tour_carousel.selectedTours.join(',') + JSON.stringify(banner.tour_carousel.settings_mobile)">
+                    </tour-carousel-logic>
+                 </div>
+            </div>
+        </transition>
     </div>
 </div>

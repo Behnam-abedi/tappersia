@@ -13,7 +13,8 @@ body .yab-promo-banner-wrapper,
 body .yab-simple-banner-wrapper,
 body .yab-sticky-simple-banner-wrapper,
 body .yab-api-banner-wrapper,
-body .yab-api-banner-placeholder { /* Added placeholder */
+body .yab-api-banner-placeholder,
+body [class*="yab-tour-carousel-wrapper-"] { /* FIX: Added tour carousel wrapper */
     font-family: 'Roboto', sans-serif !important;
 }
 
@@ -24,7 +25,8 @@ body .yab-promo-banner-wrapper *,
 body .yab-simple-banner-wrapper *,
 body .yab-sticky-simple-banner-wrapper *,
 body .yab-api-banner-wrapper *,
-body .yab-api-banner-placeholder * { /* Added placeholder */
+body .yab-api-banner-placeholder *,
+body [class*="yab-tour-carousel-wrapper-"] * { /* FIX: Added tour carousel wrapper */
     font-family: inherit !important;
 }
 
@@ -54,3 +56,21 @@ body .yab-api-banner-placeholder * { /* Added placeholder */
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* START: Added styles for Swiper pagination */
+.swiper-pagination-bullet{
+    width: 20px !important;
+    height: 6px!important;
+    border-radius: 4px!important;
+    background-color: rgba(0, 186, 164, 0.31);
+}
+.swiper-pagination-bullet-active{
+    background-color: #00BAA4!important;
+}
+/* END: Added styles */
+.swiper-button-disabled {
+    opacity: 0.5 !important;
+    cursor: auto !important;
+    pointer-events: none !important;
+}
+/* EN

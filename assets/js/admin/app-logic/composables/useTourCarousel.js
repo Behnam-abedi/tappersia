@@ -14,6 +14,9 @@ export function useTourCarousel() {
 
             const isRTL = computed(() => props.settings.direction === 'rtl');
             const headerSettings = computed(() => props.settings.header || {});
+            // --- START: ADDED ---
+            const cardSettings = computed(() => props.settings.card || {});
+            // --- END: ADDED ---
 
             const containerWidth = computed(() => {
                 const cardWidth = 295;
@@ -23,7 +26,9 @@ export function useTourCarousel() {
             });
             
             const gridHeight = computed(() => {
-                const cardHeight = 375;
+                // --- START: MODIFIED ---
+                const cardHeight = cardSettings.value.height || 375;
+                // --- END: MODIFIED ---
                 const verticalSpace = 20;
                 return (cardHeight * 2) + verticalSpace;
             });
@@ -60,11 +65,24 @@ export function useTourCarousel() {
                 return originalTours;
             });
 
+            // --- START: ADDED ---
+            const getCardBackground = (settings) => {
+                if (!settings) return '#FFFFFF';
+                if (settings.backgroundType === 'gradient') {
+                    const stops = settings.gradientStops.map(s => `${s.color} ${s.stop}%`).join(', ');
+                    return `linear-gradient(${settings.gradientAngle}deg, ${stops})`;
+                }
+                return settings.bgColor;
+            };
+            // --- END: ADDED ---
+
             const generateTourCardHTML = (tour) => {
+                // --- START: MODIFIED ---
+                const card = cardSettings.value;
                 if (!tour) {
                     return `
-                    <div class="yab-tour-card-skeleton yab-skeleton-loader" style="width: 295px; height: 375px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
-                        <div class="yab-skeleton-image" style="width: 100%; height: 204px; background-color: #f0f0f0; border-radius: 14px;"></div>
+                    <div class="yab-tour-card-skeleton yab-skeleton-loader" style="width: 295px; height: ${card.height}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
+                        <div class="yab-skeleton-image" style="width: 100%; height: ${card.imageHeight}px; background-color: #f0f0f0; border-radius: 14px;"></div>
                         <div style="padding: 14px 5px 5px 5px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
                             <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
                             <div class="yab-skeleton-text" style="width: 40%; height: 16px; background-color: transparent; border-radius: 4px;"></div>
@@ -79,36 +97,48 @@ export function useTourCarousel() {
                 const salePrice = tour.salePrice ? tour.salePrice.toFixed(2) : '0.00';
                 const rate = tour.rate ? tour.rate.toFixed(1) : '0.0';
 
+                const provincePos = isRTL.value ? `left: ${card.province.side}px;` : `right: ${card.province.side}px;`;
+
                 return `
-                    <div class="yab-tour-card" style="position: relative; text-decoration: none; color: inherit; display: block; width: 295px; height: 375px; background-color: #FFF; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 9px;">
-                        <div style="position: relative; width: 100%; height: 204px;">
-                            <img src="${tour.bannerImage.url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 14px;" />
-                            <div style="position: absolute; bottom: 0; ${isRTL.value ? 'left: 0; margin: 0 0 9px 11px;' : 'right: 0; margin: 0 11px 9px 0;'} min-height: 23px; min-width: 65px; display: flex; align-items: center; justify-content: center; border-radius: 29px; background: rgba(14,14,14,0.2); padding: 0 11px; backdrop-filter: blur(3px);">
-                                <span style="color: white; font-size: 14px; font-weight: 500; line-height: 24px;">${tour.startProvince.name}</span>
+                    <div class="yab-tour-card" style="
+                        position: relative; text-decoration: none; color: inherit; display: block; 
+                        width: 295px; height: ${card.height}px; 
+                        background: ${getCardBackground(card)};
+                        border: ${card.borderWidth}px solid ${card.borderColor};
+                        border-radius: ${card.borderRadius}px; 
+                        overflow: hidden; display: flex; flex-direction: column; 
+                        padding: ${card.padding}px;
+                        direction: ${isRTL.value ? 'rtl' : 'ltr'}
+                        ">
+                        <div style="position: relative; width: 100%; height: ${card.imageHeight}px;">
+                            <img src="${tour.bannerImage.url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: ${card.borderRadius > 2 ? card.borderRadius - 2 : card.borderRadius}px;" />
+                            <div style="position: absolute; bottom: ${card.province.bottom}px; ${provincePos} min-height: 23px; display: flex; align-items: center; justify-content: center; border-radius: 29px; background: ${card.province.bgColor}; padding: 0 11px; backdrop-filter: blur(${card.province.blur}px);">
+                                <span style="color: ${card.province.color}; font-size: ${card.province.fontSize}px; font-weight: ${card.province.fontWeight}; line-height: 24px;">${tour.startProvince.name}</span>
                             </div>
                         </div>
                         <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${isRTL.value ? 'right' : 'left'};">
                             <div>
-                                <h4 style="font-weight: 600; font-size: 14px; line-height: 24px; color: black; text-overflow: ellipsis; overflow: hidden; white-space: wrap; margin: 0;">${tour.title}</h4>
+                                <h4 style="font-weight: ${card.title.fontWeight}; font-size: ${card.title.fontSize}px; line-height: ${card.title.lineHeight}; color: ${card.title.color}; text-overflow: ellipsis; overflow: hidden; white-space: wrap; margin: 0;">${tour.title}</h4>
                             </div>
-                            <div  style="margin-top: auto; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px;direction:ltr ${isRTL.value ? 'row-reverse' : 'row'}">
+                            <div  style="margin-top: auto; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px;direction:ltr;flex-direction: ${isRTL.value ? 'row-reverse' : 'row'}">
                                 <div style="display: flex; flex-direction: row; gap: 4px; align-items: baseline;">
-                                    <span style="font-size: 14px; font-weight: 500; line-height: 24px; color: #00BAA4;">€${salePrice}</span>
-                                    <span style="font-size: 12px; font-weight: 400; line-height: 24px; color: #757575;">/${tour.durationDays} Days</span>
+                                    <span style="font-size: ${card.price.fontSize}px; font-weight: ${card.price.fontWeight}; color: ${card.price.color};">€${salePrice}</span>
+                                    <span style="font-size: ${card.duration.fontSize}px; font-weight: ${card.duration.fontWeight}; color: ${card.duration.color};">/${tour.durationDays} Days</span>
                                 </div>
                                 <div style="display: flex; flex-direction: row; gap: 5px; align-items: baseline;">
-                                    <span style="font-size: 13px; font-weight: 700; line-height: 24px; color: #333333;">${rate}</span>
-                                    <span style="font-size: 12px; font-weight: 400; line-height: 24px; color: #757575;">(${tour.rateCount} Reviews)</span>
+                                    <span style="font-size: ${card.rating.fontSize}px; font-weight: ${card.rating.fontWeight}; color: ${card.rating.color};">${rate}</span>
+                                    <span style="font-size: ${card.reviews.fontSize}px; font-weight: ${card.reviews.fontWeight}; color: ${card.reviews.color};">(${tour.rateCount} Reviews)</span>
                                 </div>
                             </div>
                             <div style="padding: 0 4px;">
-                                <a href="${tour.detailUrl}" target="_blank" class="flex h-[33px] w-full items-center justify-between rounded-[5px] bg-[#00BAA4] px-[20px]" style="direction:ltr;display:flex; height: 33px; width: 100%; align-items: center; justify-content: space-between; border-radius: 5px; background-color: #00BAA4; padding: 0 20px; text-decoration: none; flex-direction: ${isRTL.value ? 'row-reverse' : 'row'};">
-                                    <span style="font-size: 13px; font-weight: 600; line-height: 16px; color: white;">View More</span>
-                                    <div style="width: 10px; height: 10px; border-top: 2px solid white; border-right: 2px solid white; transform: rotate(${isRTL.value ? '-135deg' : '45deg'}); border-radius: 2px;"></div>
+                                <a href="${tour.detailUrl}" target="_blank" class="flex h-[33px] w-full items-center justify-between rounded-[5px] bg-[#00BAA4] px-[20px]" style="direction:ltr;display:flex; height: 33px; width: 100%; align-items: center; justify-content: space-between; border-radius: 5px; background-color: ${card.button.bgColor}; padding: 0 20px; text-decoration: none; flex-direction: ${isRTL.value ? 'row-reverse' : 'row'};">
+                                    <span style="font-size: ${card.button.fontSize}px; font-weight: ${card.button.fontWeight}; color: ${card.button.color};">View More</span>
+                                    <div style="width: ${card.button.arrowSize}px; height: ${card.button.arrowSize}px; border-top: 2px solid ${card.button.color}; border-right: 2px solid ${card.button.color}; transform: rotate(${isRTL.value ? '-135deg' : '45deg'}); border-radius: 2px;"></div>
                                 </a>
                             </div>
                         </div>
                     </div>`;
+                // --- END: MODIFIED ---
             };
             
             const fetchAndRenderTours = async (idsToFetch) => {
@@ -261,7 +291,7 @@ export function useTourCarousel() {
                     <div class="swiper-wrapper">
                         </div>
                 </div>
-                <div v-if="settings.pagination && settings.pagination.enabled" class="swiper-pagination" style="position: static; margin-top: 30px;"></div>
+                <div v-if="settings.pagination && settings.pagination.enabled" class="swiper-pagination" style="position: static; margin-top: 10px;"></div>
             </div>
         `
     };
