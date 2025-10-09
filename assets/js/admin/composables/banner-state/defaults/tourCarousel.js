@@ -18,7 +18,7 @@ export const createDefaultTourCarouselDesktopPart = () => ({
     card: {
         height: 375,
         backgroundType: 'solid',
-        bgColor: '#000000',
+        bgColor: '#ffffff',
         gradientAngle: 90,
         gradientStops: [{ color: '#FFFFFF', stop: 0 }, { color: '#F9F9F9', stop: 100 }],
         borderWidth: 0,
