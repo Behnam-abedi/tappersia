@@ -2,13 +2,11 @@
 const { createApp, ref, onMounted, watch } = Vue;
 
 import { useAjax } from '../composables/useAjax.js';
-// The path is a direct import from the main file
 import { useBannerState } from '../composables/banner-state/bannerState.js'; 
 import { useApiBanner } from '../composables/useApiBanner.js';
 import { useDisplayConditions } from '../composables/useDisplayConditions.js';
 import { ImageLoader } from './components.js';
 
-// Import new modular composables
 import { useAppSetup } from './composables/useAppSetup.js';
 import { useBannerActions } from './composables/useBannerActions.js';
 import { useBannerSync } from './composables/useBannerSync.js';
@@ -16,10 +14,8 @@ import { useBannerStyling } from './composables/useBannerStyling.js';
 import { useComputedProperties } from './composables/useComputedProperties.js';
 import { usePromotionBanner } from './composables/usePromotionBanner.js';
 import { useTourCarousel } from './composables/useTourCarousel.js';
-// *** FIX START: Import the new composable for loop validation ***
-import { useTourCarouselLoop } from './composables/useTourCarouselLoop.js';
-// *** FIX END ***
-
+import { useTourCarouselValidation } from './composables/useTourCarouselValidation.js';
+import { useTourThumbnails } from './composables/useTourThumbnails.js';
 
 export function initializeApp(yabData) {
     const app = createApp({
@@ -41,13 +37,12 @@ export function initializeApp(yabData) {
             const bannerStyling = useBannerStyling(banner);
             const computedProperties = useComputedProperties(banner, currentView, selectedDoubleBanner);
             
-            useBannerSync(banner, currentView); // Handles all watchers
-            
-            // *** FIX START: Use the new composable for clean validation ***
-            // This composable now handles the specific validation logic for when loop is disabled.
-            useTourCarouselLoop(banner, showModal);
-            // *** FIX END: Old validation logic is removed ***
+            useBannerSync(banner, currentView);
+            useTourCarouselValidation(banner, showModal);
 
+            // --- New Thumbnail Logic ---
+            const thumbnailContainerRef = ref(null);
+            const { thumbnailTours, isLoadingThumbnails } = useTourThumbnails(banner, ajax, thumbnailContainerRef);
 
             // --- Lifecycle Hooks ---
             onMounted(() => {
@@ -86,24 +81,21 @@ export function initializeApp(yabData) {
             };
             
             return {
-                // App State
                 appState, isSaving, banner, shortcode, modalComponent, currentView, selectedDoubleBanner,
-
-                // App Logic & Actions
                 selectElementType: (type) => { banner.type = selectElementType(type) },
                 goBackToSelection, goToListPage,
                 ...bannerActions,
-                
-                // Composables
                 ajax,
                 ...apiBannerLogic,
                 ...displayConditionsLogic,
                 ...promotionBannerLogic,
                 ...bannerStyling,
                 ...computedProperties,
-
-                // Helpers
                 addGradientStop, removeGradientStop,
+                // Expose new refs for the template
+                thumbnailContainerRef,
+                thumbnailTours,
+                isLoadingThumbnails // Expose loading state
             };
         },
         components: { 
@@ -112,8 +104,6 @@ export function initializeApp(yabData) {
         }
     });
     
-    // Register the tour carousel component globally
     app.component('TourCarouselLogic', useTourCarousel());
-
     app.mount('#yab-app');
 }

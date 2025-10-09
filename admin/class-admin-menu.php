@@ -28,44 +28,36 @@ class Yab_Admin_Menu {
             return;
         }
         
-        // Enqueue Roboto font for admin panel
         wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
 
-        // Enqueue Swiper JS and CSS
         wp_enqueue_style( 'swiper-css', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css', array(), '12.0.2' );
         wp_enqueue_script( 'swiper-js', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js', array(), '12.0.2', true );
+        
+        // Enqueue SortableJS for drag & drop functionality
+        wp_enqueue_script( 'sortable-js', 'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js', array(), '1.15.0', true );
 
         wp_enqueue_media();
         wp_enqueue_script( 'yab-tailwind', 'https://cdn.tailwindcss.com', array(), null, false );
         wp_enqueue_script( 'yab-vue', 'https://unpkg.com/vue@3/dist/vue.global.js', array(), '3.4.27', true );
         wp_enqueue_style( 'yab-admin-style', YAB_PLUGIN_URL . 'assets/css/admin-style.css', array(), $this->version, 'all' );
         
-        // This component is loaded globally as it's used by both apps
         wp_enqueue_script( 'yab-modal-component', YAB_PLUGIN_URL . 'assets/js/admin-modal-component.js', array( 'yab-vue' ), $this->version, true );
 
         $page_slug = $this->plugin_name;
         if (strpos($hook, $page_slug) !== false) {
              if (strpos($hook, $page_slug . '-list') !== false) {
-                // The list app remains a simple, single file for now
                 wp_enqueue_script( 'yab-list-app', YAB_PLUGIN_URL . 'assets/js/admin-list-app.js', array( 'yab-vue', 'jquery', 'yab-modal-component' ), $this->version, true );
                 wp_localize_script( 'yab-list-app', 'yab_list_data', $this->get_list_page_data() );
             } else {
-                // **MODIFIED SECTION FOR MODULAR JS**
-                // 1. Enqueue the new main app file. The handle must be unique.
-                wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component', 'swiper-js' ), $this->version, true );
+                wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component', 'swiper-js', 'sortable-js' ), $this->version, true );
                 
-                // 2. Use a filter to add `type="module"` to our specific script tag.
-                // This is the standard and safe way to load ES modules in WordPress.
                 add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
-                    // Check for our specific script handle
                     if ( 'yab-admin-app-main' === $handle ) {
-                        // Replace the standard script tag with one that has type="module"
                         $tag = '<script type="module" src="' . esc_url( $src ) . '" id="yab-admin-app-main-js"></script>';
                     }
                     return $tag;
                 }, 10, 3 );
                 
-                // 3. Localize the script with the same handle to pass PHP data.
                 wp_localize_script( 'yab-admin-app-main', 'yab_data', $this->get_add_new_page_data() );
             }
         }
@@ -84,7 +76,7 @@ class Yab_Admin_Menu {
                 $query->the_post();
                 $banner_id = get_the_ID();
                 $banner_data = get_post_meta($banner_id, '_yab_banner_data', true);
-                $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner'; // Default for safety
+                $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner';
 
                 $display_method = isset($banner_data['displayMethod']) ? $banner_data['displayMethod'] : 'Fixed';
                 
@@ -139,11 +131,10 @@ class Yab_Admin_Menu {
             $banner_data = get_post_meta($banner_id, '_yab_banner_data', true);
             $banner_type = get_post_meta($banner_id, '_yab_banner_type', true);
 
-
             if ($banner_post && $banner_data) {
                 $banner_data['name'] = $banner_post->post_title;
                 $banner_data['id'] = $banner_id;
-                $banner_data['type'] = $banner_type ?: 'double-banner'; // Default for safety
+                $banner_data['type'] = $banner_type ?: 'double-banner';
 
                 $localized_data['existing_banner'] = $banner_data;
                 

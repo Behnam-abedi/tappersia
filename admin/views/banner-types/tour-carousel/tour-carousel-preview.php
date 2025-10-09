@@ -13,7 +13,7 @@
             :tour-ids="banner.tour_carousel.selectedTours" 
             :ajax="ajax"
             :settings="banner.tour_carousel.settings"
-            :key="banner.tour_carousel.selectedTours.join(',') + banner.tour_carousel.settings.slidesPerView">
+            :key="banner.tour_carousel.updateCounter + '_' + banner.tour_carousel.selectedTours.join(',') + JSON.stringify(banner.tour_carousel.settings)">
         </tour-carousel-logic>
     </div>
 </div>

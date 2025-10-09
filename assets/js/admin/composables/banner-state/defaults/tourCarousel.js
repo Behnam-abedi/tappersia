@@ -2,17 +2,34 @@
 
 export const createDefaultTourCarouselPart = () => ({
     selectedTours: [],
+    updateCounter: 0,
     settings: {
         slidesPerView: 3,
-        loop: false, // <-- Added this line
+        loop: false,
         spaceBetween: 22,
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
+        isDoubled: false,
+        gridFill: 'column',
+        direction: 'ltr',
+        
+        // Header settings
+        header: {
+            text: 'Top Iran Tours',
+            fontSize: 24,
+            fontWeight: '700',
+            color: '#ffffffff',
+            lineColor: '#00BAA4',
+            marginTop: 28, // Space between header and carousel
+        },
+
+        autoplay: {
+            enabled: false,
+            delay: 3000,
         },
         navigation: {
-            nextEl: '.tappersia-carusel-next',
-            prevEl: '.tappersia-carusel-perv',
+            enabled: true,
+        },
+        pagination: {
+            enabled: true,
         },
     }
 });
