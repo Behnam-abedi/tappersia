@@ -17,7 +17,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 // Define plugin constants
-define( 'YAB_VERSION', '1.3.0' );
+define( 'YAB_VERSION', '1.3.1' );
 define( 'YAB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'YAB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
