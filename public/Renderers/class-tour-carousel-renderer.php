@@ -149,16 +149,16 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
                             $card_height_esc = esc_attr($card_settings['height'] ?? 375);
                             $image_height_esc = esc_attr($card_settings['imageHeight'] ?? 204);
                             $skeleton_html = <<<HTML
-                                <div class="yab-tour-card-skeleton yab-skeleton-loader" style="width: 295px; height: {$card_height_esc}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
-                                    <div class="yab-skeleton-image" style="width: 100%; height: {$image_height_esc}px; background-color: #f0f0f0; border-radius: 14px;"></div>
+                                <div class="yab-tour-card-skeleton yab-skeleton-loader" style="width: 295px; height: {$card_height_esc}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #e7e7e7;">
+                                    <div class="yab-skeleton-image" style="width: 100%; height: {$image_height_esc}px; background-color: #e7e7e7; border-radius: 14px;"></div>
                                     <div style="padding: 14px 5px 5px 5px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
-                                        <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                                        <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #e7e7e7; border-radius: 4px;"></div>
                                         <div class="yab-skeleton-text" style="width: 40%; height: 16px; background-color: transparent; border-radius: 4px;"></div>
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-bottom: 5px;">
-                                            <div class="yab-skeleton-text" style="width: 40%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
-                                            <div class="yab-skeleton-text" style="width: 30%; height: 16px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                                            <div class="yab-skeleton-text" style="width: 40%; height: 20px; background-color: #e7e7e7; border-radius: 4px;"></div>
+                                            <div class="yab-skeleton-text" style="width: 30%; height: 16px; background-color: #e7e7e7; border-radius: 4px;"></div>
                                         </div>
-                                        <div class="yab-skeleton-text" style="height: 33px; width: 100%; margin-top: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                                        <div class="yab-skeleton-text" style="height: 33px; width: 100%; margin-top: 10px; background-color: #e7e7e7; border-radius: 4px;"></div>
                                     </div>
                                 </div>
 HTML;
