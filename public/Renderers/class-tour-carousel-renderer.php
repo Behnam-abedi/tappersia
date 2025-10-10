@@ -86,18 +86,22 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
             ob_start();
             ?>
              <style>
-                #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .swiper-slide { width: 295px !important; <?php if ($is_doubled): ?> height: calc((100% - 20px) / 2) !important; <?php endif; ?> }
+                #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .swiper-slide { 
+                    width: 295px !important; 
+                    <?php if ($is_doubled): ?> 
+                        height: calc((100% - 20px) / 2) !important; 
+                    <?php endif; ?> 
+                }
                 #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next, 
                 #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv { 
                     background: white; border-radius: 8px; box-shadow: inset 0 0 0 2px #E5E5E5; 
                     display: flex; align-items: center; justify-content: center; 
                     z-index: 10; cursor: pointer; width: 36px; height: 36px; 
-                    
                 }
-                #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next{
+                #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next {
                     <?php echo $is_rtl ? 'padding-left: 2px' : 'padding-right: 4px'; ?>
                 }
-                #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv{
+                #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv {
                     <?php echo $is_rtl ? 'padding-right: 4px' : 'padding-left: 4px'; ?>
                 }
                 #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next > div, 
@@ -107,7 +111,6 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
                 }
                 #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv > div { 
                     transform: rotate(<?php echo $is_rtl ? '45deg' : '-135deg'; ?>); 
-                    
                 }
                 #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next > div { 
                     transform: rotate(<?php echo $is_rtl ? '-135deg' : '45deg'; ?>); 
