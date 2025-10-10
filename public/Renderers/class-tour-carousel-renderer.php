@@ -87,7 +87,6 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
             ?>
              <style>
                 #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .swiper-slide { width: 295px !important; <?php if ($is_doubled): ?> height: calc((100% - 20px) / 2) !important; <?php endif; ?> }
-                #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .swiper-grid-column>.swiper-wrapper { flex-direction: row !important; }
                 #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next, 
                 #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv { 
                     background: white; border-radius: 8px; box-shadow: inset 0 0 0 2px #E5E5E5; 
