@@ -51,15 +51,27 @@
 
         <div v-else-if="appState === 'editor'" key="editor">
             <?php
-            $banner_types = [
-                'double-banner', 'single-banner', 'api-banner', 'simple-banner',
-                'sticky-simple-banner', 'promotion-banner', 'content-html-banner',
-                'content-html-sidebar-banner', 'tour-carousel', 'flight-ticket'
+            // Define a map for banner types and their corresponding editor file names.
+            $banner_editors = [
+                'double-banner'                 => 'double-banner-editor.php',
+                'single-banner'                 => 'single-banner-editor.php',
+                'api-banner'                    => 'api-banner-editor.php',
+                'simple-banner'                 => 'simple-banner-editor.php',
+                'sticky-simple-banner'          => 'sticky-simple-banner-editor.php',
+                'promotion-banner'              => 'promotion-banner-editor.php',
+                'content-html-banner'           => 'content-html-editor.php', // Corrected filename
+                'content-html-sidebar-banner'   => 'content-html-sidebar-editor.php', // Corrected filename
+                'tour-carousel'                 => 'tour-carousel-editor.php',
+                'flight-ticket'                 => 'flight-ticket-editor.php'
             ];
-            foreach ($banner_types as $type) {
-                echo "<div v-if=\"banner.type === '$type'\">";
-                require_once YAB_PLUGIN_DIR . "admin/views/banner-types/$type/{$type}-editor.php";
-                echo "</div>";
+
+            foreach ($banner_editors as $type => $editor_file) {
+                $file_path = YAB_PLUGIN_DIR . "admin/views/banner-types/{$type}/{$editor_file}";
+                if (file_exists($file_path)) {
+                    echo "<div v-if=\"banner.type === '$type'\">";
+                    require_once $file_path;
+                    echo "</div>";
+                }
             }
             ?>
         </div>
