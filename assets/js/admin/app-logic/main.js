@@ -16,7 +16,7 @@ import { usePromotionBanner } from './composables/usePromotionBanner.js';
 import { useTourCarousel } from './composables/useTourCarousel.js';
 import { useTourCarouselValidation } from './composables/useTourCarouselValidation.js';
 import { useTourThumbnails } from './composables/useTourThumbnails.js';
-import { useFlightTicket } from './composables/useFlightTicket.js'; // Added this line
+import { useFlightTicket } from '../composables/useFlightTicket.js'; // Corrected Path
 
 export function initializeApp(yabData) {
     const app = createApp({
@@ -37,7 +37,7 @@ export function initializeApp(yabData) {
             const promotionBannerLogic = usePromotionBanner(banner, showModal);
             const bannerStyling = useBannerStyling(banner);
             const computedProperties = useComputedProperties(banner, currentView, selectedDoubleBanner);
-            const flightTicketLogic = useFlightTicket(banner, showModal, ajax); // Added this line
+            const flightTicketLogic = useFlightTicket(banner, showModal, ajax);
             
             useBannerSync(banner, currentView);
             useTourCarouselValidation(banner, showModal);
@@ -93,12 +93,12 @@ export function initializeApp(yabData) {
                 ...promotionBannerLogic,
                 ...bannerStyling,
                 ...computedProperties,
-                ...flightTicketLogic, // Added this line
+                ...flightTicketLogic,
                 addGradientStop, removeGradientStop,
                 // Expose new refs for the template
                 thumbnailContainerRef,
                 thumbnailTours,
-                isLoadingThumbnails // Expose loading state
+                isLoadingThumbnails
             };
         },
         components: { 

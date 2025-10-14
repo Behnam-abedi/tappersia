@@ -51,27 +51,24 @@
 
         <div v-else-if="appState === 'editor'" key="editor">
             <?php
-            // Define a map for banner types and their corresponding editor file names.
+            // A map of banner types to their respective editor file paths.
             $banner_editors = [
-                'double-banner'                 => 'double-banner-editor.php',
-                'single-banner'                 => 'single-banner-editor.php',
-                'api-banner'                    => 'api-banner-editor.php',
-                'simple-banner'                 => 'simple-banner-editor.php',
-                'sticky-simple-banner'          => 'sticky-simple-banner-editor.php',
-                'promotion-banner'              => 'promotion-banner-editor.php',
-                'content-html-banner'           => 'content-html-editor.php', // Corrected filename
-                'content-html-sidebar-banner'   => 'content-html-sidebar-editor.php', // Corrected filename
-                'tour-carousel'                 => 'tour-carousel-editor.php',
-                'flight-ticket'                 => 'flight-ticket-editor.php'
+                'double-banner'                 => 'double-banner/double-banner-editor.php',
+                'single-banner'                 => 'single-banner/single-banner-editor.php',
+                'api-banner'                    => 'api-banner/api-banner-editor.php',
+                'simple-banner'                 => 'simple-banner/simple-banner-editor.php',
+                'sticky-simple-banner'          => 'sticky-simple-banner/sticky-simple-banner-editor.php',
+                'promotion-banner'              => 'promotion-banner/promotion-banner-editor.php',
+                'content-html-banner'           => 'content-html-banner/content-html-editor.php',
+                'content-html-sidebar-banner'   => 'content-html-sidebar-banner/content-html-sidebar-editor.php',
+                'tour-carousel'                 => 'tour-carousel/tour-carousel-editor.php',
+                'flight-ticket'                 => 'flight-ticket/flight-ticket-editor.php'
             ];
 
-            foreach ($banner_editors as $type => $editor_file) {
-                $file_path = YAB_PLUGIN_DIR . "admin/views/banner-types/{$type}/{$editor_file}";
-                if (file_exists($file_path)) {
-                    echo "<div v-if=\"banner.type === '$type'\">";
-                    require_once $file_path;
-                    echo "</div>";
-                }
+            foreach ($banner_editors as $type => $file_path) {
+                echo "<div v-if=\"banner.type === '$type'\">";
+                require_once YAB_PLUGIN_DIR . "admin/views/banner-types/{$file_path}";
+                echo "</div>";
             }
             ?>
         </div>
