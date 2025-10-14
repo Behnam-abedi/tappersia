@@ -32,7 +32,9 @@ export function useFlightTicket(banner, showModal, ajax) {
             isAirportsLoading.value = true;
             try {
                 const data = await ajax.post('yab_fetch_airports_from_api');
-                airports.value = data.filter(a => a.show);
+                // *** FIX START: Removed the filter to show all airports ***
+                airports.value = data;
+                // *** FIX END ***
             } catch (error) {
                 showModal('Error', `Could not fetch airports: ${error.message}`);
             } finally {
