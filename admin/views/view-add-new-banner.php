@@ -50,37 +50,19 @@
         </div>
 
         <div v-else-if="appState === 'editor'" key="editor">
-            <div v-if="banner.type === 'double-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/double-banner/double-banner-editor.php'; ?>
-            </div>
-            <div v-if="banner.type === 'single-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/single-banner/single-banner-editor.php'; ?>
-            </div>
-            <div v-if="banner.type === 'api-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/api-banner/api-banner-editor.php'; ?>
-            </div>
-            <div v-if="banner.type === 'simple-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/simple-banner/simple-banner-editor.php'; ?>
-            </div>
-            <div v-if="banner.type === 'sticky-simple-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/sticky-simple-banner/sticky-simple-banner-editor.php'; ?>
-            </div>
-            <div v-if="banner.type === 'promotion-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/promotion-banner/promotion-banner-editor.php'; ?>
-            </div>
-            <div v-if="banner.type === 'content-html-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/content-html-banner/content-html-editor.php'; ?>
-            </div>
-            <div v-if="banner.type === 'content-html-sidebar-banner'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/content-html-sidebar-banner/content-html-sidebar-editor.php'; ?>
-            </div>
-            <div v-if="banner.type === 'tour-carousel'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/tour-carousel/tour-carousel-editor.php'; ?>
-            </div>
-             <div v-if="banner.type === 'flight-ticket'">
-                <?php require_once YAB_PLUGIN_DIR . 'admin/views/banner-types/flight-ticket/flight-ticket-editor.php'; ?>
-            </div>
-            </div>
+            <?php
+            $banner_types = [
+                'double-banner', 'single-banner', 'api-banner', 'simple-banner',
+                'sticky-simple-banner', 'promotion-banner', 'content-html-banner',
+                'content-html-sidebar-banner', 'tour-carousel', 'flight-ticket'
+            ];
+            foreach ($banner_types as $type) {
+                echo "<div v-if=\"banner.type === '$type'\">";
+                require_once YAB_PLUGIN_DIR . "admin/views/banner-types/$type/{$type}-editor.php";
+                echo "</div>";
+            }
+            ?>
+        </div>
 
         <div v-else-if="appState === 'loading'" key="loading" class="flex items-center justify-center h-screen">
             <div class="yab-spinner w-12 h-12"></div>
