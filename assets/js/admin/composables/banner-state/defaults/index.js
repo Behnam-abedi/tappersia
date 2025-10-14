@@ -6,4 +6,5 @@ export * from './promotionBanner.js';
 export * from './simpleBanner.js';
 export * from './singleBanner.js';
 export * from './stickySimpleBanner.js';
-export * from './tourCarousel.js'; // Add this line
+export * from './tourCarousel.js';
+export * from './flightTicket.js'; // Add this line

@@ -15,7 +15,8 @@ import {
     createDefaultPromotionMobilePart,
     createDefaultHtmlPart, 
     createDefaultHtmlSidebarPart,
-    createDefaultTourCarouselPart
+    createDefaultTourCarouselPart,
+    createDefaultFlightTicketPart // Added this line
 } from './defaults/index.js';
 
 export function useBannerState() {
@@ -61,6 +62,7 @@ export function useBannerState() {
         },
 
         tour_carousel: createDefaultTourCarouselPart(),
+        flight_ticket: createDefaultFlightTicketPart(), // Added this line
     });
 
     const banner = reactive(createDefaultBanner());

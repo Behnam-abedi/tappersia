@@ -15,6 +15,34 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             add_action('wp_ajax_yab_fetch_api_banner_html', [$this, 'fetch_api_banner_html']);
             add_action('wp_ajax_yab_fetch_tour_details_by_ids', [$this, 'fetch_tour_details_by_ids']);
             add_action('wp_ajax_nopriv_yab_fetch_tour_details_by_ids', [$this, 'fetch_tour_details_by_ids']);
+            add_action('wp_ajax_yab_fetch_airports_from_api', [$this, 'fetch_airports_from_api']); // Added this line
+        }
+
+        public function fetch_airports_from_api() {
+            check_ajax_referer('yab_nonce', 'nonce');
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(['message' => 'Permission denied.'], 403);
+                return;
+            }
+        
+            $api_url = 'https://b2bapi.tapexplore.com/api/variable/airports';
+            $response = wp_remote_get($api_url, ['timeout' => 20]);
+        
+            if (is_wp_error($response)) {
+                wp_send_json_error(['message' => 'Failed to fetch airports from API. ' . $response->get_error_message()], 500);
+                return;
+            }
+        
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+        
+            if (json_last_error() !== JSON_ERROR_NONE || !isset($data['data'])) {
+                wp_send_json_error(['message' => 'Invalid JSON response from airports API.'], 500);
+                return;
+            }
+        
+            wp_send_json_success($data['data']);
+            wp_die();
         }
 
         public function fetch_tour_details_by_ids() {

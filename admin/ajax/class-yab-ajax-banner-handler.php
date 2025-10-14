@@ -19,16 +19,15 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
                 'promotion-banner' => 'Yab_Promotion_Banner',
                 'content-html-banner' => 'Yab_Content_Html_Banner',
                 'content-html-sidebar-banner' => 'Yab_Content_Html_Sidebar_Banner',
-                'tour-carousel' => 'Yab_Tour_Carousel', // Add this line
+                'tour-carousel' => 'Yab_Tour_Carousel',
+                'flight-ticket' => 'Yab_Flight_Ticket', // Add this line
             ];
 
             if (array_key_exists($banner_type_slug, $handlers)) {
                 $class_name = $handlers[$banner_type_slug];
                 
                 $folder_name = str_replace('_', '', str_replace('Yab_', '', $class_name));
-                // *** FIX START: Correctly generate path for TourCarousel which is not in a subfolder ***
                 $file_path = YAB_PLUGIN_DIR . 'includes/BannerTypes/' . $folder_name . '/' . $folder_name . '.php';
-                // *** FIX END ***
 
                 if (file_exists($file_path)) {
                     require_once $file_path;
