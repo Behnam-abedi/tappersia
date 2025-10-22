@@ -246,7 +246,7 @@ export function useHotelCarousel() {
                       <div name="description">
                         <div name="rating" class="mt-[7px] flex flex-row items-center gap-[6px]">
                           ${ratingScore !== null ? `<div name="rate"><span class="w-fit rounded-[3px] bg-[#5191FA] px-[6px] py-[2px] text-[11px] leading-[1] text-[#ffffff]">${ratingScore}</span></div>` : ''}
-                          <div name="text-rate" class="text-[12px] leading-[15px] text-[#333333] ">
+                          <div name="text-rate" class="text-[12px] leading-[15px] text-[#333333] pt-[1px]">
                             <span>${escapeHTML(ratingLabel)}</span>
                           </div>
                           <div name="rate-count" class="text-[10px] leading-[12px] text-[#999999]">
