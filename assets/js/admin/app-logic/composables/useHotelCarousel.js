@@ -226,7 +226,7 @@ export function useHotelCarousel() {
                  // Note: Using inline styles derived from Tailwind for preview accuracy as direct Tailwind might not apply in JS string
                  return `
                 <div name="card" class="yab-hotel-card m-0 min-h-[357px] w-[295px] rounded-[16px] border border-[#E5E5E5] p-[9px] bg-white box-border font-['Roboto',_sans-serif]">
-                  <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: block; outline: none;"> {/* FIX: Added outline: none */}
+                  <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: block; outline: none;"> 
                     <div class="relative h-[176px] w-[276px] rounded-[14px]" name="header-content-image">
                       <div class="absolute z-10 flex h-full w-full flex-col justify-between px-[13px] py-[13px] box-border">
                         <div class="flex w-full items-start justify-between">
