@@ -4,7 +4,7 @@
 <transition name="yab-modal-fade">
     <div v-if="isHotelModalOpen" dir="ltr" class="fixed inset-0 bg-black bg-opacity-80 z-[99999] flex items-center justify-center p-4" @keydown.esc="closeHotelModal">
         <div class="bg-[#2d2d2d] w-full max-w-6xl h-[90vh] rounded-xl shadow-2xl flex flex-row overflow-hidden">
-            
+
             <aside class="w-1/4 bg-[#292929] p-4 flex flex-col text-left overflow-y-auto">
                 <div class="flex-grow">
                     <div class="flex items-center justify-between mb-6">
@@ -14,7 +14,7 @@
                     <div class="mb-6">
                         <label class="filter-label">Type</label>
                         <div class="flex flex-wrap gap-2">
-                            <button v-for="type in hotelTypes" :key="type.key" @click="toggleType(type.key)" 
+                            <button v-for="type in hotelTypes" :key="type.key" @click="toggleType(type.key)"
                                     :class="filters.types.includes(type.key) ? 'bg-[#00baa4] text-white' : 'bg-[#434343] text-gray-300'"
                                     class="px-2 py-1 text-xs rounded-md transition-colors">
                                 {{ type.label }}
@@ -30,7 +30,7 @@
                         <div v-if="isCityDropdownOpen" class="absolute z-10 w-full mt-1 bg-[#434343] border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
                             <ul class="py-1">
                                 <li @click="selectCity('')" class="px-4 py-2 text-sm text-gray-300 hover:bg-[#656565] cursor-pointer">All Cities</li>
-                                <li v-for="city in cities" :key="city.id" @click="selectCity(city.id)" 
+                                <li v-for="city in cities" :key="city.id" @click="selectCity(city.id)"
                                     class="px-4 py-2 text-sm text-gray-300 hover:bg-[#656565] cursor-pointer flex justify-between items-center"
                                     :class="{ 'bg-[#00baa4] text-white': filters.province === city.id }">
                                     <span>{{ city.name }}</span>
@@ -42,7 +42,7 @@
                     <div class="mb-6">
                         <label class="filter-label">Stars</label>
                         <div class="flex justify-around bg-[#434343] p-2 rounded-md">
-                            <span v-for="star in 5" :key="star" @click="setStarRating(star)" 
+                            <span v-for="star in 5" :key="star" @click="setStarRating(star)"
                                 class="cursor-pointer text-2xl transition-all transform hover:scale-125"
                                 :class="star <= filters.stars ? 'text-yellow-400' : 'text-gray-600'">★</span>
                         </div>
@@ -71,15 +71,18 @@
                     </div>
                 </div>
                 <div class="mt-auto pt-4">
-                    <button @click="confirmHotelSelection" :disabled="!tempSelectedHotel" class="w-full bg-[#00baa4] text-white font-bold px-4 py-3 rounded-lg hover:bg-opacity-80 transition-all disabled:bg-gray-500 disabled:cursor-not-allowed">
-                        Confirm Selection
+                     <button @click="confirmHotelSelection" :disabled="tempSelectedHotels.length === 0" class="w-full bg-[#00baa4] text-white font-bold px-4 py-3 rounded-lg hover:bg-opacity-80 transition-all disabled:bg-gray-500 disabled:cursor-not-allowed">
+                        Confirm Selection{{ isMultiSelect ? ' (' + tempSelectedHotels.length + ')' : '' }}
                     </button>
                 </div>
             </aside>
 
-            <div class="w-3/4 flex flex-col">
+            <div class="w-3/4 flex flex-col relative">
                 <header class="bg-[#434343] p-4 flex items-center justify-between flex-shrink-0">
-                    <h2 class="text-xl font-bold text-white">Select a Hotel</h2>
+                     <div>
+                        <h2 class="text-xl font-bold text-white">Select a Hotel</h2>
+                        <p v-if="isMultiSelect" class="text-xs text-gray-400">You can select multiple hotels.</p>
+                    </div>
                     <button @click="closeHotelModal" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                 </header>
                 <div class="p-4 border-b border-gray-700">
@@ -91,17 +94,21 @@
                         </div>
                     </div>
                 </div>
-                <main class="flex-grow relative overflow-y-auto" ref="modalListRef">
-                    <div v-if="isHotelLoading && sortedHotelResults.length === 0" class="absolute inset-0 flex items-center justify-center bg-[#2d2d2d]/80 z-10">
+                <main class="flex-grow relative overflow-y-auto" ref="hotelModalListRef">
+                    <div v-if="isHotelLoading || isHotelSelectionLoading" class="absolute inset-0 flex items-center justify-center bg-[#2d2d2d]/80 z-10">
                         <div class="yab-spinner w-12 h-12"></div>
                     </div>
-                    <div v-else-if="!isHotelLoading && sortedHotelResults.length === 0" class="text-center text-gray-400 py-16">
+
+                    <div v-else-if="sortedHotelResults.length === 0" class="text-center text-gray-400 py-16">
                         <p class="text-lg">No hotels found matching your criteria.</p>
                     </div>
+                    
                     <template v-else>
                         <ul class="p-4 space-y-3">
-                            <li v-for="hotel in sortedHotelResults" :key="hotel.id" @click="selectHotel(hotel)" class="p-3 bg-[#434343] rounded-lg flex items-center gap-4 cursor-pointer border-2 transition-all duration-200" :class="tempSelectedHotel && tempSelectedHotel.id === hotel.id ? 'border-[#00baa4] shadow-lg' : 'border-transparent hover:border-gray-600'">
-                                <image-loader 
+                            <li v-for="hotel in sortedHotelResults" :key="hotel.id" @click="selectHotel(hotel)"
+                                class="p-3 bg-[#434343] rounded-lg flex items-center gap-4 cursor-pointer border-2 transition-all duration-200"
+                                 :class="isHotelSelected(hotel) ? 'border-[#00baa4] shadow-lg' : 'border-transparent hover:border-gray-600'">
+                                <image-loader
                                     :src="hotel.coverImage ? hotel.coverImage.url : 'https://placehold.co/100x100/292929/434343?text=No+Image'"
                                     :alt="hotel.title"
                                     img-class="w-full h-full object-cover rounded-md"
@@ -120,7 +127,7 @@
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
-                                            <div v-if="hotel.avgRating != null" class="flex items-center justify-center rounded" style="min-width: 28px; padding: 0 6px; height: 15px; background-color: #5191FA;"><span class="text-white font-bold text-[10px]">{{ hotel.avgRating }}</span></div>
+                                            <div v-if="hotel.avgRating != null" class="flex items-center justify-center rounded" style="min-width: 28px; padding: 0 6px; height: 15px; background-color: #5191FA;"><span class="text-white font-bold text-[10px]">{{ formatRating(hotel.avgRating) }}</span></div>
                                             <span class="ml-[7px] text-[10px] font-semibold" style="color: #5191FA;">{{ getRatingLabel(hotel.avgRating) }}</span>
                                             <span v-if="hotel.reviewCount != null" class="ml-[7px] text-[10px]" style="color: #999999;">({{ hotel.reviewCount }} reviews)</span>
                                         </div>
