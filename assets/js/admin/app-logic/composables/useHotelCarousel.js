@@ -16,21 +16,32 @@ export function useHotelCarousel() {
 
             const isRTL = computed(() => props.settings.direction === 'rtl');
             const headerSettings = computed(() => props.settings.header || {});
-            const cardSettings = computed(() => props.settings.card || {});
+            const cardSettings = computed(() => props.settings.card || {}); // We might not use this if card is hardcoded
 
             const updatePaginationStyles = () => {
                 if (!swiperRef.value) return;
-                // Add unique ID to swiperRef for style scoping
-                swiperRef.value.id = `yab-hotel-carousel-vue-${Date.now()}`; 
+                swiperRef.value.id = `yab-hotel-carousel-vue-${Date.now()}`;
                 
                 const paginationSettings = props.settings.pagination || {};
                 const color = paginationSettings.paginationColor || 'rgba(0, 186, 164, 0.31)';
                 const activeColor = paginationSettings.paginationActiveColor || '#00BAA4';
 
+                // --- START: CSS FIX ---
+                // Add tag styles to head
                 const css = `
                     #${swiperRef.value.id} .swiper-pagination-bullet { background-color: ${color} !important; }
                     #${swiperRef.value.id} .swiper-pagination-bullet-active { background-color: ${activeColor} !important; }
+                    
+                    /* Tag Styles */
+                    #${swiperRef.value.id} .hotel-label-luxury { background: #333333; color: #fff; }
+                    #${swiperRef.value.id} .hotel-label-business { background: #DAF6FF; color: #04A5D8; }
+                    #${swiperRef.value.id} .hotel-label-boutique { background: #f8f3b0; color: #a8a350; }
+                    #${swiperRef.value.id} .hotel-label-traditional { background: #FAECE0; color: #B68960; }
+                    #${swiperRef.value.id} .hotel-label-economy { background: #FFE9F7; color: #FF48C3; }
+                    #${swiperRef.value.id} .hotel-label-hostel { background: #B0B0B0; color: #FFF; }
+                    #${swiperRef.value.id} .hotel-label-default { background: #e0e0e0; color: #555; }
                 `;
+                // --- END: CSS FIX ---
 
                 if (!styleTag.value) {
                     styleTag.value = document.createElement('style');
@@ -48,7 +59,7 @@ export function useHotelCarousel() {
             });
             
             const gridHeight = computed(() => {
-                const cardHeight = cardSettings.value.height || 375;
+                const cardHeight = 357; // Hardcoded height from your HTML example
                 const verticalSpace = 20;
                 return (cardHeight * 2) + verticalSpace;
             });
@@ -86,86 +97,132 @@ export function useHotelCarousel() {
                 return originalHotels;
             });
 
-            const getCardBackground = (settings) => {
-                if (!settings) return '#FFFFFF';
-                if (settings.backgroundType === 'gradient') {
-                    const stops = (settings.gradientStops || []).map(s => `${s.color} ${s.stop}%`).join(', ');
-                    return `linear-gradient(${settings.gradientAngle || 90}deg, ${stops})`;
+            // --- START: CARD GENERATION FIX ---
+
+            // Rating Label Helper
+            const getRatingLabel = (score) => {
+                if (!score || score == 0) return 'New';
+                if (score >= 4.6) return 'Excellent';
+                if (score >= 4.1) return 'Very Good';
+                if (score >= 3.6) return 'Good';
+                if (score >= 3.0) return 'Average';
+                return 'Poor';
+            };
+            
+            // Tag Class Helper
+            const getTagClass = (tag) => {
+                const tagName = tag.toLowerCase();
+                const validTags = ['luxury', 'business', 'boutique', 'traditional', 'economy', 'hostel'];
+                if (validTags.includes(tagName)) {
+                    return `hotel-label-${tagName}`;
                 }
-                return settings.bgColor || '#FFFFFF';
+                return 'hotel-label-default'; // Fallback class
             };
 
-            // --- START: SKELETON FIX ---
-            // This is now an exact copy of the tour carousel skeleton
             const generateHotelCardHTML = (hotel) => {
-                const card = cardSettings.value;
+                // --- SKELETON FIX: Exact copy from Tour ---
                 if (!hotel) {
-                    const cardHeight = card.height || 375;
-                    const imageHeight = card.imageHeight || 204;
+                    const cardHeight = 357; // Use new card height
+                    const imageHeight = 176; // Use new card image height
                     return `
                     <div class="yab-hotel-card-skeleton yab-skeleton-loader" style="width: 295px; height: ${cardHeight}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
                         <div class="yab-skeleton-image" style="width: 100%; height: ${imageHeight}px; background-color: #f0f0f0; border-radius: 14px;"></div>
-                        <div style="padding: 14px 5px 5px 5px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
+                        <div style="padding: 14px 19px 5px 19px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
                             <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
                             <div class="yab-skeleton-text" style="width: 40%; height: 16px; background-color: transparent; border-radius: 4px;"></div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-bottom: 5px;">
                                 <div class="yab-skeleton-text" style="width: 40%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
                                 <div class="yab-skeleton-text" style="width: 30%; height: 16px; background-color: #f0f0f0; border-radius: 4px;"></div>
                             </div>
-                            <div class="yab-skeleton-text" style="height: 33px; width: 100%; margin-top: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
                         </div>
                     </div>`;
                 }
-                // --- END: SKELETON FIX ---
+                // --- END SKELETON FIX ---
 
-                 const minPrice = hotel.minPrice ? hotel.minPrice.toFixed(2) : '0.00';
-                 const avgRating = hotel.avgRating ? (Math.floor(hotel.avgRating * 10) / 10) : null;
-                 const starRating = hotel.star || 0;
-                 const reviewCount = hotel.reviewCount || 0;
-                 const coverImage = hotel.coverImage ? hotel.coverImage.url : 'https://placehold.co/295x204/292929/434343?text=No+Image';
+                // --- NEW CARD LOGIC ---
+                const {
+                    coverImage, isFeatured, discount = 0, minPrice = 0,
+                    star = 0, title = 'N/A', avgRating, reviewCount = 0,
+                    customTags = [], detailUrl = '#'
+                } = hotel;
 
-                 const rtlFlex = isRTL.value ? 'row-reverse' : 'row';
-                 const rtlTextAlign = isRTL.value ? 'right' : 'left';
-                 const provincePos = isRTL.value ? `left: ${card.province.side}px;` : `right: ${card.province.side}px;`;
-                 const arrowRotate = isRTL.value ? '-135deg' : '45deg';
+                const imageUrl = coverImage ? coverImage.url : 'https://placehold.co/276x176/292929/434343?text=No+Image';
 
+                // Discount Logic
+                const hasDiscount = discount > 0;
+                const discountPercentage = hasDiscount ? Math.round(discount / (minPrice + discount) * 100) : 0;
+                const originalPrice = hasDiscount ? (minPrice + discount).toFixed(2) : 0;
+
+                // Star Logic
+                const stars = '★'.repeat(star) + '☆'.repeat(5 - star);
+                const starText = `${star} Star`;
+
+                // Rating Logic
+                const ratingScore = avgRating ? (Math.floor(avgRating * 10) / 10) : null;
+                const ratingLabel = getRatingLabel(ratingScore);
+                
+                // Tags Logic
+                const tagsHtml = customTags.map(tag => 
+                    `<span class="${getTagClass(tag)} hotel-label-base" style="margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1;">${tag}</span>`
+                ).join('');
+                
                 return `
-                <div class="yab-hotel-card" style="position: relative; text-decoration: none; color: inherit; display: block; width: 295px; height: ${card.height}px; background: ${getCardBackground(card)}; border: ${card.borderWidth}px solid ${card.borderColor}; border-radius: ${card.borderRadius}px; overflow: hidden; display: flex; flex-direction: column; padding: ${card.padding}px; direction: ${isRTL.value ? 'rtl' : 'ltr'};">
-                    <a href="${hotel.detailUrl || '#'}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
-                        <div style="position: relative; width: 100%; height: ${card.imageHeight}px;">
-                            <img src="${coverImage}" style="width: 100%; height: 100%; object-fit: cover; border-radius: ${card.borderRadius > 2 ? card.borderRadius - 2 : card.borderRadius}px;" />
-                             <div style="position: absolute; bottom: ${card.province.bottom}px; ${provincePos} min-height: 23px; display: flex; align-items: center; justify-content: center; border-radius: 29px; background: ${card.province.bgColor}; padding: 0 11px; backdrop-filter: blur(${card.province.blur}px);">
-                                <span style="color: ${card.province.color}; font-size: ${card.province.fontSize}px; font-weight: ${card.province.fontWeight}; line-height: 24px;">${hotel.province.name}</span>
-                            </div>
+                <div name="card" class="m-0 min-h-[357px] w-[295px] rounded-[16px] border border-[#E5E5E5] p-[9px] bg-white" style="font-family: 'Roboto', sans-serif;">
+                  <a href="${detailUrl}" target="_blank" style="text-decoration: none;">
+                    <div class="relative h-[176px] w-[276px] rounded-[14px]" name="header-content-image">
+                      <div class="absolute z-10 flex h-full w-full flex-col justify-between px-[13px] py-[13px]">
+                        <div class="flex w-full items-start justify-between">
+                          ${isFeatured ? `<div class="flex w-fit items-center justify-center rounded-[20px] bg-[#F66A05] px-[7px] py-[5px] text-[12px] leading-[1] font-medium text-[#ffffff]">Best Seller</div>` : '<div></div>'}
+                          ${hasDiscount ? `<div class="flex w-fit items-center justify-center rounded-[20px] bg-[#FB2D51] px-[10px] py-[5px] text-[12px] leading-[1] font-medium text-[#ffffff]">${discountPercentage}%</div>` : ''}
                         </div>
-                        <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${rtlTextAlign};">
-                            <div><h4 style="font-weight: ${card.title.fontWeight}; font-size: ${card.title.fontSize}px; line-height: ${card.title.lineHeight}; color: ${card.title.color}; text-overflow: ellipsis; overflow: hidden; white-space: wrap; margin: 0;">${hotel.title}</h4></div>
-                            <div style="margin-top: 5px; display: flex; align-items: center; justify-content: ${rtlTextAlign === 'right' ? 'flex-end' : 'flex-start'};">
-                                <div style="color: #ffc107; display: flex;">
-                                     ${[...Array(5)].map((_, i) => `<span style="font-size: 14px; width: 14px; height: 14px; line-height: 1;">${i < starRating ? '★' : '☆'}</span>`).join('')}
-                                </div>
-                            </div>
-                            <div style="margin-top: auto; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; direction: ltr; flex-direction: ${rtlFlex};">
-                                <div style="display: flex; flex-direction: row; gap: 5px; align-items: baseline;">
-                                     ${avgRating !== null ? `<span style="font-size: ${card.rating.fontSize}px; font-weight: ${card.rating.fontWeight}; color: ${card.rating.color};">${avgRating}</span>` : ''}
-                                    <span style="font-size: ${card.reviews.fontSize}px; font-weight: ${card.reviews.fontWeight}; color: ${card.reviews.color};">(${reviewCount} Reviews)</span>
-                                </div>
-                                <div style="display: flex; flex-direction: row; gap: 4px; align-items: baseline;">
-                                    <span style="font-size: ${card.price.fontSize}px; font-weight: ${card.price.fontWeight}; color: ${card.price.color};">${'€' + minPrice}</span>
-                                    <span style="font-size: ${card.duration.fontSize}px; font-weight: ${card.duration.fontWeight}; color: ${card.duration.color};">/ night</span>
-                                </div>
-                            </div>
-                            <div style="padding: 0 4px;">
-                                <div style="direction: ltr; display: flex; height: 33px; width: 100%; align-items: center; justify-content: space-between; border-radius: 5px; background-color: ${card.button.bgColor}; padding: 0 20px; text-decoration: none; flex-direction: ${rtlFlex};">
-                                    <span style="font-size: ${card.button.fontSize}px; font-weight: ${card.button.fontWeight}; color: ${card.button.color};">View Details</span>
-                                    <div style="width: ${card.button.arrowSize}px; height: ${card.button.arrowSize}px; border-top: 2px solid ${card.button.color}; border-right: 2px solid ${card.button.color}; transform: rotate(${arrowRotate}); border-radius: 2px;"></div>
-                                </div>
-                            </div>
+                        <div class="flex flex-row items-center gap-[5px] self-start">
+                          <div class="text-[17px] text-[#FCC13B]" style="line-height:0.7;">${stars}</div>
+                          <div class="text-[12px] leading-[13px] text-white">${starText}</div>
                         </div>
-                    </a>
-                </div>`;
+                      </div>
+                      <div name="black-highlight" class="absolute flex h-full w-full items-end rounded-b-[14px] bg-gradient-to-t from-[rgba(0,0,0,0.83)_0%] via-[rgba(0,0,0,0)_38%] to-[rgba(0,0,0,0)_100%]"></div>
+                      <img src="${imageUrl}" alt="${title}" class="h-full w-full rounded-[14px] object-cover" />
+                    </div>
+                    <div name="body-content" class="mx-[19px] mt-[14px]">
+                      <div name="title" class="min-h-[31px] w-full">
+                        <h4 class="line-clamp-2 text-[14px] leading-[17px] font-semibold text-[#333333]" style="overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${title}</h4>
+                      </div>
+                      <div name="description">
+                        <div name="rating" class="mt-[7px] flex flex-row items-center gap-[6px]">
+                          ${ratingScore !== null ? `<div name="rate"><span class="w-fit rounded-[3px] bg-[#5191FA] px-[6px] py-[2px] text-[11px] leading-[1] text-[#ffffff]">${ratingScore}</span></div>` : ''}
+                          <div name="text-rate" class="text-[12px] leading-[15px] text-[#333333]">
+                            <span>${ratingLabel}</span>
+                          </div>
+                          <div name="rate-count" class="text-[10px] leading-[12px] text-[#999999]">
+                            <span>(${reviewCount})</span>
+                          </div>
+                        </div>
+                        <div name="tags">
+                          <div class="flex flex-row gap-[5px] flex-wrap">
+                            ${tagsHtml}
+                          </div>
+                        </div>
+                      </div>
+                      <hr class="mt-[9.5px] mb-[7.5px] border-[#EEEEEE]" />
+                      <div name="price" class="flex flex-col">
+                        <div class="text-[12px] leading-[14px] text-[#999999]">
+                          <span>From</span>
+                        </div>
+                        <div class="flex flex-row items-center justify-between">
+                          <div class="flex items-center gap-[5px]">
+                            <span class="text-[16px] leading-[19px] font-bold text-[#00BAA4]">€${minPrice.toFixed(2)}</span>
+                            <span class="text-[13px] leading-[16px] text-[#555555]"> / night</span>
+                          </div>
+                          ${hasDiscount ? `<div><span name="orginal-price" class="text-[12px] leading-[14px] text-[#999999] line-through">€${originalPrice}</span></div>` : ''}
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+                `;
+                // --- END NEW CARD LOGIC ---
             };
-
+            
             const fetchAndRenderHotels = async (idsToFetch) => {
                 const uniqueIds = [...new Set(idsToFetch)].filter(id => !fetchedIds.has(id));
                 if (uniqueIds.length === 0) return;
@@ -179,15 +236,14 @@ export function useHotelCarousel() {
                             if (slidesToUpdate.length > 0) {
                                 slidesToUpdate.forEach(slide => {
                                     slide.innerHTML = generateHotelCardHTML(hotelData);
-                                    slide.classList.add('is-loaded'); 
+                                    slide.classList.add('is-loaded');
                                 });
                             }
                         });
                     }
                 } catch (error) { console.error('AJAX call failed!', error); }
             };
-
-
+            
             const checkAndLoadVisibleSlides = (swiper) => {
                  if (!swiper || !swiper.slides || swiper.slides.length === 0) return;
                 const idsToFetch = new Set();
@@ -245,8 +301,7 @@ export function useHotelCarousel() {
                         }
                      };
 
-                    // --- START: CONTROLS FIX ---
-                    // Reverted to simple class selectors, exactly like useTourCarousel.js
+                    // --- START: CONTROLS FIX (Exact copy from tour) ---
                     if (props.settings.navigation && props.settings.navigation.enabled) {
                         swiperOptions.navigation = {
                             nextEl: '.tappersia-carusel-next',
@@ -270,7 +325,7 @@ export function useHotelCarousel() {
                     swiperInstance.value = new Swiper(swiperRef.value, swiperOptions);
                 }
             };
-
+            
             watch(() => [props.hotelIds, props.settings], () => {
                 nextTick(() => {
                     initSwiper();
@@ -288,8 +343,9 @@ export function useHotelCarousel() {
                  }
             });
 
-            return { swiperRef, containerWidth, gridHeight, isRTL, headerSettings };
+            return { swiperRef, containerWidth, gridHeight, isRTL, headerSettings }; 
         },
+        // --- START: TEMPLATE FIX (Exact copy from tour) ---
         template: `
             <div :style="{ width: settings.slidesPerView > 1 ? (containerWidth + 'px') : '295px', margin: '0 auto' }" :dir="settings.direction">
                 <div :style="{ marginBottom: (headerSettings.marginTop || 28) + 'px' }" class="flex flex-col">
@@ -303,7 +359,7 @@ export function useHotelCarousel() {
                                 {{ headerSettings.text || 'Top Iran Hotels' }}
                             </span>
                         </div>
-                         <div v-if="settings.navigation && settings.navigation.enabled"  class="flex gap-[7px] items-center">
+                        <div v-if="settings.navigation && settings.navigation.enabled"  class="flex gap-[7px] items-center">
                             <div class="tappersia-carusel-perv flex h-[36px] w-[36px] items-center justify-center rounded-[8px] bg-white shadow-[inset_0_0_0_2px_#E5E5E5] cursor-pointer" :class="isRTL ? 'pr-[3px]' : 'pl-[3px]'">
                                 <div style="width: 10px; height: 10px; border-top: 2px solid black; border-right: 2px solid black; border-radius: 2px;" :style="isRTL ? { transform: 'rotate(45deg)' } :{transform: 'rotate(-135deg)'}"></div>
                             </div>
@@ -311,7 +367,7 @@ export function useHotelCarousel() {
                                 <div style="width: 10px; height: 10px; border-top: 2px solid black; border-right: 2px solid black; transform: rotate(45deg); border-radius: 2px;" :style="isRTL ? { transform: 'rotate(-135deg)' } :{transform: 'rotate(45deg)'}"></div>
                             </div>
                         </div>
-                         </div>
+                    </div>
                     <div :style="{ textAlign: isRTL ? 'right' : 'left' }" class="relative">
                         <div class="w-full h-[1px] rounded-[2px] bg-[#E2E2E2]"></div>
                         <div style="position: absolute; margin-top: -2px; width: 15px; height: 2px; border-radius: 2px;" 
@@ -328,5 +384,6 @@ export function useHotelCarousel() {
                 <div v-if="settings.pagination && settings.pagination.enabled" class="swiper-pagination" style="position: static; margin-top: 10px;"></div>
             </div>
         `
+        // --- END: TEMPLATE FIX ---
     };
 }

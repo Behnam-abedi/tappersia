@@ -1,6 +1,17 @@
 <?php
 // tappersia/admin/views/banner-types/hotel-carousel/hotel-carousel-settings.php
 ?>
+
+<style>
+    .hotel-label-base { margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block; }
+    .hotel-label-luxury { background: #333333; color: #fff; }
+    .hotel-label-business { background: #DAF6FF; color: #04A5D8; }
+    .hotel-label-boutique { background: #f8f3b0; color: #a8a350; }
+    .hotel-label-traditional { background: #FAECE0; color: #B68960; }
+    .hotel-label-economy { background: #FFE9F7; color: #FF48C3; }
+    .hotel-label-hostel { background: #B0B0B0; color: #FFF; }
+    .hotel-label-default { background: #e0e0e0; color: #555; }
+</style>
 <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
     <h3 class="font-bold text-xl text-white tracking-wide mb-5">Content Source</h3>
     <div class="flex gap-4">
@@ -98,116 +109,20 @@
 </div>
 
 <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
-    <div v-if="banner.hotel_carousel" :key="'card_'+currentView">
+     <div v-if="banner.hotel_carousel" :key="'card_'+currentView">
          <div :set="settings = currentView === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile">
-            <div :set="card = settings.card">
-                 <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Card Styling</h3>
+            <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Card Settings (Legacy)</h3>
+             <p class="text-xs text-gray-400 mb-4">Note: The new card design uses predefined styles. Some settings below might not apply.</p>
+             <div :set="card = settings.card">
                  <div class="space-y-4">
                      <div>
                         <h4 class="section-title">Layout</h4>
                         <div class="grid grid-cols-2 gap-2">
-                            <div><label class="setting-label-sm">Card Height (px)</label><input type="number" v-model.number="card.height" class="yab-form-input"></div>
-                            <div><label class="setting-label-sm">Padding (px)</label><input type="number" v-model.number="card.padding" class="yab-form-input"></div>
+                            <div><label class="setting-label-sm">Card Height (px)</label><input type="number" v-model.number="card.height" class="yab-form-input" disabled title="Hardcoded in new design"></div>
+                            <div><label class="setting-label-sm">Image Height (px)</label><input type="number" v-model.number="card.imageHeight" class="yab-form-input" disabled title="Hardcoded in new design"></div>
                         </div>
                     </div>
-                    <hr class="section-divider">
-
-                     <div v-if="currentView === 'desktop'">
-                        <h4 class="section-title">Background</h4>
-                        <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none p-1"><button @click="card.backgroundType = 'solid'" :class="{'active-tab': card.backgroundType === 'solid'}" class="flex-1 tab-button rounded-md">Solid</button><button @click="card.backgroundType = 'gradient'" :class="{'active-tab': card.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-md">Gradient</button></div>
-                        <div v-if="card.backgroundType === 'solid'"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="card.bgColor" class="yab-color-picker"><input type="text" v-model="card.bgColor" class="yab-hex-input"></div></div>
-                        <div v-else class="space-y-4"><div><label class="setting-label-sm">Gradient Angle: {{ card.gradientAngle }}deg</label><input type="range" v-model.number="card.gradientAngle" min="0" max="360" class="w-full"></div><div><label class="setting-label-sm">Colors</label><div v-for="(stop, index) in card.gradientStops" class="flex items-center gap-2 mb-2"><div class="yab-color-input-wrapper flex-grow"><input type="color" v-model="stop.color" class="yab-color-picker"><input type="text" v-model="stop.color" class="yab-hex-input"></div><input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full flex-grow"><span>{{ stop.stop }}%</span><button v-if="card.gradientStops.length > 1" @click="removeGradientStop(card, index)" class="text-red-500 text-xs p-1">X</button></div> <button @click="addGradientStop(card)" class="text-xs bg-blue-600 p-1 rounded">Add Stop</button></div></div>
-                        <hr class="section-divider">
-                    </div>
-
-                    <div>
-                        <h4 class="section-title">Border</h4>
-                        <div class="grid grid-cols-3 gap-2">
-                            <div><label class="setting-label-sm">Width (px)</label><input type="number" v-model.number="card.borderWidth" class="yab-form-input"></div>
-                            <div><label class="setting-label-sm">Radius (px)</label><input type="number" v-model.number="card.borderRadius" class="yab-form-input"></div>
-                             <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="card.borderColor" class="yab-color-picker"><input type="text" v-model="card.borderColor" class="yab-hex-input"></div></div>
-                        </div>
-                    </div>
-                    <hr class="section-divider">
-
-                     <div>
-                        <h4 class="section-title">Image</h4>
-                        <label class="setting-label-sm">Image Height (px)</label>
-                        <input type="number" v-model.number="card.imageHeight" class="yab-form-input">
-                    </div>
-                    <hr class="section-divider">
-
-                     <div v-if="currentView === 'desktop'">
-                        <div :set="province = card.province">
-                            <h4 class="section-title">City Badge</h4> <div class="grid grid-cols-2 gap-2">
-                                <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="province.fontSize" class="yab-form-input"></div>
-                                <div><label class="setting-label-sm">Font Weight</label><select v-model="province.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option></select></div>
-                                <div><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="province.color" class="yab-color-picker"><input type="text" v-model="province.color" class="yab-hex-input"></div></div>
-                                <div><label class="setting-label-sm">Background Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="province.bgColor" class="yab-color-picker"><input type="text" v-model="province.bgColor" class="yab-hex-input"></div></div>
-                                <div><label class="setting-label-sm">Blur (px)</label><input type="number" v-model.number="province.blur" class="yab-form-input"></div>
-                                <div><label class="setting-label-sm">Bottom Spacing (px)</label><input type="number" v-model.number="province.bottom" class="yab-form-input"></div>
-                                <div class="col-span-2"><label class="setting-label-sm">Side Spacing (px)</label><input type="number" v-model.number="province.side" class="yab-form-input"></div>
-                            </div>
-                        </div>
-                        <hr class="section-divider">
-                         <div :set="title = card.title">
-                            <h4 class="section-title">Title</h4>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="title.fontSize" class="yab-form-input"></div>
-                                <div><label class="setting-label-sm">Font Weight</label><select v-model="title.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option></select></div>
-                                <div><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="title.color" class="yab-color-picker"><input type="text" v-model="title.color" class="yab-hex-input"></div></div>
-                                <div><label class="setting-label-sm">Line Height</label><input type="number" step="0.1" v-model.number="title.lineHeight" class="yab-form-input"></div>
-                            </div>
-                        </div>
-                        <hr class="section-divider">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div :set="price = card.price">
-                                <h4 class="section-title">Price</h4>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="price.fontSize" class="yab-form-input"></div>
-                                    <div><label class="setting-label-sm">Font Weight</label><select v-model="price.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option></select></div>
-                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="price.color" class="yab-color-picker"><input type="text" v-model="price.color" class="yab-hex-input"></div></div>
-                                </div>
-                            </div>
-                            <div :set="duration = card.duration"> <h4 class="section-title">"/ night" Text</h4>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="duration.fontSize" class="yab-form-input"></div>
-                                    <div><label class="setting-label-sm">Font Weight</label><select v-model="duration.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option></select></div>
-                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="duration.color" class="yab-color-picker"><input type="text" v-model="duration.color" class="yab-hex-input"></div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="section-divider">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div :set="rating = card.rating">
-                                <h4 class="section-title">Rating Score</h4>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="rating.fontSize" class="yab-form-input"></div>
-                                    <div><label class="setting-label-sm">Font Weight</label><select v-model="rating.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="700">Bold</option></select></div>
-                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="rating.color" class="yab-color-picker"><input type="text" v-model="rating.color" class="yab-hex-input"></div></div>
-                                </div>
-                            </div>
-                            <div :set="reviews = card.reviews">
-                                <h4 class="section-title">Reviews Text</h4>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="reviews.fontSize" class="yab-form-input"></div>
-                                    <div><label class="setting-label-sm">Font Weight</label><select v-model="reviews.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option></select></div>
-                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="reviews.color" class="yab-color-picker"><input type="text" v-model="reviews.color" class="yab-hex-input"></div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="section-divider">
-                         <div :set="button = card.button">
-                            <h4 class="section-title">Button</h4>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="button.fontSize" class="yab-form-input"></div>
-                                <div><label class="setting-label-sm">Font Weight</label><select v-model="button.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="600">Semi-Bold</option><option value="700">Bold</option></select></div>
-                                <div><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="button.color" class="yab-color-picker"><input type="text" v-model="button.color" class="yab-hex-input"></div></div>
-                                <div><label class="setting-label-sm">Background</label><div class="yab-color-input-wrapper"><input type="color" v-model="button.bgColor" class="yab-color-picker"><input type="text" v-model="button.bgColor" class="yab-hex-input"></div></div>
-                                <div class="col-span-2"><label class="setting-label-sm">Arrow Size (px)</label><input type="number" v-model.number="button.arrowSize" class="yab-form-input"></div>
-                            </div>
-                        </div>
-                    </div> </div>
+                 </div>
             </div>
         </div>
     </div>
