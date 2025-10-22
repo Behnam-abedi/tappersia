@@ -335,7 +335,7 @@ HTML;
                           <div name="description">
                             <div name="rating" style="margin-top: 7px; display: flex; flex-direction: row; align-items: center; gap: 6px;">
                               ${ratingScore !== null ? `<div name="rate"><span style="width: fit-content; border-radius: 3px; background: #5191FA; padding: 2px 6px; font-size: 11px; line-height: 1; color: #ffffff;">${ratingScore}</span></div>` : ''}
-                              <div name="text-rate" style="font-size: 12px; line-height: 15px; color: #333333;padding-top:1px">
+                              <div name="text-rate" style="font-size: 12px; line-height: 15px; color: #333333;">
                                 <span>${escapeHTML(ratingLabel)}</span>
                               </div>
                               <div name="rate-count" style="font-size: 10px; line-height: 12px; color: #999999;">

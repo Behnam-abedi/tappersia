@@ -240,7 +240,7 @@ export function useHotelCarousel() {
                       <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" class="h-full w-full rounded-[14px] object-cover" />
                     </div>
                     <div name="body-content" class="mx-[19px] mt-[14px] text-[#333]">
-                      <div name="title" class="min-h-[34px] w-full"> {/* Increased min-height slightly */}
+                      <div name="title" class="min-h-[34px] w-full"> 
                         <h4 class="line-clamp-2 text-[14px] leading-[17px] font-semibold text-[#333333] m-0">${escapeHTML(title)}</h4>
                       </div>
                       <div name="description">
