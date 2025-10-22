@@ -3,6 +3,7 @@ const { computed } = Vue;
 
 export function useComputedProperties(banner, currentView, selectedDoubleBanner) {
     const previewBodyText = computed(() => {
+        // ... (بدون تغییر) ...
         const promo = currentView.value === 'desktop' ? banner.promotion : banner.promotion_mobile;
         if (!promo || !promo.bodyText) return '';
         let text = promo.bodyText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -21,15 +22,17 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
     });
 
     const apiItem = computed(() => {
+        // ... (بدون تغییر) ...
         return banner.type === 'api-banner' ? (banner.api.selectedHotel || banner.api.selectedTour) : null;
     });
     
     const isApiHotel = computed(() => {
+         // ... (بدون تغییر) ...
         return !!(banner.type === 'api-banner' && banner.api.selectedHotel);
     });
     
     const settings = computed(() => {
-        if (!banner.type) return {}; 
+        if (!banner.type) return { header: {} }; // بازگشت یک آبجکت پایه برای جلوگیری از ارور
     
         switch (banner.type) {
             case 'api-banner':
@@ -44,10 +47,14 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
                 return currentView.value === 'desktop' ? banner.sticky_simple : banner.sticky_simple_mobile;
             case 'promotion-banner':
                 return currentView.value === 'desktop' ? banner.promotion : banner.promotion_mobile;
-            // --- START: FIX ---
             case 'tour-carousel':
                 return currentView.value === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile;
+            
+            // --- START: FIX ---
+            case 'hotel-carousel': // این case اضافه شد
+                return currentView.value === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile;
             // --- END: FIX ---
+
             default:
                 // Return an empty object with a nested header to prevent the 'text' error
                 return { header: {} };
