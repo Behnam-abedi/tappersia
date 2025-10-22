@@ -8,3 +8,4 @@ export * from './singleBanner.js';
 export * from './stickySimpleBanner.js';
 export * from './tourCarousel.js';
 export * from './flightTicket.js'; // Add this line
+export * from './hotelCarousel.js'; // Add this line

@@ -5,7 +5,7 @@
             <div class="p-8 text-center">
                 <h1 class="text-3xl font-bold mb-8 text-gray-200">All Elements</h1>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div @click="selectType('single-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                     <div @click="selectType('single-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
                         <span class="dashicons dashicons-format-image text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Single Banners</h3>
                     </div>
@@ -40,6 +40,14 @@
                     <div @click="selectType('tour-carousel')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
                         <span class="dashicons dashicons-slides text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Tour Carousels</h3>
+                    </div>
+                    <div @click="selectType('hotel-carousel')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-building text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Hotel Carousels</h3>
+                    </div>
+                     <div @click="selectType('flight-ticket')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-airplane text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Flight Tickets</h3>
                     </div>
                     </div>
             </div>
@@ -105,6 +113,7 @@
 </div>
 
 <style>
+     /* ... (keep existing styles) ... */
     [v-cloak] { display: none; }
     #wpcontent { padding-left: 0; }
     .search-input { background: #292929; border: 1px solid #656565; color: white; padding: 8px 12px; border-radius: 5px; }

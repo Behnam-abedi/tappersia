@@ -20,65 +20,77 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
                 'content-html-banner' => 'Yab_Content_Html_Banner',
                 'content-html-sidebar-banner' => 'Yab_Content_Html_Sidebar_Banner',
                 'tour-carousel' => 'Yab_Tour_Carousel',
-                'flight-ticket' => 'Yab_Flight_Ticket', // Add this line
+                'hotel-carousel' => 'Yab_Hotel_Carousel', // Added line
+                'flight-ticket' => 'Yab_Flight_Ticket',
             ];
 
             if (array_key_exists($banner_type_slug, $handlers)) {
                 $class_name = $handlers[$banner_type_slug];
-                
-                $folder_name = str_replace('_', '', str_replace('Yab_', '', $class_name));
+
+                // Adjusted folder name logic slightly for consistency
+                $folder_name = str_replace(['Yab_', '_'], ['', ''], $class_name); // Generates HotelCarousel, TourCarousel etc.
                 $file_path = YAB_PLUGIN_DIR . 'includes/BannerTypes/' . $folder_name . '/' . $folder_name . '.php';
+
 
                 if (file_exists($file_path)) {
                     require_once $file_path;
                     if (class_exists($class_name)) {
                         return new $class_name();
                     }
+                } else {
+                     // Optionally log an error if the file doesn't exist
+                     error_log("Tappersia Plugin: Banner handler file not found at " . $file_path);
                 }
+            } else {
+                 error_log("Tappersia Plugin: No handler found for banner type " . $banner_type_slug);
             }
+
 
             return null;
         }
-        
+
         public function save_banner() {
+            // ... (no changes needed here) ...
             check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
             if (!isset($_POST['banner_data']) || !isset($_POST['banner_type'])) { wp_send_json_error(['message' => 'Incomplete data received.']); return; }
-            
+
             $banner_data = json_decode(stripslashes($_POST['banner_data']), true);
             $banner_type = sanitize_text_field($_POST['banner_type']);
-            
+
             $handler = $this->get_banner_type_handler($banner_type);
-            
-            if (!$handler) { 
-                wp_send_json_error(['message' => 'Invalid banner type specified.']); 
-                return; 
+
+            if (!$handler) {
+                wp_send_json_error(['message' => 'Invalid banner type (' . $banner_type . ') specified or handler not found.']);
+                return;
             }
-            
+
             $handler->save($banner_data);
+
         }
 
         public function delete_banner() {
-            check_ajax_referer('yab_nonce', 'nonce');
+             // ... (no changes needed here) ...
+             check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
             if (!isset($_POST['banner_id']) || !is_numeric($_POST['banner_id'])) { wp_send_json_error(['message' => 'Invalid banner ID.']); return; }
-            
+
             $banner_id = intval($_POST['banner_id']);
             $post = get_post($banner_id);
-            
-            if (!$post || $post->post_type !== 'yab_banner') { 
-                wp_send_json_error(['message' => 'Banner not found.']); 
-                return; 
+
+            if (!$post || $post->post_type !== 'yab_banner') {
+                wp_send_json_error(['message' => 'Banner not found.']);
+                return;
             }
-            
+
             $result = wp_delete_post($banner_id, true);
-            
-            if ($result === false) { 
-                wp_send_json_error(['message' => 'Failed to delete the banner.']); 
-            } else { 
-                wp_send_json_success(['message' => 'Banner deleted successfully.']); 
+
+            if ($result === false) {
+                wp_send_json_error(['message' => 'Failed to delete the banner.']);
+            } else {
+                wp_send_json_success(['message' => 'Banner deleted successfully.']);
             }
-            
+
             wp_die();
         }
     }
