@@ -308,6 +308,7 @@ textarea.yab-form-input {
     color: #555;
 }
 /* END: Added Hotel Tag Styles */
-.yab-hotel-card a:focus{
+.yab-hotel-card a:focus,
+.yab-hotel-card a:active{
     outline: none!important;
 }

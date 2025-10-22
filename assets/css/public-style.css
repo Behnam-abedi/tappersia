@@ -124,6 +124,7 @@ body [class*="yab-hotel-carousel-wrapper-"] * /* Added Hotel Carousel */ {
     color: #555;
 }
 /* END: Added Hotel Tag Styles */
-.yab-hotel-card a:focus{
+.yab-hotel-card a:focus,
+.yab-hotel-card a:active{
     outline: none!important;
 }
