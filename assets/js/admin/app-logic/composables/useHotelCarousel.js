@@ -242,13 +242,13 @@ export function useHotelCarousel() {
                       <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" class="h-full w-full rounded-[14px] object-cover" />
                     </div>
                     <div name="body-content" class="mx-[19px] mt-[14px] text-[#333]">
-                      <div name="title" class="min-h-[34px] w-full"> {/* Increased min-height slightly */}
+                      <div name="title" class="min-h-[34px] w-full">
                         <h4 class="line-clamp-2 text-[14px] leading-[17px] font-semibold text-[#333333] m-0" style="overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4>
                       </div>
                       <div name="description">
                         <div name="rating" class="mt-[7px] flex flex-row items-center gap-[6px]">
                           ${ratingScore !== null ? `<div name="rate"><span class="w-fit rounded-[3px] bg-[#5191FA] px-[6px] py-[2px] text-[11px] leading-[1] text-[#ffffff]">${ratingScore}</span></div>` : ''}
-                          <div name="text-rate" class="text-[12px] leading-[15px] text-[#333333] pt-[1px]"> {/* FIX: Added pt-[1px] for alignment */}
+                          <div name="text-rate" class="text-[12px] leading-[15px] text-[#333333] pt-[1px]"> 
                             <span>${escapeHTML(ratingLabel)}</span>
                           </div>
                           <div name="rate-count" class="text-[10px] leading-[12px] text-[#999999]">
