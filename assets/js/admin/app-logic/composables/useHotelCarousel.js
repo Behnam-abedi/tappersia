@@ -154,39 +154,41 @@ export function useHotelCarousel() {
                 if (!hotel) {
                     const cardHeight = 357;
                     const imageHeight = 176;
-                    // Using Tailwind classes for skeleton
+                    // --- START: SKELETON FIX ---
+                    // Using styles to mimic Tailwind, added yab-skeleton-loader, and lighter bg color
                     return `
-                    <div name="card-skeleton" class="m-3 min-h-[${cardHeight}px] w-[295px] rounded-[16px] border border-[#E5E5E5] p-[9px] bg-white animate-pulse overflow-hidden">
-                      <div class="h-[${imageHeight}px] w-[276px] rounded-[14px] bg-gray-300"></div>
-                      <div class="mx-[19px] mt-[14px]">
-                        <div class="min-h-[31px] w-full mb-[7px]">
-                          <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                          <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                    <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; min-height: ${cardHeight}px; width: 295px; border-radius: 16px; border: 1px solid #E5E5E5; padding: 9px; background-color: #ffffff; box-sizing: border-box; overflow: hidden;">
+                      <div style="height: ${imageHeight}px; width: 276px; border-radius: 14px; background-color: #f0f0f0;"></div>
+                      <div style="margin: 14px 19px 0 19px;">
+                        <div style="min-height: 34px; width: 100%; margin-bottom: 7px;">
+                          <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 75%; margin-bottom: 8px;"></div>
+                          <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 50%;"></div>
                         </div>
                         <div name="description-skeleton">
-                          <div name="rating-skeleton" class="flex flex-row items-center gap-[6px]">
-                            <div class="h-5 w-8 rounded-[3px] bg-gray-300"></div>
-                            <div class="h-4 bg-gray-300 rounded w-16"></div>
-                            <div class="h-3 bg-gray-300 rounded w-8"></div>
+                          <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: 6px;">
+                            <div style="height: 20px; width: 32px; border-radius: 3px; background-color: #f0f0f0;"></div>
+                            <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div>
+                            <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px;"></div>
                           </div>
-                          <div name="tags-skeleton" class="mt-[7px] flex flex-row gap-[5px]">
-                            <div class="h-5 w-12 rounded-[3px] bg-gray-300"></div>
-                            <div class="h-5 w-12 rounded-[3px] bg-gray-300"></div>
+                          <div name="tags-skeleton" style="margin-top: 7px; display: flex; flex-direction: row; gap: 5px;">
+                            <div style="height: 20px; width: 48px; border-radius: 3px; background-color: #f0f0f0;"></div>
+                            <div style="height: 20px; width: 48px; border-radius: 3px; background-color: #f0f0f0;"></div>
                           </div>
                         </div>
-                        <hr class="mt-[9.5px] mb-[7.5px] border-[#EEEEEE]" />
-                        <div name="price-skeleton" class="flex flex-col">
-                          <div class="h-3 bg-gray-300 rounded w-8 mb-1"></div>
-                          <div class="flex flex-row items-center justify-between">
-                            <div class="flex items-center gap-[5px]">
-                              <div class="h-5 bg-gray-300 rounded w-16"></div>
-                              <div class="h-4 bg-gray-300 rounded w-10"></div>
+                        <hr style="margin: 9.5px 0 7.5px 0; border: 0; border-top: 1px solid #EEEEEE;" />
+                        <div name="price-skeleton" style="display: flex; flex-direction: column;">
+                          <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px; margin-bottom: 4px;"></div>
+                          <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                              <div style="height: 20px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div>
+                              <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 40px;"></div>
                             </div>
-                            <div class="h-3 bg-gray-300 rounded w-12"></div>
+                            <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 48px;"></div>
                           </div>
                         </div>
                       </div>
                     </div>`;
+                    // --- END: SKELETON FIX ---
                 }
                 // --- END SKELETON LOADER ---
 
@@ -224,12 +226,12 @@ export function useHotelCarousel() {
                  // Note: Using inline styles derived from Tailwind for preview accuracy as direct Tailwind might not apply in JS string
                  return `
                 <div name="card" class="yab-hotel-card m-0 min-h-[357px] w-[295px] rounded-[16px] border border-[#E5E5E5] p-[9px] bg-white box-border font-['Roboto',_sans-serif]">
-                  <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                  <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: block; outline: none;"> {/* FIX: Added outline: none */}
                     <div class="relative h-[176px] w-[276px] rounded-[14px]" name="header-content-image">
                       <div class="absolute z-10 flex h-full w-full flex-col justify-between px-[13px] py-[13px] box-border">
                         <div class="flex w-full items-start justify-between">
-                          ${isFeatured ? `<div class="flex w-fit items-center justify-center rounded-[20px] bg-[#F66A05] px-[7px] py-[5px] text-[12px] leading-[1] font-medium text-[#ffffff]">Best Seller</div>` : '<div></div>' /* Placeholder */}
-                          ${hasDiscount && discountPercentage > 0 ? `<div class="flex w-fit items-center justify-center rounded-[20px] bg-[#FB2D51] px-[10px] py-[5px] text-[12px] leading-[1] font-medium text-[#ffffff]">${discountPercentage}%</div>` : ''}
+                          ${isFeatured ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: 20px; background: #F66A05; padding: 5px 7px; font-size: 12px; line-height: 1; font-weight: 500; color: #ffffff;">Best Seller</div>` : '<div></div>' /* Placeholder */}
+                          ${hasDiscount && discountPercentage > 0 ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: 20px; background: #FB2D51; padding: 5px 10px; font-size: 12px; line-height: 1; font-weight: 500; color: #ffffff;">${discountPercentage}%</div>` : ''}
                         </div>
                         <div class="flex flex-row items-center gap-[5px] self-start">
                           <div class="text-[17px] text-[#FCC13B]" style="line-height:0.7;">${stars}</div>
@@ -240,13 +242,13 @@ export function useHotelCarousel() {
                       <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" class="h-full w-full rounded-[14px] object-cover" />
                     </div>
                     <div name="body-content" class="mx-[19px] mt-[14px] text-[#333]">
-                      <div name="title" class="min-h-[34px] w-full"> 
-                        <h4 class="line-clamp-2 text-[14px] leading-[17px] font-semibold text-[#333333] m-0">${escapeHTML(title)}</h4>
+                      <div name="title" class="min-h-[34px] w-full"> {/* Increased min-height slightly */}
+                        <h4 class="line-clamp-2 text-[14px] leading-[17px] font-semibold text-[#333333] m-0" style="overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4>
                       </div>
                       <div name="description">
                         <div name="rating" class="mt-[7px] flex flex-row items-center gap-[6px]">
                           ${ratingScore !== null ? `<div name="rate"><span class="w-fit rounded-[3px] bg-[#5191FA] px-[6px] py-[2px] text-[11px] leading-[1] text-[#ffffff]">${ratingScore}</span></div>` : ''}
-                          <div name="text-rate" class="text-[12px] leading-[15px] text-[#333333] pt-[1px]">
+                          <div name="text-rate" class="text-[12px] leading-[15px] text-[#333333] pt-[1px]"> {/* FIX: Added pt-[1px] for alignment */}
                             <span>${escapeHTML(ratingLabel)}</span>
                           </div>
                           <div name="rate-count" class="text-[10px] leading-[12px] text-[#999999]">
@@ -317,7 +319,7 @@ export function useHotelCarousel() {
             };
 
             const checkAndLoadVisibleSlides = (swiper) => {
-                 if (!swiper || !swiper.slides || swiper.slides.length === 0) return;
+                 if (!swiper || !swiper.slides || swiper.slides.length === 0 || !swiper.params) return;
                 const idsToFetch = new Set();
                 const slides = Array.from(swiper.slides);
                 const isGrid = swiper.params.grid && swiper.params.grid.rows > 1;
@@ -371,7 +373,7 @@ export function useHotelCarousel() {
                         const slideEl = document.createElement('div');
                         slideEl.className = 'swiper-slide';
                         slideEl.setAttribute('data-hotel-id', id);
-                        slideEl.style.width = '295px';
+                        // slideEl.style.width = '295px'; // FIX: Removed fixed width, Swiper handles it
                         slideEl.innerHTML = generateHotelCardHTML(null); // Render skeleton first
                         wrapper.appendChild(slideEl);
                     });
@@ -499,3 +501,4 @@ export function useHotelCarousel() {
         `
     };
 }
+
