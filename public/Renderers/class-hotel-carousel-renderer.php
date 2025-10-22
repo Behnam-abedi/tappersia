@@ -234,7 +234,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                                       <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 50%;"></div>
                                     </div>
                                     <div name="description-skeleton">
-                                      <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: 6px;">
+                                      <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: 6px;display:none">
                                         <div style="height: 20px; width: 32px; border-radius: 3px; background-color: #f0f0f0;"></div>
                                         <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div>
                                         <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px;"></div>
@@ -246,7 +246,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                                     </div>
                                     <hr style="margin: 9.5px 0 7.5px 0; border: 0; border-top: 1px solid #EEEEEE;" />
                                     <div name="price-skeleton" style="display: flex; flex-direction: column;">
-                                      <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px; margin-bottom: 4px;"></div>
+                                      <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px; margin-bottom: 4px;display:none"></div>
                                       <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
                                         <div style="display: flex; align-items: center; gap: 5px;">
                                           <div style="height: 20px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div>
