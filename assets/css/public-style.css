@@ -14,7 +14,8 @@ body .yab-simple-banner-wrapper,
 body .yab-sticky-simple-banner-wrapper,
 body .yab-api-banner-wrapper,
 body .yab-api-banner-placeholder,
-body [class*="yab-tour-carousel-wrapper-"] {
+body [class*="yab-tour-carousel-wrapper-"],
+body [class*="yab-hotel-carousel-wrapper-"] /* Added Hotel Carousel */ {
     font-family: 'Roboto', sans-serif !important;
 }
 
@@ -26,7 +27,8 @@ body .yab-simple-banner-wrapper *,
 body .yab-sticky-simple-banner-wrapper *,
 body .yab-api-banner-wrapper *,
 body .yab-api-banner-placeholder *,
-body [class*="yab-tour-carousel-wrapper-"] * {
+body [class*="yab-tour-carousel-wrapper-"] *,
+body [class*="yab-hotel-carousel-wrapper-"] * /* Added Hotel Carousel */ {
     font-family: inherit !important;
 }
 
@@ -34,6 +36,7 @@ body [class*="yab-tour-carousel-wrapper-"] * {
 .yab-skeleton-loader {
     position: relative;
     overflow: hidden; /* Important for the shimmer effect */
+    background-color: #f0f0f0; /* Added base color */
 }
 
 .yab-skeleton-loader::before {
@@ -41,7 +44,8 @@ body [class*="yab-tour-carousel-wrapper-"] * {
     position: absolute;
     inset: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    /* Use a lighter shimmer for frontend */
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
     animation: yab-shimmer 1.5s infinite;
 }
 
@@ -57,21 +61,66 @@ body [class*="yab-tour-carousel-wrapper-"] * {
     to { opacity: 1; }
 }
 
-/* START: Scoped Swiper styles to prevent conflicts */
-[class*="yab-tour-carousel-wrapper-"] .swiper-pagination-bullet {
+/* START: Scoped Swiper styles to prevent conflicts (Applied to both Tour & Hotel) */
+[class*="yab-tour-carousel-wrapper-"] .swiper-pagination-bullet,
+[class*="yab-hotel-carousel-wrapper-"] .swiper-pagination-bullet /* Added Hotel Carousel */ {
     width: 20px !important;
     height: 6px !important;
     border-radius: 4px !important;
-    background-color: rgba(0, 186, 164, 0.31);
+    background-color: rgba(0, 186, 164, 0.31) !important; /* Added !important */
+    opacity: 1 !important; /* Ensure bullets are visible */
 }
 
-[class*="yab-tour-carousel-wrapper-"] .swiper-pagination-bullet-active {
+[class*="yab-tour-carousel-wrapper-"] .swiper-pagination-bullet-active,
+[class*="yab-hotel-carousel-wrapper-"] .swiper-pagination-bullet-active /* Added Hotel Carousel */ {
     background-color: #00BAA4 !important;
 }
 
-[class*="yab-tour-carousel-wrapper-"] .swiper-button-disabled {
+[class*="yab-tour-carousel-wrapper-"] .swiper-button-disabled,
+[class*="yab-hotel-carousel-wrapper-"] .swiper-button-disabled /* Added Hotel Carousel */ {
     opacity: 0.5 !important;
     cursor: auto !important;
     pointer-events: none !important;
 }
 /* END: Scoped Swiper styles */
+
+/* START: Added Hotel Tag Styles for Frontend */
+.hotel-label-base {
+    margin-top: 7px;
+    width: fit-content;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 11px;
+    line-height: 1;
+    display: inline-block;
+    box-sizing: border-box;
+}
+.hotel-label-luxury {
+    background: #333333;
+    color: #fff;
+}
+.hotel-label-business {
+    background: #DAF6FF;
+    color: #04A5D8;
+}
+.hotel-label-boutique {
+    background: #f8f3b0;
+    color: #a8a350;
+}
+.hotel-label-traditional {
+    background: #FAECE0;
+    color: #B68960;
+}
+.hotel-label-economy {
+    background: #FFE9F7;
+    color: #FF48C3;
+}
+.hotel-label-hostel {
+    background: #B0B0B0;
+    color: #FFF;
+}
+.hotel-label-default { /* Style for unrecognized tags */
+    background: #e0e0e0;
+    color: #555;
+}
+/* END: Added Hotel Tag Styles */

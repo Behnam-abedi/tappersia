@@ -268,40 +268,43 @@ textarea.yab-form-input {
     background: #00baa4;
 }
 
-.hotel-label-base { 
-    margin-top: 7px; 
-    width: fit-content; 
-    border-radius: 3px; 
-    padding: 2px 6px; 
-    font-size: 11px; 
-    line-height: 1; 
-    display: inline-block; 
+/* START: Added Hotel Tag Styles */
+.hotel-label-base {
+    margin-top: 7px;
+    width: fit-content;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 11px;
+    line-height: 1;
+    display: inline-block;
+    box-sizing: border-box; /* Add this */
 }
-.hotel-label-luxury { 
-    background: #333333; 
-    color: #fff; 
+.hotel-label-luxury {
+    background: #333333;
+    color: #fff;
 }
-.hotel-label-business { 
-    background: #DAF6FF; 
-    color: #04A5D8; 
+.hotel-label-business {
+    background: #DAF6FF;
+    color: #04A5D8;
 }
-.hotel-label-boutique { 
-    background: #f8f3b0; 
-    color: #a8a350; 
+.hotel-label-boutique {
+    background: #f8f3b0;
+    color: #a8a350;
 }
-.hotel-label-traditional { 
-    background: #FAECE0; 
-    color: #B68960; 
+.hotel-label-traditional {
+    background: #FAECE0;
+    color: #B68960;
 }
-.hotel-label-economy { 
-    background: #FFE9F7; 
-    color: #FF48C3; 
+.hotel-label-economy {
+    background: #FFE9F7;
+    color: #FF48C3;
 }
-.hotel-label-hostel { 
-    background: #B0B0B0; 
-    color: #FFF; 
+.hotel-label-hostel {
+    background: #B0B0B0;
+    color: #FFF;
 }
-.hotel-label-default { 
-    background: #e0e0e0; 
-    color: #555; 
+.hotel-label-default { /* Style for unrecognized tags */
+    background: #e0e0e0;
+    color: #555;
 }
+/* END: Added Hotel Tag Styles */
