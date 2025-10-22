@@ -13,39 +13,28 @@ export function useHotelCarousel() {
             const swiperInstance = ref(null);
             const fetchedIds = reactive(new Set());
             const styleTag = ref(null);
+            const uniqueId = ref(`yab-hotel-carousel-vue-${Date.now()}`); // Unique ID for scoping
 
             const isRTL = computed(() => props.settings.direction === 'rtl');
             const headerSettings = computed(() => props.settings.header || {});
-            const cardSettings = computed(() => props.settings.card || {}); // We might not use this if card is hardcoded
+            // Card settings are now mostly derived from the new template logic
+            // const cardSettings = computed(() => props.settings.card || {}); 
 
             const updatePaginationStyles = () => {
-                if (!swiperRef.value) return;
-                swiperRef.value.id = `yab-hotel-carousel-vue-${Date.now()}`;
-                
+                if (!uniqueId.value) return;
                 const paginationSettings = props.settings.pagination || {};
                 const color = paginationSettings.paginationColor || 'rgba(0, 186, 164, 0.31)';
                 const activeColor = paginationSettings.paginationActiveColor || '#00BAA4';
 
-                // --- START: CSS FIX ---
-                // Add tag styles to head
+                // Scoped CSS using the unique ID
                 const css = `
-                    #${swiperRef.value.id} .swiper-pagination-bullet { background-color: ${color} !important; }
-                    #${swiperRef.value.id} .swiper-pagination-bullet-active { background-color: ${activeColor} !important; }
-                    
-                    /* Tag Styles */
-                    #${swiperRef.value.id} .hotel-label-luxury { background: #333333; color: #fff; }
-                    #${swiperRef.value.id} .hotel-label-business { background: #DAF6FF; color: #04A5D8; }
-                    #${swiperRef.value.id} .hotel-label-boutique { background: #f8f3b0; color: #a8a350; }
-                    #${swiperRef.value.id} .hotel-label-traditional { background: #FAECE0; color: #B68960; }
-                    #${swiperRef.value.id} .hotel-label-economy { background: #FFE9F7; color: #FF48C3; }
-                    #${swiperRef.value.id} .hotel-label-hostel { background: #B0B0B0; color: #FFF; }
-                    #${swiperRef.value.id} .hotel-label-default { background: #e0e0e0; color: #555; }
+                    #${uniqueId.value} .swiper-pagination-bullet { background-color: ${color} !important; }
+                    #${uniqueId.value} .swiper-pagination-bullet-active { background-color: ${activeColor} !important; }
                 `;
-                // --- END: CSS FIX ---
 
                 if (!styleTag.value) {
                     styleTag.value = document.createElement('style');
-                    styleTag.value.id = `style-${swiperRef.value.id}`;
+                    styleTag.value.id = `style-${uniqueId.value}`;
                     document.head.appendChild(styleTag.value);
                 }
                 styleTag.value.innerHTML = css;
@@ -59,7 +48,7 @@ export function useHotelCarousel() {
             });
             
             const gridHeight = computed(() => {
-                const cardHeight = 357; // Hardcoded height from your HTML example
+                const cardHeight = 357; // Hardcoded height from new design
                 const verticalSpace = 20;
                 return (cardHeight * 2) + verticalSpace;
             });
@@ -96,10 +85,10 @@ export function useHotelCarousel() {
                 }
                 return originalHotels;
             });
-
-            // --- START: CARD GENERATION FIX ---
-
-            // Rating Label Helper
+            
+            // --- START: NEW CARD LOGIC ---
+            
+            // Helper functions
             const getRatingLabel = (score) => {
                 if (!score || score == 0) return 'New';
                 if (score >= 4.6) return 'Excellent';
@@ -109,21 +98,27 @@ export function useHotelCarousel() {
                 return 'Poor';
             };
             
-            // Tag Class Helper
             const getTagClass = (tag) => {
                 const tagName = tag.toLowerCase();
                 const validTags = ['luxury', 'business', 'boutique', 'traditional', 'economy', 'hostel'];
                 if (validTags.includes(tagName)) {
                     return `hotel-label-${tagName}`;
                 }
-                return 'hotel-label-default'; // Fallback class
+                return 'hotel-label-default';
+            };
+
+            const escapeHTML = (str) => {
+                if (!str) return '';
+                return str.replace(/[&<>"']/g, function(m) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+                });
             };
 
             const generateHotelCardHTML = (hotel) => {
                 // --- SKELETON FIX: Exact copy from Tour ---
                 if (!hotel) {
-                    const cardHeight = 357; // Use new card height
-                    const imageHeight = 176; // Use new card image height
+                    const cardHeight = 357;
+                    const imageHeight = 176;
                     return `
                     <div class="yab-hotel-card-skeleton yab-skeleton-loader" style="width: 295px; height: ${cardHeight}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
                         <div class="yab-skeleton-image" style="width: 100%; height: ${imageHeight}px; background-color: #f0f0f0; border-radius: 14px;"></div>
@@ -162,58 +157,58 @@ export function useHotelCarousel() {
                 const ratingLabel = getRatingLabel(ratingScore);
                 
                 // Tags Logic
-                const tagsHtml = customTags.map(tag => 
-                    `<span class="${getTagClass(tag)} hotel-label-base" style="margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1;">${tag}</span>`
+                const tagsHtml = (customTags || []).map(tag => 
+                    `<span class="${getTagClass(tag)} hotel-label-base" style="margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block;">${escapeHTML(tag)}</span>`
                 ).join('');
                 
                 return `
-                <div name="card" class="m-0 min-h-[357px] w-[295px] rounded-[16px] border border-[#E5E5E5] p-[9px] bg-white" style="font-family: 'Roboto', sans-serif;">
-                  <a href="${detailUrl}" target="_blank" style="text-decoration: none;">
-                    <div class="relative h-[176px] w-[276px] rounded-[14px]" name="header-content-image">
-                      <div class="absolute z-10 flex h-full w-full flex-col justify-between px-[13px] py-[13px]">
-                        <div class="flex w-full items-start justify-between">
-                          ${isFeatured ? `<div class="flex w-fit items-center justify-center rounded-[20px] bg-[#F66A05] px-[7px] py-[5px] text-[12px] leading-[1] font-medium text-[#ffffff]">Best Seller</div>` : '<div></div>'}
-                          ${hasDiscount ? `<div class="flex w-fit items-center justify-center rounded-[20px] bg-[#FB2D51] px-[10px] py-[5px] text-[12px] leading-[1] font-medium text-[#ffffff]">${discountPercentage}%</div>` : ''}
+                <div name="card" class="yab-hotel-card" style="margin: 0; min-height: 357px; width: 295px; border-radius: 16px; border: 1px solid #E5E5E5; padding: 9px; background: #fff; box-sizing: border-box; font-family: 'Roboto', sans-serif;">
+                  <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none;">
+                    <div style="position: relative; height: 176px; width: 276px; border-radius: 14px;" name="header-content-image">
+                      <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: 13px; box-sizing: border-box;">
+                        <div style="display: flex; width: 100%; align-items: flex-start; justify-content: space-between;">
+                          ${isFeatured ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: 20px; background: #F66A05; padding: 5px 7px; font-size: 12px; line-height: 1; font-weight: 500; color: #ffffff;">Best Seller</div>` : '<div></div>'}
+                          ${hasDiscount ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: 20px; background: #FB2D51; padding: 5px 10px; font-size: 12px; line-height: 1; font-weight: 500; color: #ffffff;">${discountPercentage}%</div>` : ''}
                         </div>
-                        <div class="flex flex-row items-center gap-[5px] self-start">
-                          <div class="text-[17px] text-[#FCC13B]" style="line-height:0.7;">${stars}</div>
-                          <div class="text-[12px] leading-[13px] text-white">${starText}</div>
+                        <div style="display: flex; flex-direction: row; align-items: center; gap: 5px; align-self: flex-start;">
+                          <div style="font-size: 17px; color: #FCC13B; line-height: 0.7;">${stars}</div>
+                          <div style="font-size: 12px; line-height: 13px; color: white;">${escapeHTML(starText)}</div>
                         </div>
                       </div>
-                      <div name="black-highlight" class="absolute flex h-full w-full items-end rounded-b-[14px] bg-gradient-to-t from-[rgba(0,0,0,0.83)_0%] via-[rgba(0,0,0,0)_38%] to-[rgba(0,0,0,0)_100%]"></div>
-                      <img src="${imageUrl}" alt="${title}" class="h-full w-full rounded-[14px] object-cover" />
+                      <div name="black-highlight" style="position: absolute; display: flex; height: 100%; width: 100%; align-items: flex-end; border-radius: 0 0 14px 14px; background-image: linear-gradient(to top, rgba(0,0,0,0.83) 0%, rgba(0,0,0,0) 38%, rgba(0,0,0,0) 100%);"></div>
+                      <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" style="height: 100%; width: 100%; border-radius: 14px; object-fit: cover;" />
                     </div>
-                    <div name="body-content" class="mx-[19px] mt-[14px]">
-                      <div name="title" class="min-h-[31px] w-full">
-                        <h4 class="line-clamp-2 text-[14px] leading-[17px] font-semibold text-[#333333]" style="overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${title}</h4>
+                    <div name="body-content" style="margin: 14px 19px 0 19px; color: #333;">
+                      <div name="title" style="min-height: 31px; width: 100%;">
+                        <h4 style="font-size: 14px; line-height: 17px; font-weight: 600; color: #333333; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4>
                       </div>
                       <div name="description">
-                        <div name="rating" class="mt-[7px] flex flex-row items-center gap-[6px]">
-                          ${ratingScore !== null ? `<div name="rate"><span class="w-fit rounded-[3px] bg-[#5191FA] px-[6px] py-[2px] text-[11px] leading-[1] text-[#ffffff]">${ratingScore}</span></div>` : ''}
-                          <div name="text-rate" class="text-[12px] leading-[15px] text-[#333333]">
-                            <span>${ratingLabel}</span>
+                        <div name="rating" style="margin-top: 7px; display: flex; flex-direction: row; align-items: center; gap: 6px;">
+                          ${ratingScore !== null ? `<div name="rate"><span style="width: fit-content; border-radius: 3px; background: #5191FA; padding: 2px 6px; font-size: 11px; line-height: 1; color: #ffffff;">${ratingScore}</span></div>` : ''}
+                          <div name="text-rate" style="font-size: 12px; line-height: 15px; color: #333333;">
+                            <span>${escapeHTML(ratingLabel)}</span>
                           </div>
-                          <div name="rate-count" class="text-[10px] leading-[12px] text-[#999999]">
+                          <div name="rate-count" style="font-size: 10px; line-height: 12px; color: #999999;">
                             <span>(${reviewCount})</span>
                           </div>
                         </div>
                         <div name="tags">
-                          <div class="flex flex-row gap-[5px] flex-wrap">
+                          <div style="display: flex; flex-direction: row; gap: 5px; flex-wrap: wrap;">
                             ${tagsHtml}
                           </div>
                         </div>
                       </div>
-                      <hr class="mt-[9.5px] mb-[7.5px] border-[#EEEEEE]" />
-                      <div name="price" class="flex flex-col">
-                        <div class="text-[12px] leading-[14px] text-[#999999]">
+                      <hr style="margin: 9.5px 0 7.5px 0; border: 0; border-top: 1px solid #EEEEEE;" />
+                      <div name="price" style="display: flex; flex-direction: column;">
+                        <div style="font-size: 12px; line-height: 14px; color: #999999;">
                           <span>From</span>
                         </div>
-                        <div class="flex flex-row items-center justify-between">
-                          <div class="flex items-center gap-[5px]">
-                            <span class="text-[16px] leading-[19px] font-bold text-[#00BAA4]">€${minPrice.toFixed(2)}</span>
-                            <span class="text-[13px] leading-[16px] text-[#555555]"> / night</span>
+                        <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                          <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="font-size: 16px; line-height: 19px; font-weight: 700; color: #00BAA4;">€${minPrice.toFixed(2)}</span>
+                            <span style="font-size: 13px; line-height: 16px; color: #555555;"> / night</span>
                           </div>
-                          ${hasDiscount ? `<div><span name="orginal-price" class="text-[12px] leading-[14px] text-[#999999] line-through">€${originalPrice}</span></div>` : ''}
+                          ${hasDiscount ? `<div><span name="orginal-price" style="font-size: 12px; line-height: 14px; color: #999999; text-decoration: line-through;">€${originalPrice}</span></div>` : ''}
                         </div>
                       </div>
                     </div>
@@ -272,7 +267,7 @@ export function useHotelCarousel() {
                     swiperInstance.value = null; 
                  }
                 if (swiperRef.value) {
-                    swiperRef.value.id = `yab-hotel-carousel-vue-${Date.now()}`; 
+                    swiperRef.value.id = uniqueId.value; // Set the unique ID
 
                     const wrapper = swiperRef.value.querySelector('.swiper-wrapper');
                     if (!wrapper) return; 
@@ -302,6 +297,7 @@ export function useHotelCarousel() {
                      };
 
                     // --- START: CONTROLS FIX (Exact copy from tour) ---
+                    // These selectors are relative to the component's root div
                     if (props.settings.navigation && props.settings.navigation.enabled) {
                         swiperOptions.navigation = {
                             nextEl: '.tappersia-carusel-next',
@@ -343,11 +339,11 @@ export function useHotelCarousel() {
                  }
             });
 
-            return { swiperRef, containerWidth, gridHeight, isRTL, headerSettings }; 
+            return { swiperRef, containerWidth, gridHeight, isRTL, headerSettings, uniqueId }; 
         },
-        // --- START: TEMPLATE FIX (Exact copy from tour) ---
+        // --- START: TEMPLATE FIX (Exact copy from tour, added uniqueId) ---
         template: `
-            <div :style="{ width: settings.slidesPerView > 1 ? (containerWidth + 'px') : '295px', margin: '0 auto' }" :dir="settings.direction">
+            <div :id="uniqueId" :style="{ width: settings.slidesPerView > 1 ? (containerWidth + 'px') : '295px', margin: '0 auto' }" :dir="settings.direction">
                 <div :style="{ marginBottom: (headerSettings.marginTop || 28) + 'px' }" class="flex flex-col">
                     <div class="mb-[13px] flex w-full flex-row justify-between items-center" >
                         <div>

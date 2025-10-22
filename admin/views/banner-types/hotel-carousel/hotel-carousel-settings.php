@@ -1,17 +1,6 @@
 <?php
 // tappersia/admin/views/banner-types/hotel-carousel/hotel-carousel-settings.php
 ?>
-
-<style>
-    .hotel-label-base { margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block; }
-    .hotel-label-luxury { background: #333333; color: #fff; }
-    .hotel-label-business { background: #DAF6FF; color: #04A5D8; }
-    .hotel-label-boutique { background: #f8f3b0; color: #a8a350; }
-    .hotel-label-traditional { background: #FAECE0; color: #B68960; }
-    .hotel-label-economy { background: #FFE9F7; color: #FF48C3; }
-    .hotel-label-hostel { background: #B0B0B0; color: #FFF; }
-    .hotel-label-default { background: #e0e0e0; color: #555; }
-</style>
 <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
     <h3 class="font-bold text-xl text-white tracking-wide mb-5">Content Source</h3>
     <div class="flex gap-4">
@@ -73,11 +62,17 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="setting-label-sm">Pagination Color</label>
-                                <div class="yab-color-input-wrapper"><input type="color" v-model="settings.pagination.paginationColor" class="yab-color-picker"><input type="text" v-model="settings.pagination.paginationColor" class="yab-hex-input"></div>
+                                <div class="yab-color-input-wrapper">
+                                    <input type="color" class="yab-color-picker" @input="settings.pagination.paginationColor = $event.target.value">
+                                    <input type="text" v-model="settings.pagination.paginationColor" class="yab-hex-input">
+                                </div>
                             </div>
                             <div>
                                 <label class="setting-label-sm">Pagination Active Color</label>
-                                <div class="yab-color-input-wrapper"><input type="color" v-model="settings.pagination.paginationActiveColor" class="yab-color-picker"><input type="text" v-model="settings.pagination.paginationActiveColor" class="yab-hex-input"></div>
+                                <div class="yab-color-input-wrapper">
+                                    <input type="color" v-model="settings.pagination.paginationActiveColor" class="yab-color-picker">
+                                    <input type="text" v-model="settings.pagination.paginationActiveColor" class="yab-hex-input">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -111,15 +106,15 @@
 <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
      <div v-if="banner.hotel_carousel" :key="'card_'+currentView">
          <div :set="settings = currentView === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile">
-            <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Card Settings (Legacy)</h3>
-             <p class="text-xs text-gray-400 mb-4">Note: The new card design uses predefined styles. Some settings below might not apply.</p>
+             <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Card Settings</h3>
+             <p class="text-xs text-gray-400 mb-4">Note: Card design is now based on the new template. These settings are for legacy overrides if needed (e.g., height).</p>
              <div :set="card = settings.card">
                  <div class="space-y-4">
                      <div>
                         <h4 class="section-title">Layout</h4>
                         <div class="grid grid-cols-2 gap-2">
-                            <div><label class="setting-label-sm">Card Height (px)</label><input type="number" v-model.number="card.height" class="yab-form-input" disabled title="Hardcoded in new design"></div>
-                            <div><label class="setting-label-sm">Image Height (px)</label><input type="number" v-model.number="card.imageHeight" class="yab-form-input" disabled title="Hardcoded in new design"></div>
+                            <div><label class="setting-label-sm">Card Height (px) (Fixed)</label><input type="number" value="357" class="yab-form-input bg-gray-500" disabled></div>
+                            <div><label class="setting-label-sm">Image Height (px) (Fixed)</label><input type="number" value="176" class="yab-form-input bg-gray-500" disabled></div>
                         </div>
                     </div>
                  </div>

@@ -28,14 +28,14 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                 }
                 
                 /* START: Tag Styles */
-                .hotel-label-base { margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; }
-                .hotel-label-luxury { background: #333333; color: #fff; }
-                .hotel-label-business { background: #DAF6FF; color: #04A5D8; }
-                .hotel-label-boutique { background: #f8f3b0; color: #a8a350; }
-                .hotel-label-traditional { background: #FAECE0; color: #B68960; }
-                .hotel-label-economy { background: #FFE9F7; color: #FF48C3; }
-                .hotel-label-hostel { background: #B0B0B0; color: #FFF; }
-                .hotel-label-default { background: #e0e0e0; color: #555; }
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .hotel-label-base { margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block; }
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .hotel-label-luxury { background: #333333; color: #fff; }
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .hotel-label-business { background: #DAF6FF; color: #04A5D8; }
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .hotel-label-boutique { background: #f8f3b0; color: #a8a350; }
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .hotel-label-traditional { background: #FAECE0; color: #B68960; }
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .hotel-label-economy { background: #FFE9F7; color: #FF48C3; }
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .hotel-label-hostel { background: #B0B0B0; color: #FFF; }
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .hotel-label-default { background: #e0e0e0; color: #555; }
                 /* END: Tag Styles */
 
             </style>
@@ -53,7 +53,6 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
 
         private function render_view($banner_id, $view, $settings, $original_hotels_ids) {
             $header_settings = $settings['header'] ?? [];
-            $card_settings = $settings['card'] ?? []; // We might not use card_settings if hardcoding HTML
             $hotel_count = count($original_hotels_ids);
 
             $slides_per_view = $settings['slidesPerView'] ?? 3;
@@ -89,9 +88,9 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                 $slides_to_render = $final_items;
             }
 
-            $card_width = 295; // New card width
+            $card_width = 295;
             $container_width = ($card_width * $slides_per_view) + ($space_between * ($slides_per_view - 1));
-            $grid_height = (357 + 20) * 2; // New card height (357) + spacing
+            $grid_height = (357 * 2) + 20; // New card height
             
             $unique_id = $banner_id . '_' . $view;
 
@@ -160,9 +159,9 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                     <div class="swiper" style="overflow: hidden; padding-bottom: 10px; <?php echo $is_doubled ? 'height: ' . $grid_height . 'px;' : ''; ?>">
                         <div class="swiper-wrapper">
                             <?php 
-                            // --- START: SKELETON FIX (Exact copy from tour) ---
-                            $card_height_esc = '357'; // New height
-                            $image_height_esc = '176'; // New image height
+                            // --- START: SKELETON FIX (Exact copy from tour, adapted for new card size) ---
+                            $card_height_esc = '357';
+                            $image_height_esc = '176';
                             $skeleton_html = <<<HTML
                                 <div class="yab-hotel-card-skeleton yab-skeleton-loader" style="width: 295px; height: {$card_height_esc}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #e7e7e7;">
                                     <div class="yab-skeleton-image" style="width: 100%; height: {$image_height_esc}px; background-color: #e7e7e7; border-radius: 14px;"></div>
@@ -216,6 +215,13 @@ HTML;
                     return 'hotel-label-default';
                 };
 
+                const escapeHTML = (str) => {
+                    if (!str) return '';
+                    return str.replace(/[&<>"']/g, function(m) {
+                        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+                    });
+                };
+
                 // --- START: NEW CARD HTML FUNCTION ---
                 const generateHotelCardHTML = (hotel) => {
                     if (!hotel) return '';
@@ -242,14 +248,10 @@ HTML;
                     const ratingScore = avgRating ? (Math.floor(avgRating * 10) / 10) : null;
                     const ratingLabel = getRatingLabel(ratingScore);
 
-                    const tagsHtml = customTags.map(tag => 
-                        `<span class="${getTagClass(tag)} hotel-label-base" style="margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block;">${escapeHTML(tag)}</span>`
+                    const tagsHtml = (customTags || []).map(tag => 
+                        `<span class="${getTagClass(escapeHTML(tag))} hotel-label-base" style="margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block;">${escapeHTML(tag)}</span>`
                     ).join('');
                     
-                    const escapeHTML = (str) => str.replace(/[&<>"']/g, function(m) {
-                        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
-                    });
-
                     return `
                     <div name="card" class="yab-hotel-card" style="margin: 3px; min-height: 357px; width: 295px; border-radius: 16px; border: 1px solid #E5E5E5; padding: 9px; background: #fff; box-sizing: border-box; font-family: 'Roboto', sans-serif;">
                       <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit;">
@@ -267,7 +269,7 @@ HTML;
                           <div name="black-highlight" style="position: absolute; display: flex; height: 100%; width: 100%; align-items: flex-end; border-radius: 0 0 14px 14px; background-image: linear-gradient(to top, rgba(0,0,0,0.83) 0%, rgba(0,0,0,0) 38%, rgba(0,0,0,0) 100%);"></div>
                           <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" style="height: 100%; width: 100%; border-radius: 14px; object-fit: cover;" />
                         </div>
-                        <div name="body-content" style="margin: 14px 19px 0 19px;">
+                        <div name="body-content" style="margin: 14px 19px 0 19px; color: #333;">
                           <div name="title" style="min-height: 31px; width: 100%;">
                             <h4 style="font-size: 14px; line-height: 17px; font-weight: 600; color: #333333; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4>
                           </div>
@@ -333,7 +335,7 @@ HTML;
                                         slide.innerHTML = generateHotelCardHTML(hotel); 
                                         slide.classList.add('is-loaded'); 
                                     };
-                                    image.onerror = () => {
+                                    image.onerror = () => { // Fallback if image fails to load
                                         slide.innerHTML = generateHotelCardHTML(hotel); 
                                         slide.classList.add('is-loaded'); 
                                     };
