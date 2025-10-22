@@ -19,40 +19,33 @@ export function useHotelCarousel() { // Renamed composable
             const headerSettings = computed(() => props.settings.header || {});
             const cardSettings = computed(() => props.settings.card || {});
 
-            const updatePaginationStyles = () => { /* ... (keep identical) ... */
+            const updatePaginationStyles = () => {
                  if (!swiperRef.value) return;
                 const paginationSettings = props.settings.pagination || {};
                 const color = paginationSettings.paginationColor || 'rgba(0, 186, 164, 0.31)';
                 const activeColor = paginationSettings.paginationActiveColor || '#00BAA4';
 
                 const css = `
-                    .swiper-pagination-bullet { background-color: ${color} !important; }
-                    .swiper-pagination-bullet-active { background-color: ${activeColor} !important; }
+                    #${swiperRef.value.id} .swiper-pagination-bullet { background-color: ${color} !important; }
+                    #${swiperRef.value.id} .swiper-pagination-bullet-active { background-color: ${activeColor} !important; }
                 `;
 
                 if (!styleTag.value) {
                     styleTag.value = document.createElement('style');
-                    // Append to swiperRef or a more appropriate parent if swiperRef isn't reliable early on
-                     if (swiperRef.value?.appendChild) {
-                         swiperRef.value.appendChild(styleTag.value);
-                     } else {
-                         // Fallback or wait? For admin preview, direct append might be okay.
-                         document.head.appendChild(styleTag.value); // Less ideal scoping
-                     }
+                    // Use unique ID for style tag
+                    styleTag.value.id = `style-${swiperRef.value.id}`; 
+                    document.head.appendChild(styleTag.value);
                 }
-                 // Make sure styleTag is appended before setting innerHTML
-                 if (styleTag.value) {
-                    styleTag.value.innerHTML = css;
-                 }
+                styleTag.value.innerHTML = css;
             };
 
-            const containerWidth = computed(() => { /* ... (keep identical) ... */
+            const containerWidth = computed(() => {
                 const cardWidth = 295;
                 const spaceBetween = props.settings.spaceBetween || 18;
                 const slidesPerView = props.settings.slidesPerView || 3;
                 return (cardWidth * slidesPerView) + (spaceBetween * (slidesPerView - 1));
              });
-            const gridHeight = computed(() => { /* ... (keep identical) ... */
+            const gridHeight = computed(() => {
                 const cardHeight = cardSettings.value.height || 375;
                 const verticalSpace = 20; // Assuming same spacing
                 return (cardHeight * 2) + verticalSpace;
@@ -93,7 +86,7 @@ export function useHotelCarousel() { // Renamed composable
             });
 
 
-            const getCardBackground = (settings) => { /* ... (keep identical) ... */
+            const getCardBackground = (settings) => {
                  if (!settings) return '#FFFFFF';
                 if (settings.backgroundType === 'gradient') {
                     const stops = (settings.gradientStops || []).map(s => `${s.color} ${s.stop}%`).join(', ');
@@ -111,26 +104,25 @@ export function useHotelCarousel() { // Renamed composable
                     const cardHeight = card.height || 375;
                     const imageHeight = card.imageHeight || 204;
                     return `
-                    <div class="yab-hotel-card-skeleton yab-skeleton-loader" style="width: 295px; height: ${cardHeight}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
-                        <div class="yab-skeleton-image" style="width: 100%; height: ${imageHeight}px; background-color: #f0f0f0; border-radius: 14px;"></div>
+                    <div class="yab-hotel-card-skeleton yab-skeleton-loader" style="width: 295px; height: ${cardHeight}px; background-color: #292929; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #434343;">
+                        <div class="yab-skeleton-image" style="width: 100%; height: ${imageHeight}px; background-color: #434343; border-radius: 14px;"></div>
                         <div style="padding: 14px 5px 5px 5px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
-                            <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
-                            <div class="yab-skeleton-text" style="width: 50%; height: 16px; background-color: #f0f0f0; border-radius: 4px; margin-top: 5px;"></div>
+                            <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #434343; border-radius: 4px;"></div>
+                            <div class="yab-skeleton-text" style="width: 50%; height: 16px; background-color: #434343; border-radius: 4px; margin-top: 5px;"></div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-bottom: 5px;">
-                                <div class="yab-skeleton-text" style="width: 40%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
-                                <div class="yab-skeleton-text" style="width: 30%; height: 16px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                                <div class="yab-skeleton-text" style="width: 40%; height: 20px; background-color: #434343; border-radius: 4px;"></div>
+                                <div class="yab-skeleton-text" style="width: 30%; height: 16px; background-color: #434343; border-radius: 4px;"></div>
                             </div>
-                            <div class="yab-skeleton-text" style="height: 33px; width: 100%; margin-top: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                            <div class="yab-skeleton-text" style="height: 33px; width: 100%; margin-top: 10px; background-color: #434343; border-radius: 4px;"></div>
                         </div>
                     </div>`;
                 }
 
                  const minPrice = hotel.minPrice ? hotel.minPrice.toFixed(2) : '0.00';
                  const avgRating = hotel.avgRating ? (Math.floor(hotel.avgRating * 10) / 10) : null;
-                 const ratingLabel = avgRating === null ? 'New' : (avgRating >= 4.6 ? 'Excellent' : (avgRating >= 4.1 ? 'Very Good' : (avgRating >= 3.6 ? 'Good' : (avgRating >= 3.0 ? 'Average' : 'Poor'))));
                  const starRating = hotel.star || 0;
                  const reviewCount = hotel.reviewCount || 0;
-                 const coverImage = hotel.coverImage ? hotel.coverImage.url : 'https://placehold.co/295x204/e0e0e0/999999?text=No+Image';
+                 const coverImage = hotel.coverImage ? hotel.coverImage.url : 'https://placehold.co/295x204/292929/434343?text=No+Image';
 
                  const rtlFlex = isRTL.value ? 'row-reverse' : 'row';
                  const rtlTextAlign = isRTL.value ? 'right' : 'left';
@@ -174,24 +166,20 @@ export function useHotelCarousel() { // Renamed composable
                 </div>`;
             };
 
-             // --- fetchAndRenderHotels ---
             const fetchAndRenderHotels = async (idsToFetch) => {
                 const uniqueIds = [...new Set(idsToFetch)].filter(id => !fetchedIds.has(id));
                 if (uniqueIds.length === 0) return;
                 uniqueIds.forEach(id => fetchedIds.add(id));
                 try {
-                     // Use correct AJAX action and parameter
                     const data = await props.ajax.post('yab_fetch_hotel_details_by_ids', { hotel_ids: uniqueIds });
                     if (data && Array.isArray(data)) {
                         data.forEach(hotelData => {
                             if (!swiperRef.value) return;
-                             // Use data-hotel-id
                             const slidesToUpdate = swiperRef.value.querySelectorAll(`.swiper-slide[data-hotel-id="${hotelData.id}"]`);
                             if (slidesToUpdate.length > 0) {
                                 slidesToUpdate.forEach(slide => {
-                                    // Use generateHotelCardHTML
                                     slide.innerHTML = generateHotelCardHTML(hotelData);
-                                    slide.classList.add('is-loaded'); // Add class for potential fade-in
+                                    slide.classList.add('is-loaded'); 
                                 });
                             }
                         });
@@ -200,15 +188,14 @@ export function useHotelCarousel() { // Renamed composable
             };
 
 
-            const checkAndLoadVisibleSlides = (swiper) => { /* ... (keep identical but use hotelId) ... */
+            const checkAndLoadVisibleSlides = (swiper) => {
                  if (!swiper || !swiper.slides || swiper.slides.length === 0) return;
                 const idsToFetch = new Set();
                 const slides = Array.from(swiper.slides);
                 const isGrid = swiper.params.grid && swiper.params.grid.rows > 1;
                 const rows = isGrid ? swiper.params.grid.rows : 1;
                 const slidesPerView = swiper.params.slidesPerView;
-                const slidesToLoadCount = (slidesPerView * rows) * 2; // Load current and next set potentially
-                // Ensure activeIndex is valid
+                const slidesToLoadCount = (slidesPerView * rows) * 2; 
                  const startIndex = Math.max(0, swiper.activeIndex);
                  const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount);
 
@@ -223,29 +210,31 @@ export function useHotelCarousel() { // Renamed composable
                 }
             };
 
-            const initSwiper = () => { /* ... (keep identical but use hotelId and generateHotelCardHTML) ... */
+            const initSwiper = () => {
                  if (swiperInstance.value) {
                     swiperInstance.value.destroy(true, true);
-                    swiperInstance.value = null; // Ensure it's nullified
+                    swiperInstance.value = null; 
                  }
                 if (swiperRef.value) {
-                    const wrapper = swiperRef.value.querySelector('.swiper-wrapper');
-                    if (!wrapper) return; // Exit if wrapper not found
-                    wrapper.innerHTML = ''; // Clear existing slides
+                    // Add unique ID to swiperRef for style scoping
+                    swiperRef.value.id = `yab-hotel-carousel-vue-${Date.now()}`; 
 
-                    // Use slidesToRender (which uses hotelIds prop)
+                    const wrapper = swiperRef.value.querySelector('.swiper-wrapper');
+                    if (!wrapper) return; 
+                    wrapper.innerHTML = ''; 
+
                     slidesToRender.value.forEach(id => {
                         const slideEl = document.createElement('div');
                         slideEl.className = 'swiper-slide';
                         slideEl.setAttribute('data-hotel-id', id); // Use hotelId
-                        slideEl.style.width = '295px'; // Set fixed width
+                        slideEl.style.width = '295px'; 
                         slideEl.innerHTML = generateHotelCardHTML(null); // Use hotel skeleton
                         wrapper.appendChild(slideEl);
                     });
 
-                    updatePaginationStyles(); // Update pagination styles
+                    updatePaginationStyles(); 
 
-                    const swiperOptions = { /* ... (keep identical structure) ... */
+                    const swiperOptions = {
                         slidesPerView: props.settings.slidesPerView,
                         spaceBetween: props.settings.spaceBetween,
                         loop: props.settings.loop,
@@ -257,66 +246,78 @@ export function useHotelCarousel() { // Renamed composable
                         }
                      };
 
-                     // Autoplay, Navigation, Pagination, Grid logic remains the same...
                     if (props.settings.autoplay && props.settings.autoplay.enabled) {
                         swiperOptions.autoplay = { delay: props.settings.autoplay.delay || 3000, disableOnInteraction: false };
                     }
                     if (props.settings.navigation && props.settings.navigation.enabled) {
-                        swiperOptions.navigation = { nextEl: '.tappersia-carusel-next', prevEl: '.tappersia-carusel-perv' };
+                        // Select inside the specific swiperRef
+                        swiperOptions.navigation = { 
+                            nextEl: `#${swiperRef.value.id} .tappersia-carusel-next`, 
+                            prevEl: `#${swiperRef.value.id} .tappersia-carusel-perv` 
+                        };
                     }
                     if (props.settings.pagination && props.settings.pagination.enabled) {
-                        swiperOptions.pagination = { el: '.swiper-pagination', clickable: true };
+                        swiperOptions.pagination = { 
+                            el: `#${swiperRef.value.id} .swiper-pagination`, // Select inside the specific swiperRef
+                            clickable: true 
+                        };
                     }
                      if (props.settings.isDoubled) {
                         swiperOptions.grid = { rows: 2, fill: props.settings.loop ? 'column' : props.settings.gridFill };
-                        swiperOptions.slidesPerGroup = 1; // Usually 1 for grid
-                        swiperOptions.spaceBetween = 20; // Common grid spacing
+                        swiperOptions.slidesPerGroup = 1; 
+                        swiperOptions.spaceBetween = 20; 
                     }
-
 
                     swiperInstance.value = new Swiper(swiperRef.value, swiperOptions);
                 }
             };
 
-            // Watch hotelIds prop
             watch(() => [props.hotelIds, props.settings], () => {
                 nextTick(() => {
                     initSwiper();
                 });
             }, { deep: true, immediate: true });
 
-            onUnmounted(() => { /* ... (keep identical) ... */
+            onUnmounted(() => {
                 if (swiperInstance.value) {
                     swiperInstance.value.destroy(true, true);
                     swiperInstance.value = null;
                 }
-                // Clean up style tag if added to head
-                 if (styleTag.value && styleTag.value.parentNode === document.head) {
-                     document.head.removeChild(styleTag.value);
+                 if (styleTag.value && styleTag.value.parentNode) {
+                     styleTag.value.parentNode.removeChild(styleTag.value);
                      styleTag.value = null;
                  }
             });
 
-            // Return necessary refs and computed properties
             return { swiperRef, containerWidth, gridHeight, isRTL, headerSettings };
         },
-         // Template remains structurally the same, just update texts if needed
+         // --- START: TEMPLATE FIX ---
+         // Copied the full HTML for navigation buttons from useTourCarousel.js
         template: `
             <div :style="{ width: settings.slidesPerView > 1 ? (containerWidth + 'px') : '295px', margin: '0 auto' }" :dir="settings.direction">
                 <div :style="{ marginBottom: (headerSettings.marginTop || 28) + 'px' }" class="flex flex-col">
                     <div class="mb-[13px] flex w-full flex-row justify-between items-center" >
                         <div>
-                            <span :style="{ fontSize: (headerSettings.fontSize || 24) + 'px', fontWeight: headerSettings.fontWeight || '700', color: headerSettings.color || '#000000' }">
-                                {{ headerSettings.text || 'Top Iran Hotels' }} </span>
+                            <span :style="{ 
+                                fontSize: (headerSettings.fontSize || 24) + 'px', 
+                                fontWeight: headerSettings.fontWeight || '700',
+                                color: headerSettings.color || '#FFFFFF' 
+                            }">
+                                {{ headerSettings.text || 'Top Iran Hotels' }}
+                            </span>
                         </div>
-                        <div v-if="settings.navigation && settings.navigation.enabled" class="flex gap-[7px] items-center">
-                            <div class="tappersia-carusel-perv"><div></div></div>
-                            <div class="tappersia-carusel-next"><div></div></div>
+                        <div v-if="settings.navigation && settings.navigation.enabled"  class="flex gap-[7px] items-center">
+                            <div class="tappersia-carusel-perv flex h-[36px] w-[36px] items-center justify-center rounded-[8px] bg-white shadow-[inset_0_0_0_2px_#E5E5E5] cursor-pointer" :class="isRTL ? 'pr-[3px]' : 'pl-[3px]'">
+                                <div style="width: 10px; height: 10px; border-top: 2px solid black; border-right: 2px solid black; border-radius: 2px;" :style="isRTL ? { transform: 'rotate(45deg)' } :{transform: 'rotate(-135deg)'}"></div>
+                            </div>
+                            <div class="tappersia-carusel-next flex h-[36px] w-[36px] items-center justify-center rounded-[8px] bg-white shadow-[inset_0_0_0_2px_#E5E5E5] cursor-pointer" :class="isRTL ? 'pl-[3px]' : 'pr-[3px]'">
+                                <div style="width: 10px; height: 10px; border-top: 2px solid black; border-right: 2px solid black; transform: rotate(45deg); border-radius: 2px;" :style="isRTL ? { transform: 'rotate(-135deg)' } :{transform: 'rotate(45deg)'}"></div>
+                            </div>
                         </div>
                     </div>
                     <div :style="{ textAlign: isRTL ? 'right' : 'left' }" class="relative">
                         <div class="w-full h-[1px] rounded-[2px] bg-[#E2E2E2]"></div>
-                        <div style="position: absolute; margin-top: -2px; width: 15px; height: 2px; border-radius: 2px;"
+                        <div style="position: absolute; margin-top: -2px; width: 15px; height: 2px; border-radius: 2px;" 
                              :style="{ backgroundColor: headerSettings.lineColor || '#00BAA4', ...(isRTL ? { right: 0 } : { left: 0 }) }"></div>
                     </div>
                 </div>
@@ -325,10 +326,11 @@ export function useHotelCarousel() { // Renamed composable
                      :ref="el => swiperRef = el"
                      :style="settings.isDoubled ? { height: gridHeight + 'px', 'padding-bottom': '10px', overflow: 'hidden' } : { overflow: 'hidden', 'padding-bottom': '10px' }">
                     <div class="swiper-wrapper">
-                        </div>
+                    </div>
                 </div>
-                 <div v-if="settings.pagination && settings.pagination.enabled" class="swiper-pagination" style="position: static; margin-top: 10px;"></div>
+                <div v-if="settings.pagination && settings.pagination.enabled" class="swiper-pagination" style="position: static; margin-top: 10px;"></div>
             </div>
         `
+        // --- END: TEMPLATE FIX ---
     };
 }
