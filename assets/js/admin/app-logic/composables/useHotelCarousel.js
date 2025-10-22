@@ -1,9 +1,8 @@
 // assets/js/admin/app-logic/composables/useHotelCarousel.js
 const { ref, reactive, onMounted, onUnmounted, nextTick, computed, watch } = Vue;
 
-export function useHotelCarousel() { // Renamed composable
+export function useHotelCarousel() {
     return {
-        // Changed prop name
         props: {
             hotelIds: { type: Array, required: true },
             ajax: { type: Object, required: true },
@@ -20,7 +19,10 @@ export function useHotelCarousel() { // Renamed composable
             const cardSettings = computed(() => props.settings.card || {});
 
             const updatePaginationStyles = () => {
-                 if (!swiperRef.value) return;
+                if (!swiperRef.value) return;
+                // Add unique ID to swiperRef for style scoping
+                swiperRef.value.id = `yab-hotel-carousel-vue-${Date.now()}`; 
+                
                 const paginationSettings = props.settings.pagination || {};
                 const color = paginationSettings.paginationColor || 'rgba(0, 186, 164, 0.31)';
                 const activeColor = paginationSettings.paginationActiveColor || '#00BAA4';
@@ -32,8 +34,7 @@ export function useHotelCarousel() { // Renamed composable
 
                 if (!styleTag.value) {
                     styleTag.value = document.createElement('style');
-                    // Use unique ID for style tag
-                    styleTag.value.id = `style-${swiperRef.value.id}`; 
+                    styleTag.value.id = `style-${swiperRef.value.id}`;
                     document.head.appendChild(styleTag.value);
                 }
                 styleTag.value.innerHTML = css;
@@ -44,25 +45,25 @@ export function useHotelCarousel() { // Renamed composable
                 const spaceBetween = props.settings.spaceBetween || 18;
                 const slidesPerView = props.settings.slidesPerView || 3;
                 return (cardWidth * slidesPerView) + (spaceBetween * (slidesPerView - 1));
-             });
+            });
+            
             const gridHeight = computed(() => {
                 const cardHeight = cardSettings.value.height || 375;
-                const verticalSpace = 20; // Assuming same spacing
+                const verticalSpace = 20;
                 return (cardHeight * 2) + verticalSpace;
-             });
+            });
 
-            // Use hotelIds prop
             const slidesToRender = computed(() => {
-                const originalHotels = [...props.hotelIds]; // Use hotelIds
+                const originalHotels = [...props.hotelIds];
                 const settings = props.settings;
-                const hotelCount = originalHotels.length; // Use hotelCount
-
+                const hotelCount = originalHotels.length;
+            
                 if (hotelCount === 0) return [];
-
+            
                 if (settings.loop) {
                     const slidesPerView = settings.slidesPerView;
                     let finalItems = [...originalHotels];
-
+            
                     if (settings.isDoubled) {
                         const minLoopCount = (2 * slidesPerView) + 2;
                         if (hotelCount > 0 && hotelCount < minLoopCount) {
@@ -73,7 +74,7 @@ export function useHotelCarousel() { // Renamed composable
                             }
                         }
                     } else {
-                         const minLoopCount = slidesPerView * 2;
+                        const minLoopCount = slidesPerView * 2;
                         if (hotelCount > 0 && hotelCount < minLoopCount) {
                             while (finalItems.length < minLoopCount) {
                                 finalItems.push(...originalHotels);
@@ -85,9 +86,8 @@ export function useHotelCarousel() { // Renamed composable
                 return originalHotels;
             });
 
-
             const getCardBackground = (settings) => {
-                 if (!settings) return '#FFFFFF';
+                if (!settings) return '#FFFFFF';
                 if (settings.backgroundType === 'gradient') {
                     const stops = (settings.gradientStops || []).map(s => `${s.color} ${s.stop}%`).join(', ');
                     return `linear-gradient(${settings.gradientAngle || 90}deg, ${stops})`;
@@ -95,28 +95,28 @@ export function useHotelCarousel() { // Renamed composable
                 return settings.bgColor || '#FFFFFF';
             };
 
-
-            // --- generateHotelCardHTML --- (Adapted from PHP Renderer)
+            // --- START: SKELETON FIX ---
+            // This is now an exact copy of the tour carousel skeleton
             const generateHotelCardHTML = (hotel) => {
                 const card = cardSettings.value;
                 if (!hotel) {
-                     // Skeleton HTML - Adapt if needed for hotel specifics
                     const cardHeight = card.height || 375;
                     const imageHeight = card.imageHeight || 204;
                     return `
-                    <div class="yab-hotel-card-skeleton yab-skeleton-loader" style="width: 295px; height: ${cardHeight}px; background-color: #292929; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #434343;">
-                        <div class="yab-skeleton-image" style="width: 100%; height: ${imageHeight}px; background-color: #434343; border-radius: 14px;"></div>
+                    <div class="yab-hotel-card-skeleton yab-skeleton-loader" style="width: 295px; height: ${cardHeight}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
+                        <div class="yab-skeleton-image" style="width: 100%; height: ${imageHeight}px; background-color: #f0f0f0; border-radius: 14px;"></div>
                         <div style="padding: 14px 5px 5px 5px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
-                            <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #434343; border-radius: 4px;"></div>
-                            <div class="yab-skeleton-text" style="width: 50%; height: 16px; background-color: #434343; border-radius: 4px; margin-top: 5px;"></div>
+                            <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                            <div class="yab-skeleton-text" style="width: 40%; height: 16px; background-color: transparent; border-radius: 4px;"></div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-bottom: 5px;">
-                                <div class="yab-skeleton-text" style="width: 40%; height: 20px; background-color: #434343; border-radius: 4px;"></div>
-                                <div class="yab-skeleton-text" style="width: 30%; height: 16px; background-color: #434343; border-radius: 4px;"></div>
+                                <div class="yab-skeleton-text" style="width: 40%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
+                                <div class="yab-skeleton-text" style="width: 30%; height: 16px; background-color: #f0f0f0; border-radius: 4px;"></div>
                             </div>
-                            <div class="yab-skeleton-text" style="height: 33px; width: 100%; margin-top: 10px; background-color: #434343; border-radius: 4px;"></div>
+                            <div class="yab-skeleton-text" style="height: 33px; width: 100%; margin-top: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
                         </div>
                     </div>`;
                 }
+                // --- END: SKELETON FIX ---
 
                  const minPrice = hotel.minPrice ? hotel.minPrice.toFixed(2) : '0.00';
                  const avgRating = hotel.avgRating ? (Math.floor(hotel.avgRating * 10) / 10) : null;
@@ -126,7 +126,7 @@ export function useHotelCarousel() { // Renamed composable
 
                  const rtlFlex = isRTL.value ? 'row-reverse' : 'row';
                  const rtlTextAlign = isRTL.value ? 'right' : 'left';
-                 const provincePos = isRTL.value ? `left: ${card.province.side}px;` : `right: ${card.province.side}px;`; // Reusing 'province' styles for city/location
+                 const provincePos = isRTL.value ? `left: ${card.province.side}px;` : `right: ${card.province.side}px;`;
                  const arrowRotate = isRTL.value ? '-135deg' : '45deg';
 
                 return `
@@ -201,12 +201,12 @@ export function useHotelCarousel() { // Renamed composable
 
                 if (slidesToCheck.length > 0) {
                     slidesToCheck.forEach(slide => {
-                        const hotelId = parseInt(slide.dataset.hotelId, 10); // Use hotelId
+                        const hotelId = parseInt(slide.dataset.hotelId, 10);
                         if (hotelId) idsToFetch.add(hotelId);
                     });
                 }
                 if (idsToFetch.size > 0) {
-                    fetchAndRenderHotels(Array.from(idsToFetch)); // Call fetchAndRenderHotels
+                    fetchAndRenderHotels(Array.from(idsToFetch));
                 }
             };
 
@@ -216,7 +216,6 @@ export function useHotelCarousel() { // Renamed composable
                     swiperInstance.value = null; 
                  }
                 if (swiperRef.value) {
-                    // Add unique ID to swiperRef for style scoping
                     swiperRef.value.id = `yab-hotel-carousel-vue-${Date.now()}`; 
 
                     const wrapper = swiperRef.value.querySelector('.swiper-wrapper');
@@ -226,9 +225,9 @@ export function useHotelCarousel() { // Renamed composable
                     slidesToRender.value.forEach(id => {
                         const slideEl = document.createElement('div');
                         slideEl.className = 'swiper-slide';
-                        slideEl.setAttribute('data-hotel-id', id); // Use hotelId
+                        slideEl.setAttribute('data-hotel-id', id);
                         slideEl.style.width = '295px'; 
-                        slideEl.innerHTML = generateHotelCardHTML(null); // Use hotel skeleton
+                        slideEl.innerHTML = generateHotelCardHTML(null);
                         wrapper.appendChild(slideEl);
                     });
 
@@ -246,22 +245,22 @@ export function useHotelCarousel() { // Renamed composable
                         }
                      };
 
-                    if (props.settings.autoplay && props.settings.autoplay.enabled) {
-                        swiperOptions.autoplay = { delay: props.settings.autoplay.delay || 3000, disableOnInteraction: false };
-                    }
+                    // --- START: CONTROLS FIX ---
+                    // Reverted to simple class selectors, exactly like useTourCarousel.js
                     if (props.settings.navigation && props.settings.navigation.enabled) {
-                        // Select inside the specific swiperRef
-                        swiperOptions.navigation = { 
-                            nextEl: `#${swiperRef.value.id} .tappersia-carusel-next`, 
-                            prevEl: `#${swiperRef.value.id} .tappersia-carusel-perv` 
+                        swiperOptions.navigation = {
+                            nextEl: '.tappersia-carusel-next',
+                            prevEl: '.tappersia-carusel-perv',
                         };
                     }
                     if (props.settings.pagination && props.settings.pagination.enabled) {
-                        swiperOptions.pagination = { 
-                            el: `#${swiperRef.value.id} .swiper-pagination`, // Select inside the specific swiperRef
-                            clickable: true 
+                        swiperOptions.pagination = {
+                            el: '.swiper-pagination',
+                            clickable: true,
                         };
                     }
+                    // --- END: CONTROLS FIX ---
+
                      if (props.settings.isDoubled) {
                         swiperOptions.grid = { rows: 2, fill: props.settings.loop ? 'column' : props.settings.gridFill };
                         swiperOptions.slidesPerGroup = 1; 
@@ -291,8 +290,6 @@ export function useHotelCarousel() { // Renamed composable
 
             return { swiperRef, containerWidth, gridHeight, isRTL, headerSettings };
         },
-         // --- START: TEMPLATE FIX ---
-         // Copied the full HTML for navigation buttons from useTourCarousel.js
         template: `
             <div :style="{ width: settings.slidesPerView > 1 ? (containerWidth + 'px') : '295px', margin: '0 auto' }" :dir="settings.direction">
                 <div :style="{ marginBottom: (headerSettings.marginTop || 28) + 'px' }" class="flex flex-col">
@@ -306,7 +303,7 @@ export function useHotelCarousel() { // Renamed composable
                                 {{ headerSettings.text || 'Top Iran Hotels' }}
                             </span>
                         </div>
-                        <div v-if="settings.navigation && settings.navigation.enabled"  class="flex gap-[7px] items-center">
+                         <div v-if="settings.navigation && settings.navigation.enabled"  class="flex gap-[7px] items-center">
                             <div class="tappersia-carusel-perv flex h-[36px] w-[36px] items-center justify-center rounded-[8px] bg-white shadow-[inset_0_0_0_2px_#E5E5E5] cursor-pointer" :class="isRTL ? 'pr-[3px]' : 'pl-[3px]'">
                                 <div style="width: 10px; height: 10px; border-top: 2px solid black; border-right: 2px solid black; border-radius: 2px;" :style="isRTL ? { transform: 'rotate(45deg)' } :{transform: 'rotate(-135deg)'}"></div>
                             </div>
@@ -314,7 +311,7 @@ export function useHotelCarousel() { // Renamed composable
                                 <div style="width: 10px; height: 10px; border-top: 2px solid black; border-right: 2px solid black; transform: rotate(45deg); border-radius: 2px;" :style="isRTL ? { transform: 'rotate(-135deg)' } :{transform: 'rotate(45deg)'}"></div>
                             </div>
                         </div>
-                    </div>
+                         </div>
                     <div :style="{ textAlign: isRTL ? 'right' : 'left' }" class="relative">
                         <div class="w-full h-[1px] rounded-[2px] bg-[#E2E2E2]"></div>
                         <div style="position: absolute; margin-top: -2px; width: 15px; height: 2px; border-radius: 2px;" 
@@ -331,6 +328,5 @@ export function useHotelCarousel() { // Renamed composable
                 <div v-if="settings.pagination && settings.pagination.enabled" class="swiper-pagination" style="position: static; margin-top: 10px;"></div>
             </div>
         `
-        // --- END: TEMPLATE FIX ---
     };
 }

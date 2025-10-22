@@ -74,12 +74,12 @@
                      <button @click="confirmHotelSelection" :disabled="tempSelectedHotels.length === 0" class="w-full bg-[#00baa4] text-white font-bold px-4 py-3 rounded-lg hover:bg-opacity-80 transition-all disabled:bg-gray-500 disabled:cursor-not-allowed">
                         Confirm Selection{{ isMultiSelect ? ' (' + tempSelectedHotels.length + ')' : '' }}
                     </button>
-                </div>
+                     </div>
             </aside>
 
-            <div class="w-3/4 flex flex-col relative">
+            <div class="w-3/4 flex flex-col relative"> 
                 <header class="bg-[#434343] p-4 flex items-center justify-between flex-shrink-0">
-                     <div>
+                    <div>
                         <h2 class="text-xl font-bold text-white">Select a Hotel</h2>
                         <p v-if="isMultiSelect" class="text-xs text-gray-400">You can select multiple hotels.</p>
                     </div>
@@ -94,7 +94,7 @@
                         </div>
                     </div>
                 </div>
-                <main class="flex-grow relative overflow-y-auto" ref="hotelModalListRef">
+                <main class="flex-grow relative overflow-y-auto" ref="hotelModalListRef"> 
                     <div v-if="isHotelLoading || isHotelSelectionLoading" class="absolute inset-0 flex items-center justify-center bg-[#2d2d2d]/80 z-10">
                         <div class="yab-spinner w-12 h-12"></div>
                     </div>
@@ -102,13 +102,12 @@
                     <div v-else-if="sortedHotelResults.length === 0" class="text-center text-gray-400 py-16">
                         <p class="text-lg">No hotels found matching your criteria.</p>
                     </div>
-                    
                     <template v-else>
                         <ul class="p-4 space-y-3">
                             <li v-for="hotel in sortedHotelResults" :key="hotel.id" @click="selectHotel(hotel)"
                                 class="p-3 bg-[#434343] rounded-lg flex items-center gap-4 cursor-pointer border-2 transition-all duration-200"
                                  :class="isHotelSelected(hotel) ? 'border-[#00baa4] shadow-lg' : 'border-transparent hover:border-gray-600'">
-                                <image-loader
+                                 <image-loader
                                     :src="hotel.coverImage ? hotel.coverImage.url : 'https://placehold.co/100x100/292929/434343?text=No+Image'"
                                     :alt="hotel.title"
                                     img-class="w-full h-full object-cover rounded-md"

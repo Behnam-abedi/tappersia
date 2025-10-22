@@ -7,13 +7,13 @@ export function useHotelApi(banner, showModal, ajax) {
     const isHotelLoading = ref(false);
     const isMoreHotelLoading = ref(false);
     const isHotelDetailsLoading = ref(false);
-    const isHotelSelectionLoading = ref(false); // New state for loading selected hotels
+    const isHotelSelectionLoading = ref(false); 
     const hotelResults = reactive([]);
     const hotelCurrentPage = ref(1);
     const canLoadMoreHotels = ref(true);
-    const hotelModalListRef = ref(null); // Renamed for clarity
-    const tempSelectedHotels = ref([]); // Changed from tempSelectedHotel to array
-    const isMultiSelect = ref(false); // New state to track multi-select mode
+    const hotelModalListRef = ref(null); 
+    const tempSelectedHotels = ref([]); // FIX: Changed to array
+    const isMultiSelect = ref(false); 
     const cities = ref([]);
     const isCityDropdownOpen = ref(false);
     let debounceTimeout = null;
@@ -34,17 +34,18 @@ export function useHotelApi(banner, showModal, ajax) {
         { key: 'EcoLodge', label: 'Eco Lodge' }, { key: 'GuestHouse', label: 'Guest House' }, { key: 'Hostel', label: 'Hostel' }
     ];
 
-    // Updated computed property for sorting based on multiple selections
+    // --- START: MODAL LIST FIX ---
+    // Exact copy of useTourApi.js logic
     const sortedHotelResults = computed(() => {
         if (tempSelectedHotels.value.length === 0) return hotelResults;
 
         const selectedHotelsMap = new Map(tempSelectedHotels.value.map(h => [h.id, h]));
-        // Ensure selected hotels appear first, maintaining their selection order if needed, followed by others
         const selected = tempSelectedHotels.value;
         const unselected = hotelResults.filter(h => !selectedHotelsMap.has(h.id));
 
         return [...selected, ...unselected];
     });
+    // --- END: MODAL LIST FIX ---
 
 
     const selectedCityName = computed(() => {
@@ -53,7 +54,6 @@ export function useHotelApi(banner, showModal, ajax) {
         return city ? city.name : 'All Cities';
     });
 
-    // Kept for single selection use case (e.g., API Banner)
     const fetchFullHotelDetails = async (hotelId) => {
         if (!hotelId) {
             banner.api.selectedHotel = null;
@@ -66,7 +66,6 @@ export function useHotelApi(banner, showModal, ajax) {
             banner.api.selectedHotel = hotelDetails;
         } catch (error) {
             showModal('Error', `Could not fetch hotel details: ${error.message}`);
-            // Fallback for single select
              if (banner.api.selectedHotel) {
                  banner.api.selectedHotel = tempSelectedHotels.value.length > 0 ? tempSelectedHotels.value[0] : null;
             }
@@ -75,88 +74,76 @@ export function useHotelApi(banner, showModal, ajax) {
         }
     };
 
-    // New function similar to fetchToursByIds
     const fetchHotelsByIds = async (ids) => {
         if (!ids || ids.length === 0) return [];
         try {
-            // Using the 'yab_fetch_hotel_details_by_ids' endpoint created in PHP
              const hotelsData = await ajax.post('yab_fetch_hotel_details_by_ids', { hotel_ids: ids });
-             return hotelsData.filter(Boolean); // Filter out nulls from failed fetches
+             return hotelsData.filter(Boolean); 
         } catch (error) {
             showModal('Error', `Could not fetch details for selected hotels: ${error.message}`);
             return [];
         }
     };
 
-
-    // Updated to handle multiSelect option
+    // --- START: MODAL LOGIC FIX ---
+    // Updated to handle multiSelect option exactly like useTourApi
     const openHotelModal = async (options = { multiSelect: false }) => {
         isMultiSelect.value = options.multiSelect;
         isHotelModalOpen.value = true;
-        isHotelSelectionLoading.value = true; // Start loading indicator
+        isHotelSelectionLoading.value = true; 
 
-        // Fetch cities and initial hotels if not already loaded
         const citiesPromise = cities.value.length === 0 ? fetchCities() : Promise.resolve();
         const hotelsPromise = hotelResults.length === 0 ? searchHotels(true) : Promise.resolve();
 
-        // Wait for basic data
         await Promise.all([citiesPromise, hotelsPromise]);
 
-        // Now handle fetching details of pre-selected hotels
         try {
             if (isMultiSelect.value) {
-                // Fetch details for Hotel Carousel pre-selected IDs
-                const selectedIds = banner.hotel_carousel?.selectedHotels || []; // Use optional chaining
+                const selectedIds = banner.hotel_carousel?.selectedHotels || []; 
                 if (selectedIds.length > 0) {
                     const selectedHotelObjects = await fetchHotelsByIds(selectedIds);
-                     // Ensure the order matches the saved order
                     const orderedSelectedHotels = selectedIds.map(id => selectedHotelObjects.find(h => h.id === id)).filter(Boolean);
                     tempSelectedHotels.value = orderedSelectedHotels;
 
-                    // Check if selected hotels are already in the main list, if not, add them
                     const existingIds = new Set(hotelResults.map(h => h.id));
                     const missingHotels = selectedHotelObjects.filter(h => !existingIds.has(h.id));
                     if (missingHotels.length > 0) {
-                         // Add missing selected hotels to the beginning of the results list
                         hotelResults.unshift(...missingHotels);
                     }
                 } else {
-                    tempSelectedHotels.value = []; // Clear selection if no IDs are saved
+                    tempSelectedHotels.value = []; 
                 }
             } else {
-                // Handle single select for API Banner
-                banner.api.apiType = 'hotel'; // Keep this for API Banner context
+                banner.api.apiType = 'hotel'; 
                 tempSelectedHotels.value = banner.api.selectedHotel ? [banner.api.selectedHotel] : [];
             }
         } catch (error) {
             showModal('Error', `Could not load selected hotels: ${error.message}`);
-            tempSelectedHotels.value = []; // Reset on error
+            tempSelectedHotels.value = []; 
         } finally {
-            isHotelSelectionLoading.value = false; // Stop loading indicator
+            isHotelSelectionLoading.value = false; 
         }
 
-
-        // Add scroll listener
         nextTick(() => {
             hotelModalListRef.value?.addEventListener('scroll', handleHotelScroll);
         });
     };
+    // --- END: MODAL LOGIC FIX ---
 
     const closeHotelModal = () => {
         isHotelModalOpen.value = false;
         hotelModalListRef.value?.removeEventListener('scroll', handleHotelScroll);
     };
 
+    // --- START: MODAL LOGIC FIX ---
     // Updated to handle both single and multi-select confirmation
     const confirmHotelSelection = () => {
         if (isMultiSelect.value) {
-            // Save to hotel_carousel
-            if (!banner.hotel_carousel) banner.hotel_carousel = { selectedHotels: [], updateCounter: 0 }; // Initialize if not present
+            if (!banner.hotel_carousel) banner.hotel_carousel = { selectedHotels: [], updateCounter: 0 }; 
             banner.hotel_carousel.selectedHotels = tempSelectedHotels.value.map(hotel => hotel.id);
-            banner.hotel_carousel.updateCounter = (banner.hotel_carousel.updateCounter || 0) + 1; // Force preview refresh
+            banner.hotel_carousel.updateCounter = (banner.hotel_carousel.updateCounter || 0) + 1; 
         } else {
-            // Single select logic (for API Banner)
-            banner.api.selectedTour = null; // Deselect tour if a hotel is chosen
+            banner.api.selectedTour = null; 
             const selected = tempSelectedHotels.value.length > 0 ? tempSelectedHotels.value[0] : null;
             if (selected) {
                 banner.api.selectedHotel = selected;
@@ -167,6 +154,7 @@ export function useHotelApi(banner, showModal, ajax) {
         }
         closeHotelModal();
     };
+    // --- END: MODAL LOGIC FIX ---
 
     const fetchCities = async () => {
         try {
@@ -185,15 +173,13 @@ export function useHotelApi(banner, showModal, ajax) {
             }
             isHotelLoading.value = true;
         } else {
-            if (isHotelSelectionLoading.value || isHotelLoading.value) return; // Prevent parallel loads
+            if (isHotelSelectionLoading.value || isHotelLoading.value) return; 
             isMoreHotelLoading.value = true;
         }
 
         try {
             let starsParam = '';
             if (filters.stars > 0) {
-                // Was sending '1,2,3' if 3 stars selected. API might just want '3'.
-                // Sticking to original logic from single-select file for now.
                 starsParam = Array.from({ length: filters.stars }, (_, i) => i + 1).join(',');
             }
 
@@ -206,7 +192,6 @@ export function useHotelApi(banner, showModal, ajax) {
             const data = await ajax.post('yab_fetch_hotels_from_api', params);
             const newResults = data.data || [];
 
-            // Add new results, avoiding duplicates
             const existingIds = new Set(hotelResults.map(h => h.id));
             const uniqueNewResults = newResults.filter(h => !existingIds.has(h.id));
             hotelResults.push(...uniqueNewResults);
@@ -217,19 +202,20 @@ export function useHotelApi(banner, showModal, ajax) {
                  canLoadMoreHotels.value = false;
             }
             
-            // After search, ensure selected items are present (in case filter changed)
-            if (isNewSearch && isMultiSelect.value && tempSelectedHotels.value.length > 0) {
+            // --- START: MODAL LIST FIX ---
+            // Ensure selected items are present after a new search, just like useTourApi
+            if (isNewSearch && tempSelectedHotels.value.length > 0) {
                 const currentResultIds = new Set(hotelResults.map(h => h.id));
                 const missingSelected = tempSelectedHotels.value.filter(h => !currentResultIds.has(h.id));
                 if (missingSelected.length > 0) {
                     hotelResults.unshift(...missingSelected);
                 }
             }
-
+            // --- END: MODAL LIST FIX ---
 
         } catch (error) {
             showModal('API Error', error.message);
-            canLoadMoreHotels.value = false; // Stop trying on error
+            canLoadMoreHotels.value = false; 
         } finally {
             isHotelLoading.value = false;
             isMoreHotelLoading.value = false;
@@ -242,7 +228,6 @@ export function useHotelApi(banner, showModal, ajax) {
         debounceTimeout = setTimeout(() => searchHotels(true), 500);
     };
 
-    // Watchers remain mostly the same
     watch(() => filters.minPrice, (newMin) => { if (newMin > filters.maxPrice) filters.maxPrice = newMin; });
     watch(() => filters.maxPrice, (newMax) => { if (newMax < filters.minPrice) filters.minPrice = newMax; });
     watch(() => filters.keyword, debouncedHotelSearch);
@@ -263,6 +248,7 @@ export function useHotelApi(banner, showModal, ajax) {
     const selectCity = (cityId) => { filters.province = cityId; isCityDropdownOpen.value = false; };
     const resetFilters = () => { Object.assign(filters, { keyword: '', types: [], minPrice: 0, maxPrice: 1000, province: '', stars: 0, sort: '' }); };
 
+    // --- START: MODAL LOGIC FIX ---
     // Updated selection logic
     const selectHotel = (hotel) => {
         const index = tempSelectedHotels.value.findIndex(h => h.id === hotel.id);
@@ -287,14 +273,14 @@ export function useHotelApi(banner, showModal, ajax) {
     const isHotelSelected = (hotel) => {
         return tempSelectedHotels.value.some(h => h.id === hotel.id);
     };
+    // --- END: MODAL LOGIC FIX ---
 
 
     const handleHotelScroll = () => {
         const el = hotelModalListRef.value;
-         // Prevent scroll loading if initial search/selection load is happening
         if (el && canLoadMoreHotels.value && !isMoreHotelLoading.value && !isHotelLoading.value && !isHotelSelectionLoading.value) {
             if (el.scrollTop + el.clientHeight >= el.scrollHeight - 200) {
-                searchHotels(false); // Load next page
+                searchHotels(false); 
             }
         }
     };
@@ -302,8 +288,8 @@ export function useHotelApi(banner, showModal, ajax) {
 
     return {
         isHotelModalOpen, isHotelLoading, isMoreHotelLoading, sortedHotelResults,
-        isHotelDetailsLoading, isHotelSelectionLoading, // Expose new loading state
-        openHotelModal, closeHotelModal, selectHotel, hotelModalListRef, // Renamed ref
+        isHotelDetailsLoading, isHotelSelectionLoading, 
+        openHotelModal, closeHotelModal, selectHotel, hotelModalListRef, 
         tempSelectedHotels, // Expose array
         isHotelSelected, // Expose checker function
         isMultiSelect, // Expose mode flag
@@ -311,8 +297,8 @@ export function useHotelApi(banner, showModal, ajax) {
         filters, cities, hotelTypes,
         debouncedHotelSearch, toggleType, setStarRating, resetFilters, toggleSort,
         isCityDropdownOpen, selectedCityName, selectCity,
-        fetchFullHotelDetails, // Keep for single display
-        fetchHotelsByIds, // Expose bulk fetcher
+        fetchFullHotelDetails, 
+        fetchHotelsByIds, 
         getRatingLabel,
         formatRating,
     };
