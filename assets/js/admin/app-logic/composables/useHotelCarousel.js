@@ -447,7 +447,7 @@ export function useHotelCarousel() {
         },
         // --- TEMPLATE (No changes needed here) ---
         template: `
-            <div :id="uniqueId" :style="{ maxWidth: containerWidth + 'px', width: '100%', margin: '0 auto' }" :dir="settings.direction" class="yab-hotel-carousel-preview"> {/* Changed to maxWidth */}
+            <div :id="uniqueId" :style="{ maxWidth: containerWidth + 'px', width: '100%', margin: '0 auto' }" :dir="settings.direction" class="yab-hotel-carousel-preview"> 
                 <!-- Header -->
                 <div :style="{ marginBottom: (headerSettings.marginTop || 28) + 'px' }" class="flex flex-col">
                     <div class="mb-[13px] flex w-full flex-row justify-between items-center" >
@@ -479,7 +479,7 @@ export function useHotelCarousel() {
                 <!-- Swiper -->
                 <div class="swiper"
                      :ref="el => swiperRef = el"
-                     :style="settings.isDoubled ? { height: gridHeight + 'px', paddingBottom: '10px', overflow: 'hidden' } : { overflow: 'hidden', paddingBottom: '10px' }"> {/* Corrected style binding */}
+                     :style="settings.isDoubled ? { height: gridHeight + 'px', paddingBottom: '10px', overflow: 'hidden' } : { overflow: 'hidden', paddingBottom: '10px' }"> 
                     <div class="swiper-wrapper">
                         <!-- Slides are dynamically generated in initSwiper -->
                     </div>

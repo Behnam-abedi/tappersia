@@ -44,6 +44,11 @@
                     </div>
                 </div>
                  <hr class="section-divider">
+                 <div>
+                    <label class="setting-label-sm">Space Between Slides (px)</label>
+                    <input type="number" v-model.number="settings.spaceBetween" class="yab-form-input">
+                 </div>
+                 <hr class="section-divider">
                 <div><div class="flex items-center justify-between bg-[#292929] p-2 rounded-md"><label class="setting-label-sm !mb-0">Loop Slides</label><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" v-model="settings.loop" class="sr-only peer"><div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div></label></div></div>
                 <hr class="section-divider">
                 <div v-if="currentView === 'desktop'"><div class="flex items-center justify-between bg-[#292929] p-2 rounded-md"><label class="setting-label-sm !mb-0">Double Carousel (2 Rows)</label><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" v-model="settings.isDoubled" class="sr-only peer"><div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div></label></div></div>
@@ -114,7 +119,7 @@
                      <div>
                         <h4 class="section-title">Layout</h4>
                         <div class="grid grid-cols-2 gap-2">
-                            <div><label class="setting-label-sm">Card Height (px) - Fixed</label><input type="number" :value="card.height" class="yab-form-input bg-gray-500" disabled></div>
+                            <!-- Removed Card Height Input -->
                             <div><label class="setting-label-sm">Overall Padding (px)</label><input type="number" v-model.number="card.padding" class="yab-form-input"></div>
                         </div>
                     </div>
@@ -139,7 +144,7 @@
                     <div>
                         <h4 class="section-title">Image Area</h4>
                         <div class="grid grid-cols-2 gap-2">
-                            <div><label class="setting-label-sm">Image Height (px) - Fixed</label><input type="number" :value="card.image.height" class="yab-form-input bg-gray-500" disabled></div>
+                            <!-- Removed Image Height Input -->
                              <div><label class="setting-label-sm">Image Radius (px)</label><input type="number" v-model.number="card.image.radius" class="yab-form-input"></div>
                         </div>
                         <div class="grid grid-cols-2 gap-2 mt-2">
@@ -329,3 +334,4 @@
     </div>
 
 </div>
+
