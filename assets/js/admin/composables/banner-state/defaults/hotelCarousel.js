@@ -9,7 +9,7 @@ export const createDefaultHotelCarouselDesktopPart = () => ({
     gridFill: 'column',
     direction: 'ltr',
     header: {
-        text: 'Top Iran Hotels', // Changed default text
+        text: 'Top Rated Hotel in Isfahan', // Changed default text
         fontSize: 24,
         fontWeight: '700',
         color: '#ffffff', // Default to white for dark admin theme
