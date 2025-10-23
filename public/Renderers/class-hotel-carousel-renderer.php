@@ -203,7 +203,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                             $skeleton_html = <<<HTML
                                 <div name="card-skeleton" class="yab-skeleton-loader" style="margin: 0; height: {$card_height_esc}px; width: 295px; border-radius: {$card_radius_esc}px; border: {$border_width_esc}px solid {$border_color_esc}; padding: {$card_padding_esc}px; background-color: {$bg_color_esc}; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column;">
                                   <div style="height: {$image_height_esc}px; width: {$image_width_calc}px; border-radius: {$image_radius_esc}px; flex-shrink: 0;"></div>
-                                  <div style="margin: {$content_margin_top_esc}px {$content_margin_x_esc}px 0 {$content_margin_x_esc}px; flex-grow: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;"> {/* Added overflow: hidden */}
+                                  <div style="margin: {$content_margin_top_esc}px {$content_margin_x_esc}px 0 {$content_margin_x_esc}px; flex-grow: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
                                     <div style="min-height: {$title_min_height_esc}px; width: 100%; margin-bottom: 7px;">
                                       <div style="height: 16px; border-radius: 4px; width: 75%; margin-bottom: 8px;"></div>
                                       <div style="height: 16px; border-radius: 4px; width: 50%;"></div>
