@@ -50,6 +50,7 @@ class Yab_Hotel_Carousel {
     }
 
     private function check_for_banner_conflict($displayOn, $current_banner_id) {
+        // ... (Conflict check logic remains the same as Tour Carousel) ...
         $conflict = ['has_conflict' => false, 'message' => ''];
         $post_ids = !empty($displayOn['posts']) ? array_map('intval', $displayOn['posts']) : [];
         $page_ids = !empty($displayOn['pages']) ? array_map('intval', $displayOn['pages']) : [];
@@ -92,17 +93,17 @@ class Yab_Hotel_Carousel {
     }
 
     private function sanitize_settings_object($settings) {
-        // Keep this identical to TourCarousel for now, adjust later if needed
+        // --- START: Update to include new card settings ---
         $sanitized = [];
         $sanitized['slidesPerView'] = isset($settings['slidesPerView']) ? intval($settings['slidesPerView']) : 3;
         $sanitized['loop'] = isset($settings['loop']) ? boolval($settings['loop']) : false;
-        $sanitized['spaceBetween'] = isset($settings['spaceBetween']) ? intval($settings['spaceBetween']) : 22;
+        $sanitized['spaceBetween'] = isset($settings['spaceBetween']) ? intval($settings['spaceBetween']) : 18;
         $sanitized['isDoubled'] = isset($settings['isDoubled']) ? boolval($settings['isDoubled']) : false;
         $sanitized['gridFill'] = isset($settings['gridFill']) ? sanitize_text_field($settings['gridFill']) : 'column';
         $sanitized['direction'] = isset($settings['direction']) ? sanitize_text_field($settings['direction']) : 'ltr';
 
         $sanitized['header'] = [
-            'text' => isset($settings['header']['text']) ? sanitize_text_field($settings['header']['text']) : 'Top Iran Hotels', // Default text changed
+            'text' => isset($settings['header']['text']) ? sanitize_text_field($settings['header']['text']) : 'Top Rated Hotel in Isfahan',
             'fontSize' => isset($settings['header']['fontSize']) ? intval($settings['header']['fontSize']) : 24,
             'fontWeight' => isset($settings['header']['fontWeight']) ? sanitize_text_field($settings['header']['fontWeight']) : '700',
             'color' => isset($settings['header']['color']) ? sanitize_hex_color($settings['header']['color']) : '#000000',
@@ -110,7 +111,7 @@ class Yab_Hotel_Carousel {
             'marginTop' => isset($settings['header']['marginTop']) ? intval($settings['header']['marginTop']) : 28,
         ];
 
-        $sanitized['card'] = $this->sanitize_card_settings($settings['card'] ?? []); // Reuse card settings for now
+        $sanitized['card'] = $this->sanitize_card_settings($settings['card'] ?? []); // Call new function
 
         $sanitized['autoplay'] = [
             'enabled' => isset($settings['autoplay']['enabled']) ? boolval($settings['autoplay']['enabled']) : false,
@@ -122,7 +123,7 @@ class Yab_Hotel_Carousel {
             'paginationColor' => isset($settings['pagination']['paginationColor']) ? sanitize_text_field($settings['pagination']['paginationColor']) : 'rgba(0, 186, 164, 0.31)',
             'paginationActiveColor' => isset($settings['pagination']['paginationActiveColor']) ? sanitize_text_field($settings['pagination']['paginationActiveColor']) : '#00BAA4',
         ];
-
+        // --- END: Update to include new card settings ---
         return $sanitized;
     }
 
@@ -158,44 +159,126 @@ class Yab_Hotel_Carousel {
         return $sanitized;
     }
 
+     // --- START: Added specific card sanitization ---
      private function sanitize_card_settings($card_settings) {
-        // Keep this identical to TourCarousel for now, adjust later for hotel specifics
-        $sanitized = [];
-        $sanitized['height'] = isset($card_settings['height']) ? intval($card_settings['height']) : 375;
-        $sanitized['backgroundType'] = isset($card_settings['backgroundType']) ? sanitize_text_field($card_settings['backgroundType']) : 'solid';
-        $sanitized['bgColor'] = isset($card_settings['bgColor']) ? sanitize_text_field($card_settings['bgColor']) : '#FFFFFF';
-        $sanitized['gradientAngle'] = isset($card_settings['gradientAngle']) ? intval($card_settings['gradientAngle']) : 90;
-        $sanitized['gradientStops'] = isset($card_settings['gradientStops']) ? array_map(function($stop) {
-            return [
-                'color' => isset($stop['color']) ? sanitize_text_field($stop['color']) : '#FFFFFF',
-                'stop' => isset($stop['stop']) ? intval($stop['stop']) : 0,
-            ];
-        }, $card_settings['gradientStops']) : [];
-        $sanitized['borderWidth'] = isset($card_settings['borderWidth']) ? intval($card_settings['borderWidth']) : 1;
-        $sanitized['borderColor'] = isset($card_settings['borderColor']) ? sanitize_hex_color($card_settings['borderColor']) : '#E0E0E0';
-        $sanitized['borderRadius'] = isset($card_settings['borderRadius']) ? intval($card_settings['borderRadius']) : 14;
-        $sanitized['padding'] = isset($card_settings['padding']) ? intval($card_settings['padding']) : 9;
-        $sanitized['imageHeight'] = isset($card_settings['imageHeight']) ? intval($card_settings['imageHeight']) : 204;
+        $s = []; // Use 's' for sanitized card settings
 
-        // Adapt these text elements for hotels later
-        $text_elements = ['province', 'title', 'price', 'duration', 'rating', 'reviews', 'button'];
-        foreach ($text_elements as $el) {
-            $sanitized[$el] = [
-                'fontSize' => isset($card_settings[$el]['fontSize']) ? intval($card_settings[$el]['fontSize']) : 14,
-                'fontWeight' => isset($card_settings[$el]['fontWeight']) ? sanitize_text_field($card_settings[$el]['fontWeight']) : '400',
-                'color' => isset($card_settings[$el]['color']) ? sanitize_text_field($card_settings[$el]['color']) : '#000000',
-            ];
-        }
+        // Layout & Border
+        $s['height'] = isset($card_settings['height']) ? intval($card_settings['height']) : 357;
+        $s['padding'] = isset($card_settings['padding']) ? intval($card_settings['padding']) : 9;
+        $s['borderWidth'] = isset($card_settings['borderWidth']) ? intval($card_settings['borderWidth']) : 1;
+        $s['borderColor'] = isset($card_settings['borderColor']) ? sanitize_hex_color($card_settings['borderColor']) : '#E5E5E5';
+        $s['borderRadius'] = isset($card_settings['borderRadius']) ? intval($card_settings['borderRadius']) : 16;
+        $s['bgColor'] = isset($card_settings['bgColor']) ? sanitize_hex_color($card_settings['bgColor']) : '#FFFFFF';
 
-        $sanitized['province']['bgColor'] = isset($card_settings['province']['bgColor']) ? sanitize_text_field($card_settings['province']['bgColor']) : 'rgba(14,14,14,0.2)';
-        $sanitized['province']['blur'] = isset($card_settings['province']['blur']) ? intval($card_settings['province']['blur']) : 3;
-        $sanitized['province']['bottom'] = isset($card_settings['province']['bottom']) ? intval($card_settings['province']['bottom']) : 9;
-        $sanitized['province']['side'] = isset($card_settings['province']['side']) ? intval($card_settings['province']['side']) : 11;
-        $sanitized['title']['lineHeight'] = isset($card_settings['title']['lineHeight']) ? floatval($card_settings['title']['lineHeight']) : 1.5;
-        $sanitized['button']['bgColor'] = isset($card_settings['button']['bgColor']) ? sanitize_hex_color($card_settings['button']['bgColor']) : '#00BAA4';
-        $sanitized['button']['arrowSize'] = isset($card_settings['button']['arrowSize']) ? intval($card_settings['button']['arrowSize']) : 10;
+        // Image Area
+        $s['imageContainer'] = [
+            'paddingX' => isset($card_settings['imageContainer']['paddingX']) ? intval($card_settings['imageContainer']['paddingX']) : 13,
+            'paddingY' => isset($card_settings['imageContainer']['paddingY']) ? intval($card_settings['imageContainer']['paddingY']) : 13,
+        ];
+        $s['image'] = [
+            'height' => isset($card_settings['image']['height']) ? intval($card_settings['image']['height']) : 176,
+            'radius' => isset($card_settings['image']['radius']) ? intval($card_settings['image']['radius']) : 14,
+        ];
+        $s['imageOverlay'] = [
+            'gradientStartColor' => isset($card_settings['imageOverlay']['gradientStartColor']) ? sanitize_text_field($card_settings['imageOverlay']['gradientStartColor']) : 'rgba(0,0,0,0)',
+            'gradientEndColor' => isset($card_settings['imageOverlay']['gradientEndColor']) ? sanitize_text_field($card_settings['imageOverlay']['gradientEndColor']) : 'rgba(0,0,0,0.83)',
+            'gradientStartPercent' => isset($card_settings['imageOverlay']['gradientStartPercent']) ? intval($card_settings['imageOverlay']['gradientStartPercent']) : 38,
+            'gradientEndPercent' => isset($card_settings['imageOverlay']['gradientEndPercent']) ? intval($card_settings['imageOverlay']['gradientEndPercent']) : 0,
+        ];
 
-        return $sanitized;
+        // Badges
+        $s['badges'] = [
+            'bestSeller' => [
+                'textColor' => isset($card_settings['badges']['bestSeller']['textColor']) ? sanitize_hex_color($card_settings['badges']['bestSeller']['textColor']) : '#ffffff',
+                'fontSize' => isset($card_settings['badges']['bestSeller']['fontSize']) ? intval($card_settings['badges']['bestSeller']['fontSize']) : 12,
+                'bgColor' => isset($card_settings['badges']['bestSeller']['bgColor']) ? sanitize_hex_color($card_settings['badges']['bestSeller']['bgColor']) : '#F66A05',
+                'paddingX' => isset($card_settings['badges']['bestSeller']['paddingX']) ? intval($card_settings['badges']['bestSeller']['paddingX']) : 7,
+                'paddingY' => isset($card_settings['badges']['bestSeller']['paddingY']) ? intval($card_settings['badges']['bestSeller']['paddingY']) : 5,
+                'radius' => isset($card_settings['badges']['bestSeller']['radius']) ? intval($card_settings['badges']['bestSeller']['radius']) : 20,
+            ],
+            'discount' => [
+                'textColor' => isset($card_settings['badges']['discount']['textColor']) ? sanitize_hex_color($card_settings['badges']['discount']['textColor']) : '#ffffff',
+                'fontSize' => isset($card_settings['badges']['discount']['fontSize']) ? intval($card_settings['badges']['discount']['fontSize']) : 12,
+                'bgColor' => isset($card_settings['badges']['discount']['bgColor']) ? sanitize_hex_color($card_settings['badges']['discount']['bgColor']) : '#FB2D51',
+                'paddingX' => isset($card_settings['badges']['discount']['paddingX']) ? intval($card_settings['badges']['discount']['paddingX']) : 10,
+                'paddingY' => isset($card_settings['badges']['discount']['paddingY']) ? intval($card_settings['badges']['discount']['paddingY']) : 5,
+                'radius' => isset($card_settings['badges']['discount']['radius']) ? intval($card_settings['badges']['discount']['radius']) : 20,
+            ],
+        ];
+
+        // Stars
+        $s['stars'] = [
+            'shapeSize' => isset($card_settings['stars']['shapeSize']) ? intval($card_settings['stars']['shapeSize']) : 17,
+            'shapeColor' => isset($card_settings['stars']['shapeColor']) ? sanitize_hex_color($card_settings['stars']['shapeColor']) : '#FCC13B',
+            'textSize' => isset($card_settings['stars']['textSize']) ? intval($card_settings['stars']['textSize']) : 12,
+            'textColor' => isset($card_settings['stars']['textColor']) ? sanitize_hex_color($card_settings['stars']['textColor']) : '#ffffff',
+        ];
+
+        // Body Content Area
+        $s['bodyContent'] = [
+             'marginTop' => isset($card_settings['bodyContent']['marginTop']) ? intval($card_settings['bodyContent']['marginTop']) : 14,
+             'marginX' => isset($card_settings['bodyContent']['marginX']) ? intval($card_settings['bodyContent']['marginX']) : 19,
+             'textColor' => isset($card_settings['bodyContent']['textColor']) ? sanitize_hex_color($card_settings['bodyContent']['textColor']) : '#333333',
+        ];
+
+        // Title
+        $s['title'] = [
+            'fontSize' => isset($card_settings['title']['fontSize']) ? intval($card_settings['title']['fontSize']) : 14,
+            'fontWeight' => isset($card_settings['title']['fontWeight']) ? sanitize_text_field($card_settings['title']['fontWeight']) : '600',
+            'color' => isset($card_settings['title']['color']) ? sanitize_hex_color($card_settings['title']['color']) : '#333333',
+            'lineHeight' => isset($card_settings['title']['lineHeight']) ? floatval($card_settings['title']['lineHeight']) : 1.2,
+            'minHeight' => isset($card_settings['title']['minHeight']) ? intval($card_settings['title']['minHeight']) : 34,
+        ];
+
+        // Rating Section
+        $s['rating'] = [
+            'marginTop' => isset($card_settings['rating']['marginTop']) ? intval($card_settings['rating']['marginTop']) : 7,
+            'gap' => isset($card_settings['rating']['gap']) ? intval($card_settings['rating']['gap']) : 6,
+            'boxBgColor' => isset($card_settings['rating']['boxBgColor']) ? sanitize_hex_color($card_settings['rating']['boxBgColor']) : '#5191FA',
+            'boxColor' => isset($card_settings['rating']['boxColor']) ? sanitize_hex_color($card_settings['rating']['boxColor']) : '#ffffff',
+            'boxFontSize' => isset($card_settings['rating']['boxFontSize']) ? intval($card_settings['rating']['boxFontSize']) : 11,
+            'boxPaddingX' => isset($card_settings['rating']['boxPaddingX']) ? intval($card_settings['rating']['boxPaddingX']) : 6,
+            'boxPaddingY' => isset($card_settings['rating']['boxPaddingY']) ? intval($card_settings['rating']['boxPaddingY']) : 2,
+            'boxRadius' => isset($card_settings['rating']['boxRadius']) ? intval($card_settings['rating']['boxRadius']) : 3,
+            'labelColor' => isset($card_settings['rating']['labelColor']) ? sanitize_hex_color($card_settings['rating']['labelColor']) : '#333333',
+            'labelFontSize' => isset($card_settings['rating']['labelFontSize']) ? intval($card_settings['rating']['labelFontSize']) : 12,
+            'countColor' => isset($card_settings['rating']['countColor']) ? sanitize_hex_color($card_settings['rating']['countColor']) : '#999999',
+            'countFontSize' => isset($card_settings['rating']['countFontSize']) ? intval($card_settings['rating']['countFontSize']) : 10,
+        ];
+
+        // Tags
+        $s['tags'] = [
+             'marginTop' => isset($card_settings['tags']['marginTop']) ? intval($card_settings['tags']['marginTop']) : 7,
+             'gap' => isset($card_settings['tags']['gap']) ? intval($card_settings['tags']['gap']) : 5,
+             'fontSize' => isset($card_settings['tags']['fontSize']) ? intval($card_settings['tags']['fontSize']) : 11,
+             'paddingX' => isset($card_settings['tags']['paddingX']) ? intval($card_settings['tags']['paddingX']) : 6,
+             'paddingY' => isset($card_settings['tags']['paddingY']) ? intval($card_settings['tags']['paddingY']) : 2,
+             'radius' => isset($card_settings['tags']['radius']) ? intval($card_settings['tags']['radius']) : 3,
+        ];
+
+        // Divider
+        $s['divider'] = [
+             'marginTop' => isset($card_settings['divider']['marginTop']) ? floatval($card_settings['divider']['marginTop']) : 9.5,
+             'marginBottom' => isset($card_settings['divider']['marginBottom']) ? floatval($card_settings['divider']['marginBottom']) : 7.5,
+             'color' => isset($card_settings['divider']['color']) ? sanitize_hex_color($card_settings['divider']['color']) : '#EEEEEE',
+        ];
+
+        // Price Section
+        $s['price'] = [
+            'fromColor' => isset($card_settings['price']['fromColor']) ? sanitize_hex_color($card_settings['price']['fromColor']) : '#999999',
+            'fromSize' => isset($card_settings['price']['fromSize']) ? intval($card_settings['price']['fromSize']) : 12,
+            'amountColor' => isset($card_settings['price']['amountColor']) ? sanitize_hex_color($card_settings['price']['amountColor']) : '#00BAA4',
+            'amountSize' => isset($card_settings['price']['amountSize']) ? intval($card_settings['price']['amountSize']) : 16,
+            'amountWeight' => isset($card_settings['price']['amountWeight']) ? sanitize_text_field($card_settings['price']['amountWeight']) : '700',
+            'nightColor' => isset($card_settings['price']['nightColor']) ? sanitize_hex_color($card_settings['price']['nightColor']) : '#555555',
+            'nightSize' => isset($card_settings['price']['nightSize']) ? intval($card_settings['price']['nightSize']) : 13,
+            'originalColor' => isset($card_settings['price']['originalColor']) ? sanitize_hex_color($card_settings['price']['originalColor']) : '#999999',
+            'originalSize' => isset($card_settings['price']['originalSize']) ? intval($card_settings['price']['originalSize']) : 12,
+        ];
+
+        return $s;
     }
+     // --- END: Added specific card sanitization ---
 }
 endif;

@@ -17,8 +17,10 @@ export function useHotelCarousel() {
 
             const isRTL = computed(() => props.settings.direction === 'rtl');
             const headerSettings = computed(() => props.settings.header || {});
+            const cardSettings = computed(() => props.settings.card || {}); // Get card settings
 
             const updatePaginationStyles = () => {
+                // ... (no changes needed here) ...
                 if (!uniqueId.value) return;
                 const paginationSettings = props.settings.pagination || {};
                 const color = paginationSettings.paginationColor || 'rgba(0, 186, 164, 0.31)';
@@ -50,16 +52,21 @@ export function useHotelCarousel() {
                 const cardWidth = 295;
                 const spaceBetween = props.settings.spaceBetween || 18;
                 const slidesPerView = props.settings.slidesPerView || 3;
+                // If slidesPerView is 1 (e.g., mobile), width should just be card width
+                 if (slidesPerView === 1) {
+                     return cardWidth;
+                 }
                 return (cardWidth * slidesPerView) + (spaceBetween * (slidesPerView - 1));
             });
 
             const gridHeight = computed(() => {
-                const cardHeight = 357; // Hardcoded height from new design
-                const verticalSpace = 20;
+                const cardHeight = cardSettings.value.height || 357; // Use height from settings
+                const verticalSpace = 20; // Default grid gap
                 return (cardHeight * 2) + verticalSpace;
             });
 
             const slidesToRender = computed(() => {
+                // ... (no changes needed here) ...
                 const originalHotels = [...props.hotelIds];
                 const settings = props.settings;
                 const hotelCount = originalHotels.length;
@@ -100,48 +107,26 @@ export function useHotelCarousel() {
             // --- START: NEW CARD LOGIC ---
 
             // Helper enum for Rating Labels
-            const RatingLabel = {
-              Excellent: 'Excellent',
-              VeryGood: 'Very Good',
-              Good: 'Good',
-              Average: 'Average',
-              Poor: 'Poor',
-              New: 'New'
-            };
+            const RatingLabel = { Excellent: 'Excellent', VeryGood: 'Very Good', Good: 'Good', Average: 'Average', Poor: 'Poor', New: 'New' };
 
             // Helper functions
-            const getRatingLabel = (score) => {
-              if (!score || score == 0) {
-                return RatingLabel.New;
-              }
-              if (score >= 4.6) {
-                return RatingLabel.Excellent;
-              } else if (score >= 4.1) {
-                return RatingLabel.VeryGood;
-              } else if (score >= 3.6) {
-                return RatingLabel.Good;
-              } else if (score >= 3.0) {
-                return RatingLabel.Average;
-              } else {
-                return RatingLabel.Poor;
-              }
+            const getRatingLabel = (score) => { /* ... (no changes) ... */
+              if (!score || score == 0) return RatingLabel.New;
+              if (score >= 4.6) return RatingLabel.Excellent;
+              if (score >= 4.1) return RatingLabel.VeryGood;
+              if (score >= 3.6) return RatingLabel.Good;
+              if (score >= 3.0) return RatingLabel.Average;
+              return RatingLabel.Poor;
             };
 
-            const getTagClass = (tag) => {
+            const getTagClass = (tag) => { /* ... (no changes) ... */
                 if (!tag) return 'hotel-label-default';
                 const tagName = tag.toLowerCase();
-                const tagMap = {
-                    luxury: 'hotel-label-luxury',
-                    business: 'hotel-label-business',
-                    boutique: 'hotel-label-boutique',
-                    traditional: 'hotel-label-traditional',
-                    economy: 'hotel-label-economy',
-                    hostel: 'hotel-label-hostel'
-                };
+                const tagMap = { luxury: 'hotel-label-luxury', business: 'hotel-label-business', boutique: 'hotel-label-boutique', traditional: 'hotel-label-traditional', economy: 'hotel-label-economy', hostel: 'hotel-label-hostel' };
                 return tagMap[tagName] || 'hotel-label-default';
             };
 
-            const escapeHTML = (str) => {
+            const escapeHTML = (str) => { /* ... (no changes) ... */
                 if (!str) return '';
                 // Basic escaping for preventing XSS in simple text insertion
                 return String(str).replace(/[&<>"']/g, function(m) {
@@ -150,120 +135,127 @@ export function useHotelCarousel() {
             };
 
             const generateHotelCardHTML = (hotel) => {
+                 const card = cardSettings.value; // Access card settings
+
                  // --- SKELETON LOADER ---
                 if (!hotel) {
-                    const cardHeight = 357;
-                    const imageHeight = 176;
-                    // --- START: SKELETON FIX ---
-                    // Using styles to mimic Tailwind, added yab-skeleton-loader, and lighter bg color
+                    // Use card height from settings
+                    const cardHeight = card.height || 357;
+                    const imageHeight = card.image?.height || 176;
+                    const imageRadius = card.image?.radius || 14;
+                    const cardRadius = card.borderRadius || 16;
+                    const cardPadding = card.padding || 9;
+                    const contentMarginX = card.bodyContent?.marginX || 19;
+                    const contentMarginTop = card.bodyContent?.marginTop || 14;
+
+                    // Calculate image width based on card padding
+                    const imageWidth = 295 - (cardPadding * 2);
+
                     return `
-                    <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; min-height: ${cardHeight}px; width: 295px; border-radius: 16px; border: 1px solid #E5E5E5; padding: 9px; background-color: #ffffff; box-sizing: border-box; overflow: hidden;">
-                      <div style="height: ${imageHeight}px; width: 276px; border-radius: 14px; background-color: #f0f0f0;"></div>
-                      <div style="margin: 14px 19px 0 19px;">
-                        <div style="min-height: 34px; width: 100%; margin-bottom: 7px;">
+                    <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; min-height: ${cardHeight}px; width: 295px; border-radius: ${cardRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${cardPadding}px; background-color: ${card.bgColor}; box-sizing: border-box; overflow: hidden;">
+                      <div style="height: ${imageHeight}px; width: ${imageWidth}px; border-radius: ${imageRadius}px; background-color: #f0f0f0;"></div>
+                      <div style="margin: ${contentMarginTop}px ${contentMarginX}px 0 ${contentMarginX}px;">
+                        <div style="min-height: ${card.title?.minHeight || 34}px; width: 100%; margin-bottom: 7px;">
                           <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 75%; margin-bottom: 8px;"></div>
                           <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 50%;"></div>
                         </div>
                         <div name="description-skeleton">
-                          <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: 6px;visibility:hidden">
-                            <div style="height: 20px; width: 32px; border-radius: 3px; background-color: #f0f0f0;"></div>
+                          <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: ${card.rating?.gap || 6}px; margin-top: ${card.rating?.marginTop || 7}px;">
+                            <div style="height: 20px; width: 32px; border-radius: ${card.rating?.boxRadius || 3}px; background-color: #f0f0f0;"></div>
                             <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div>
                             <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px;"></div>
                           </div>
-                          <div name="tags-skeleton" style="margin-top: 7px; display: flex; flex-direction: row; gap: 5px;">
-                            <div style="height: 20px; width: 96px; border-radius: 3px; background-color: #f0f0f0;"></div>
+                          <div name="tags-skeleton" style="margin-top: ${card.tags?.marginTop || 7}px; display: flex; flex-direction: row; gap: ${card.tags?.gap || 5}px;">
+                            <div style="height: 20px; width: 48px; border-radius: ${card.tags?.radius || 3}px; background-color: #f0f0f0;"></div>
+                            <div style="height: 20px; width: 48px; border-radius: ${card.tags?.radius || 3}px; background-color: #f0f0f0;"></div>
                           </div>
                         </div>
-                        <hr style="margin: 9.5px 0 7.5px 0; border: 0; border-top: 1px solid #EEEEEE;" />
+                        <hr style="margin: ${card.divider?.marginTop || 9.5}px 0 ${card.divider?.marginBottom || 7.5}px 0; border: 0; border-top: 1px solid ${card.divider?.color || '#EEEEEE'};" />
                         <div name="price-skeleton" style="display: flex; flex-direction: column;">
-                          <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 100%;"></div>
+                           <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px; margin-bottom: 4px;"></div> {/* 'From' text */}
+                          <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                              <div style="height: 20px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div> {/* Amount */}
+                              <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 40px;"></div> {/* / night */}
+                            </div>
+                            <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 48px;"></div> {/* Original Price */}
+                          </div>
                         </div>
                       </div>
                     </div>`;
-                    // --- END: SKELETON FIX ---
                 }
                 // --- END SKELETON LOADER ---
 
 
                 // --- CARD LOGIC ---
-                const {
-                    coverImage, isFeatured = false, discount = 0, minPrice = 0,
-                    star = 0, title = 'N/A', avgRating, reviewCount = 0,
-                    customTags = [], detailUrl = '#'
-                } = hotel;
+                 // Destructure data as before
+                const { coverImage, isFeatured = false, discount = 0, minPrice = 0, star = 0, title = 'N/A', avgRating, reviewCount = 0, customTags = [], detailUrl = '#' } = hotel;
 
                 const imageUrl = coverImage?.url || 'https://placehold.co/276x176/e0e0e0/cccccc?text=No+Image';
-
-                // Discount Logic
-                const hasDiscount = discount > 0 && minPrice > 0; // Ensure minPrice > 0 to avoid division by zero
-                 // Correct calculation and rounding: calculate percentage first, then round.
+                const hasDiscount = discount > 0 && minPrice > 0;
                 const discountPercentage = hasDiscount ? Math.round((discount / (minPrice + discount)) * 100) : 0;
                 const originalPrice = hasDiscount ? (minPrice + discount).toFixed(2) : '0.00';
-
-
-                // Star Logic
                 const stars = '★'.repeat(star) + '☆'.repeat(5 - star);
                 const starText = `${star} Star`;
-
-                // Rating Logic - Use Math.floor(avgRating * 10) / 10 for one decimal place or handle null/undefined
-                 const ratingScore = avgRating != null ? (Math.round(avgRating * 10) / 10).toFixed(1) : null;
-                const ratingLabel = getRatingLabel(avgRating); // Pass the original avgRating
-
-                // Tags Logic
+                const ratingScore = avgRating != null ? (Math.round(avgRating * 10) / 10).toFixed(1) : null;
+                const ratingLabel = getRatingLabel(avgRating);
                 const tagsHtml = (customTags || []).map(tag =>
-                    `<span class="${getTagClass(tag)} hotel-label-base">${escapeHTML(tag)}</span>`
-                ).join('');
+                     `<span class="${getTagClass(tag)} hotel-label-base" style="font-size: ${card.tags?.fontSize || 11}px; padding: ${card.tags?.paddingY || 2}px ${card.tags?.paddingX || 6}px; border-radius: ${card.tags?.radius || 3}px; margin-top: ${card.tags?.marginTop || 7}px;">${escapeHTML(tag)}</span>`
+                 ).join('');
+
+                 // Calculate image overlay gradient
+                 const overlayGradient = `linear-gradient(to top, ${card.imageOverlay?.gradientEndColor || 'rgba(0,0,0,0.83)'} ${card.imageOverlay?.gradientEndPercent || 0}%, ${card.imageOverlay?.gradientStartColor || 'rgba(0,0,0,0)'} ${card.imageOverlay?.gradientStartPercent || 38}%, ${card.imageOverlay?.gradientStartColor || 'rgba(0,0,0,0)'} 100%)`;
 
                 // --- TEMPLATE ---
-                 // Note: Using inline styles derived from Tailwind for preview accuracy as direct Tailwind might not apply in JS string
+                 // Apply styles from cardSettings (card variable)
                  return `
-                <div name="card" class="yab-hotel-card m-0 min-h-[357px] w-[295px] rounded-[16px] border border-[#E5E5E5] p-[9px] bg-white box-border font-['Roboto',_sans-serif]">
-                  <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: block; outline: none;"> 
-                    <div class="relative h-[176px] w-[276px] rounded-[14px]" name="header-content-image">
-                      <div class="absolute z-10 flex h-full w-full flex-col justify-between px-[13px] py-[13px] box-border">
-                        <div class="flex w-full items-start justify-between">
-                          ${isFeatured ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: 20px; background: #F66A05; padding: 5px 7px; font-size: 12px; line-height: 1; font-weight: 500; color: #ffffff;">Best Seller</div>` : '<div></div>' /* Placeholder */}
-                          ${hasDiscount && discountPercentage > 0 ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: 20px; background: #FB2D51; padding: 5px 10px; font-size: 12px; line-height: 1; font-weight: 500; color: #ffffff;">${discountPercentage}%</div>` : ''}
+                <div name="card" class="yab-hotel-card" style="margin: 0; min-height: ${card.height}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif;">
+                  <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: block; outline: none;">
+                    <div style="position: relative; height: ${card.image?.height || 176}px; width: ${295 - (card.padding * 2)}px; border-radius: ${card.image?.radius || 14}px;" name="header-content-image">
+                      <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: ${card.imageContainer?.paddingY || 13}px ${card.imageContainer?.paddingX || 13}px; box-sizing: border-box;">
+                        <div style="display: flex; width: 100%; align-items: flex-start; justify-content: space-between;">
+                           ${isFeatured ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: ${card.badges?.bestSeller?.radius || 20}px; background: ${card.badges?.bestSeller?.bgColor || '#F66A05'}; padding: ${card.badges?.bestSeller?.paddingY || 5}px ${card.badges?.bestSeller?.paddingX || 7}px; font-size: ${card.badges?.bestSeller?.fontSize || 12}px; line-height: 1; font-weight: 500; color: ${card.badges?.bestSeller?.textColor || '#ffffff'};">Best Seller</div>` : '<div></div>'}
+                           ${hasDiscount && discountPercentage > 0 ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: ${card.badges?.discount?.radius || 20}px; background: ${card.badges?.discount?.bgColor || '#FB2D51'}; padding: ${card.badges?.discount?.paddingY || 5}px ${card.badges?.discount?.paddingX || 10}px; font-size: ${card.badges?.discount?.fontSize || 12}px; line-height: 1; font-weight: 500; color: ${card.badges?.discount?.textColor || '#ffffff'};">${discountPercentage}%</div>` : ''}
                         </div>
-                        <div class="flex flex-row items-center gap-[5px] self-start">
-                          <div class="text-[17px] text-[#FCC13B]" style="line-height:0.7;">${stars}</div>
-                          <div class="text-[12px] leading-[13px] text-white">${escapeHTML(starText)}</div>
+                        <div style="display: flex; flex-direction: row; align-items: center; gap: 5px; align-self: flex-start;">
+                          <div style="font-size: ${card.stars?.shapeSize || 17}px; color: ${card.stars?.shapeColor || '#FCC13B'}; line-height: 0.7;">${stars}</div>
+                          <div style="font-size: ${card.stars?.textSize || 12}px; line-height: 13px; color: ${card.stars?.textColor || '#ffffff'};">${escapeHTML(starText)}</div>
                         </div>
                       </div>
-                      <div name="black-highlight" class="absolute flex h-full w-full items-end rounded-b-[14px]" style="background-image: linear-gradient(to top, rgba(0,0,0,0.83) 0%, rgba(0,0,0,0) 38%, rgba(0,0,0,0) 100%);"></div>
-                      <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" class="h-full w-full rounded-[14px] object-cover" />
+                      <div name="black-highlight" style="position: absolute; display: flex; height: 100%; width: 100%; align-items: flex-end; border-bottom-left-radius: ${card.image?.radius || 14}px; border-bottom-right-radius: ${card.image?.radius || 14}px; background-image: ${overlayGradient};"></div>
+                      <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" style="height: 100%; width: 100%; border-radius: ${card.image?.radius || 14}px; object-fit: cover;" />
                     </div>
-                    <div name="body-content" class="mx-[19px] mt-[14px] text-[#333]">
-                      <div name="title" class="min-h-[34px] w-full">
-                        <h4 class="line-clamp-2 text-[14px] leading-[17px] font-semibold text-[#333333] m-0" style="overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4>
+                    <div name="body-content" style="margin: ${card.bodyContent?.marginTop || 14}px ${card.bodyContent?.marginX || 19}px 0 ${card.bodyContent?.marginX || 19}px; color: ${card.bodyContent?.textColor || '#333'};">
+                      <div name="title" style="min-height: ${card.title?.minHeight || 34}px; width: 100%;">
+                        <h4 style="font-size: ${card.title?.fontSize || 14}px; line-height: ${card.title?.lineHeight || 1.2}; font-weight: ${card.title?.fontWeight || 600}; color: ${card.title?.color || '#333333'}; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4>
                       </div>
                       <div name="description">
-                        <div name="rating" class="mt-[7px] flex flex-row items-center gap-[6px]">
-                          ${ratingScore !== null ? `<div name="rate"><span class="w-fit rounded-[3px] bg-[#5191FA] px-[6px] py-[2px] text-[11px] leading-[1] text-[#ffffff]">${ratingScore}</span></div>` : ''}
-                          <div name="text-rate" class="text-[12px] leading-[15px] text-[#333333] pt-[1px]"> 
+                        <div name="rating" style="margin-top: ${card.rating?.marginTop || 7}px; display: flex; flex-direction: row; align-items: center; gap: ${card.rating?.gap || 6}px;">
+                          ${ratingScore !== null ? `<div name="rate"><span style="width: fit-content; border-radius: ${card.rating?.boxRadius || 3}px; background: ${card.rating?.boxBgColor || '#5191FA'}; padding: ${card.rating?.boxPaddingY || 2}px ${card.rating?.boxPaddingX || 6}px; font-size: ${card.rating?.boxFontSize || 11}px; line-height: 1; color: ${card.rating?.boxColor || '#ffffff'};">${ratingScore}</span></div>` : ''}
+                          <div name="text-rate" style="font-size: ${card.rating?.labelFontSize || 12}px; line-height: 15px; color: ${card.rating?.labelColor || '#333333'}; padding-top: 1px;">
                             <span>${escapeHTML(ratingLabel)}</span>
                           </div>
-                          <div name="rate-count" class="text-[10px] leading-[12px] text-[#999999]">
+                          <div name="rate-count" style="font-size: ${card.rating?.countFontSize || 10}px; line-height: 12px; color: ${card.rating?.countColor || '#999999'};">
                             <span>(${reviewCount})</span>
                           </div>
                         </div>
                         <div name="tags">
-                          <div class="flex flex-row flex-wrap gap-[5px]">
+                          <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: ${card.tags?.gap || 5}px;">
                             ${tagsHtml}
                           </div>
                         </div>
                       </div>
-                      <hr class="mt-[9.5px] mb-[7.5px] border-0 border-t border-[#EEEEEE]" />
-                      <div name="price" class="flex flex-col">
-                        <div class="text-[12px] leading-[14px] text-[#999999]">
+                      <hr style="margin: ${card.divider?.marginTop || 9.5}px 0 ${card.divider?.marginBottom || 7.5}px 0; border: 0; border-top: 1px solid ${card.divider?.color || '#EEEEEE'};" />
+                      <div name="price" style="display: flex; flex-direction: column;">
+                        <div style="font-size: ${card.price?.fromSize || 12}px; line-height: 14px; color: ${card.price?.fromColor || '#999999'};">
                           <span>From</span>
                         </div>
-                        <div class="flex flex-row items-center justify-between">
-                          <div class="flex items-center gap-[5px]">
-                            <span class="text-[16px] leading-[19px] font-bold text-[#00BAA4]">€${minPrice.toFixed(2)}</span>
-                            <span class="text-[13px] leading-[16px] text-[#555555]"> / night</span>
+                        <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                          <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="font-size: ${card.price?.amountSize || 16}px; line-height: 19px; font-weight: ${card.price?.amountWeight || 700}; color: ${card.price?.amountColor || '#00BAA4'};">€${minPrice.toFixed(2)}</span>
+                            <span style="font-size: ${card.price?.nightSize || 13}px; line-height: 16px; color: ${card.price?.nightColor || '#555555'};"> / night</span>
                           </div>
-                          ${hasDiscount ? `<div><span name="orginal-price" class="text-[12px] leading-[14px] text-[#999999] line-through">€${originalPrice}</span></div>` : ''}
+                          ${hasDiscount ? `<div><span name="orginal-price" style="font-size: ${card.price?.originalSize || 12}px; line-height: 14px; color: ${card.price?.originalColor || '#999999'}; text-decoration: line-through;">€${originalPrice}</span></div>` : ''}
                         </div>
                       </div>
                     </div>
@@ -275,6 +267,7 @@ export function useHotelCarousel() {
             // --- END NEW CARD LOGIC ---
 
             const fetchAndRenderHotels = async (idsToFetch) => {
+                // ... (no significant changes needed here, just ensure correct field names are used) ...
                 const uniqueIds = [...new Set(idsToFetch)].filter(id => !fetchedIds.has(id));
                 if (uniqueIds.length === 0) return;
                 uniqueIds.forEach(id => fetchedIds.add(id));
@@ -311,6 +304,7 @@ export function useHotelCarousel() {
             };
 
             const checkAndLoadVisibleSlides = (swiper) => {
+                 // ... (no changes needed here) ...
                  if (!swiper || !swiper.slides || swiper.slides.length === 0 || !swiper.params) return;
                 const idsToFetch = new Set();
                 const slides = Array.from(swiper.slides);
@@ -328,7 +322,7 @@ export function useHotelCarousel() {
 
 
                  // Use Math.max to prevent negative slice indexes
-                 const startIndex = Math.max(0, swiper.activeIndex);
+                 const startIndex = Math.max(0, swiper.activeIndex || 0); // Default activeIndex to 0
                  const slidesToLoadCount = Math.max(1, (slidesPerView * rows) * 2); // Ensure at least 1 slide is checked
 
                 const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount);
@@ -350,6 +344,7 @@ export function useHotelCarousel() {
             };
 
             const initSwiper = () => {
+                // ... (Swiper initialization logic, no changes needed for card styling itself) ...
                  if (swiperInstance.value) {
                     swiperInstance.value.destroy(true, true);
                     swiperInstance.value = null;
@@ -365,7 +360,7 @@ export function useHotelCarousel() {
                         const slideEl = document.createElement('div');
                         slideEl.className = 'swiper-slide';
                         slideEl.setAttribute('data-hotel-id', id);
-                        // slideEl.style.width = '295px'; // FIX: Removed fixed width, Swiper handles it
+                        // slideEl.style.width = '295px'; // Let Swiper handle width
                         slideEl.innerHTML = generateHotelCardHTML(null); // Render skeleton first
                         wrapper.appendChild(slideEl);
                     });
@@ -427,7 +422,7 @@ export function useHotelCarousel() {
 
             // Watch for changes in hotelIds or settings to re-init Swiper
              watch(() => [props.hotelIds, props.settings], () => {
-                 // Reset fetched IDs when hotel list changes significantly
+                 // Reset fetched IDs when hotel list changes significantly OR settings change
                  fetchedIds.clear();
                  nextTick(() => {
                      initSwiper();
@@ -436,6 +431,7 @@ export function useHotelCarousel() {
 
 
             onUnmounted(() => {
+                // ... (no changes needed here) ...
                 if (swiperInstance.value) {
                     swiperInstance.value.destroy(true, true);
                     swiperInstance.value = null;
@@ -449,9 +445,9 @@ export function useHotelCarousel() {
             // Return values needed by the template
             return { swiperRef, containerWidth, gridHeight, isRTL, headerSettings, uniqueId };
         },
-        // --- TEMPLATE (Using Tailwind classes directly) ---
+        // --- TEMPLATE (No changes needed here) ---
         template: `
-            <div :id="uniqueId" :style="{ width: settings.slidesPerView > 1 ? (containerWidth + 'px') : '295px', margin: '0 auto' }" :dir="settings.direction" class="yab-hotel-carousel-preview">
+            <div :id="uniqueId" :style="{ maxWidth: containerWidth + 'px', width: '100%', margin: '0 auto' }" :dir="settings.direction" class="yab-hotel-carousel-preview"> {/* Changed to maxWidth */}
                 <!-- Header -->
                 <div :style="{ marginBottom: (headerSettings.marginTop || 28) + 'px' }" class="flex flex-col">
                     <div class="mb-[13px] flex w-full flex-row justify-between items-center" >
@@ -483,7 +479,7 @@ export function useHotelCarousel() {
                 <!-- Swiper -->
                 <div class="swiper"
                      :ref="el => swiperRef = el"
-                     :style="settings.isDoubled ? { height: gridHeight + 'px', 'padding-bottom': '10px', overflow: 'hidden' } : { overflow: 'hidden', 'padding-bottom': '10px' }">
+                     :style="settings.isDoubled ? { height: gridHeight + 'px', paddingBottom: '10px', overflow: 'hidden' } : { overflow: 'hidden', paddingBottom: '10px' }"> {/* Corrected style binding */}
                     <div class="swiper-wrapper">
                         <!-- Slides are dynamically generated in initSwiper -->
                     </div>
@@ -493,4 +489,3 @@ export function useHotelCarousel() {
         `
     };
 }
-

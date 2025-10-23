@@ -1,10 +1,10 @@
 // tappersia/assets/js/admin/composables/banner-state/defaults/hotelCarousel.js
 
-// Keep settings identical to Tour Carousel for now
+// Keep settings identical to Tour Carousel for now, but add card styling specifics
 export const createDefaultHotelCarouselDesktopPart = () => ({
     slidesPerView: 3,
     loop: false,
-    spaceBetween: 22,
+    spaceBetween: 18, // Default space for new card design
     isDoubled: false,
     gridFill: 'column',
     direction: 'ltr',
@@ -16,25 +16,112 @@ export const createDefaultHotelCarouselDesktopPart = () => ({
         lineColor: '#00BAA4',
         marginTop: 28,
     },
-    card: { // Keep card structure same as tour for now, adjust later
-        height: 375,
-        backgroundType: 'solid',
+    // --- START: Added Detailed Card Styling ---
+    card: {
+        height: 357, // Fixed height based on new design
+        // backgroundType: 'solid', // Keep background simple for now
         bgColor: '#ffffff',
-        gradientAngle: 90,
-        gradientStops: [{ color: '#FFFFFF', stop: 0 }, { color: '#F9F9F9', stop: 100 }],
+        // gradientAngle: 90,
+        // gradientStops: [{ color: '#FFFFFF', stop: 0 }, { color: '#F9F9F9', stop: 100 }],
         borderWidth: 1,
         borderColor: '#E5E5E5',
-        borderRadius: 14,
-        padding: 9,
-        imageHeight: 204,
-        province: { fontSize: 14, fontWeight: '500', color: '#FFFFFF', bgColor: 'rgba(14,14,14,0.2)', blur: 3, bottom: 9, side: 11 }, // Re-purpose for city/location
-        title: { fontSize: 14, fontWeight: '600', color: '#000000ff', lineHeight: 1.5 },
-        price: { fontSize: 14, fontWeight: '500', color: '#00BAA4' },
-        duration: { fontSize: 12, fontWeight: '400', color: '#757575' }, // Re-purpose for '/ night' text maybe
-        rating: { fontSize: 13, fontWeight: '700', color: '#333333' },
-        reviews: { fontSize: 12, fontWeight: '400', color: '#757575' },
-        button: { bgColor: '#00BAA4', fontSize: 13, fontWeight: '600', color: '#FFFFFF', arrowSize: 10 }
+        borderRadius: 16,
+        padding: 9, // Overall card padding
+
+        imageContainer: { // Padding inside the image div
+            paddingX: 13,
+            paddingY: 13,
+        },
+        image: {
+            height: 176, // Fixed height
+            radius: 14,
+        },
+        imageOverlay: { // Settings for the black gradient highlight
+            gradientStartColor: 'rgba(0,0,0,0)', // Top color
+            gradientEndColor: 'rgba(0,0,0,0.83)',   // Bottom color
+            gradientStartPercent: 38, // Where the gradient starts fading from top (percentage)
+            gradientEndPercent: 0, // Where the bottom color starts (percentage from bottom)
+        },
+        badges: {
+            bestSeller: {
+                textColor: '#ffffff',
+                fontSize: 12,
+                bgColor: '#F66A05',
+                paddingX: 7,
+                paddingY: 5,
+                radius: 20,
+            },
+            discount: {
+                textColor: '#ffffff',
+                fontSize: 12,
+                bgColor: '#FB2D51',
+                paddingX: 10,
+                paddingY: 5,
+                radius: 20,
+            },
+        },
+        stars: { // Combined star settings
+            shapeSize: 17,
+            shapeColor: '#FCC13B',
+            textSize: 12,
+            textColor: '#ffffff',
+        },
+        bodyContent: { // Container below image
+            marginTop: 14,
+            marginX: 19, // Left/Right margin/padding for the content block
+            textColor: '#333333', // Default text color in this area
+        },
+        title: {
+            fontSize: 14,
+            fontWeight: '600',
+            color: '#333333',
+            lineHeight: 1.2, // Approx 17px / 14px
+            minHeight: 34, // For 2 lines
+        },
+        rating: { // Combined rating elements
+            marginTop: 7,
+            gap: 6,
+            boxBgColor: '#5191FA',
+            boxColor: '#ffffff',
+            boxFontSize: 11,
+            // boxFontWeight: 'normal', // Not needed, implied
+            boxPaddingX: 6,
+            boxPaddingY: 2,
+            boxRadius: 3,
+            labelColor: '#333333',
+            labelFontSize: 12,
+            // labelFontWeight: 'normal', // Implied
+            countColor: '#999999',
+            countFontSize: 10,
+        },
+        tags: {
+            marginTop: 7,
+            gap: 5,
+            fontSize: 11, // Base font size for tags
+            paddingX: 6,
+            paddingY: 2,
+            radius: 3,
+            // Colors are determined dynamically by getTagClass
+        },
+        divider: {
+            marginTop: 9.5,
+            marginBottom: 7.5,
+            color: '#EEEEEE',
+        },
+        price: { // Combined price elements
+            fromColor: '#999999',
+            fromSize: 12,
+            amountColor: '#00BAA4',
+            amountSize: 16,
+            amountWeight: '700',
+            nightColor: '#555555',
+            nightSize: 13,
+            originalColor: '#999999',
+            originalSize: 12,
+        },
+        // 'button' settings are removed as the new card is just a link
     },
+    // --- END: Added Detailed Card Styling ---
     autoplay: { enabled: false, delay: 3000 },
     navigation: { enabled: true },
     pagination: {
@@ -47,12 +134,13 @@ export const createDefaultHotelCarouselDesktopPart = () => ({
 export const createDefaultHotelCarouselMobilePart = () => {
     const mobileDefaults = createDefaultHotelCarouselDesktopPart();
     mobileDefaults.slidesPerView = 1;
-    // Keep other mobile defaults same as tour for now
-    mobileDefaults.card.height = 375;
-    mobileDefaults.card.padding = 9;
-    mobileDefaults.card.borderRadius = 14;
-    mobileDefaults.card.borderWidth = 1;
-    mobileDefaults.card.imageHeight = 204;
+    mobileDefaults.spaceBetween = 15; // Slightly less space for mobile maybe
+
+    // Mobile Card Overrides (Only if different from desktop)
+    // Most card styles likely remain the same due to fixed card design.
+    // If specific mobile overrides are needed, add them here:
+    // e.g., mobileDefaults.card.title.fontSize = 13;
+
     return mobileDefaults;
 };
 

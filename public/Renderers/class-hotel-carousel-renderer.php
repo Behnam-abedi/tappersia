@@ -36,10 +36,10 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                     .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-hotel-carousel-mobile { display: block; }
                 }
 
-                /* Tag Styles (Scoped) */
+                /* Tag Styles (Scoped) - Copied from public-style.css for direct rendering */
                 #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_desktop'); ?> .hotel-label-base,
                 #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_mobile'); ?> .hotel-label-base {
-                     margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block; box-sizing: border-box;
+                     margin-top: <?php echo esc_attr($desktop_settings['card']['tags']['marginTop'] ?? 7); ?>px; width: fit-content; border-radius: <?php echo esc_attr($desktop_settings['card']['tags']['radius'] ?? 3); ?>px; padding: <?php echo esc_attr($desktop_settings['card']['tags']['paddingY'] ?? 2); ?>px <?php echo esc_attr($desktop_settings['card']['tags']['paddingX'] ?? 6); ?>px; font-size: <?php echo esc_attr($desktop_settings['card']['tags']['fontSize'] ?? 11); ?>px; line-height: 1; display: inline-block; box-sizing: border-box;
                 }
                 #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_desktop'); ?> .hotel-label-luxury,
                 #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_mobile'); ?> .hotel-label-luxury { background: #333333; color: #fff; }
@@ -56,24 +56,18 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                 #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_desktop'); ?> .hotel-label-default,
                 #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_mobile'); ?> .hotel-label-default { background: #e0e0e0; color: #555; }
 
-                /* Skeleton Animation (FIX: Lighter shimmer) */
+                /* Skeleton Animation */
                  .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader {
-                    position: relative;
-                    overflow: hidden;
-                    background-color: #ffffff; /* Lighter base color */
+                    position: relative; overflow: hidden; background-color: <?php echo esc_attr($desktop_settings['card']['bgColor'] ?? '#ffffff'); ?>;
                  }
-                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader > div {
-                    background-color: #f0f0f0 !important; /* Lighter elements */
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader > div,
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader [name="description-skeleton"] div,
+                .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader [name="price-skeleton"] div {
+                    background-color: #f0f0f0 !important; /* Ensure skeleton elements are visible */
                 }
-                 .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader [name="description-skeleton"] div {
-                    background-color: #f0f0f0 !important;
-                 }
                 .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader::before {
-                    content: '';
-                    position: absolute;
-                    inset: 0;
-                    transform: translateX(-100%);
-                    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent); /* Softer shimmer */
+                    content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+                    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
                     animation: yab-shimmer-<?php echo $banner_id; ?> 1.5s infinite;
                 }
                  @keyframes yab-shimmer-<?php echo $banner_id; ?> { 100% { transform: translateX(100%); } }
@@ -83,13 +77,11 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                      animation: yab-fade-in-<?php echo $banner_id; ?> 0.5s ease-in-out;
                  }
                  @keyframes yab-fade-in-<?php echo $banner_id; ?> { from { opacity: 0; } to { opacity: 1; } }
-                 
-                 /* FIX: Remove link focus outline */
+
+                 /* Focus Outline Removal */
                  .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-hotel-card a:focus,
                  .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-hotel-card a:active {
-                    outline: none !important;
-                    box-shadow: none !important;
-                    -webkit-tap-highlight-color: transparent; /* For mobile */
+                    outline: none !important; box-shadow: none !important; -webkit-tap-highlight-color: transparent;
                  }
 
             </style>
@@ -107,12 +99,13 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
 
         private function render_view($banner_id, $view, $settings, $original_hotels_ids) {
             $header_settings = $settings['header'] ?? [];
+            $card_settings = $settings['card'] ?? []; // Get card settings
             $hotel_count = count($original_hotels_ids);
 
             $slides_per_view = $settings['slidesPerView'] ?? ($view === 'desktop' ? 3 : 1);
-            $space_between = $settings['spaceBetween'] ?? ($view === 'desktop' ? 22 : 15); // Adjust mobile spacing
+            $space_between = $settings['spaceBetween'] ?? ($view === 'desktop' ? 18 : 15);
             $loop = $settings['loop'] ?? false;
-            $is_doubled = ($view === 'desktop') && ($settings['isDoubled'] ?? false); // Doubled only for desktop
+            $is_doubled = ($view === 'desktop') && ($settings['isDoubled'] ?? false);
             $direction = $settings['direction'] ?? 'ltr';
             $is_rtl = $direction === 'rtl';
             $grid_fill = $settings['loop'] ? 'column' : ($settings['gridFill'] ?? 'column');
@@ -126,143 +119,122 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
 
             $slides_to_render = $original_hotels_ids;
 
-            // Loop logic (same as before)
+            // Loop logic (same as tour)
             if ($loop && $hotel_count > 0) {
                 $final_items = $original_hotels_ids;
                 if ($is_doubled) {
                     $min_loop_count = (2 * $slides_per_view) + 2;
-                    while (count($final_items) < $min_loop_count) {
-                        $final_items = array_merge($final_items, $original_hotels_ids);
-                    }
+                    while (count($final_items) < $min_loop_count) { $final_items = array_merge($final_items, $original_hotels_ids); }
                 } else {
                     $min_loop_count = $slides_per_view * 2;
-                    while (count($final_items) < $min_loop_count) {
-                        $final_items = array_merge($final_items, $original_hotels_ids);
-                    }
-                     // Ensure enough items, but not excessively many
+                    while (count($final_items) < $min_loop_count) { $final_items = array_merge($final_items, $original_hotels_ids); }
                     $final_items = array_slice($final_items, 0, max($min_loop_count, $hotel_count * 2));
                 }
                 $slides_to_render = $final_items;
             }
 
             $card_width = 295;
-             // Container width logic correction for single slide view
             $container_width = ($view === 'desktop' || $slides_per_view > 1)
                 ? (($card_width * $slides_per_view) + ($space_between * ($slides_per_view - 1)))
                 : $card_width;
-            $grid_height = (357 * 2) + 20; // New card height
+            $grid_height = ($card_settings['height'] ?? 357) * 2 + 20;
 
             $unique_id = $banner_id . '_' . $view;
 
             ob_start();
             ?>
              <style>
-                /* Scoped Swiper Styles */
                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-slide {
-                    width: <?php echo $card_width; ?>px !important;
-                    box-sizing: border-box; /* Ensure padding/border are included */
-                    <?php if ($is_doubled): ?>
-                        height: calc((100% - <?php echo esc_js($space_between); ?>px) / 2) !important;
-                        margin-bottom: <?php echo esc_js($space_between); ?>px !important;
-                    <?php else: ?>
-                        height: auto !important; /* Ensure single row slides have auto height */
-                    <?php endif; ?>
+                    width: <?php echo $card_width; ?>px !important; box-sizing: border-box;
+                    <?php if ($is_doubled): ?> height: calc((100% - <?php echo esc_js($space_between); ?>px) / 2) !important; margin-bottom: <?php echo esc_js($space_between); ?>px !important; <?php else: ?> height: auto !important; <?php endif; ?>
                 }
-                /* Navigation Buttons */
-                #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next,
-                #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv {
-                    background: white; border-radius: 8px; box-shadow: inset 0 0 0 2px #E5E5E5;
-                    display: flex; align-items: center; justify-content: center;
-                    z-index: 10; cursor: pointer; width: 36px; height: 36px; box-sizing: border-box;
-                }
+                #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next, #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv { background: white; border-radius: 8px; box-shadow: inset 0 0 0 2px #E5E5E5; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; width: 36px; height: 36px; box-sizing: border-box; }
                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next { <?php echo $is_rtl ? 'padding-left: 2px' : 'padding-right: 4px'; ?> }
                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv { <?php echo $is_rtl ? 'padding-right: 4px' : 'padding-left: 4px'; ?> }
-
-                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next > div,
-                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv > div {
-                    width: 10px; height: 10px;
-                    border-top: 2px solid black; border-right: 2px solid black; border-radius: 2px;
-                }
-                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv > div { transform: rotate(<?php echo $is_rtl ? '45deg' : '-135deg'; ?>); }
-                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next > div { transform: rotate(<?php echo $is_rtl ? '-135deg' : '45deg'; ?>); }
-
-                /* Pagination */
-                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-pagination-bullet {
-                    background-color: <?php echo esc_attr($pagination_color); ?> !important;
-                    width: 20px !important; height: 6px !important; border-radius: 4px !important; opacity: 1 !important;
-                 }
-                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-pagination-bullet-active {
-                    background-color: <?php echo esc_attr($pagination_active_color); ?> !important;
-                 }
-                /* Disabled state */
-                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-button-disabled {
-                     opacity: 0.5 !important; cursor: not-allowed !important; pointer-events: none !important;
-                 }
+                #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next > div, #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv > div { width: 10px; height: 10px; border-top: 2px solid black; border-right: 2px solid black; border-radius: 2px; }
+                #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv > div { transform: rotate(<?php echo $is_rtl ? '45deg' : '-135deg'; ?>); }
+                #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next > div { transform: rotate(<?php echo $is_rtl ? '-135deg' : '45deg'; ?>); }
+                #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-pagination-bullet { background-color: <?php echo esc_attr($pagination_color); ?> !important; width: 20px !important; height: 6px !important; border-radius: 4px !important; opacity: 1 !important; }
+                #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-pagination-bullet-active { background-color: <?php echo esc_attr($pagination_active_color); ?> !important; }
+                #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-button-disabled { opacity: 0.5 !important; cursor: not-allowed !important; pointer-events: none !important; }
             </style>
             <div id="yab-hotel-carousel-<?php echo esc_attr($unique_id); ?>" dir="<?php echo esc_attr($direction); ?>">
-                 <div style="max-width: <?php echo esc_attr($container_width); ?>px; margin: 0 auto; position: relative;">
+                 <div style="max-width: <?php echo esc_attr($container_width); ?>px; width: 100%; margin: 0 auto; position: relative;">
                     <?php if(!empty($header_settings['text'])): ?>
                      <div style="margin-bottom: <?php echo esc_attr($header_settings['marginTop'] ?? 28); ?>px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px;">
                             <span style="font-size: <?php echo esc_attr($header_settings['fontSize'] ?? 24); ?>px; font-weight: <?php echo esc_attr($header_settings['fontWeight'] ?? '700'); ?>; color: <?php echo esc_attr($header_settings['color'] ?? '#000000'); ?>; line-height: 1.2;"><?php echo esc_html($header_settings['text']); ?></span>
                             <?php if ($navigation_enabled): ?>
-                            <div style="display: flex; gap: 7px; align-items: center;">
-                               <div class="tappersia-carusel-perv"><div></div></div>
-                               <div class="tappersia-carusel-next"><div></div></div>
-                            </div>
+                            <div style="display: flex; gap: 7px; align-items: center;"> <div class="tappersia-carusel-perv"><div></div></div> <div class="tappersia-carusel-next"><div></div></div> </div>
                             <?php endif; ?>
                         </div>
-                        <div style="position: relative; text-align: <?php echo $is_rtl ? 'right' : 'left'; ?>;">
-                            <div style="width: 100%; height: 1px; background-color: #E2E2E2; border-radius: 2px;"></div>
-                            <div style="position: absolute; margin-top: -2px; width: 15px; height: 2px; background-color: <?php echo esc_attr($header_settings['lineColor'] ?? '#00BAA4'); ?>; border-radius: 2px; <?php echo $is_rtl ? 'right: 0;' : 'left: 0;'; ?>"></div>
-                        </div>
+                        <div style="position: relative; text-align: <?php echo $is_rtl ? 'right' : 'left'; ?>;"> <div style="width: 100%; height: 1px; background-color: #E2E2E2; border-radius: 2px;"></div> <div style="position: absolute; margin-top: -2px; width: 15px; height: 2px; background-color: <?php echo esc_attr($header_settings['lineColor'] ?? '#00BAA4'); ?>; border-radius: 2px; <?php echo $is_rtl ? 'right: 0;' : 'left: 0;'; ?>"></div> </div>
                     </div>
                     <?php endif; ?>
                     <div class="swiper" style="overflow: hidden; padding-bottom: 10px; <?php echo $is_doubled ? 'height: ' . $grid_height . 'px;' : ''; ?>">
                         <div class="swiper-wrapper">
                             <?php
-                            // --- SKELETON LOADER HTML (FIXED) ---
-                            $card_height_esc = '357';
-                            $image_height_esc = '176';
-                            // Skeleton now uses m-0 to match card, and lighter bg-colors
+                            $card_height_esc = esc_attr($card_settings['height'] ?? 357);
+                            $image_height_esc = esc_attr($card_settings['image']['height'] ?? 176);
+                            $image_radius_esc = esc_attr($card_settings['image']['radius'] ?? 14);
+                            $card_radius_esc = esc_attr($card_settings['borderRadius'] ?? 16);
+                            $card_padding_esc = esc_attr($card_settings['padding'] ?? 9);
+                            $border_width_esc = esc_attr($card_settings['borderWidth'] ?? 1);
+                            $border_color_esc = esc_attr($card_settings['borderColor'] ?? '#E5E5E5');
+                            $bg_color_esc = esc_attr($card_settings['bgColor'] ?? '#ffffff');
+                            $content_margin_top_esc = esc_attr($card_settings['bodyContent']['marginTop'] ?? 14);
+                            $content_margin_x_esc = esc_attr($card_settings['bodyContent']['marginX'] ?? 19);
+                            $title_min_height_esc = esc_attr($card_settings['title']['minHeight'] ?? 34);
+                            $rating_margin_top_esc = esc_attr($card_settings['rating']['marginTop'] ?? 7);
+                            $rating_gap_esc = esc_attr($card_settings['rating']['gap'] ?? 6);
+                            $rating_box_radius_esc = esc_attr($card_settings['rating']['boxRadius'] ?? 3);
+                            $tags_margin_top_esc = esc_attr($card_settings['tags']['marginTop'] ?? 7);
+                            $tags_gap_esc = esc_attr($card_settings['tags']['gap'] ?? 5);
+                            $tags_radius_esc = esc_attr($card_settings['tags']['radius'] ?? 3);
+                            $divider_margin_top_esc = esc_attr($card_settings['divider']['marginTop'] ?? 9.5);
+                            $divider_margin_bottom_esc = esc_attr($card_settings['divider']['marginBottom'] ?? 7.5);
+                            $divider_color_esc = esc_attr($card_settings['divider']['color'] ?? '#EEEEEE');
+
+                            $image_width_calc = 295 - ($card_padding_esc * 2);
+
+                             // Skeleton based on new card settings
                             $skeleton_html = <<<HTML
-                                <div name="card-skeleton" class="yab-skeleton-loader" style="margin: 0; min-height: {$card_height_esc}px; width: {$card_width}px; border-radius: 16px; border: 1px solid #E5E5E5; padding: 9px; background-color: #ffffff; box-sizing: border-box; overflow: hidden;">
-                                  <div style="height: {$image_height_esc}px; width: 276px; border-radius: 14px; background-color: #f0f0f0;"></div>
-                                  <div style="margin: 14px 19px 0 19px;">
-                                    <div style="min-height: 34px; width: 100%; margin-bottom: 7px;">
-                                      <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 75%; margin-bottom: 8px;"></div>
-                                      <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 50%;"></div>
+                                <div name="card-skeleton" class="yab-skeleton-loader" style="margin: 0; min-height: {$card_height_esc}px; width: 295px; border-radius: {$card_radius_esc}px; border: {$border_width_esc}px solid {$border_color_esc}; padding: {$card_padding_esc}px; background-color: {$bg_color_esc}; box-sizing: border-box; overflow: hidden;">
+                                  <div style="height: {$image_height_esc}px; width: {$image_width_calc}px; border-radius: {$image_radius_esc}px;"></div>
+                                  <div style="margin: {$content_margin_top_esc}px {$content_margin_x_esc}px 0 {$content_margin_x_esc}px;">
+                                    <div style="min-height: {$title_min_height_esc}px; width: 100%; margin-bottom: 7px;">
+                                      <div style="height: 16px; border-radius: 4px; width: 75%; margin-bottom: 8px;"></div>
+                                      <div style="height: 16px; border-radius: 4px; width: 50%;"></div>
                                     </div>
                                     <div name="description-skeleton">
-                                      <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: 6px;visibility:hidden">
-                                        <div style="height: 20px; width: 32px; border-radius: 3px; background-color: #f0f0f0;"></div>
-                                        <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div>
-                                        <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px;"></div>
+                                      <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: {$rating_gap_esc}px; margin-top: {$rating_margin_top_esc}px;">
+                                        <div style="height: 20px; width: 32px; border-radius: {$rating_box_radius_esc}px;"></div>
+                                        <div style="height: 16px; border-radius: 4px; width: 64px;"></div>
+                                        <div style="height: 12px; border-radius: 4px; width: 32px;"></div>
                                       </div>
-                                      <div name="tags-skeleton" style="margin-top: 7px; display: flex; flex-direction: row; gap: 5px;">
-                                        <div style="height: 20px; width: 48px; border-radius: 3px; background-color: #f0f0f0;"></div>
-                                        <div style="height: 20px; width: 48px; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                      <div name="tags-skeleton" style="margin-top: {$tags_margin_top_esc}px; display: flex; flex-direction: row; gap: {$tags_gap_esc}px;">
+                                        <div style="height: 20px; width: 48px; border-radius: {$tags_radius_esc}px;"></div>
+                                        <div style="height: 20px; width: 48px; border-radius: {$tags_radius_esc}px;"></div>
                                       </div>
                                     </div>
-                                    <hr style="margin: 9.5px 0 7.5px 0; border: 0; border-top: 1px solid #EEEEEE;" />
+                                    <hr style="margin: {$divider_margin_top_esc}px 0 {$divider_margin_bottom_esc}px 0; border: 0; border-top: 1px solid {$divider_color_esc};" />
                                     <div name="price-skeleton" style="display: flex; flex-direction: column;">
-                                      <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px; margin-bottom: 4px;visibility:hidden"></div>
+                                      <div style="height: 12px; border-radius: 4px; width: 32px; margin-bottom: 4px;"></div>
                                       <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
                                         <div style="display: flex; align-items: center; gap: 5px;">
-                                          <div style="height: 20px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div>
-                                          <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 40px;"></div>
+                                          <div style="height: 20px; border-radius: 4px; width: 64px;"></div>
+                                          <div style="height: 16px; border-radius: 4px; width: 40px;"></div>
                                         </div>
-                                        <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 48px;"></div>
+                                        <div style="height: 12px; border-radius: 4px; width: 48px;"></div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
 HTML;
-                            // --- END SKELETON LOADER ---
 
                             foreach ($slides_to_render as $hotel_id) : ?>
                                 <div class="swiper-slide" data-hotel-id="<?php echo esc_attr($hotel_id); ?>">
-                                    <?php echo $skeleton_html; // Output skeleton ?>
+                                    <?php echo $skeleton_html; ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -273,117 +245,79 @@ HTML;
                 </div>
             </div>
              <script>
-            // IIFE to avoid global scope pollution
             (function() {
-                // Use a function to ensure DOMContentLoaded has fired
                 var initSwiper = function() {
                     const container = document.getElementById('yab-hotel-carousel-<?php echo esc_js($unique_id); ?>');
-                    if (!container || container.classList.contains('yab-swiper-initialized')) {
-                        // Prevent re-initialization if already done or container not found
-                        return;
-                    }
-                    container.classList.add('yab-swiper-initialized'); // Mark as initialized
+                    if (!container || container.classList.contains('yab-swiper-initialized')) return;
+                    container.classList.add('yab-swiper-initialized');
 
                     const swiperEl = container.querySelector('.swiper');
-                    if (!swiperEl) {
-                         console.error("Swiper element not found for <?php echo esc_js($unique_id); ?>.");
-                         return;
-                    }
+                    if (!swiperEl) return;
 
                     const fetchedIds = new Set();
                     const isRTL = <?php echo json_encode($is_rtl); ?>;
                     const ajaxUrl = '<?php echo admin_url('admin-ajax.php'); ?>';
+                    const cardSettings = <?php echo json_encode($card_settings); ?>; // Pass card settings
 
-                    // --- Helper Functions ---
-                     const RatingLabel = { Excellent: 'Excellent', VeryGood: 'Very Good', Good: 'Good', Average: 'Average', Poor: 'Poor', New: 'New' };
-                     const getRatingLabel = (score) => {
-                        if (!score || score == 0) return RatingLabel.New;
-                        if (score >= 4.6) return RatingLabel.Excellent;
-                        if (score >= 4.1) return RatingLabel.VeryGood;
-                        if (score >= 3.6) return RatingLabel.Good;
-                        if (score >= 3.0) return RatingLabel.Average;
-                        return RatingLabel.Poor;
-                    };
+                    // --- Helper Functions (RatingLabel, getRatingLabel, getTagClass, escapeHTML) ---
+                    const RatingLabel = { Excellent: 'Excellent', VeryGood: 'Very Good', Good: 'Good', Average: 'Average', Poor: 'Poor', New: 'New' };
+                    const getRatingLabel = (score) => { if (!score || score == 0) return RatingLabel.New; if (score >= 4.6) return RatingLabel.Excellent; if (score >= 4.1) return RatingLabel.VeryGood; if (score >= 3.6) return RatingLabel.Good; if (score >= 3.0) return RatingLabel.Average; return RatingLabel.Poor; };
+                    const getTagClass = (tag) => { if (!tag) return 'hotel-label-default'; const tagName = tag.toLowerCase(); const tagMap = { luxury: 'hotel-label-luxury', business: 'hotel-label-business', boutique: 'hotel-label-boutique', traditional: 'hotel-label-traditional', economy: 'hotel-label-economy', hostel: 'hotel-label-hostel' }; return tagMap[tagName] || 'hotel-label-default'; };
+                    const escapeHTML = (str) => { if (typeof str !== 'string') str = String(str || ''); const p = document.createElement('p'); p.textContent = str; return p.innerHTML; };
 
-                     const getTagClass = (tag) => {
-                        if (!tag) return 'hotel-label-default';
-                         const tagName = tag.toLowerCase();
-                         const tagMap = { luxury: 'hotel-label-luxury', business: 'hotel-label-business', boutique: 'hotel-label-boutique', traditional: 'hotel-label-traditional', economy: 'hotel-label-economy', hostel: 'hotel-label-hostel' };
-                         return tagMap[tagName] || 'hotel-label-default';
-                     };
+                    // --- Card Generation Function (Using cardSettings) ---
+                     const generateHotelCardHTML = (hotel) => {
+                         if (!hotel) return '';
+                         const card = cardSettings; // Use passed settings
+                         const { coverImage, isFeatured = false, discount = 0, minPrice = 0, star = 0, title = 'N/A', avgRating, reviewCount = 0, customTags = [], detailUrl = '#' } = hotel;
+                         const imageUrl = coverImage?.url || 'https://placehold.co/276x176/e0e0e0/cccccc?text=No+Image';
+                         const hasDiscount = discount > 0 && minPrice > 0;
+                         const discountPercentage = hasDiscount ? Math.round((discount / (minPrice + discount)) * 100) : 0;
+                         const originalPrice = hasDiscount ? (minPrice + discount).toFixed(2) : '0.00';
+                         const stars = '★'.repeat(star) + '☆'.repeat(5 - star);
+                         const starText = `${star} Star`;
+                         const ratingScore = avgRating != null ? (Math.round(avgRating * 10) / 10).toFixed(1) : null;
+                         const ratingLabel = getRatingLabel(avgRating);
+                         const tagsHtml = (customTags || []).map(tag => `<span class="${getTagClass(tag)} hotel-label-base" style="font-size: ${card.tags?.fontSize}px; padding: ${card.tags?.paddingY}px ${card.tags?.paddingX}px; border-radius: ${card.tags?.radius}px; margin-top: ${card.tags?.marginTop}px;">${escapeHTML(tag)}</span>`).join('');
+                         const overlayGradient = `linear-gradient(to top, ${card.imageOverlay?.gradientEndColor} ${card.imageOverlay?.gradientEndPercent}%, ${card.imageOverlay?.gradientStartColor} ${card.imageOverlay?.gradientStartPercent}%, ${card.imageOverlay?.gradientStartColor} 100%)`;
+                         const imageWidth = 295 - (card.padding * 2);
 
-                     const escapeHTML = (str) => {
-                        if (typeof str !== 'string') str = String(str || '');
-                        const p = document.createElement('p');
-                        p.textContent = str;
-                        return p.innerHTML;
-                     };
-                    // --- End Helper Functions ---
-
-                    // --- Card Generation Function ---
-                    const generateHotelCardHTML = (hotel) => {
-                        if (!hotel) return ''; // Should not happen
-
-                        const { coverImage, isFeatured = false, discount = 0, minPrice = 0, star = 0, title = 'N/A', avgRating, reviewCount = 0, customTags = [], detailUrl = '#' } = hotel;
-                        const imageUrl = coverImage?.url || 'https://placehold.co/276x176/e0e0e0/cccccc?text=No+Image';
-                        const hasDiscount = discount > 0 && minPrice > 0;
-                        const discountPercentage = hasDiscount ? Math.round((discount / (minPrice + discount)) * 100) : 0;
-                        const originalPrice = hasDiscount ? (minPrice + discount).toFixed(2) : '0.00';
-                        const stars = '★'.repeat(star) + '☆'.repeat(5 - star);
-                        const starText = `${star} Star`;
-                        const ratingScore = avgRating != null ? (Math.round(avgRating * 10) / 10).toFixed(1) : null;
-                        const ratingLabel = getRatingLabel(avgRating);
-                        const tagsHtml = (customTags || []).map(tag => `<span class="${getTagClass(tag)} hotel-label-base">${escapeHTML(tag)}</span>`).join('');
-
-                        // Using template literals and styles inspired by Tailwind classes
                         return `
-                        <div name="card" class="yab-hotel-card" style="margin: 0; min-height: 357px; width: 295px; border-radius: 16px; border: 1px solid #E5E5E5; padding: 9px; background: #fff; box-sizing: border-box; font-family: 'Roboto', sans-serif;">
-                          <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: block; outline: none; -webkit-tap-highlight-color: transparent;"> {/* FIX: Added outline: none & tap highlight */}
-                            <div style="position: relative; height: 176px; width: 276px; border-radius: 14px;" name="header-content-image">
-                              <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: 13px; box-sizing: border-box;">
+                        <div name="card" class="yab-hotel-card" style="margin: 0; min-height: ${card.height}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif;">
+                          <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: block; outline: none; -webkit-tap-highlight-color: transparent;">
+                            <div style="position: relative; height: ${card.image?.height}px; width: ${imageWidth}px; border-radius: ${card.image?.radius}px;" name="header-content-image">
+                              <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: ${card.imageContainer?.paddingY}px ${card.imageContainer?.paddingX}px; box-sizing: border-box;">
                                 <div style="display: flex; width: 100%; align-items: flex-start; justify-content: space-between;">
-                                  ${isFeatured ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: 20px; background: #F66A05; padding: 5px 7px; font-size: 12px; line-height: 1; font-weight: 500; color: #ffffff;">Best Seller</div>` : '<div></div>'}
-                                  ${hasDiscount && discountPercentage > 0 ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: 20px; background: #FB2D51; padding: 5px 10px; font-size: 12px; line-height: 1; font-weight: 500; color: #ffffff;">${discountPercentage}%</div>` : ''}
+                                  ${isFeatured ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: ${card.badges?.bestSeller?.radius}px; background: ${card.badges?.bestSeller?.bgColor}; padding: ${card.badges?.bestSeller?.paddingY}px ${card.badges?.bestSeller?.paddingX}px; font-size: ${card.badges?.bestSeller?.fontSize}px; line-height: 1; font-weight: 500; color: ${card.badges?.bestSeller?.textColor};">Best Seller</div>` : '<div></div>'}
+                                  ${hasDiscount && discountPercentage > 0 ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: ${card.badges?.discount?.radius}px; background: ${card.badges?.discount?.bgColor}; padding: ${card.badges?.discount?.paddingY}px ${card.badges?.discount?.paddingX}px; font-size: ${card.badges?.discount?.fontSize}px; line-height: 1; font-weight: 500; color: ${card.badges?.discount?.textColor};">${discountPercentage}%</div>` : ''}
                                 </div>
                                 <div style="display: flex; flex-direction: row; align-items: center; gap: 5px; align-self: flex-start;">
-                                  <div style="font-size: 17px; color: #FCC13B; line-height: 0.7;">${stars}</div>
-                                  <div style="font-size: 12px; line-height: 13px; color: white;">${escapeHTML(starText)}</div>
+                                  <div style="font-size: ${card.stars?.shapeSize}px; color: ${card.stars?.shapeColor}; line-height: 0.7;">${stars}</div>
+                                  <div style="font-size: ${card.stars?.textSize}px; line-height: 13px; color: ${card.stars?.textColor};">${escapeHTML(starText)}</div>
                                 </div>
                               </div>
-                              <div name="black-highlight" style="position: absolute; display: flex; height: 100%; width: 100%; align-items: flex-end; border-radius: 0 0 14px 14px; background-image: linear-gradient(to top, rgba(0,0,0,0.83) 0%, rgba(0,0,0,0) 38%, rgba(0,0,0,0) 100%);"></div>
-                              <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" style="height: 100%; width: 100%; border-radius: 14px; object-fit: cover;" />
+                              <div name="black-highlight" style="position: absolute; display: flex; height: 100%; width: 100%; align-items: flex-end; border-bottom-left-radius: ${card.image?.radius}px; border-bottom-right-radius: ${card.image?.radius}px; background-image: ${overlayGradient};"></div>
+                              <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" style="height: 100%; width: 100%; border-radius: ${card.image?.radius}px; object-fit: cover;" />
                             </div>
-                            <div name="body-content" style="margin: 14px 19px 0 19px; color: #333;">
-                              <div name="title" style="min-height: 34px; width: 100%;">
-                                <h4 style="font-size: 14px; line-height: 17px; font-weight: 600; color: #333333; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4>
-                              </div>
+                            <div name="body-content" style="margin: ${card.bodyContent?.marginTop}px ${card.bodyContent?.marginX}px 0 ${card.bodyContent?.marginX}px; color: ${card.bodyContent?.textColor};">
+                              <div name="title" style="min-height: ${card.title?.minHeight}px; width: 100%;"> <h4 style="font-size: ${card.title?.fontSize}px; line-height: ${card.title?.lineHeight}; font-weight: ${card.title?.fontWeight}; color: ${card.title?.color}; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4> </div>
                               <div name="description">
-                                <div name="rating" style="margin-top: 7px; display: flex; flex-direction: row; align-items: center; gap: 6px;">
-                                  ${ratingScore !== null ? `<div name="rate"><span style="width: fit-content; border-radius: 3px; background: #5191FA; padding: 2px 6px; font-size: 11px; line-height: 1; color: #ffffff;">${ratingScore}</span></div>` : ''}
-                                  <div name="text-rate" style="font-size: 12px; line-height: 15px; color: #333333;padding-top:1px"> {/* FIX: Added padding-top for alignment */}
-                                    <span>${escapeHTML(ratingLabel)}</span>
-                                  </div>
-                                  <div name="rate-count" style="font-size: 10px; line-height: 12px; color: #999999;">
-                                    <span>(${reviewCount})</span>
-                                  </div>
+                                <div name="rating" style="margin-top: ${card.rating?.marginTop}px; display: flex; flex-direction: row; align-items: center; gap: ${card.rating?.gap}px;">
+                                  ${ratingScore !== null ? `<div name="rate"><span style="width: fit-content; border-radius: ${card.rating?.boxRadius}px; background: ${card.rating?.boxBgColor}; padding: ${card.rating?.boxPaddingY}px ${card.rating?.boxPaddingX}px; font-size: ${card.rating?.boxFontSize}px; line-height: 1; color: ${card.rating?.boxColor};">${ratingScore}</span></div>` : ''}
+                                  <div name="text-rate" style="font-size: ${card.rating?.labelFontSize}px; line-height: 15px; color: ${card.rating?.labelColor}; padding-top: 1px;"> <span>${escapeHTML(ratingLabel)}</span> </div>
+                                  <div name="rate-count" style="font-size: ${card.rating?.countFontSize}px; line-height: 12px; color: ${card.rating?.countColor};"> <span>(${reviewCount})</span> </div>
                                 </div>
-                                <div name="tags">
-                                  <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px;">
-                                    ${tagsHtml}
-                                  </div>
-                                </div>
+                                <div name="tags"> <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: ${card.tags?.gap}px;"> ${tagsHtml} </div> </div>
                               </div>
-                              <hr style="margin: 9.5px 0 7.5px 0; border: 0; border-top: 1px solid #EEEEEE;" />
+                              <hr style="margin: ${card.divider?.marginTop}px 0 ${card.divider?.marginBottom}px 0; border: 0; border-top: 1px solid ${card.divider?.color};" />
                               <div name="price" style="display: flex; flex-direction: column;">
-                                <div style="font-size: 12px; line-height: 14px; color: #999999;">
-                                  <span>From</span>
-                                </div>
+                                <div style="font-size: ${card.price?.fromSize}px; line-height: 14px; color: ${card.price?.fromColor};"> <span>From</span> </div>
                                 <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
                                   <div style="display: flex; align-items: center; gap: 5px;">
-                                    <span style="font-size: 16px; line-height: 19px; font-weight: 700; color: #00BAA4;">€${minPrice.toFixed(2)}</span>
-                                    <span style="font-size: 13px; line-height: 16px; color: #555555;"> / night</span>
+                                    <span style="font-size: ${card.price?.amountSize}px; line-height: 19px; font-weight: ${card.price?.amountWeight}; color: ${card.price?.amountColor};">€${minPrice.toFixed(2)}</span>
+                                    <span style="font-size: ${card.price?.nightSize}px; line-height: 16px; color: ${card.price?.nightColor};"> / night</span>
                                   </div>
-                                  ${hasDiscount ? `<div><span name="orginal-price" style="font-size: 12px; line-height: 14px; color: #999999; text-decoration: line-through;">€${originalPrice}</span></div>` : ''}
+                                  ${hasDiscount ? `<div><span name="orginal-price" style="font-size: ${card.price?.originalSize}px; line-height: 14px; color: ${card.price?.originalColor}; text-decoration: line-through;">€${originalPrice}</span></div>` : ''}
                                 </div>
                               </div>
                             </div>
@@ -391,121 +325,30 @@ HTML;
                         </div>
                         `;
                     };
-                    // --- End Card Generation ---
 
-                    // --- Data Fetching ---
-                    const fetchHotelData = (idsToFetch) => {
+                    // --- Data Fetching (Same as preview) ---
+                    const fetchHotelData = (idsToFetch) => { /* ... (Exact same logic as preview fetchHotelData) ... */
                         const uniqueIds = Array.from(new Set(idsToFetch)).filter(id => !fetchedIds.has(id));
                         if (uniqueIds.length === 0) return;
                         uniqueIds.forEach(id => fetchedIds.add(id));
-
-                        const body = new URLSearchParams();
-                        body.append('action', 'yab_fetch_hotel_details_by_ids');
-                        uniqueIds.forEach(id => body.append('hotel_ids[]', id));
-
-                        fetch(ajaxUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body })
-                            .then(r => r.ok ? r.json() : Promise.reject(`HTTP error! status: ${r.status}`))
-                            .then(res => {
-                                if (res.success && Array.isArray(res.data)) {
-                                    res.data.forEach(hotel => {
-                                        if (!hotel || !hotel.id) return; // Skip if invalid data
-                                        container.querySelectorAll(`.swiper-slide[data-hotel-id="${hotel.id}"]`).forEach(slide => {
-                                            if (slide.querySelector('[name="card-skeleton"]')) { // Check if it's still a skeleton
-                                                 // Preload image before replacing skeleton
-                                                 const img = new Image();
-                                                 const imageUrl = hotel.coverImage?.url || 'https://placehold.co/276x176/e0e0e0/cccccc?text=No+Image';
-                                                 img.onload = () => {
-                                                     slide.innerHTML = generateHotelCardHTML(hotel);
-                                                     slide.classList.add('is-loaded');
-                                                 };
-                                                 img.onerror = () => { // Fallback if image fails
-                                                     slide.innerHTML = generateHotelCardHTML(hotel);
-                                                     slide.classList.add('is-loaded');
-                                                 };
-                                                 img.src = imageUrl;
-                                            }
-                                        });
-                                    });
-                                } else {
-                                    console.error('AJAX error or invalid data:', res.data?.message || 'Unknown error');
-                                }
-                            })
-                            .catch(error => console.error('AJAX call failed!', error));
-                    };
-                    // --- End Data Fetching ---
-
-                    // --- Swiper Logic ---
-                    const checkAndLoadSlides = (swiper) => {
-                        if (!swiper || !swiper.slides || swiper.slides.length === 0 || !swiper.params) return;
-                        const idsToFetch = new Set();
-                        const slides = Array.from(swiper.slides);
-                        const isGrid = swiper.params.grid && swiper.params.grid.rows > 1;
-                        const rows = isGrid ? swiper.params.grid.rows : 1;
-
-                        let slidesPerView = 1;
-                        if(swiper.params.slidesPerView && swiper.params.slidesPerView !== 'auto'){
-                            slidesPerView = parseInt(swiper.params.slidesPerView, 10);
-                            if (isNaN(slidesPerView)) slidesPerView = 1;
-                        } else if (swiper.params.slidesPerView === 'auto') {
-                             slidesPerView = swiper.visibleSlides ? swiper.visibleSlides.length : 1;
-                        }
-
-                        const startIndex = Math.max(0, swiper.activeIndex || 0); // Default activeIndex to 0 if undefined
-                        const slidesToLoadCount = Math.max(1, (slidesPerView * rows) * 2);
-                        const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount);
-
-                        slidesToCheck.forEach(slide => {
-                            const hotelId = parseInt(slide.dataset.hotelId, 10);
-                            if (!isNaN(hotelId)) idsToFetch.add(hotelId);
-                        });
-
-                        if (idsToFetch.size > 0) fetchHotelData(Array.from(idsToFetch));
+                        const body = new URLSearchParams(); body.append('action', 'yab_fetch_hotel_details_by_ids'); uniqueIds.forEach(id => body.append('hotel_ids[]', id));
+                        fetch(ajaxUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body }).then(r => r.ok ? r.json() : Promise.reject(`HTTP error! status: ${r.status}`)).then(res => { if (res.success && Array.isArray(res.data)) { res.data.forEach(hotel => { if (!hotel || !hotel.id) return; container.querySelectorAll(`.swiper-slide[data-hotel-id="${hotel.id}"]`).forEach(slide => { if (slide.querySelector('[name="card-skeleton"]')) { const img = new Image(); const imageUrl = hotel.coverImage?.url || 'https://placehold.co/276x176/e0e0e0/cccccc?text=No+Image'; img.onload = () => { slide.innerHTML = generateHotelCardHTML(hotel); slide.classList.add('is-loaded'); }; img.onerror = () => { slide.innerHTML = generateHotelCardHTML(hotel); slide.classList.add('is-loaded'); }; img.src = imageUrl; } }); }); } else { console.error('AJAX error or invalid data:', res.data?.message || 'Unknown error'); } }).catch(error => console.error('AJAX call failed!', error));
                     };
 
-                     const swiperOptions = {
-                        slidesPerView: <?php echo esc_js($slides_per_view); ?>,
-                        spaceBetween: <?php echo esc_js($space_between); ?>,
-                        loop: <?php echo json_encode($loop); ?>,
-                        dir: '<?php echo esc_js($direction); ?>',
-                        on: {
-                            init: (s) => setTimeout(() => checkAndLoadSlides(s), 150), // Delay initial load slightly
-                            slideChange: checkAndLoadSlides,
-                            resize: checkAndLoadSlides
-                        },
-                        observer: true, // For dynamic content changes
-                        observeParents: true, // If container resizes
+                    // --- Swiper Logic (Same as preview) ---
+                    const checkAndLoadSlides = (swiper) => { /* ... (Exact same logic as preview checkAndLoadSlides) ... */
+                        if (!swiper || !swiper.slides || swiper.slides.length === 0 || !swiper.params) return; const idsToFetch = new Set(); const slides = Array.from(swiper.slides); const isGrid = swiper.params.grid && swiper.params.grid.rows > 1; const rows = isGrid ? swiper.params.grid.rows : 1; let slidesPerView = 1; if(swiper.params.slidesPerView && swiper.params.slidesPerView !== 'auto'){ slidesPerView = parseInt(swiper.params.slidesPerView, 10); if (isNaN(slidesPerView)) slidesPerView = 1; } else if (swiper.params.slidesPerView === 'auto') { slidesPerView = swiper.visibleSlides ? swiper.visibleSlides.length : 1; } const startIndex = Math.max(0, swiper.activeIndex || 0); const slidesToLoadCount = Math.max(1, (slidesPerView * rows) * 2); const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount); slidesToCheck.forEach(slide => { const hotelId = parseInt(slide.dataset.hotelId, 10); if (!isNaN(hotelId)) idsToFetch.add(hotelId); }); if (idsToFetch.size > 0) fetchHotelData(Array.from(idsToFetch));
                     };
-
-                     <?php if ($autoplay_enabled): ?> swiperOptions.autoplay = { delay: <?php echo esc_js($autoplay_delay); ?>, disableOnInteraction: false }; <?php endif; ?>
-                     <?php if ($navigation_enabled): ?> swiperOptions.navigation = { nextEl: container.querySelector('.tappersia-carusel-next'), prevEl: container.querySelector('.tappersia-carusel-perv') }; <?php endif; ?>
-                     <?php if ($pagination_enabled): ?> swiperOptions.pagination = { el: container.querySelector('.swiper-pagination'), clickable: true }; <?php endif; ?>
-                     <?php if ($is_doubled): ?>
-                        swiperOptions.grid = { rows: 2, fill: '<?php echo esc_js($grid_fill); ?>' };
-                        swiperOptions.slidesPerGroup = 1;
-                        swiperOptions.spaceBetween = 20; // Override spaceBetween for grid
-                     <?php endif; ?>
-
-                     // Initialize Swiper only if the element exists
-                     if (typeof Swiper !== 'undefined') {
-                         try {
-                             new Swiper(swiperEl, swiperOptions);
-                         } catch (e) {
-                             console.error("Swiper initialization failed for <?php echo esc_js($unique_id); ?>:", e);
-                         }
-                     } else {
-                         console.error("Swiper library not loaded for <?php echo esc_js($unique_id); ?>.");
-                     }
-                    // --- End Swiper Logic ---
+                    const swiperOptions = { slidesPerView: <?php echo esc_js($slides_per_view); ?>, spaceBetween: <?php echo esc_js($space_between); ?>, loop: <?php echo json_encode($loop); ?>, dir: '<?php echo esc_js($direction); ?>', on: { init: (s) => setTimeout(() => checkAndLoadSlides(s), 150), slideChange: checkAndLoadSlides, resize: checkAndLoadSlides }, observer: true, observeParents: true };
+                    <?php if ($autoplay_enabled): ?> swiperOptions.autoplay = { delay: <?php echo esc_js($autoplay_delay); ?>, disableOnInteraction: false }; <?php endif; ?>
+                    <?php if ($navigation_enabled): ?> swiperOptions.navigation = { nextEl: container.querySelector('.tappersia-carusel-next'), prevEl: container.querySelector('.tappersia-carusel-perv') }; <?php endif; ?>
+                    <?php if ($pagination_enabled): ?> swiperOptions.pagination = { el: container.querySelector('.swiper-pagination'), clickable: true }; <?php endif; ?>
+                    <?php if ($is_doubled): ?> swiperOptions.grid = { rows: 2, fill: '<?php echo esc_js($grid_fill); ?>' }; swiperOptions.slidesPerGroup = 1; swiperOptions.spaceBetween = 20; <?php endif; ?>
+                    if (typeof Swiper !== 'undefined') { try { new Swiper(swiperEl, swiperOptions); } catch (e) { console.error("Swiper initialization failed for <?php echo esc_js($unique_id); ?>:", e); } } else { console.error("Swiper library not loaded for <?php echo esc_js($unique_id); ?>."); }
                 };
-                
-                // Wait for DOMContentLoaded to ensure Swiper is loaded and elements exist
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', initSwiper);
-                } else {
-                    // DOM already loaded
-                    initSwiper();
-                }
-            })(); // End IIFE
+
+                if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initSwiper); } else { initSwiper(); }
+            })();
             </script>
             <?php
             return ob_get_clean();
@@ -513,4 +356,3 @@ HTML;
     }
 }
 ?>
-
