@@ -171,20 +171,12 @@ export function useHotelCarousel() {
                             <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px;"></div>
                           </div>
                           <div name="tags-skeleton" style="margin-top: 7px; display: flex; flex-direction: row; gap: 5px;">
-                            <div style="height: 20px; width: 48px; border-radius: 3px; background-color: #f0f0f0;"></div>
-                            <div style="height: 20px; width: 48px; border-radius: 3px; background-color: #f0f0f0;"></div>
+                            <div style="height: 20px; width: 96px; border-radius: 3px; background-color: #f0f0f0;"></div>
                           </div>
                         </div>
                         <hr style="margin: 9.5px 0 7.5px 0; border: 0; border-top: 1px solid #EEEEEE;" />
                         <div name="price-skeleton" style="display: flex; flex-direction: column;">
-                          <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px; margin-bottom: 4px;visibility:hidden"></div>
-                          <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                              <div style="height: 20px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div>
-                              <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 40px;"></div>
-                            </div>
-                            <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 48px;"></div>
-                          </div>
+                          <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 100%;"></div>
                         </div>
                       </div>
                     </div>`;
