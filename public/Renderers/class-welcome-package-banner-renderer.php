@@ -80,9 +80,18 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
                             let finalHtml = initialHtmlWithPlaceholders;
                             if (result.success && result.data) {
                                 const prices = result.data;
-                                // Replace placeholders
-                                finalHtml = finalHtml.replace(/\{\{\s*originalPrice\s*\}\}/g, prices.originalMoneyValue !== null ? prices.originalMoneyValue.toFixed(3) : 'N/A'); // Format price
-                                finalHtml = finalHtml.replace(/\{\{\s*discountedPrice\s*\}\}/g, prices.moneyValue !== null ? prices.moneyValue.toFixed(3) : 'N/A'); // Format price
+
+                                // --- FIX: Check and convert prices to number before using toFixed ---
+                                const originalPriceNum = Number(prices.originalMoneyValue);
+                                const discountedPriceNum = Number(prices.moneyValue);
+
+                                const originalPriceFormatted = !isNaN(originalPriceNum) ? originalPriceNum.toFixed(3) : 'N/A';
+                                const discountedPriceFormatted = !isNaN(discountedPriceNum) ? discountedPriceNum.toFixed(3) : 'N/A';
+                                // --- End FIX ---
+
+                                // Replace placeholders using formatted values
+                                finalHtml = finalHtml.replace(/\{\{\s*originalPrice\s*\}\}/g, originalPriceFormatted);
+                                finalHtml = finalHtml.replace(/\{\{\s*discountedPrice\s*\}\}/g, discountedPriceFormatted);
                                 finalHtml = finalHtml.replace(/\{\{\s*key\s*\}\}/g, prices.key || packageKey);
                             } else {
                                  console.error('Welcome Package Banner <?php echo esc_js($unique_id_wrapper); ?>: API Error -', result.data?.message || 'Failed to fetch prices.');
