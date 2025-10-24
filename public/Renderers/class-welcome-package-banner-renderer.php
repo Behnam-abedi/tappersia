@@ -17,66 +17,90 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
             $unique_id_wrapper = 'yab-wpb-cont-' . $banner_id . '-' . wp_rand(1000, 9999); // Unique ID for the container
             $ajax_url = admin_url('admin-ajax.php');
 
-            // --- CSS Isolation Logic ---
-            $scoped_css = '';
-            $html_content_without_style = preg_replace_callback(
-                '/<style.*?>(.*?)<\/style>/is', // Match style tags (non-greedy)
-                function($matches) use (&$scoped_css, $unique_id_wrapper) {
-                    $css_content = $matches[1];
-                    // Basic prefixing (might need refinement for complex selectors)
-                    $prefixed_rules = preg_replace_callback(
-                         '/([^\r\n ,{}]+)(,(?=[^}]*{)|\s*{)/', // Selectors before commas or opening braces
-                        function($selector_matches) use ($unique_id_wrapper) {
-                            $selector = trim($selector_matches[1]);
-                             // Avoid prefixing html, body, @keyframes, @media etc.
-                             if (preg_match('/^(html|body|@|:)/i', $selector)) {
-                                 return $selector_matches[0]; // Return original selector + comma/brace
-                             }
-                            // Basic prefixing: Add the ID before each selector part
-                            $parts = preg_split('/\s+/', $selector); // Split complex selectors like .class1 .class2
-                            $prefixed_parts = array_map(function($part) use ($unique_id_wrapper) {
-                                // Add ID unless it's a pseudo-element/class starting with ':'
-                                return (strpos($part, ':') === 0) ? $part : '#' . $unique_id_wrapper . ' ' . $part;
-                            }, $parts);
+            // --- Extract content within <body> or use the whole content ---
+            $body_content = '';
+            if (preg_match('/<body.*?>(.*?)<\/body>/is', $html_template_raw, $matches)) {
+                 // Remove style tags from body content if they exist there mistakenly
+                $body_content = preg_replace('/<style.*?>(.*?)<\/style>/is', '', $matches[1]);
+            } else {
+                // If no body tag, assume the whole input is the intended content
+                // Remove html, head, and style tags from the raw input
+                $body_content = preg_replace('/<html.*?>.*?<\/html>/is', '', $html_template_raw); // Remove html tag and its content
+                $body_content = preg_replace('/<head.*?>.*?<\/head>/is', '', $body_content); // Remove head tag and its content
+                 // $body_content = preg_replace('/<style.*?>(.*?)<\/style>/is', '', $body_content); // Remove style tags (Already handled by keeping style tag separate below)
 
-                            return implode(' ', $prefixed_parts) . $selector_matches[2]; // Re-add comma or brace
-                        },
-                        $css_content
-                    );
-                    $scoped_css .= $prefixed_rules . "\n";
-                    return ''; // Remove the original style tag from HTML
-                },
-                $html_template_raw
-            );
-            // --- End CSS Isolation Logic ---
+            }
+             // Ensure it's not empty after stripping
+             $body_content = trim($body_content);
+            // --- End Content Extraction ---
+
+            // --- Extract style content ---
+            $style_content = '';
+             if (preg_match('/<style.*?>(.*?)<\/style>/is', $html_template_raw, $style_matches)) {
+                 $style_content = $style_matches[1];
+             }
+            // --- End Style Extraction ---
+
 
              // Skeleton HTML to show while loading
              $skeleton_html = '<div class="yab-wpb-skeleton" style="width: 100%; min-height: 100px; background-color: #f0f0f0; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#ccc;">Loading...</div>';
 
             ob_start();
             ?>
+            <?php // Output the extracted styles, scoped manually (basic) ?>
             <style>
-                <?php echo $scoped_css; /* Output scoped CSS */ ?>
+                #<?php echo esc_attr($unique_id_wrapper); ?> {
+                    /* Add any necessary wrapper styles here */
+                     box-sizing: border-box; /* Good practice */
+                }
+                /* Apply user styles prefixed with the wrapper ID */
+                <?php
+                // Basic prefixing - works for simple selectors, might break complex ones
+                $prefixed_css = preg_replace('/(^|\})([^{]+?)({)/', '$1#'.esc_attr($unique_id_wrapper).' $2$3', "\n".$style_content."\n");
+                // Attempt to fix prefixing for direct descendant selectors like > child
+                $prefixed_css = preg_replace('/(#'.esc_attr($unique_id_wrapper).')\s*>\s*/', '$1 > ', $prefixed_css);
+                // Attempt to fix prefixing for adjacent sibling selectors like + sibling
+                 $prefixed_css = preg_replace('/(#'.esc_attr($unique_id_wrapper).')\s*\+\s*/', '$1 + ', $prefixed_css);
+                // Attempt to fix prefixing for general sibling selectors like ~ sibling
+                 $prefixed_css = preg_replace('/(#'.esc_attr($unique_id_wrapper).')\s*~\s*/', '$1 ~ ', $prefixed_css);
+                 // Remove prefix from html, body
+                 $prefixed_css = preg_replace('/#'.esc_attr($unique_id_wrapper).'\s+(html|body)/i', '$1', $prefixed_css);
+                 // Attempt to handle media queries better (don't prefix inside) - This is complex and might not be perfect
+                 $prefixed_css = preg_replace_callback('/(@media[^{]+{)(.*?)(})/is', function($matches) use ($unique_id_wrapper) {
+                     $inner_css = preg_replace('/(^|\})([^{]+?)({)/', '$1#'.esc_attr($unique_id_wrapper).' $2$3', "\n".$matches[2]."\n");
+                     return $matches[1] . $inner_css . $matches[3];
+                 }, $prefixed_css);
+
+
+                echo $prefixed_css;
+                ?>
             </style>
+
             <div id="<?php echo esc_attr($unique_id_wrapper); ?>" class="yab-welcome-package-banner-container" data-package-key="<?php echo esc_attr($package_key); ?>">
-                 <?php echo $skeleton_html; // Initial skeleton ?>
+                 <?php // Output the extracted body content directly (placeholders will be replaced by JS) ?>
+                 <?php echo $body_content; // Output extracted body content directly ?>
             </div>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const container = document.getElementById('<?php echo esc_js($unique_id_wrapper); ?>');
                     const packageKey = container.getAttribute('data-package-key');
-                    // Use the HTML template *without* the style tags
-                    const htmlTemplate = <?php echo $this->json_encode_options($html_content_without_style); ?>;
                     const ajaxUrl = '<?php echo esc_js($ajax_url); ?>';
 
-                    if (!container || !packageKey || !htmlTemplate) {
-                        console.error('Welcome Package Banner <?php echo esc_js($unique_id_wrapper); ?>: Missing required data.');
+                    if (!container || !packageKey) {
+                        console.error('Welcome Package Banner <?php echo esc_js($unique_id_wrapper); ?>: Missing container or package key.');
                         if(container) container.innerHTML = '<!-- Error loading banner data -->';
                         return;
                     }
 
-                    const fetchAndRenderPrices = () => {
+                    // Replace skeleton with actual content (placeholders still present)
+                    const initialHtmlWithPlaceholders = <?php echo $this->json_encode_options($body_content); ?>;
+                    if (container.querySelector('.yab-wpb-skeleton')) {
+                        container.innerHTML = initialHtmlWithPlaceholders; // Replace skeleton immediately
+                    }
+
+
+                    const fetchAndReplacePlaceholders = () => {
                         const formData = new URLSearchParams();
                         formData.append('action', 'yab_fetch_welcome_package_prices_live');
                         formData.append('package_key', packageKey);
@@ -95,30 +119,32 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
                         .then(result => {
                             if (result.success && result.data) {
                                 const prices = result.data;
-                                let finalHtml = htmlTemplate;
 
-                                // Replace placeholders
-                                finalHtml = finalHtml.replace(/\{\{\s*originalPrice\s*\}\}/g, prices.originalMoneyValue || 'N/A');
-                                finalHtml = finalHtml.replace(/\{\{\s*discountedPrice\s*\}\}/g, prices.moneyValue || 'N/A');
-                                finalHtml = finalHtml.replace(/\{\{\s*key\s*\}\}/g, prices.key || packageKey);
+                                // --- Find and replace placeholders within the container's innerHTML ---
+                                let currentHtml = container.innerHTML;
+                                currentHtml = currentHtml.replace(/\{\{\s*originalPrice\s*\}\}/g, prices.originalMoneyValue || 'N/A');
+                                currentHtml = currentHtml.replace(/\{\{\s*discountedPrice\s*\}\}/g, prices.moneyValue || 'N/A');
+                                currentHtml = currentHtml.replace(/\{\{\s*key\s*\}\}/g, prices.key || packageKey);
+                                container.innerHTML = currentHtml;
+                                // --- End placeholder replacement ---
 
-                                container.innerHTML = finalHtml; // Replace skeleton with final content
                             } else {
                                 throw new Error(result.data?.message || 'Failed to fetch or find package prices.');
                             }
                         })
                         .catch(error => {
                             console.error('Welcome Package Banner <?php echo esc_js($unique_id_wrapper); ?> Error:', error);
-                            // Display template with error messages or keep skeleton
-                            container.innerHTML = htmlTemplate
-                                .replace(/\{\{\s*originalPrice\s*\}\}/g, 'Error')
-                                .replace(/\{\{\s*discountedPrice\s*\}\}/g, 'Error')
-                                .replace(/\{\{\s*key\s*\}\}/g, packageKey);
+                            // Replace placeholders with 'Error'
+                             let errorHtml = container.innerHTML; // Get potentially already inserted HTML
+                             errorHtml = errorHtml.replace(/\{\{\s*originalPrice\s*\}\}/g, 'Error');
+                             errorHtml = errorHtml.replace(/\{\{\s*discountedPrice\s*\}\}/g, 'Error');
+                             errorHtml = errorHtml.replace(/\{\{\s*key\s*\}\}/g, packageKey); // Keep the key
+                             container.innerHTML = errorHtml;
                             container.style.border = '1px dashed red'; // Indicate error
                         });
                     };
 
-                    fetchAndRenderPrices(); // Fetch on initial load
+                    fetchAndReplacePlaceholders(); // Fetch on initial load
                 });
             </script>
             <?php
