@@ -4,7 +4,10 @@
 if (!class_exists('Yab_Ajax_Api_Handler')) {
     class Yab_Ajax_Api_Handler {
 
+        private $api_key = '0963b596-1f23-4188-b46c-d7d671028940'; // Store API key securely if possible
+
         public function register_hooks() {
+            // Existing hooks...
             add_action('wp_ajax_yab_fetch_hotels_from_api', [$this, 'fetch_hotels_from_api']);
             add_action('wp_ajax_yab_fetch_cities_from_api', [$this, 'fetch_cities_from_api']);
             add_action('wp_ajax_yab_fetch_hotel_details_from_api', [$this, 'fetch_hotel_details_from_api']);
@@ -15,12 +18,115 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             add_action('wp_ajax_yab_fetch_api_banner_html', [$this, 'fetch_api_banner_html']);
             add_action('wp_ajax_yab_fetch_tour_details_by_ids', [$this, 'fetch_tour_details_by_ids']);
             add_action('wp_ajax_nopriv_yab_fetch_tour_details_by_ids', [$this, 'fetch_tour_details_by_ids']);
-            add_action('wp_ajax_yab_fetch_hotel_details_by_ids', [$this, 'fetch_hotel_details_by_ids']); // Added hook for hotels by IDs
-            add_action('wp_ajax_nopriv_yab_fetch_hotel_details_by_ids', [$this, 'fetch_hotel_details_by_ids']); // Added nopriv hook for hotels by IDs
+            add_action('wp_ajax_yab_fetch_hotel_details_by_ids', [$this, 'fetch_hotel_details_by_ids']);
+            add_action('wp_ajax_nopriv_yab_fetch_hotel_details_by_ids', [$this, 'fetch_hotel_details_by_ids']);
             add_action('wp_ajax_yab_fetch_airports_from_api', [$this, 'fetch_airports_from_api']);
+
+            // New hooks for Welcome Package
+            add_action('wp_ajax_yab_fetch_welcome_packages', [$this, 'fetch_welcome_packages']);
+            add_action('wp_ajax_nopriv_yab_fetch_welcome_package_prices_live', [$this, 'fetch_welcome_package_prices_live']); // Frontend accessible
+            add_action('wp_ajax_yab_fetch_welcome_package_prices_live', [$this, 'fetch_welcome_package_prices_live']); // Logged-in accessible
         }
 
-        // --- Fetch Hotel Details By IDs (Updated) ---
+        // --- New Method: Fetch Welcome Packages for Admin Modal ---
+        public function fetch_welcome_packages() {
+            check_ajax_referer('yab_nonce', 'nonce');
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(['message' => 'Permission denied.'], 403);
+                return;
+            }
+
+            $api_url = 'https://b2bapi.tapexplore.com/api/service-fee/packages';
+            $response = wp_remote_get($api_url, ['timeout' => 15]);
+
+            if (is_wp_error($response)) {
+                wp_send_json_error(['message' => 'Failed to fetch packages from API: ' . $response->get_error_message()], 500);
+                return;
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE || !isset($data['success']) || !$data['success'] || !isset($data['data'])) {
+                $error_msg = isset($data['message']) ? $data['message'] : 'Invalid response format from packages API.';
+                error_log("Tappersia Plugin: Welcome Package API Error - " . $body);
+                wp_send_json_error(['message' => $error_msg], 500);
+                return;
+            }
+
+            // Optional: Filter or process data if needed
+            $packages = $data['data'];
+
+            wp_send_json_success($packages);
+            wp_die();
+        }
+
+         // --- New Method: Fetch Live Prices for Frontend ---
+        public function fetch_welcome_package_prices_live() {
+            // No nonce check needed for public endpoint, but consider security implications
+             // Optional: Add nonce check if you generate a nonce specifically for the frontend banner script
+             // check_ajax_referer('your_frontend_nonce_action', '_ajax_nonce');
+
+            if (empty($_POST['package_key'])) {
+                wp_send_json_error(['message' => 'Package key not provided.'], 400);
+                return;
+            }
+
+            $package_key_to_find = sanitize_text_field($_POST['package_key']);
+
+            // Fetch *all* packages again (consider caching this response for a short period)
+            $transient_key = 'yab_welcome_packages_live';
+            $cached_data = get_transient($transient_key);
+
+            if (false === $cached_data) {
+                $api_url = 'https://b2bapi.tapexplore.com/api/service-fee/packages';
+                $response = wp_remote_get($api_url, ['timeout' => 10]); // Shorter timeout for frontend
+
+                if (is_wp_error($response)) {
+                    wp_send_json_error(['message' => 'Failed to fetch live package data.'], 503); // Service Unavailable
+                    return;
+                }
+
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+
+                if (json_last_error() !== JSON_ERROR_NONE || !isset($data['success']) || !$data['success'] || !isset($data['data'])) {
+                     error_log("Tappersia Plugin: Live Welcome Package API Error - " . $body);
+                     wp_send_json_error(['message' => 'Could not retrieve live package data.'], 500);
+                    return;
+                }
+                $packages = $data['data'];
+                set_transient($transient_key, $packages, 5 * MINUTE_IN_SECONDS); // Cache for 5 minutes
+            } else {
+                $packages = $cached_data;
+            }
+
+
+            // Find the specific package by key
+            $found_package = null;
+            foreach ($packages as $pkg) {
+                if (isset($pkg['key']) && $pkg['key'] === $package_key_to_find) {
+                    $found_package = [
+                        'key' => $pkg['key'],
+                        'moneyValue' => isset($pkg['moneyValue']) ? number_format((float)$pkg['moneyValue'], 2, '.', '') : null,
+                        'originalMoneyValue' => isset($pkg['originalMoneyValue']) ? number_format((float)$pkg['originalMoneyValue'], 2, '.', '') : null,
+                    ];
+                    break;
+                }
+            }
+
+            if ($found_package) {
+                wp_send_json_success($found_package);
+            } else {
+                wp_send_json_error(['message' => 'Package key not found in live data.'], 404);
+            }
+
+            wp_die();
+        }
+
+
+        // --- Existing Methods (Keep them) ---
+
         public function fetch_hotel_details_by_ids() {
             // No nonce check needed if used on frontend potentially
             if (empty($_POST['hotel_ids']) || !is_array($_POST['hotel_ids'])) {
@@ -30,13 +136,12 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
 
             $hotel_ids = array_map('intval', $_POST['hotel_ids']);
             $hotel_details = [];
-            $api_key = '0963b596-1f23-4188-b46c-d7d671028940'; // Store API key securely if possible
 
             foreach ($hotel_ids as $hotel_id) {
                 if ($hotel_id <= 0) continue; // Skip invalid IDs
 
                 $api_url = "https://b2bapi.tapexplore.com/api/b2b/hotel/{$hotel_id}";
-                $response = wp_remote_get($api_url, ['headers' => ['api-key' => $api_key], 'timeout' => 15]);
+                $response = wp_remote_get($api_url, ['headers' => ['api-key' => $this->api_key], 'timeout' => 15]);
 
                 if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
                     $body = wp_remote_retrieve_body($response);
@@ -79,9 +184,7 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
 
             wp_die();
         }
-        // --- End Fetch Hotel Details By IDs ---
 
-        // ... (other methods remain the same, ensure fetch_full_hotel_details_data is not needed or also updated if used elsewhere) ...
         public function fetch_airports_from_api() {
              check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) {
@@ -110,7 +213,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
         }
 
         public function fetch_tour_details_by_ids() {
-             // No nonce check needed if used on frontend potentially
             if (empty($_POST['tour_ids']) || !is_array($_POST['tour_ids'])) {
                 wp_send_json_error(['message' => 'Invalid or empty tour IDs provided.'], 400);
                 return;
@@ -118,13 +220,12 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
 
             $tour_ids = array_map('intval', $_POST['tour_ids']);
             $tour_details = [];
-            $api_key = '0963b596-1f23-4188-b46c-d7d671028940'; // Store API key securely if possible
 
 
             foreach ($tour_ids as $tour_id) {
                 if ($tour_id <= 0) continue;
                 $api_url = "https://b2bapi.tapexplore.com/api/b2b/tour/{$tour_id}";
-                $response = wp_remote_get($api_url, ['headers' => ['api-key' => $api_key], 'timeout' => 15]);
+                $response = wp_remote_get($api_url, ['headers' => ['api-key' => $this->api_key], 'timeout' => 15]);
 
                  if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
                      $body = wp_remote_retrieve_body($response);
@@ -206,7 +307,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
 
             if (json_last_error() !== JSON_ERROR_NONE || !isset($data['data'])) { wp_send_json_error(['message' => 'Invalid JSON response from cities API.'], 500); return; }
 
-            // Sort cities alphabetically by name before sending
             $cities = $data['data'];
              usort($cities, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
 
@@ -214,7 +314,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             wp_die();
         }
 
-         // Keep this function but ensure it's not the primary source for bulk fetch
          public function fetch_hotel_details_from_api() {
             check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
@@ -224,9 +323,8 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             }
 
             $hotel_id = intval($_POST['hotel_id']);
-             $api_key = '0963b596-1f23-4188-b46c-d7d671028940'; // Store API key securely if possible
              $api_url = "https://b2bapi.tapexplore.com/api/b2b/hotel/{$hotel_id}";
-             $response = wp_remote_get($api_url, ['headers' => ['api-key' => $api_key], 'timeout' => 15]);
+             $response = wp_remote_get($api_url, ['headers' => ['api-key' => $this->api_key], 'timeout' => 15]);
 
              if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
                  $body = wp_remote_retrieve_body($response);
@@ -243,8 +341,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             wp_die();
         }
 
-
-        // Keep this function but ensure it's not the primary source for bulk fetch
         public function fetch_tour_details_from_api() {
             check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
@@ -254,9 +350,8 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             }
 
             $tour_id = intval($_POST['tour_id']);
-            $api_key = '0963b596-1f23-4188-b46c-d7d671028940'; // Store API key securely if possible
             $api_url = "https://b2bapi.tapexplore.com/api/b2b/tour/{$tour_id}";
-            $response = wp_remote_get($api_url, ['headers' => ['api-key' => $api_key], 'timeout' => 15]);
+            $response = wp_remote_get($api_url, ['headers' => ['api-key' => $this->api_key], 'timeout' => 15]);
 
             if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
                 $body = wp_remote_retrieve_body($response);
@@ -277,7 +372,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
 
-            $api_key = '0963b596-1f23-4188-b46c-d7d671028940';
             $base_url = 'https://b2bapi.tapexplore.com/api/b2b/hotel/filter';
 
             $params = [];
@@ -286,25 +380,26 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             if (!empty($_POST['size'])) { $params['size'] = intval($_POST['size']); }
             if (!empty($_POST['types'])) { $params['types'] = sanitize_text_field($_POST['types']); }
             if (isset($_POST['minPrice']) && is_numeric($_POST['minPrice'])) { $params['minPrice'] = $_POST['minPrice']; }
-            // Ensure maxPrice is only added if > 0 and greater than minPrice
              if (!empty($_POST['maxPrice']) && is_numeric($_POST['maxPrice']) && $_POST['maxPrice'] > 0 && $_POST['maxPrice'] >= ($params['minPrice'] ?? 0)) {
                  $params['maxPrice'] = $_POST['maxPrice'];
              }
             if (!empty($_POST['province'])) { $params['province'] = intval($_POST['province']); }
-            if (!empty($_POST['stars']) && is_numeric($_POST['stars']) && $_POST['stars'] > 0) {
-                 $stars_array = range(1, intval($_POST['stars']));
-                 $params['stars'] = implode(',', $stars_array);
+            if (!empty($_POST['stars'])) { // Changed from numeric check to array/string check
+                 $stars_input = $_POST['stars'];
+                 // Assuming stars comes as a comma-separated string from the filter UI
+                 $valid_stars = array_filter(explode(',', $stars_input), function($s) { return is_numeric($s) && $s >= 1 && $s <= 5; });
+                 if (!empty($valid_stars)) {
+                     $params['stars'] = implode(',', $valid_stars);
+                 }
             }
-             // Handle sort parameter
              if (!empty($_POST['sort']) && in_array($_POST['sort'], ['rate', 'price_low_high', 'price_high_low', 'star_high_low'])) {
                  $params['sort'] = sanitize_text_field($_POST['sort']);
              }
 
-
             $api_url = add_query_arg($params, $base_url);
 
             $response = wp_remote_get($api_url, [
-                'headers' => [ 'api-key' => $api_key, 'Content-Type' => 'application/json' ],
+                'headers' => [ 'api-key' => $this->api_key, 'Content-Type' => 'application/json' ],
                 'timeout' => 20,
             ]);
 
@@ -315,7 +410,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
 
             if (json_last_error() !== JSON_ERROR_NONE) { wp_send_json_error(['message' => 'Invalid JSON response from API.'], 500); return; }
 
-            // Ensure data.data exists, even if empty
              if (!isset($data['data'])) { $data['data'] = []; }
 
             wp_send_json_success($data);
@@ -326,7 +420,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
              check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
 
-            $api_key = '0963b596-1f23-4188-b46c-d7d671028940';
             $base_url = 'https://b2bapi.tapexplore.com/api/b2b/tour/filter';
 
             $params = [];
@@ -335,7 +428,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             if (!empty($_POST['size'])) { $params['size'] = intval($_POST['size']); }
             if (!empty($_POST['types'])) { $params['types'] = sanitize_text_field($_POST['types']); }
             if (isset($_POST['minPrice']) && is_numeric($_POST['minPrice'])) { $params['minPrice'] = $_POST['minPrice']; }
-             // Ensure maxPrice is only added if > 0 and greater than minPrice
              if (!empty($_POST['maxPrice']) && is_numeric($_POST['maxPrice']) && $_POST['maxPrice'] > 0 && $_POST['maxPrice'] >= ($params['minPrice'] ?? 0)) {
                  $params['maxPrice'] = $_POST['maxPrice'];
              }
@@ -344,7 +436,7 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             $api_url = add_query_arg($params, $base_url);
 
             $response = wp_remote_get($api_url, [
-                'headers' => [ 'api-key' => $api_key, 'Content-Type' => 'application/json' ],
+                'headers' => [ 'api-key' => $this->api_key, 'Content-Type' => 'application/json' ],
                 'timeout' => 20,
             ]);
 
@@ -355,7 +447,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
 
             if (json_last_error() !== JSON_ERROR_NONE) { wp_send_json_error(['message' => 'Invalid JSON response from tours API.'], 500); return; }
 
-            // Ensure data.data exists, even if empty
              if (!isset($data['data'])) { $data['data'] = []; }
 
             wp_send_json_success($data);
@@ -376,7 +467,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
 
             if (json_last_error() !== JSON_ERROR_NONE || !isset($data['data'])) { wp_send_json_error(['message' => 'Invalid JSON response from tour cities API.'], 500); return; }
 
-            // Sort cities alphabetically by name
              $cities = $data['data'];
              usort($cities, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
 
@@ -384,25 +474,7 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             wp_die();
         }
 
-
-        // Deprecated - Keep for potential backward compatibility or remove later
-         private function fetch_full_hotel_details_data($hotel_id) {
-             $api_url = "https://b2bapi.tapexplore.com/api/b2b/hotel/{$hotel_id}";
-             $api_key = '0963b596-1f23-4188-b46c-d7d671028940';
-             $response = wp_remote_get($api_url, ['headers' => ['api-key' => $api_key], 'timeout' => 15]);
-             if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) return null;
-             $data = json_decode(wp_remote_retrieve_body($response), true);
-             return ($data['success'] ?? false) && isset($data['data']) ? $data['data'] : null;
-         }
-        // Deprecated - Keep for potential backward compatibility or remove later
-        private function fetch_full_tour_details_data($tour_id) {
-             $api_url = "https://b2bapi.tapexplore.com/api/b2b/tour/{$tour_id}";
-             $api_key = '0963b596-1f23-4188-b46c-d7d671028940';
-             $response = wp_remote_get($api_url, ['headers' => ['api-key' => $api_key], 'timeout' => 15]);
-             if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) return null;
-             $data = json_decode(wp_remote_retrieve_body($response), true);
-            return ($data['success'] ?? false) && isset($data['data']) ? $data['data'] : null;
-        }
+        // Deprecated fetch_full_... methods removed for clarity as fetch_..._by_ids covers the need
     }
 }
 ?>

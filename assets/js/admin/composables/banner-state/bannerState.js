@@ -16,37 +16,33 @@ import {
     createDefaultHtmlPart,
     createDefaultHtmlSidebarPart,
     createDefaultTourCarouselPart,
-    createDefaultHotelCarouselPart, // Added import
-    createDefaultFlightTicketPart
-} from './defaults/index.js'; // Ensure index.js exports the new hotel default
+    createDefaultHotelCarouselPart,
+    createDefaultFlightTicketPart,
+    createDefaultWelcomePackagePart, // Added import for Welcome Package
+} from './defaults/index.js';
 
 export function useBannerState() {
     const createDefaultBanner = () => ({
         id: null, name: '', displayMethod: 'Fixed', isActive: true, type: null,
-        isMobileConfigured: false, // General mobile config flag (used by some types)
+        isMobileConfigured: false,
         displayOn: { posts: [], pages: [], categories: [] },
 
+        // Existing types...
         single: createDefaultPart(),
         single_mobile: createDefaultMobilePart(),
-
         double: {
             isMobileConfigured: false,
             desktop: { left: createDefaultDoubleBannerPart(), right: createDefaultDoubleBannerPart() },
             mobile: { left: createDefaultDoubleBannerMobilePart(), right: createDefaultDoubleBannerMobilePart() }
         },
-
         simple: createDefaultSimplePart(),
         simple_mobile: createDefaultSimpleBannerMobilePart(),
-
         sticky_simple: createDefaultStickySimplePart(),
         sticky_simple_mobile: createDefaultStickySimpleMobilePart(),
-
         promotion: createDefaultPromotionPart(),
         promotion_mobile: createDefaultPromotionMobilePart(),
-
         content_html: createDefaultHtmlPart(),
         content_html_sidebar: createDefaultHtmlSidebarPart(),
-
         api: {
             apiType: null,
             selectedHotel: null,
@@ -55,22 +51,25 @@ export function useBannerState() {
             design_mobile: createDefaultApiMobileDesign(),
             isMobileConfigured: false,
         },
-
         tour_carousel: createDefaultTourCarouselPart(),
-        hotel_carousel: createDefaultHotelCarouselPart(), // Added hotel carousel state
+        hotel_carousel: createDefaultHotelCarouselPart(),
         flight_ticket: createDefaultFlightTicketPart(),
+
+        // New Welcome Package type
+        welcome_package: createDefaultWelcomePackagePart(),
     });
 
     const banner = reactive(createDefaultBanner());
 
     const shortcode = computed(() => {
         if (!banner.type) return '';
-        // Add hotelcarousel replacement logic
+        // Add welcomepackagebanner replacement logic
         const base = banner.type.replace(/-/g, '')
                                 .replace('contenthtmlbanner', 'contenthtml')
                                 .replace('contenthtmlsidebarbanner', 'contenthtmlsidebar')
-                                .replace('tourcarousel', 'tourcarousel') // Keep explicit tour
-                                .replace('hotelcarousel', 'hotelcarousel'); // Add hotel
+                                .replace('tourcarousel', 'tourcarousel')
+                                .replace('hotelcarousel', 'hotelcarousel')
+                                .replace('welcomepackagebanner', 'welcomepackagebanner'); // Add welcome package
 
         if (banner.displayMethod === 'Embeddable') {
             return banner.id ? `[${base} id="${banner.id}"]` : `[${base} id="..."]`;
@@ -80,15 +79,12 @@ export function useBannerState() {
 
     const mergeWithExisting = (existingData) => {
         const deepMerge = (target, source) => {
-             // ... (deepMerge function remains the same) ...
             for (const key in source) {
                 if (source.hasOwnProperty(key)) {
-                    if (source[key] instanceof Object && key in target && target[key] instanceof Object && !(source[key] instanceof Array)) { // Avoid merging arrays like gradientStops incorrectly
+                    if (source[key] instanceof Object && key in target && target[key] instanceof Object && !(source[key] instanceof Array) && key !== 'gradientStops') {
                          deepMerge(target[key], source[key]);
-                    } else if (key === 'gradientStops' && Array.isArray(source[key])) {
-                         // Explicitly handle gradientStops array overwrite/copy
-                         target[key] = JSON.parse(JSON.stringify(source[key]));
-                     } else {
+                    } else {
+                        // Directly assign arrays or primitives
                         target[key] = source[key];
                     }
                 }
@@ -98,17 +94,15 @@ export function useBannerState() {
 
         // Set mobile configured flags if editing an existing banner
         if (existingData.id) {
-             // Check and set flag for each type that has separate mobile config
-             // existingData.isMobileConfigured = true; // Maybe remove this general one?
-            if (existingData.single) existingData.isMobileConfigured = true; // Use banner level flag for single
-            if (existingData.double) existingData.double.isMobileConfigured = true;
-            if (existingData.api) existingData.api.isMobileConfigured = true;
-            if (existingData.tour_carousel) existingData.tour_carousel.isMobileConfigured = true;
-            if (existingData.hotel_carousel) existingData.hotel_carousel.isMobileConfigured = true; // Set flag for hotel
-            if (existingData.simple) existingData.isMobileConfigured = true; // Use banner level flag
-            if (existingData.sticky_simple) existingData.isMobileConfigured = true; // Use banner level flag
-            if (existingData.promotion) existingData.isMobileConfigured = true; // Use banner level flag
-
+             if (existingData.single) existingData.isMobileConfigured = true; // Use banner level flag for single
+             if (existingData.double) existingData.double.isMobileConfigured = true;
+             if (existingData.api) existingData.api.isMobileConfigured = true;
+             if (existingData.tour_carousel) existingData.tour_carousel.isMobileConfigured = true;
+             if (existingData.hotel_carousel) existingData.hotel_carousel.isMobileConfigured = true;
+             if (existingData.simple) existingData.isMobileConfigured = true; // Use banner level flag
+             if (existingData.sticky_simple) existingData.isMobileConfigured = true; // Use banner level flag
+             if (existingData.promotion) existingData.isMobileConfigured = true; // Use banner level flag
+             // Welcome package banner doesn't have separate mobile config currently
         }
 
         deepMerge(banner, existingData);
@@ -122,21 +116,22 @@ export function useBannerState() {
             if (!Array.isArray(banner.displayOn.categories)) banner.displayOn.categories = [];
         }
 
-        // Ensure links array exists for promotion banner
+        // Ensure arrays exist for specific types
         if (banner.type === 'promotion-banner' && !Array.isArray(banner.promotion.links)) {
             banner.promotion.links = [];
         }
-
-         // Ensure selectedHotels array exists for hotel carousel
-         if (banner.type === 'hotel-carousel' && !Array.isArray(banner.hotel_carousel.selectedHotels)) {
+        if (banner.type === 'hotel-carousel' && !Array.isArray(banner.hotel_carousel.selectedHotels)) {
             banner.hotel_carousel.selectedHotels = [];
-         }
-         // Ensure selectedTours array exists for tour carousel
-         if (banner.type === 'tour-carousel' && !Array.isArray(banner.tour_carousel.selectedTours)) {
+        }
+        if (banner.type === 'tour-carousel' && !Array.isArray(banner.tour_carousel.selectedTours)) {
             banner.tour_carousel.selectedTours = [];
+        }
+         // Ensure welcome package object exists
+         if (banner.type === 'welcome-package-banner' && typeof banner.welcome_package !== 'object') {
+             banner.welcome_package = createDefaultWelcomePackagePart();
          }
-    };
 
+    };
 
     const resetBannerState = () => {
         Object.assign(banner, createDefaultBanner());

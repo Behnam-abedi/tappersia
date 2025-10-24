@@ -7,5 +7,6 @@ export * from './simpleBanner.js';
 export * from './singleBanner.js';
 export * from './stickySimpleBanner.js';
 export * from './tourCarousel.js';
-export * from './flightTicket.js'; // Add this line
-export * from './hotelCarousel.js'; // Add this line
+export * from './hotelCarousel.js';
+export * from './flightTicket.js';
+export * from './welcomePackageBanner.js'; // Added Welcome Package

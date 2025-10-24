@@ -11,24 +11,25 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
 
         private function get_banner_type_handler($banner_type_slug) {
             $handlers = [
-                'double-banner' => 'Yab_Double_Banner',
-                'single-banner' => 'Yab_Single_Banner',
-                'api-banner' => 'Yab_Api_Banner',
-                'simple-banner' => 'Yab_Simple_Banner',
-                'sticky-simple-banner' => 'Yab_Sticky_Simple_Banner',
-                'promotion-banner' => 'Yab_Promotion_Banner',
-                'content-html-banner' => 'Yab_Content_Html_Banner',
-                'content-html-sidebar-banner' => 'Yab_Content_Html_Sidebar_Banner',
-                'tour-carousel' => 'Yab_Tour_Carousel',
-                'hotel-carousel' => 'Yab_Hotel_Carousel', // Added line
-                'flight-ticket' => 'Yab_Flight_Ticket',
+                'double-banner'                 => 'Yab_Double_Banner',
+                'single-banner'                 => 'Yab_Single_Banner',
+                'api-banner'                    => 'Yab_Api_Banner',
+                'simple-banner'                 => 'Yab_Simple_Banner',
+                'sticky-simple-banner'          => 'Yab_Sticky_Simple_Banner',
+                'promotion-banner'              => 'Yab_Promotion_Banner',
+                'content-html-banner'           => 'Yab_Content_Html_Banner',
+                'content-html-sidebar-banner'   => 'Yab_Content_Html_Sidebar_Banner',
+                'tour-carousel'                 => 'Yab_Tour_Carousel',
+                'hotel-carousel'                => 'Yab_Hotel_Carousel',
+                'flight-ticket'                 => 'Yab_Flight_Ticket',
+                'welcome-package-banner'        => 'Yab_Welcome_Package_Banner', // Added Welcome Package Banner
             ];
 
             if (array_key_exists($banner_type_slug, $handlers)) {
                 $class_name = $handlers[$banner_type_slug];
 
                 // Adjusted folder name logic slightly for consistency
-                $folder_name = str_replace(['Yab_', '_'], ['', ''], $class_name); // Generates HotelCarousel, TourCarousel etc.
+                $folder_name = str_replace(['Yab_', '_'], ['', ''], $class_name); // Generates HotelCarousel, TourCarousel, WelcomePackageBanner etc.
                 $file_path = YAB_PLUGIN_DIR . 'includes/BannerTypes/' . $folder_name . '/' . $folder_name . '.php';
 
 
@@ -50,22 +51,42 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
         }
 
         public function save_banner() {
-            // ... (no changes needed here) ...
+            // Check nonce and permissions
             check_ajax_referer('yab_nonce', 'nonce');
-            if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
-            if (!isset($_POST['banner_data']) || !isset($_POST['banner_type'])) { wp_send_json_error(['message' => 'Incomplete data received.']); return; }
-
-            $banner_data = json_decode(stripslashes($_POST['banner_data']), true);
-            $banner_type = sanitize_text_field($_POST['banner_type']);
-
-            $handler = $this->get_banner_type_handler($banner_type);
-
-            if (!$handler) {
-                wp_send_json_error(['message' => 'Invalid banner type (' . $banner_type . ') specified or handler not found.']);
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(['message' => 'Permission denied.'], 403);
                 return;
             }
 
-            $handler->save($banner_data);
+            // Check if required data is present
+            if (!isset($_POST['banner_data']) || !isset($_POST['banner_type'])) {
+                wp_send_json_error(['message' => 'Incomplete data received.'], 400);
+                return;
+            }
+
+            // Decode banner data (use stripslashes for potential escaping issues)
+            $banner_data = json_decode(stripslashes($_POST['banner_data']), true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                 wp_send_json_error(['message' => 'Invalid banner data format (JSON decode failed).', 'error_details' => json_last_error_msg()], 400);
+                 return;
+            }
+
+            $banner_type = sanitize_text_field($_POST['banner_type']);
+
+            // Get the appropriate handler
+            $handler = $this->get_banner_type_handler($banner_type);
+
+            if (!$handler) {
+                wp_send_json_error(['message' => 'Invalid banner type (' . esc_html($banner_type) . ') specified or handler not found.'], 400);
+                return;
+            }
+
+            // Call the handler's save method (which should handle wp_send_json_success/error and wp_die)
+            // The handler's save method itself now contains the wp_die()
+             $handler->save($banner_data);
+
+             // Fallback wp_die() in case handler doesn't call it (should not happen ideally)
+             wp_die();
 
         }
 
@@ -73,20 +94,20 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
              // ... (no changes needed here) ...
              check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
-            if (!isset($_POST['banner_id']) || !is_numeric($_POST['banner_id'])) { wp_send_json_error(['message' => 'Invalid banner ID.']); return; }
+            if (!isset($_POST['banner_id']) || !is_numeric($_POST['banner_id'])) { wp_send_json_error(['message' => 'Invalid banner ID.'], 400); return; }
 
             $banner_id = intval($_POST['banner_id']);
             $post = get_post($banner_id);
 
             if (!$post || $post->post_type !== 'yab_banner') {
-                wp_send_json_error(['message' => 'Banner not found.']);
+                wp_send_json_error(['message' => 'Banner not found.'], 404);
                 return;
             }
 
-            $result = wp_delete_post($banner_id, true);
+            $result = wp_delete_post($banner_id, true); // true forces delete, false moves to trash
 
             if ($result === false) {
-                wp_send_json_error(['message' => 'Failed to delete the banner.']);
+                wp_send_json_error(['message' => 'Failed to delete the banner.'], 500);
             } else {
                 wp_send_json_success(['message' => 'Banner deleted successfully.']);
             }
