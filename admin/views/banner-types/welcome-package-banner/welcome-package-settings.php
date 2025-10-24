@@ -31,7 +31,21 @@
             placeholder="Enter your HTML template here. Use {{originalPrice}} and {{discountedPrice}} for placeholders."
         ></textarea>
          <p class="text-xs text-gray-400 mt-1">
-             Use placeholders: <code>{{originalPrice}}</code> for original price, <code>{{discountedPrice}}</code> for the discounted/current price, and <code>{{key}}</code> for the package key. These will be replaced with live data on the frontend.
+             Use placeholders: <code>{{originalPrice}}</code>, <code>{{discountedPrice}}</code>, <code>{{key}}</code>.
          </p>
+         <!-- Start: Copy Buttons -->
+         <div class="flex gap-2 mt-2">
+             <button @click="copyPlaceholder('{{originalPrice}}')" class="flex-1 text-xs bg-[#555] text-white px-2 py-1 rounded-md hover:bg-[#666] transition-colors flex items-center justify-center gap-1">
+                 <span class="dashicons dashicons-clipboard"></span> Copy Original Price
+             </button>
+             <button @click="copyPlaceholder('{{discountedPrice}}')" class="flex-1 text-xs bg-[#555] text-white px-2 py-1 rounded-md hover:bg-[#666] transition-colors flex items-center justify-center gap-1">
+                 <span class="dashicons dashicons-clipboard"></span> Copy Discounted Price
+             </button>
+              <button @click="copyPlaceholder('{{key}}')" class="flex-1 text-xs bg-[#555] text-white px-2 py-1 rounded-md hover:bg-[#666] transition-colors flex items-center justify-center gap-1">
+                 <span class="dashicons dashicons-clipboard"></span> Copy Package Key
+             </button>
+         </div>
+         <!-- End: Copy Buttons -->
     </div>
 </div>
+

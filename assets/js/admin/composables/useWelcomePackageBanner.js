@@ -5,15 +5,13 @@ export function useWelcomePackageBanner(banner, showModal, ajax) {
     const isWelcomePackageModalOpen = ref(false);
     const isWelcomePackageLoading = ref(false);
     const welcomePackages = reactive([]);
-    const tempSelectedPackageKey = ref(null); // Store key temporarily during modal selection
+    const tempSelectedPackageKey = ref(null);
 
-    // Computed property for preview rendering
     const welcomePackagePreviewHtml = computed(() => {
         if (!banner.welcome_package?.htmlContent || !banner.welcome_package?.selectedPackageKey) {
             return '<div style="color: #aaa; text-align: center; padding: 20px;">Select package and add HTML.</div>';
         }
         let html = banner.welcome_package.htmlContent;
-        // Replace placeholders with the *initially selected* prices for preview
         html = html.replace(/\{\{\s*originalPrice\s*\}\}/g, banner.welcome_package.originalPrice ?? '...');
         html = html.replace(/\{\{\s*discountedPrice\s*\}\}/g, banner.welcome_package.discountedPrice ?? '...');
         html = html.replace(/\{\{\s*key\s*\}\}/g, banner.welcome_package.selectedPackageKey ?? '...');
@@ -26,15 +24,15 @@ export function useWelcomePackageBanner(banner, showModal, ajax) {
     };
 
     const fetchWelcomePackages = async () => {
-        if (welcomePackages.length > 0) return; // Don't refetch if already loaded
+        if (welcomePackages.length > 0) return;
 
         isWelcomePackageLoading.value = true;
         try {
             const data = await ajax.post('yab_fetch_welcome_packages');
-            welcomePackages.splice(0, welcomePackages.length, ...data); // Clear and add new packages
+            welcomePackages.splice(0, welcomePackages.length, ...data);
         } catch (error) {
             showModal('API Error', `Could not fetch welcome packages: ${error.message}`);
-            welcomePackages.splice(0); // Clear on error
+            welcomePackages.splice(0);
         } finally {
             isWelcomePackageLoading.value = false;
         }
@@ -42,19 +40,17 @@ export function useWelcomePackageBanner(banner, showModal, ajax) {
 
     const openWelcomePackageModal = async () => {
         isWelcomePackageModalOpen.value = true;
-        tempSelectedPackageKey.value = banner.welcome_package.selectedPackageKey; // Pre-select if already chosen
-        await fetchWelcomePackages(); // Fetch packages if not already loaded
+        tempSelectedPackageKey.value = banner.welcome_package.selectedPackageKey;
+        await fetchWelcomePackages();
     };
 
     const closeWelcomePackageModal = () => {
         isWelcomePackageModalOpen.value = false;
-        // Reset temporary selection if modal is closed without confirmation
-        tempSelectedPackageKey.value = null;
+        tempSelectedPackageKey.value = null; // Reset temp on close without confirm
     };
 
     const selectWelcomePackage = (pkg) => {
         tempSelectedPackageKey.value = pkg.key;
-        // Optionally update temporary prices here if needed for immediate feedback in modal
     };
 
     const confirmWelcomePackageSelection = () => {
@@ -68,14 +64,60 @@ export function useWelcomePackageBanner(banner, showModal, ajax) {
             banner.welcome_package.originalPrice = formatPrice(selectedPkg.originalMoneyValue);
             banner.welcome_package.discountedPrice = formatPrice(selectedPkg.moneyValue);
         } else {
-            // Handle case where selected package might not be found (e.g., API changed)
             banner.welcome_package.selectedPackageKey = tempSelectedPackageKey.value;
             banner.welcome_package.originalPrice = 'N/A';
             banner.welcome_package.discountedPrice = 'N/A';
-            console.warn(`Selected package key "${tempSelectedPackageKey.value}" not found in fetched packages.`);
+            console.warn(`Selected package key "${tempSelectedPackageKey.value}" not found.`);
         }
-        isWelcomePackageModalOpen.value = false; // Close modal on confirmation
+        isWelcomePackageModalOpen.value = false;
     };
+
+    // --- New Function: Copy Placeholder ---
+    const copyPlaceholder = (placeholder) => {
+        // Use navigator.clipboard if available (more modern)
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(placeholder).then(() => {
+                showModal('Copied!', `Placeholder "${placeholder}" copied to clipboard.`);
+            }).catch(err => {
+                console.error('Failed to copy placeholder using navigator: ', err);
+                // Fallback for older browsers or insecure contexts
+                fallbackCopyTextToClipboard(placeholder);
+            });
+        } else {
+            // Fallback for older browsers or insecure contexts
+            fallbackCopyTextToClipboard(placeholder);
+        }
+    };
+
+    // --- New Helper: Fallback Copy Function ---
+    const fallbackCopyTextToClipboard = (text) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+
+        // Avoid scrolling to bottom
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                showModal('Copied!', `Placeholder "${text}" copied to clipboard.`);
+            } else {
+                showModal('Error', 'Could not copy placeholder.');
+            }
+        } catch (err) {
+            console.error('Fallback copy failed: ', err);
+            showModal('Error', 'Could not copy placeholder.');
+        }
+
+        document.body.removeChild(textArea);
+    };
+
 
     return {
         isWelcomePackageModalOpen,
@@ -86,8 +128,10 @@ export function useWelcomePackageBanner(banner, showModal, ajax) {
         closeWelcomePackageModal,
         selectWelcomePackage,
         confirmWelcomePackageSelection,
-        fetchWelcomePackages, // Expose fetch if needed elsewhere
+        fetchWelcomePackages,
         formatPrice,
-        welcomePackagePreviewHtml // Expose computed preview HTML
+        welcomePackagePreviewHtml,
+        copyPlaceholder // Expose the new copy function
     };
 }
+
