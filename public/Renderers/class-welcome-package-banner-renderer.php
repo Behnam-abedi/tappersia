@@ -17,91 +17,53 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
             $unique_id_wrapper = 'yab-wpb-cont-' . $banner_id . '-' . wp_rand(1000, 9999); // Unique ID for the container
             $ajax_url = admin_url('admin-ajax.php');
 
-            // --- Refined Content Extraction ---
+            // --- Robust Content Extraction ---
             $style_content = '';
-            $body_content = '';
+            $body_content = ''; // This should ONLY contain the main HTML structure
 
             // 1. Extract style content
             if (preg_match('/<style.*?>(.*?)<\/style>/is', $html_template_raw, $style_matches)) {
                 $style_content = trim($style_matches[1]);
             }
 
-            // 2. Extract body content
-            if (preg_match('/<body.*?>(.*?)<\/body>/is', $html_template_raw, $body_matches)) {
-                $body_content = trim($body_matches[1]);
+            // 2. Extract the main banner structure (assuming it's the first top-level element after potential head/style)
+            //    Or specifically look for <article class="banner">
+             if (preg_match('/<article class="banner".*?<\/article>/is', $html_template_raw, $article_matches)) {
+                 $body_content = $article_matches[0];
+             } else if (preg_match('/<body.*?>(.*?)<\/body>/is', $html_template_raw, $body_matches)) {
+                // Fallback: Try to get content from body, excluding style tag if it was inside body
+                $temp_body = trim($body_matches[1]);
+                $body_content = preg_replace('/<style.*?>(.*?)<\/style>/is', '', $temp_body);
             } else {
-                // If no body tag, extract everything excluding html, head, style
+                // Fallback: Remove html, head, style, body tags and hope the rest is the main content
                 $body_content = preg_replace('/<html[^>]*>.*?<\/html>/is', '', $html_template_raw);
                 $body_content = preg_replace('/<head[^>]*>.*?<\/head>/is', '', $body_content);
-                $body_content = preg_replace('/<style.*?>(.*?)<\/style>/is', '', $body_content); // Remove style from body if no body tag found
+                $body_content = preg_replace('/<style.*?>(.*?)<\/style>/is', '', $body_content);
+                $body_content = preg_replace('/<body[^>]*>/i', '', $body_content); // Remove opening body tag
+                $body_content = preg_replace('/<\/body>/i', '', $body_content); // Remove closing body tag
                 $body_content = trim($body_content);
             }
-            // --- End Refined Content Extraction ---
+            // --- End Robust Content Extraction ---
 
-            // --- Refined CSS Scoping Logic ---
-            $scoped_css = '';
-            if (!empty($style_content)) {
-                // Basic prefixing - add ID before each selector group
-                // This won't handle complex cases like @media, @keyframes perfectly but is safer
-                $scoped_css = preg_replace_callback(
-                    '/([^{}]+)({[^{}]+})/s', // Match selectors { declarations }
-                    function ($matches) use ($unique_id_wrapper) {
-                        $selectors = trim($matches[1]);
-                        $declarations = trim($matches[2]);
-
-                        // Avoid prefixing keyframes, media queries definitions, :root, html, body
-                        if (preg_match('/^@(keyframes|media|font-face)/i', $selectors) || preg_match('/^(html|body|:root)\b/i', $selectors)) {
-                            // For @media, try to prefix rules inside (basic attempt)
-                            if (preg_match('/^@media/i', $selectors)) {
-                                $declarations_inner = preg_replace_callback(
-                                    '/([^{}]+)({[^{}]+})/s',
-                                    function ($inner_matches) use ($unique_id_wrapper) {
-                                        $inner_selectors = trim($inner_matches[1]);
-                                        $inner_declarations = trim($inner_matches[2]);
-                                        if (preg_match('/^(html|body|:root)\b/i', $inner_selectors)) {
-                                             return $inner_matches[0]; // Don't prefix html/body inside media query
-                                        }
-                                        $prefixed_inner_selectors = preg_replace('/([^,\s]+)/', '#' . $unique_id_wrapper . ' $1', $inner_selectors);
-                                        return $prefixed_inner_selectors . ' ' . $inner_declarations;
-                                    },
-                                    trim(substr($declarations, 1, -1)) // Process content inside {}
-                                );
-                                return $selectors . ' {' . $declarations_inner . '}';
-                            }
-                             return $matches[0]; // Return @keyframes, :root etc. as is
-                        }
-
-                        // Prefix each selector in a comma-separated list
-                        $prefixed_selectors = implode(', ', array_map(function ($selector) use ($unique_id_wrapper) {
-                             $selector = trim($selector);
-                             // Avoid double prefixing if ID already exists (less likely but safe)
-                             if (strpos($selector, '#' . $unique_id_wrapper) === 0) {
-                                 return $selector;
-                             }
-                            return '#' . $unique_id_wrapper . ' ' . $selector;
-                        }, explode(',', $selectors)));
-
-                        return $prefixed_selectors . ' ' . $declarations;
-                    },
-                    $style_content
-                );
-            }
-            // --- End Refined CSS Scoping Logic ---
-
+             // --- Simplified CSS Scoping (Output styles within the container) ---
+             $scoped_style_tag = '';
+             if (!empty($style_content)) {
+                 // We simply wrap the user's styles in a style tag INSIDE the container.
+                 // This relies on the container ID for scoping via descendant selectors in user's CSS.
+                 // Note: Targeting 'html' or 'body' within user styles might still cause issues.
+                 $scoped_style_tag = "<style>\n" . $style_content . "\n</style>";
+             }
+             // --- End Simplified CSS Scoping ---
 
              // Skeleton HTML
-             $skeleton_html = '<div class="yab-wpb-skeleton" style="width: 100%; min-height: 100px; background-color: #f0f0f0; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#ccc;">Loading...</div>';
+             $skeleton_html = '<div class="yab-wpb-skeleton" style="width: 100%; min-height: 100px; background-color: #f0f0f0; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#ccc;">Loading Prices...</div>';
 
             ob_start();
             ?>
-            <?php // Output the scoped styles ?>
-            <style>
-                <?php echo $scoped_css; ?>
-            </style>
-
             <div id="<?php echo esc_attr($unique_id_wrapper); ?>" class="yab-welcome-package-banner-container" data-package-key="<?php echo esc_attr($package_key); ?>">
-                 <?php // Output the initial content (might be skeleton or actual if no JS needed immediately) ?>
-                 <?php echo $skeleton_html; // Start with skeleton ?>
+                <?php // Output scoped styles FIRST, then the skeleton ?>
+                <?php echo $scoped_style_tag; ?>
+                <?php echo $skeleton_html; // Start with skeleton ?>
             </div>
 
             <script>
@@ -109,8 +71,11 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
                     const container = document.getElementById('<?php echo esc_js($unique_id_wrapper); ?>');
                     const packageKey = container.getAttribute('data-package-key');
                     const ajaxUrl = '<?php echo esc_js($ajax_url); ?>';
-                    // Store the raw BODY content (without styles, html, head) in a JS variable
+                    // Store ONLY the clean extracted BODY/ARTICLE content
                     const htmlBodyContentTemplate = <?php echo $this->json_encode_options($body_content); ?>;
+                     // Store the style tag separately if needed later by JS (unlikely for now)
+                     // const htmlStyleContent = <?php // echo $this->json_encode_options($scoped_style_tag); ?>;
+
 
                     if (!container || !packageKey) {
                         console.error('Welcome Package Banner <?php echo esc_js($unique_id_wrapper); ?>: Missing container or package key.');
@@ -135,7 +100,7 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
                             return response.json();
                         })
                         .then(result => {
-                             // Start with the raw body template for replacement
+                             // Start with the clean body template for replacement
                             let finalHtml = htmlBodyContentTemplate;
                             if (result.success && result.data) {
                                 const prices = result.data;
@@ -144,8 +109,17 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
                                 const originalPriceNum = Number(prices.originalMoneyValue);
                                 const discountedPriceNum = Number(prices.moneyValue);
 
-                                const originalPriceFormatted = !isNaN(originalPriceNum) ? originalPriceNum.toFixed(3) : 'N/A';
-                                const discountedPriceFormatted = !isNaN(discountedPriceNum) ? discountedPriceNum.toFixed(3) : 'N/A';
+                                // --- Format Price (Example: add currency, format decimals) ---
+                                // You might want to adjust formatting based on currency/locale
+                                const formatCurrency = (num) => {
+                                    if (isNaN(num)) return 'N/A';
+                                    // Example: Format to 2 decimal places with comma separators
+                                    return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                };
+                                const originalPriceFormatted = formatCurrency(originalPriceNum);
+                                const discountedPriceFormatted = formatCurrency(discountedPriceNum);
+                                // --- End Format Price ---
+
 
                                 // Replace placeholders using formatted values
                                 finalHtml = finalHtml.replace(/\{\{\s*originalPrice\s*\}\}/g, originalPriceFormatted);
@@ -158,7 +132,15 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
                                  finalHtml = finalHtml.replace(/\{\{\s*key\s*\}\}/g, packageKey);
                                  container.style.outline = '1px dashed red';
                             }
-                             container.innerHTML = finalHtml; // Replace skeleton with final HTML
+                             // Inject the final HTML content *after* the existing style tag
+                             const skeleton = container.querySelector('.yab-wpb-skeleton');
+                             if (skeleton) {
+                                 skeleton.outerHTML = finalHtml; // Replace skeleton specifically
+                             } else {
+                                 // If skeleton wasn't found (maybe already replaced), clear and set
+                                 const styleTag = container.querySelector('style');
+                                 container.innerHTML = (styleTag ? styleTag.outerHTML : '') + finalHtml;
+                             }
                         })
                         .catch(error => {
                             console.error('Welcome Package Banner <?php echo esc_js($unique_id_wrapper); ?> Fetch Error:', error);
@@ -166,7 +148,14 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
                              errorHtml = errorHtml.replace(/\{\{\s*originalPrice\s*\}\}/g, 'Error');
                              errorHtml = errorHtml.replace(/\{\{\s*discountedPrice\s*\}\}/g, 'Error');
                              errorHtml = errorHtml.replace(/\{\{\s*key\s*\}\}/g, packageKey);
-                             container.innerHTML = errorHtml;
+                             // Inject error HTML *after* the existing style tag
+                              const skeleton = container.querySelector('.yab-wpb-skeleton');
+                              if (skeleton) {
+                                  skeleton.outerHTML = errorHtml; // Replace skeleton specifically
+                              } else {
+                                   const styleTag = container.querySelector('style');
+                                   container.innerHTML = (styleTag ? styleTag.outerHTML : '') + errorHtml;
+                              }
                             container.style.outline = '1px dashed red';
                         });
                     };
