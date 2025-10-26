@@ -101,7 +101,6 @@ export function initializeApp(yabData) {
                          themeMode: 'dark',
                          format: 'mixed',
                          onChange: (color, inputEl) => {
-                             console.log(`Coloris changed: ${color}`);
                              // Dispatch an 'input' event manually if v-model isn't updating
                              if (inputEl) {
                                   inputEl.dispatchEvent(new Event('input', { bubbles: true }));
