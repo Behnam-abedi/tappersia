@@ -139,39 +139,27 @@ export function useHotelCarousel() {
 
                  // --- SKELETON LOADER ---
                 if (!hotel) {
-                    // Use card height from settings
-                    const cardHeight = card.height || 357;
-                    const imageHeight = card.image?.height || 176;
-                    const imageRadius = card.image?.radius || 14;
-                    const cardRadius = card.borderRadius || 16;
-                    const cardPadding = card.padding || 9;
-                    const contentMarginX = card.bodyContent?.marginX || 19;
-                    const contentMarginTop = card.bodyContent?.marginTop || 14;
-
-                    // Calculate image width based on card padding
-                    const imageWidth = 295 - (cardPadding * 2);
-
                     return `
-                    <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; height:357px; width: 295px; border-radius: ${cardRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${cardPadding}px; background-color: ${card.bgColor}; box-sizing: border-box; overflow: hidden;">
-                      <div style="height: ${imageHeight}px; width: ${imageWidth}px; border-radius: ${imageRadius}px; background-color: #f0f0f0;"></div>
-                      <div style="margin: ${contentMarginTop}px ${contentMarginX}px 0 ${contentMarginX}px;">
-                        <div style="min-height: ${card.title?.minHeight || 34}px; width: 100%; margin-bottom: 7px;">
-                          <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 75%; margin-bottom: 8px;"></div>
-                          <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 50%;"></div>
+                        <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; height:357px; width: 295px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #ffffff; box-sizing: border-box; overflow: hidden;">
+                        <div style="height: 176px; width: 100%; border-radius: 14px; background-color: #f0f0f0;"></div>
+                        <div style="margin: 14px 19px 0 19px;">
+                            <div style="min-height: 34px; width: 100%; margin-bottom: 7px;">
+                            <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 75%; margin-bottom: 8px;"></div>
+                            <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 50%;"></div>
+                            </div>
+                            <div name="description-skeleton">
+                            <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: 6px; margin-top: 7px;">
+                                <div style="height: 30px; width: 60%; border-radius: 3px; background-color: #f0f0f0;"></div>
+                            </div>
+                            </div>
+                            <hr style="margin: 9.5px 0 7.5px 0; border: 0; border-top: 1px solid #EEEEEE;" />
+                            <div name="price-skeleton" style="display: flex; flex-direction: row; justify-content: space-between;">
+                            <div style="height: 30px; background-color: #f0f0f0; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
+                            <div style="height: 30px; background-color: #f0f0f0; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
+                            </div>
                         </div>
-                        <div name="description-skeleton">
-                          <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: ${card.rating?.gap || 6}px; margin-top: ${card.rating?.marginTop || 7}px;">
-                            <div style="height: 30px; width: 60%; border-radius: ${card.rating?.boxRadius || 3}px; background-color: #f0f0f0;"></div>
-                          </div>
                         </div>
-                        <hr style="margin: ${card.divider?.marginTop || 9.5}px 0 ${card.divider?.marginBottom || 7.5}px 0; border: 0; border-top: 1px solid ${card.divider?.color || '#EEEEEE'};" />
-                        <div name="price-skeleton" style="display: flex; flex-direction: row;justify-content:space-between">
-                           <div style="height: 30px; background-color: #f0f0f0; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
-                           <div style="height: 30px; background-color: #f0f0f0; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
-
-                        </div>
-                      </div>
-                    </div>`;
+                        `;
                 }
                 // --- END SKELETON LOADER ---
 
