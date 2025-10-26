@@ -80,62 +80,68 @@ export function initializeApp(yabData) {
                         // Rely on saved data for preview initially
                     }
 
+                    // *** FIX: Set appState AFTER merging existing data ***
                     appState.value = 'editor';
                 } else {
                     appState.value = 'selection';
                 }
 
-                // *** START: Initialize Coloris after Vue mounts and potentially loads existing data ***
-                nextTick(() => {
-                    if (typeof Coloris !== 'undefined') {
-                        Coloris({
-                        theme: 'pill',
-                        themeMode: 'dark',
-                        format: 'mixed',
-                        onChange: (color, inputEl) => {
-                            // You might want to trigger a Vue update here if needed,
-                            // although v-model should handle it if correctly bound directly to banner state.
-                            console.log(`Coloris changed: ${color}`);
-                        }
-                        });
-                    } else {
-                        console.error("Coloris library is not loaded.");
-                    }
-                });
-                // *** END: Initialize Coloris ***
+                // *** FIX: Removed initial Coloris call from onMounted ***
+                // Coloris will now be initialized only when appState changes to 'editor'
             });
 
-            // *** START: Re-initialize Coloris on view changes IF NEEDED (Currently commented out) ***
-            // Usually, if Coloris targets elements present from the start, re-initialization might not be necessary.
-            // Only uncomment and use the re-initialization if color pickers stop working after tab changes.
+            // Helper function to initialize/reinitialize Coloris
             const reinitializeColoris = () => {
-                if (typeof Coloris !== 'undefined') {
-                    Coloris({
-                        theme: 'pill',
-                        themeMode: 'dark',
-                        format: 'mixed',
-                        onChange: (color, inputEl) => {
-                             console.log(`Coloris changed: ${color}`);
-                        }
-                    });
-                 }
+                 // Add a small delay to ensure DOM is fully ready after Vue's update
+                 setTimeout(() => {
+                     if (typeof Coloris !== 'undefined') {
+                         console.log('Attempting to initialize Coloris...');
+                         Coloris({
+                             el: '#yab-app', // Target the main app container
+                             theme: 'pill',
+                             themeMode: 'dark',
+                             format: 'mixed',
+                             onChange: (color, inputEl) => {
+                                 console.log(`Coloris changed: ${color}`);
+                                 // Dispatch an 'input' event manually if v-model isn't updating
+                                 // This forces Vue to recognize the change made by Coloris
+                                 if (inputEl) {
+                                      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+                                 }
+                             }
+                         });
+                         console.log('Coloris initialized.');
+                     } else {
+                         console.error("Coloris library is not loaded when trying to reinitialize.");
+                     }
+                 }, 50); // 50ms delay, adjust if needed
             };
 
-            watch(currentView, async () => {
-                await nextTick(); // Wait for Vue to update the DOM
-                // reinitializeColoris(); // Uncomment if needed
-            });
-            watch(selectedDoubleBanner, async () => {
-                await nextTick();
-                // reinitializeColoris(); // Uncomment if needed
-            });
-             watch(appState, async (newState) => {
-                if (newState === 'editor') {
-                    await nextTick(); // Ensure editor DOM is ready
-                    reinitializeColoris(); // Reinitialize when editor loads
+
+            // Watchers for view and state changes
+            watch(currentView, async (newView, oldView) => {
+                if (newView !== oldView) {
+                    await nextTick();
+                    // Reinitialize Coloris if needed after view change
+                    // reinitializeColoris(); // Usually needed if elements appear/disappear
                 }
-             });
-            // *** END: Re-initialize Coloris on view changes ***
+            });
+            watch(selectedDoubleBanner, async (newSelection, oldSelection) => {
+                 if (newSelection !== oldSelection) {
+                    await nextTick();
+                    // Reinitialize Coloris if needed after changing double banner side
+                     // reinitializeColoris();
+                 }
+            });
+
+             watch(appState, async (newState, oldState) => {
+                // Initialize Coloris *only* when transitioning into the editor state
+                if (newState === 'editor' && oldState !== 'editor') {
+                    await nextTick(); // Wait for the editor's DOM elements to be rendered by Vue
+                    console.log('App state changed to editor, initializing Coloris...');
+                    reinitializeColoris(); // Initialize Coloris now that the editor elements should exist
+                }
+             }, { immediate: false }); // immediate: false prevents running on initial load
 
 
             // --- Helper Methods (Gradient Stops) ---
@@ -143,9 +149,9 @@ export function initializeApp(yabData) {
                  if (!settings.gradientStops) settings.gradientStops = [];
                  const lastStop = settings.gradientStops.length > 0 ? settings.gradientStops[settings.gradientStops.length - 1].stop : 0;
                  const newStopPosition = Math.min(100, lastStop + 10);
-                 settings.gradientStops.push({ color: 'rgba(255, 255, 255, 0.5)', stop: newStopPosition }); // Default with alpha
+                 settings.gradientStops.push({ color: 'rgba(255, 255, 255, 0.5)', stop: newStopPosition });
                  settings.gradientStops.sort((a, b) => a.stop - b.stop);
-                 // Reinitialize Coloris after adding a stop if needed
+                 // Optional: Reinitialize Coloris after adding a stop if new color inputs appear
                  // nextTick(reinitializeColoris);
              };
             const removeGradientStop = (settings, index) => {
