@@ -7,7 +7,21 @@
         </div>
         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
             <label class="setting-label-sm">Background Color</label>
-            <input aria-label="Color input" type="text"  v-model="settings.bgColor" data-coloris class="yab-form-input clr-field" placeholder="Select color...">
+            <div class="flex items-center gap-2"> {/* <-- Div flex برای کنار هم قرار دادن */}
+                <div
+                    :style="{ backgroundColor: currentView === 'desktop' ? banner.simple.bgColor : banner.simple_mobile.bgColor }"
+                    class="w-6 h-6 rounded border border-gray-500 flex-shrink-0"
+                    title="Selected color preview"> {/* <-- مربع پیش‌نمایش رنگ */}
+                </div>
+                <input
+                    aria-label="Color input"
+                    type="text"
+                    :value="currentView === 'desktop' ? banner.simple.bgColor : banner.simple_mobile.bgColor"
+                    @input="event => { if (currentView === 'desktop') banner.simple.bgColor = event.target.value; else banner.simple_mobile.bgColor = event.target.value; }"
+                    data-coloris
+                    class="yab-form-input clr-field flex-grow"
+                    placeholder="Select color..."> {/* <-- اینپوت رنگ */}
+            </div>
         </div>
         <div v-else class="space-y-4">
             <div>
