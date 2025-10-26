@@ -7,10 +7,10 @@
         </div>
         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
             <label class="setting-label-sm">Background Color</label>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1">
                 <div
                     :style="{ backgroundColor: currentView === 'desktop' ? banner.simple.bgColor : banner.simple_mobile.bgColor }"
-                    class="w-6 h-6 rounded border border-gray-500 flex-shrink-0"
+                    class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
                     title="Selected color preview">
                 </div>
                 <input
