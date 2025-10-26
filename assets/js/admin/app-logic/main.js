@@ -92,29 +92,26 @@ export function initializeApp(yabData) {
 
             // Helper function to initialize/reinitialize Coloris
             const reinitializeColoris = () => {
-                 // Add a small delay to ensure DOM is fully ready after Vue's update
-                 setTimeout(() => {
-                     if (typeof Coloris !== 'undefined') {
-                         console.log('Attempting to initialize Coloris...');
-                         Coloris({
-                             el: '#yab-app', // Target the main app container
-                             theme: 'pill',
-                             themeMode: 'dark',
-                             format: 'mixed',
-                             onChange: (color, inputEl) => {
-                                 console.log(`Coloris changed: ${color}`);
-                                 // Dispatch an 'input' event manually if v-model isn't updating
-                                 // This forces Vue to recognize the change made by Coloris
-                                 if (inputEl) {
-                                      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-                                 }
+                 // Removed setTimeout wrapper, rely on nextTick in the watcher
+                 if (typeof Coloris !== 'undefined') {
+                     console.log('Attempting to initialize Coloris (without el constraint)...');
+                     Coloris({
+                         // el: '#yab-app', // <- Removed this constraint
+                         theme: 'pill',
+                         themeMode: 'dark',
+                         format: 'mixed',
+                         onChange: (color, inputEl) => {
+                             console.log(`Coloris changed: ${color}`);
+                             // Dispatch an 'input' event manually if v-model isn't updating
+                             if (inputEl) {
+                                  inputEl.dispatchEvent(new Event('input', { bubbles: true }));
                              }
-                         });
-                         console.log('Coloris initialized.');
-                     } else {
-                         console.error("Coloris library is not loaded when trying to reinitialize.");
-                     }
-                 }, 50); // 50ms delay, adjust if needed
+                         }
+                     });
+                     console.log('Coloris initialized.');
+                 } else {
+                     console.error("Coloris library is not loaded when trying to reinitialize.");
+                 }
             };
 
 
@@ -122,14 +119,14 @@ export function initializeApp(yabData) {
             watch(currentView, async (newView, oldView) => {
                 if (newView !== oldView) {
                     await nextTick();
-                    // Reinitialize Coloris if needed after view change
-                    // reinitializeColoris(); // Usually needed if elements appear/disappear
+                    // Optional: Reinitialize if needed after view change
+                    // reinitializeColoris();
                 }
             });
             watch(selectedDoubleBanner, async (newSelection, oldSelection) => {
                  if (newSelection !== oldSelection) {
                     await nextTick();
-                    // Reinitialize Coloris if needed after changing double banner side
+                    // Optional: Reinitialize if needed after changing double banner side
                      // reinitializeColoris();
                  }
             });
@@ -139,7 +136,7 @@ export function initializeApp(yabData) {
                 if (newState === 'editor' && oldState !== 'editor') {
                     await nextTick(); // Wait for the editor's DOM elements to be rendered by Vue
                     console.log('App state changed to editor, initializing Coloris...');
-                    reinitializeColoris(); // Initialize Coloris now that the editor elements should exist
+                    reinitializeColoris(); // Initialize Coloris now
                 }
              }, { immediate: false }); // immediate: false prevents running on initial load
 
@@ -151,7 +148,7 @@ export function initializeApp(yabData) {
                  const newStopPosition = Math.min(100, lastStop + 10);
                  settings.gradientStops.push({ color: 'rgba(255, 255, 255, 0.5)', stop: newStopPosition });
                  settings.gradientStops.sort((a, b) => a.stop - b.stop);
-                 // Optional: Reinitialize Coloris after adding a stop if new color inputs appear
+                 // Optional: Reinitialize after adding a stop if new inputs appear
                  // nextTick(reinitializeColoris);
              };
             const removeGradientStop = (settings, index) => {
