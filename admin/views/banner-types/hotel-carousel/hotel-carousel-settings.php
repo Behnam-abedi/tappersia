@@ -68,20 +68,43 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="setting-label-sm">Pagination Color</label>
-                                <div class="yab-color-input-wrapper">
-                                    <input type="color" class="yab-color-picker" v-model="settings.pagination.paginationColor">
-                                    <input type="text" v-model="settings.pagination.paginationColor" class="yab-hex-input">
+                                <div class="flex items-center gap-1">
+                                    <div
+                                        :style="{ backgroundColor: settings.pagination.paginationColor }"
+                                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                                        title="Selected color preview">
+                                    </div>
+                                    <input
+                                        aria-label="Pagination color input"
+                                        type="text"
+                                        :value="settings.pagination.paginationColor"
+                                        @input="event => settings.pagination.paginationColor = event.target.value"
+                                        data-coloris
+                                        class="yab-form-input clr-field flex-grow"
+                                        placeholder="Select color...">
                                 </div>
                             </div>
                             <div>
                                 <label class="setting-label-sm">Pagination Active Color</label>
-                                <div class="yab-color-input-wrapper">
-                                    <input type="color" v-model="settings.pagination.paginationActiveColor" class="yab-color-picker">
-                                    <input type="text" v-model="settings.pagination.paginationActiveColor" class="yab-hex-input">
+                                <div class="flex items-center gap-1">
+                                    <div
+                                        :style="{ backgroundColor: settings.pagination.paginationActiveColor }"
+                                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                                        title="Selected color preview">
+                                    </div>
+                                    <input
+                                        aria-label="Pagination active color input"
+                                        type="text"
+                                        :value="settings.pagination.paginationActiveColor"
+                                        @input="event => settings.pagination.paginationActiveColor = event.target.value"
+                                        data-coloris
+                                        class="yab-form-input clr-field flex-grow"
+                                        placeholder="Select color...">
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
