@@ -91,7 +91,7 @@ export function initializeApp(yabData) {
                         Coloris({
                         theme: 'pill',
                         themeMode: 'dark',
-                        formatToggle: true,
+                        format: 'mixed',
                         onChange: (color, inputEl) => {
                             console.log(`The new color is ${color}`);
                         }
