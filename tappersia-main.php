@@ -3,7 +3,7 @@
  * Plugin Name:       Tappersia
  * Plugin URI:        https://www.tappersia.com
  * Description:       A modern banner management plugin with a custom UI using Vue.js and Tailwind CSS.
- * Version:           1.3.0
+ * Version:           1.3.1
  * Author:            Behnam Abedi
  * Author URI:        abd.behnam@gmail.com
  * License:           GPL v2 or later
