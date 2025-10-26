@@ -89,22 +89,12 @@ export function initializeApp(yabData) {
                 nextTick(() => {
                     if (typeof Coloris !== 'undefined') {
                         Coloris({
-                            el: '[data-coloris]', // Selector for input fields
-                            format: 'hexa', // Output format (hex with alpha) - Changed from 'hex'
-                            alpha: true, // Enable alpha slider
-                            themeMode: 'dark', // Match the admin theme
-                            wrap: false, // Prevent adding extra wrapper which might conflict with Vue
-                            /*
-                             // This might be needed if v-model doesn't update automatically
-                            onChange: (color, inputEl) => {
-                                // console.log('Coloris onChange:', color, inputEl);
-                                // Manually trigger the 'input' event for v-model
-                                if (inputEl._assign) { // Check if Vue assigned its internal handler
-                                    inputEl.value = color; // Ensure input value is updated
-                                    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-                                }
-                             }
-                             */
+                        theme: 'pill',
+                        themeMode: 'dark',
+                        formatToggle: true,
+                        onChange: (color, inputEl) => {
+                            console.log(`The new color is ${color}`);
+                        }
                         });
                     } else {
                         console.error("Coloris library is not loaded.");
