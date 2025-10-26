@@ -152,7 +152,7 @@ export function useHotelCarousel() {
                     const imageWidth = 295 - (cardPadding * 2);
 
                     return `
-                    <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; min-height: ${cardHeight}px; width: 295px; border-radius: ${cardRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${cardPadding}px; background-color: ${card.bgColor}; box-sizing: border-box; overflow: hidden;">
+                    <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; height:357px; width: 295px; border-radius: ${cardRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${cardPadding}px; background-color: ${card.bgColor}; box-sizing: border-box; overflow: hidden;">
                       <div style="height: ${imageHeight}px; width: ${imageWidth}px; border-radius: ${imageRadius}px; background-color: #f0f0f0;"></div>
                       <div style="margin: ${contentMarginTop}px ${contentMarginX}px 0 ${contentMarginX}px;">
                         <div style="min-height: ${card.title?.minHeight || 34}px; width: 100%; margin-bottom: 7px;">
@@ -161,25 +161,14 @@ export function useHotelCarousel() {
                         </div>
                         <div name="description-skeleton">
                           <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: ${card.rating?.gap || 6}px; margin-top: ${card.rating?.marginTop || 7}px;">
-                            <div style="height: 20px; width: 32px; border-radius: ${card.rating?.boxRadius || 3}px; background-color: #f0f0f0;"></div>
-                            <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div>
-                            <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px;"></div>
-                          </div>
-                          <div name="tags-skeleton" style="margin-top: ${card.tags?.marginTop || 7}px; display: flex; flex-direction: row; gap: ${card.tags?.gap || 5}px;">
-                            <div style="height: 20px; width: 48px; border-radius: ${card.tags?.radius || 3}px; background-color: #f0f0f0;"></div>
-                            <div style="height: 20px; width: 48px; border-radius: ${card.tags?.radius || 3}px; background-color: #f0f0f0;"></div>
+                            <div style="height: 30px; width: 60%; border-radius: ${card.rating?.boxRadius || 3}px; background-color: #f0f0f0;"></div>
                           </div>
                         </div>
                         <hr style="margin: ${card.divider?.marginTop || 9.5}px 0 ${card.divider?.marginBottom || 7.5}px 0; border: 0; border-top: 1px solid ${card.divider?.color || '#EEEEEE'};" />
-                        <div name="price-skeleton" style="display: flex; flex-direction: column;">
-                           <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 32px; margin-bottom: 4px;"></div> {/* 'From' text */}
-                          <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                              <div style="height: 20px; background-color: #f0f0f0; border-radius: 4px; width: 64px;"></div> {/* Amount */}
-                              <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 40px;"></div> {/* / night */}
-                            </div>
-                            <div style="height: 12px; background-color: #f0f0f0; border-radius: 4px; width: 48px;"></div> {/* Original Price */}
-                          </div>
+                        <div name="price-skeleton" style="display: flex; flex-direction: row;justify-content:space-between">
+                           <div style="height: 30px; background-color: #f0f0f0; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
+                           <div style="height: 30px; background-color: #f0f0f0; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
+
                         </div>
                       </div>
                     </div>`;

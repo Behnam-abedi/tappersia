@@ -201,9 +201,9 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                              // Skeleton based on new card settings
                             // --- START: Added overflow: hidden to inner flex container ---
                             $skeleton_html = <<<HTML
-                                <div name="card-skeleton" class="yab-skeleton-loader" style="margin: 0; height: {$card_height_esc}px; width: 295px; border-radius: {$card_radius_esc}px; border: {$border_width_esc}px solid {$border_color_esc}; padding: {$card_padding_esc}px; background-color: {$bg_color_esc}; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column;">
+                                <div name="card-skeleton" class="yab-skeleton-loader" style="margin: 0;  width: 295px; border-radius: {$card_radius_esc}px; border: {$border_width_esc}px solid {$border_color_esc}; padding: {$card_padding_esc}px; background-color: {$bg_color_esc}; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column;">
                                   <div style="height: {$image_height_esc}px; width: {$image_width_calc}px; border-radius: {$image_radius_esc}px; flex-shrink: 0;"></div>
-                                  <div style="margin: {$content_margin_top_esc}px {$content_margin_x_esc}px 0 {$content_margin_x_esc}px; flex-grow: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
+                                  <div style="margin: {$content_margin_top_esc}px {$content_margin_x_esc}px 0 {$content_margin_x_esc}px; display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
                                     <div style="min-height: {$title_min_height_esc}px; width: 100%; margin-bottom: 7px;">
                                       <div style="height: 16px; border-radius: 4px; width: 75%; margin-bottom: 8px;"></div>
                                       <div style="height: 16px; border-radius: 4px; width: 50%;"></div>
@@ -211,24 +211,12 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                                     <div name="description-skeleton">
                                       <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: {$rating_gap_esc}px; margin-top: {$rating_margin_top_esc}px;">
                                         <div style="height: 20px; width: 32px; border-radius: {$rating_box_radius_esc}px;"></div>
-                                        <div style="height: 16px; border-radius: 4px; width: 64px;"></div>
-                                        <div style="height: 12px; border-radius: 4px; width: 32px;"></div>
-                                      </div>
-                                      <div name="tags-skeleton" style="margin-top: {$tags_margin_top_esc}px; display: flex; flex-direction: row; gap: {$tags_gap_esc}px;">
-                                        <div style="height: 20px; width: 48px; border-radius: {$tags_radius_esc}px;"></div>
-                                        <div style="height: 20px; width: 48px; border-radius: {$tags_radius_esc}px;"></div>
                                       </div>
                                     </div>
                                     <hr style="margin: {$divider_margin_top_esc}px 0 {$divider_margin_bottom_esc}px 0; border: 0; border-top: 1px solid {$divider_color_esc};" />
-                                    <div name="price-skeleton" style="display: flex; flex-direction: column; margin-top: auto;">
-                                      <div style="height: 12px; border-radius: 4px; width: 32px; margin-bottom: 4px;"></div>
-                                      <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
-                                        <div style="display: flex; align-items: center; gap: 5px;">
-                                          <div style="height: 20px; border-radius: 4px; width: 64px;"></div>
-                                          <div style="height: 16px; border-radius: 4px; width: 40px;"></div>
-                                        </div>
-                                        <div style="height: 12px; border-radius: 4px; width: 48px;"></div>
-                                      </div>
+                                    <div name="price-skeleton" style="display: flex; flex-direction: row;justify-content:space-between; margin-top: auto;">
+                                      <div style="height: 30px; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
+                                      <div style="height: 30px; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
                                     </div>
                                   </div>
                                 </div>
@@ -302,7 +290,7 @@ HTML;
                               <div name="black-highlight" style="position: absolute; display: flex; height: 100%; width: 100%; align-items: flex-end; border-bottom-left-radius: ${card.image?.radius}px; border-bottom-right-radius: ${card.image?.radius}px; background-image: ${overlayGradient};"></div>
                               <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(title)}" style="height: 100%; width: 100%; border-radius: ${card.image?.radius}px; object-fit: cover;" />
                             </div>
-                            <div name="body-content" style="margin: ${card.bodyContent?.marginTop}px ${card.bodyContent?.marginX}px 0 ${card.bodyContent?.marginX}px; color: ${card.bodyContent?.textColor}; flex-grow: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;"> {/* Added overflow: hidden */}
+                            <div name="body-content" style="margin: ${card.bodyContent?.marginTop}px ${card.bodyContent?.marginX}px 0 ${card.bodyContent?.marginX}px; color: ${card.bodyContent?.textColor}; flex-grow: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
                               <div name="title" style="min-height: ${card.title?.minHeight}px; width: 100%;"> <h4 style="font-size: ${card.title?.fontSize}px; line-height: ${card.title?.lineHeight}; font-weight: ${card.title?.fontWeight}; color: ${card.title?.color}; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4> </div>
                               <div name="description">
                                 <div name="rating" style="margin-top: ${card.rating?.marginTop}px; display: flex; flex-direction: row; align-items: center; gap: ${card.rating?.gap}px;">
@@ -313,7 +301,7 @@ HTML;
                                 <div name="tags"> <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: ${card.tags?.gap}px;"> ${tagsHtml} </div> </div>
                               </div>
                               <hr style="margin: ${card.divider?.marginTop}px 0 ${card.divider?.marginBottom}px 0; border: 0; border-top: 1px solid ${card.divider?.color};" />
-                              <div name="price" style="display: flex; flex-direction: column; margin-top: auto;"> {/* Added margin-top: auto */}
+                              <div name="price" style="display: flex; flex-direction: column; margin-top: auto;">
                                 <div style="font-size: ${card.price?.fromSize}px; line-height: 14px; color: ${card.price?.fromColor};"> <span>From</span> </div>
                                 <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
                                   <div style="display: flex; align-items: center; gap: 5px;">
