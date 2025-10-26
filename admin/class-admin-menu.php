@@ -24,15 +24,20 @@ class Yab_Admin_Menu {
     }
 
     public function enqueue_styles_and_scripts( $hook ) {
+        // Check if the current page is one of the plugin's pages
         if ( strpos($hook, $this->plugin_name) === false ) {
             return;
         }
-        
+
+        // Remove all admin notices for plugin pages
+        add_action('admin_print_scripts', array($this, 'remove_admin_notices'), 999);
+
+        // Enqueue styles and scripts
         wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
 
         wp_enqueue_style( 'swiper-css', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css', array(), '12.0.2' );
         wp_enqueue_script( 'swiper-js', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js', array(), '12.0.2', true );
-        
+
         // Enqueue SortableJS for drag & drop functionality
         wp_enqueue_script( 'sortable-js', 'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js', array(), '1.15.0', true );
 
@@ -40,7 +45,7 @@ class Yab_Admin_Menu {
         wp_enqueue_script( 'yab-tailwind', 'https://cdn.tailwindcss.com', array(), null, false );
         wp_enqueue_script( 'yab-vue', 'https://unpkg.com/vue@3/dist/vue.global.js', array(), '3.4.27', true );
         wp_enqueue_style( 'yab-admin-style', YAB_PLUGIN_URL . 'assets/css/admin-style.css', array(), $this->version, 'all' );
-        
+
         wp_enqueue_script( 'yab-modal-component', YAB_PLUGIN_URL . 'assets/js/admin-modal-component.js', array( 'yab-vue' ), $this->version, true );
 
         $page_slug = $this->plugin_name;
@@ -50,17 +55,27 @@ class Yab_Admin_Menu {
                 wp_localize_script( 'yab-list-app', 'yab_list_data', $this->get_list_page_data() );
             } else {
                 wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component', 'swiper-js', 'sortable-js' ), $this->version, true );
-                
+
                 add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
                     if ( 'yab-admin-app-main' === $handle ) {
                         $tag = '<script type="module" src="' . esc_url( $src ) . '" id="yab-admin-app-main-js"></script>';
                     }
                     return $tag;
                 }, 10, 3 );
-                
+
                 wp_localize_script( 'yab-admin-app-main', 'yab_data', $this->get_add_new_page_data() );
             }
         }
+    }
+
+    /**
+     * Remove all admin notices from plugin pages.
+     */
+    public function remove_admin_notices() {
+        remove_all_actions('admin_notices');
+        remove_all_actions('user_admin_notices');
+        remove_all_actions('network_admin_notices');
+        remove_all_actions('all_admin_notices');
     }
 
     private function get_list_page_data() {
@@ -79,7 +94,7 @@ class Yab_Admin_Menu {
                 $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner';
 
                 $display_method = isset($banner_data['displayMethod']) ? $banner_data['displayMethod'] : 'Fixed';
-                
+
                 $shortcode = '[unknown_banner]';
                 $base_shortcode = str_replace('-', '', $banner_type);
 
@@ -137,7 +152,7 @@ class Yab_Admin_Menu {
                 $banner_data['type'] = $banner_type ?: 'double-banner';
 
                 $localized_data['existing_banner'] = $banner_data;
-                
+
                 if (!empty($banner_data['displayOn']['posts'])) {
                     $selected_posts = get_posts(['post__in' => $banner_data['displayOn']['posts'], 'numberposts' => -1]);
                     $localized_data['posts'] = array_unique(array_merge($localized_data['posts'], array_map(fn($p) => ['ID' => $p->ID, 'post_title' => $p->post_title], $selected_posts)), SORT_REGULAR);
@@ -152,7 +167,8 @@ class Yab_Admin_Menu {
                 }
             }
         }
-        
+
         return $localized_data;
     }
 }
+?>
