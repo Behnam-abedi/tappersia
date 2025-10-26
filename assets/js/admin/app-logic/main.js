@@ -1,5 +1,5 @@
 // tappersia/assets/js/admin/app-logic/main.js
-const { createApp, ref, onMounted, watch } = Vue;
+const { createApp, ref, onMounted, watch, nextTick } = Vue; // Added nextTick
 
 // Existing imports...
 import { useHotelCarousel } from './composables/useHotelCarousel.js';
@@ -20,8 +20,6 @@ import { useTourCarousel } from './composables/useTourCarousel.js';
 import { useTourCarouselValidation } from './composables/useTourCarouselValidation.js';
 import { useTourThumbnails } from './composables/useTourThumbnails.js';
 import { useFlightTicket } from '../composables/useFlightTicket.js';
-
-// New import for Welcome Package
 import { useWelcomePackageBanner } from '../composables/useWelcomePackageBanner.js';
 
 
@@ -58,7 +56,7 @@ export function initializeApp(yabData) {
             const { thumbnailHotels, isLoadingThumbnails: isLoadingHotelThumbnails } = useHotelThumbnails(banner, ajax, hotelThumbnailContainerRef);
 
             // --- Welcome Package ---
-            const welcomePackageLogic = useWelcomePackageBanner(banner, showModal, ajax); // Instantiate the new composable
+            const welcomePackageLogic = useWelcomePackageBanner(banner, showModal, ajax);
 
 
             // --- Lifecycle Hooks ---
@@ -78,25 +76,73 @@ export function initializeApp(yabData) {
                      if (banner.type === 'api-banner' && banner.api.selectedTour?.id) {
                         apiBannerLogic.fetchFullTourDetails(banner.api.selectedTour.id);
                     }
-                    // Welcome package fetches prices live on frontend, initial fetch needed for admin preview/selection
                     if (banner.type === 'welcome-package-banner' && banner.welcome_package.selectedPackageKey) {
-                        // We might want to fetch the package details again on load
-                        // to ensure the stored initial prices are reasonably up-to-date for preview.
-                        // Or rely on the data saved during the last selection. Let's rely on saved data for now.
+                        // Rely on saved data for preview initially
                     }
 
                     appState.value = 'editor';
                 } else {
                     appState.value = 'selection';
                 }
+
+                // *** START: Initialize Coloris after Vue mounts and potentially loads existing data ***
+                nextTick(() => {
+                    if (typeof Coloris !== 'undefined') {
+                        Coloris({
+                            el: '[data-coloris]', // Selector for input fields
+                            format: 'hexa', // Output format (hex with alpha) - Changed from 'hex'
+                            alpha: true, // Enable alpha slider
+                            themeMode: 'dark', // Match the admin theme
+                            wrap: false, // Prevent adding extra wrapper which might conflict with Vue
+                            /*
+                             // This might be needed if v-model doesn't update automatically
+                            onChange: (color, inputEl) => {
+                                // console.log('Coloris onChange:', color, inputEl);
+                                // Manually trigger the 'input' event for v-model
+                                if (inputEl._assign) { // Check if Vue assigned its internal handler
+                                    inputEl.value = color; // Ensure input value is updated
+                                    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+                                }
+                             }
+                             */
+                        });
+                    } else {
+                        console.error("Coloris library is not loaded.");
+                    }
+                });
+                // *** END: Initialize Coloris ***
             });
+
+            // *** START: Re-initialize Coloris on view changes ***
+            watch(currentView, async () => {
+                await nextTick(); // Wait for Vue to update the DOM
+                if (typeof Coloris !== 'undefined') {
+                    Coloris.update(); // Update Coloris instances for potentially new/changed elements
+                }
+            });
+            watch(selectedDoubleBanner, async () => {
+                await nextTick();
+                if (typeof Coloris !== 'undefined') {
+                    Coloris.update();
+                }
+            });
+             watch(appState, async (newState) => {
+                if (newState === 'editor') {
+                    await nextTick(); // Ensure editor DOM is ready
+                    if (typeof Coloris !== 'undefined') {
+                        Coloris.update();
+                    }
+                }
+             });
+            // *** END: Re-initialize Coloris on view changes ***
+
 
             // --- Helper Methods (Gradient Stops) ---
             const addGradientStop = (settings) => {
                  if (!settings.gradientStops) settings.gradientStops = [];
                  const lastStop = settings.gradientStops.length > 0 ? settings.gradientStops[settings.gradientStops.length - 1].stop : 0;
                  const newStopPosition = Math.min(100, lastStop + 10);
-                 settings.gradientStops.push({ color: 'rgba(255, 255, 255, 0.5)', stop: newStopPosition });
+                 settings.gradientStops.push({ color: 'rgba(255, 255, 255, 0.5)', stop: newStopPosition }); // Default with alpha
                  settings.gradientStops.sort((a, b) => a.stop - b.stop);
              };
             const removeGradientStop = (settings, index) => {
@@ -121,7 +167,7 @@ export function initializeApp(yabData) {
                 ...bannerStyling,
                 ...computedProperties,
                 ...flightTicketLogic,
-                ...welcomePackageLogic, // Expose Welcome Package logic
+                ...welcomePackageLogic,
                  // Helpers
                 addGradientStop, removeGradientStop,
                 // Tour Carousel refs & data

@@ -35,27 +35,47 @@ class Yab_Admin_Menu {
         // Enqueue styles and scripts
         wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
 
+        // Enqueue Swiper
         wp_enqueue_style( 'swiper-css', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css', array(), '12.0.2' );
         wp_enqueue_script( 'swiper-js', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js', array(), '12.0.2', true );
 
-        // Enqueue SortableJS for drag & drop functionality
+        // Enqueue SortableJS
         wp_enqueue_script( 'sortable-js', 'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js', array(), '1.15.0', true );
 
-        wp_enqueue_media();
-        wp_enqueue_script( 'yab-tailwind', 'https://cdn.tailwindcss.com', array(), null, false );
-        wp_enqueue_script( 'yab-vue', 'https://unpkg.com/vue@3/dist/vue.global.js', array(), '3.4.27', true );
-        wp_enqueue_style( 'yab-admin-style', YAB_PLUGIN_URL . 'assets/css/admin-style.css', array(), $this->version, 'all' );
+        // *** START: Enqueue Coloris library ***
+        wp_enqueue_style( 'yab-coloris-css', YAB_PLUGIN_URL . 'assets/vendor/coloris/coloris.min.css', array(), '0.23.0', 'all' ); // Adjust version if needed
+        wp_enqueue_script( 'yab-coloris-js', YAB_PLUGIN_URL . 'assets/vendor/coloris/coloris.min.js', array(), '0.23.0', true ); // Adjust version if needed
+        // *** END: Enqueue Coloris library ***
 
+        // Enqueue WordPress Media Uploader scripts
+        wp_enqueue_media();
+
+        // Enqueue Tailwind (consider removing if you compile your own CSS)
+        wp_enqueue_script( 'yab-tailwind', 'https://cdn.tailwindcss.com', array(), null, false );
+
+        // Enqueue Vue.js
+        wp_enqueue_script( 'yab-vue', 'https://unpkg.com/vue@3/dist/vue.global.js', array(), '3.4.27', true );
+
+        // Enqueue Admin Style
+        wp_enqueue_style( 'yab-admin-style', YAB_PLUGIN_URL . 'assets/css/admin-style.css', array('yab-coloris-css'), $this->version, 'all' ); // Added yab-coloris-css dependency
+
+        // Enqueue Modal Component
         wp_enqueue_script( 'yab-modal-component', YAB_PLUGIN_URL . 'assets/js/admin-modal-component.js', array( 'yab-vue' ), $this->version, true );
 
+        // Enqueue Main App or List App based on page
         $page_slug = $this->plugin_name;
         if (strpos($hook, $page_slug) !== false) {
              if (strpos($hook, $page_slug . '-list') !== false) {
+                // Enqueue List App
                 wp_enqueue_script( 'yab-list-app', YAB_PLUGIN_URL . 'assets/js/admin-list-app.js', array( 'yab-vue', 'jquery', 'yab-modal-component' ), $this->version, true );
                 wp_localize_script( 'yab-list-app', 'yab_list_data', $this->get_list_page_data() );
             } else {
-                wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component', 'swiper-js', 'sortable-js' ), $this->version, true );
+                // Enqueue Main Editor App
+                // *** START: Added 'yab-coloris-js' dependency ***
+                wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component', 'swiper-js', 'sortable-js', 'yab-coloris-js' ), $this->version, true );
+                // *** END: Added 'yab-coloris-js' dependency ***
 
+                // Make the main app script a module
                 add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
                     if ( 'yab-admin-app-main' === $handle ) {
                         $tag = '<script type="module" src="' . esc_url( $src ) . '" id="yab-admin-app-main-js"></script>';
@@ -63,6 +83,7 @@ class Yab_Admin_Menu {
                     return $tag;
                 }, 10, 3 );
 
+                // Localize data for the main app
                 wp_localize_script( 'yab-admin-app-main', 'yab_data', $this->get_add_new_page_data() );
             }
         }
@@ -91,45 +112,58 @@ class Yab_Admin_Menu {
                 $query->the_post();
                 $banner_id = get_the_ID();
                 $banner_data = get_post_meta($banner_id, '_yab_banner_data', true);
-                $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner';
+                $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner'; // Default type if missing
 
-                $display_method = isset($banner_data['displayMethod']) ? $banner_data['displayMethod'] : 'Fixed';
+                $display_method = isset($banner_data['displayMethod']) ? $banner_data['displayMethod'] : 'Fixed'; // Default method
 
                 $shortcode = '[unknown_banner]';
+                // Convert banner type slug to base shortcode name
                 $base_shortcode = str_replace('-', '', $banner_type);
+                 // Special cases for longer names if needed
+                $base_shortcode = str_replace('contenthtmlbanner', 'contenthtml', $base_shortcode);
+                $base_shortcode = str_replace('contenthtmlsidebarbanner', 'contenthtmlsidebar', $base_shortcode);
+                $base_shortcode = str_replace('welcomepackagebanner', 'welcomepackagebanner', $base_shortcode); // Handle new type
+
 
                 if ($display_method === 'Embeddable') {
                     $shortcode = '[' . $base_shortcode . ' id="' . $banner_id . '"]';
-                } else {
+                } else { // Fixed method
                      $shortcode = '[' . $base_shortcode . '_fixed]';
                 }
+
 
                 $all_banners[] = [
                     'id' => $banner_id,
                     'title' => get_the_title(),
                     'date' => get_the_date('Y/m/d'),
-                    'is_active' => isset($banner_data['isActive']) ? $banner_data['isActive'] : false,
+                    'is_active' => isset($banner_data['isActive']) ? $banner_data['isActive'] : false, // Default to inactive if not set
                     'display_method' => $display_method,
                     'shortcode' => $shortcode,
                     'type' => $banner_type,
-                    'edit_url' => admin_url('admin.php?page=tappersia&action=edit&banner_id=' . $banner_id),
+                    'edit_url' => admin_url('admin.php?page=' . $this->plugin_name . '&action=edit&banner_id=' . $banner_id),
                 ];
             }
         }
         wp_reset_postdata();
 
+        // Sort banners by ID descending (newest first)
+        usort($all_banners, function($a, $b) {
+            return $b['id'] <=> $a['id'];
+        });
+
         return [
             'banners' => $all_banners,
-            'addNewURL' => admin_url('admin.php?page=tappersia'),
+            'addNewURL' => admin_url('admin.php?page=' . $this->plugin_name),
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('yab_nonce'),
         ];
     }
 
     private function get_add_new_page_data() {
-        $initial_posts = get_posts(['numberposts' => 50, 'post_status' => 'publish']);
-        $initial_categories = get_categories(['hide_empty' => false, 'number' => 50]);
-        $initial_pages = get_pages(['number' => 50]);
+        // Fetch initial content lists (posts, pages, categories)
+        $initial_posts = get_posts(['numberposts' => 50, 'post_status' => 'publish', 'orderby' => 'date', 'order' => 'DESC']);
+        $initial_categories = get_categories(['hide_empty' => false, 'number' => 50, 'orderby' => 'name', 'order' => 'ASC']);
+        $initial_pages = get_pages(['number' => 50, 'sort_column' => 'post_title', 'sort_order' => 'ASC']);
 
         $localized_data = array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -140,31 +174,41 @@ class Yab_Admin_Menu {
             'existing_banner' => null
         );
 
+        // Check if editing an existing banner
         if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['banner_id'])) {
             $banner_id = intval($_GET['banner_id']);
             $banner_post = get_post($banner_id);
-            $banner_data = get_post_meta($banner_id, '_yab_banner_data', true);
-            $banner_type = get_post_meta($banner_id, '_yab_banner_type', true);
+            $banner_data = get_post_meta($banner_id, '_yab_banner_data', true); // Stored banner settings
+            $banner_type = get_post_meta($banner_id, '_yab_banner_type', true); // Stored banner type
 
-            if ($banner_post && $banner_data) {
-                $banner_data['name'] = $banner_post->post_title;
-                $banner_data['id'] = $banner_id;
-                $banner_data['type'] = $banner_type ?: 'double-banner';
+            if ($banner_post && $banner_data && $banner_type) {
+                // Prepare the existing banner data to be merged into the Vue app state
+                $banner_data['name'] = $banner_post->post_title; // Add the name back
+                $banner_data['id'] = $banner_id; // Add the ID back
+                $banner_data['type'] = $banner_type; // Ensure type is set correctly
 
                 $localized_data['existing_banner'] = $banner_data;
 
-                if (!empty($banner_data['displayOn']['posts'])) {
-                    $selected_posts = get_posts(['post__in' => $banner_data['displayOn']['posts'], 'numberposts' => -1]);
-                    $localized_data['posts'] = array_unique(array_merge($localized_data['posts'], array_map(fn($p) => ['ID' => $p->ID, 'post_title' => $p->post_title], $selected_posts)), SORT_REGULAR);
+                // Pre-populate search lists with selected items if they exist
+                 // Ensure 'displayOn' structure exists before accessing
+                $displayOn = $banner_data['displayOn'] ?? ['posts' => [], 'pages' => [], 'categories' => []];
+
+                if (!empty($displayOn['posts'])) {
+                    $selected_posts = get_posts(['post__in' => $displayOn['posts'], 'numberposts' => -1, 'post_type' => 'post', 'post_status' => 'publish']);
+                    // Merge and ensure uniqueness based on ID
+                    $localized_data['posts'] = array_values(array_unique(array_merge($localized_data['posts'], array_map(fn($p) => ['ID' => $p->ID, 'post_title' => $p->post_title], $selected_posts)), SORT_REGULAR));
                 }
-                if (!empty($banner_data['displayOn']['pages'])) {
-                    $selected_pages = get_pages(['include' => $banner_data['displayOn']['pages']]);
-                    $localized_data['pages'] = array_unique(array_merge($localized_data['pages'], array_map(fn($p) => ['ID' => $p->ID, 'post_title' => $p->post_title], $selected_pages)), SORT_REGULAR);
+                if (!empty($displayOn['pages'])) {
+                    $selected_pages = get_pages(['include' => $displayOn['pages'], 'post_status' => 'publish']);
+                    $localized_data['pages'] = array_values(array_unique(array_merge($localized_data['pages'], array_map(fn($p) => ['ID' => $p->ID, 'post_title' => $p->post_title], $selected_pages)), SORT_REGULAR));
                 }
-                if (!empty($banner_data['displayOn']['categories'])) {
-                    $selected_cats = get_categories(['include' => $banner_data['displayOn']['categories'], 'hide_empty' => false]);
-                    $localized_data['categories'] = array_unique(array_merge($localized_data['categories'], array_map(fn($c) => ['term_id' => $c->term_id, 'name' => $c->name], $selected_cats)), SORT_REGULAR);
+                if (!empty($displayOn['categories'])) {
+                    $selected_cats = get_categories(['include' => $displayOn['categories'], 'hide_empty' => false]);
+                    $localized_data['categories'] = array_values(array_unique(array_merge($localized_data['categories'], array_map(fn($c) => ['term_id' => $c->term_id, 'name' => $c->name], $selected_cats)), SORT_REGULAR));
                 }
+            } else {
+                 // Handle case where banner ID is invalid or data is missing (optional: show error)
+                 // You might redirect or display a notice here if needed.
             }
         }
 

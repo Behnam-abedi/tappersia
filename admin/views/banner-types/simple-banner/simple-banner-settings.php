@@ -7,10 +7,7 @@
         </div>
         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
             <label class="setting-label-sm">Background Color</label>
-            <div class="yab-color-input-wrapper">
-                <input type="color" v-model="settings.bgColor" class="yab-color-picker">
-                <input type="text" v-model="settings.bgColor" class="yab-hex-input" placeholder="#hexcode">
-            </div>
+            <input type="text" v-model="settings.bgColor" data-coloris class="yab-form-input clr-field" placeholder="Select color...">
         </div>
         <div v-else class="space-y-4">
             <div>
