@@ -93,7 +93,9 @@ export function initializeApp(yabData) {
                         themeMode: 'dark',
                         format: 'mixed',
                         onChange: (color, inputEl) => {
-                            console.log(`The new color is ${color}`);
+                            // You might want to trigger a Vue update here if needed,
+                            // although v-model should handle it if correctly bound directly to banner state.
+                            console.log(`Coloris changed: ${color}`);
                         }
                         });
                     } else {
@@ -103,25 +105,34 @@ export function initializeApp(yabData) {
                 // *** END: Initialize Coloris ***
             });
 
-            // *** START: Re-initialize Coloris on view changes ***
+            // *** START: Re-initialize Coloris on view changes IF NEEDED (Currently commented out) ***
+            // Usually, if Coloris targets elements present from the start, re-initialization might not be necessary.
+            // Only uncomment and use the re-initialization if color pickers stop working after tab changes.
+            const reinitializeColoris = () => {
+                if (typeof Coloris !== 'undefined') {
+                    Coloris({
+                        theme: 'pill',
+                        themeMode: 'dark',
+                        format: 'mixed',
+                        onChange: (color, inputEl) => {
+                             console.log(`Coloris changed: ${color}`);
+                        }
+                    });
+                 }
+            };
+
             watch(currentView, async () => {
                 await nextTick(); // Wait for Vue to update the DOM
-                if (typeof Coloris !== 'undefined') {
-                    Coloris.update(); // Update Coloris instances for potentially new/changed elements
-                }
+                // reinitializeColoris(); // Uncomment if needed
             });
             watch(selectedDoubleBanner, async () => {
                 await nextTick();
-                if (typeof Coloris !== 'undefined') {
-                    Coloris.update();
-                }
+                // reinitializeColoris(); // Uncomment if needed
             });
              watch(appState, async (newState) => {
                 if (newState === 'editor') {
                     await nextTick(); // Ensure editor DOM is ready
-                    if (typeof Coloris !== 'undefined') {
-                        Coloris.update();
-                    }
+                    reinitializeColoris(); // Reinitialize when editor loads
                 }
              });
             // *** END: Re-initialize Coloris on view changes ***
@@ -134,6 +145,8 @@ export function initializeApp(yabData) {
                  const newStopPosition = Math.min(100, lastStop + 10);
                  settings.gradientStops.push({ color: 'rgba(255, 255, 255, 0.5)', stop: newStopPosition }); // Default with alpha
                  settings.gradientStops.sort((a, b) => a.stop - b.stop);
+                 // Reinitialize Coloris after adding a stop if needed
+                 // nextTick(reinitializeColoris);
              };
             const removeGradientStop = (settings, index) => {
                 if (settings.gradientStops.length > 1) {

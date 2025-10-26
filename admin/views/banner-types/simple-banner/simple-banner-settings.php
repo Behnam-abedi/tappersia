@@ -7,7 +7,8 @@
         </div>
         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
             <label class="setting-label-sm">Background Color</label>
-<input aria-label="Color input" type="text" v-model="currentView === 'desktop' ? banner.simple.bgColor : banner.simple_mobile.bgColor" data-coloris class="yab-form-input clr-field" placeholder="Select color...">        </div>
+<input aria-label="Color input" type="text" v-model="currentView === 'desktop' ? banner.simple.bgColor : banner.simple_mobile.bgColor" data-coloris class="yab-form-input clr-field" placeholder="Select color...">
+        </div>
         <div v-else class="space-y-4">
             <div>
                 <label class="setting-label-sm">Gradient Angle: {{ settings.gradientAngle }}deg</label>
