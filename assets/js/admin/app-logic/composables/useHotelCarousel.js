@@ -266,13 +266,12 @@ export function useHotelCarousel() {
             };
             // --- END NEW CARD LOGIC ---
 
-            const fetchAndRenderHotels = async (idsToFetch) => {
-                // ... (no significant changes needed here, just ensure correct field names are used) ...
+const fetchAndRenderHotels = async (idsToFetch, retries = 2) => { // Added retries parameter
                 const uniqueIds = [...new Set(idsToFetch)].filter(id => !fetchedIds.has(id));
                 if (uniqueIds.length === 0) return;
+                // Add IDs to fetchedIds *before* fetching to prevent immediate retries on fast failures
                 uniqueIds.forEach(id => fetchedIds.add(id));
                 try {
-                     // Fetch ALL necessary fields for the new card
                      const data = await props.ajax.post('yab_fetch_hotel_details_by_ids', { hotel_ids: uniqueIds });
                      if (data && Array.isArray(data)) {
                         data.forEach(hotelData => {
@@ -280,27 +279,66 @@ export function useHotelCarousel() {
                             const slidesToUpdate = swiperRef.value.querySelectorAll(`.swiper-slide[data-hotel-id="${hotelData.id}"]`);
                             if (slidesToUpdate.length > 0) {
                                 slidesToUpdate.forEach(slide => {
-                                    // Ensure all fields are passed correctly
-                                    const fullHotelData = {
-                                        id: hotelData.id,
-                                        coverImage: hotelData.coverImage,
-                                        isFeatured: hotelData.isFeatured, // Make sure this is returned
-                                        discount: hotelData.discount,     // Make sure this is returned
-                                        minPrice: hotelData.minPrice,
-                                        star: hotelData.star,
-                                        title: hotelData.title,
-                                        avgRating: hotelData.avgRating,
-                                        reviewCount: hotelData.reviewCount,
-                                        customTags: hotelData.customTags, // Make sure this is returned
-                                        detailUrl: hotelData.detailUrl
-                                    };
-                                    slide.innerHTML = generateHotelCardHTML(fullHotelData);
-                                    slide.classList.add('is-loaded'); // Add class to trigger potential CSS animation
+                                    // Make sure skeleton exists before replacing
+                                    if (slide.querySelector('[name="card-skeleton"]')) {
+                                        const fullHotelData = { /* ... (keep existing object structure) ... */
+                                            id: hotelData.id,
+                                            coverImage: hotelData.coverImage,
+                                            isFeatured: hotelData.isFeatured,
+                                            discount: hotelData.discount,
+                                            minPrice: hotelData.minPrice,
+                                            star: hotelData.star,
+                                            title: hotelData.title,
+                                            avgRating: hotelData.avgRating,
+                                            reviewCount: hotelData.reviewCount,
+                                            customTags: hotelData.customTags,
+                                            detailUrl: hotelData.detailUrl
+                                        };
+                                        // Use image preloading for smoother transition
+                                        const img = new Image();
+                                        const imageUrl = fullHotelData.coverImage?.url || 'https://placehold.co/276x176/e0e0e0/cccccc?text=No+Image';
+                                        img.onload = () => {
+                                            slide.innerHTML = generateHotelCardHTML(fullHotelData);
+                                            slide.classList.add('is-loaded');
+                                        };
+                                        img.onerror = () => { // Still render card if image fails
+                                            console.error(`Failed to load image for hotel ID ${fullHotelData.id}: ${imageUrl}`);
+                                            slide.innerHTML = generateHotelCardHTML(fullHotelData);
+                                            slide.classList.add('is-loaded');
+                                        };
+                                        img.src = imageUrl;
+                                    }
                                 });
                             }
                         });
+                     } else {
+                        // Handle case where API succeeds but returns empty/invalid data
+                        console.error('Hotel AJAX Error: Invalid data received.', data);
+                        // Optionally mark these IDs as failed if needed
                      }
-                } catch (error) { console.error('Hotel AJAX call failed!', error); }
+                } catch (error) {
+                    console.error('Hotel AJAX call failed!', error);
+                    // Remove failed IDs from fetchedIds so retry can happen
+                    uniqueIds.forEach(id => fetchedIds.delete(id));
+                    if (retries > 0) {
+                        console.warn(`Retrying fetch for hotel IDs: ${uniqueIds.join(', ')}. Retries left: ${retries - 1}`);
+                        setTimeout(() => {
+                            fetchAndRenderHotels(uniqueIds, retries - 1);
+                        }, 2000); // Wait 2 seconds before retrying
+                    } else {
+                        console.error(`Failed to fetch hotel IDs after multiple retries: ${uniqueIds.join(', ')}`);
+                        // Optionally display an error message on the specific cards
+                         uniqueIds.forEach(id => {
+                            if (!swiperRef.value) return;
+                             const slidesToUpdate = swiperRef.value.querySelectorAll(`.swiper-slide[data-hotel-id="${id}"]`);
+                             slidesToUpdate.forEach(slide => {
+                                 if (slide.querySelector('[name="card-skeleton"]')) {
+                                     slide.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Load failed</div>';
+                                 }
+                             });
+                         });
+                    }
+                }
             };
 
             const checkAndLoadVisibleSlides = (swiper) => {

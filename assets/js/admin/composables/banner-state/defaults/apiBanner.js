@@ -11,8 +11,8 @@ export const createDefaultApiDesign = () => ({
     bgColor: '#ffffff',
     gradientAngle: 90,
     gradientStops: [
-        { color: 'rgba(240, 242, 245, 1)', stop: 0 },
-        { color: 'rgba(255, 255, 255, 1)', stop: 100 }
+        { color: '#F0F2F5FF', stop: 0 },
+        { color: '#FFFFFFFF', stop: 100 }
     ],
     enableBorder: false,
     borderWidth: 1,

@@ -5,8 +5,8 @@ export const createDefaultPart = () => ({
     bgColor: 'rgba(12, 165, 234, 0.85)',
     gradientAngle: 90,
     gradientStops: [
-        { color: 'rgba(12, 165, 234, 0.8)', stop: 0 },
-        { color: 'rgba(18, 76, 136, 0.8)', stop: 100 }
+        { color: '#0CA5EACC', stop: 0 },
+        { color: '#124C88CC', stop: 100 }
     ],
     titleText: 'Awesome Title',
     titleColor: '#ffffff',
