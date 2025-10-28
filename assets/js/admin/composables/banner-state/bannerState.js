@@ -18,7 +18,7 @@ import {
     createDefaultTourCarouselPart,
     createDefaultHotelCarouselPart,
     createDefaultFlightTicketPart,
-    createDefaultWelcomePackagePart, // Added import for Welcome Package
+    // Removed import for Welcome Package
 } from './defaults/index.js';
 
 export function useBannerState() {
@@ -55,21 +55,19 @@ export function useBannerState() {
         hotel_carousel: createDefaultHotelCarouselPart(),
         flight_ticket: createDefaultFlightTicketPart(),
 
-        // New Welcome Package type
-        welcome_package: createDefaultWelcomePackagePart(),
+        // Removed welcome_package property
     });
 
     const banner = reactive(createDefaultBanner());
 
     const shortcode = computed(() => {
         if (!banner.type) return '';
-        // Add welcomepackagebanner replacement logic
+        // Removed welcomepackagebanner replacement logic
         const base = banner.type.replace(/-/g, '')
                                 .replace('contenthtmlbanner', 'contenthtml')
                                 .replace('contenthtmlsidebarbanner', 'contenthtmlsidebar')
                                 .replace('tourcarousel', 'tourcarousel')
-                                .replace('hotelcarousel', 'hotelcarousel')
-                                .replace('welcomepackagebanner', 'welcomepackagebanner'); // Add welcome package
+                                .replace('hotelcarousel', 'hotelcarousel'); // Removed welcome package
 
         if (banner.displayMethod === 'Embeddable') {
             return banner.id ? `[${base} id="${banner.id}"]` : `[${base} id="..."]`;
@@ -102,7 +100,7 @@ export function useBannerState() {
              if (existingData.simple) existingData.isMobileConfigured = true; // Use banner level flag
              if (existingData.sticky_simple) existingData.isMobileConfigured = true; // Use banner level flag
              if (existingData.promotion) existingData.isMobileConfigured = true; // Use banner level flag
-             // Welcome package banner doesn't have separate mobile config currently
+             // Removed welcome package banner check
         }
 
         deepMerge(banner, existingData);
@@ -126,10 +124,7 @@ export function useBannerState() {
         if (banner.type === 'tour-carousel' && !Array.isArray(banner.tour_carousel.selectedTours)) {
             banner.tour_carousel.selectedTours = [];
         }
-         // Ensure welcome package object exists
-         if (banner.type === 'welcome-package-banner' && typeof banner.welcome_package !== 'object') {
-             banner.welcome_package = createDefaultWelcomePackagePart();
-         }
+         // Removed welcome package object check
 
     };
 

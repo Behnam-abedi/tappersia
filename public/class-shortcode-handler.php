@@ -21,12 +21,12 @@ if (!class_exists('Yab_Shortcode_Handler')) {
     class Yab_Shortcode_Handler {
 
         public function register_shortcodes() {
-            // Added 'welcomepackagebanner'
+            // Removed 'welcomepackagebanner'
             $banner_types = [
                 'singlebanner', 'doublebanner', 'apibanner', 'simplebanner',
                 'stickysimplebanner', 'promotionbanner', 'contenthtml',
-                'contenthtmlsidebar', 'tourcarousel', 'hotelcarousel',
-                'welcomepackagebanner' // New type added
+                'contenthtmlsidebar', 'tourcarousel', 'hotelcarousel'
+                 // Removed 'welcomepackagebanner'
             ];
             foreach ($banner_types as $type) {
                 add_shortcode($type, [$this, 'render_embeddable_banner']);
@@ -37,7 +37,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
         public function render_embeddable_banner($atts, $content = null, $tag = '') {
             $atts = shortcode_atts(['id' => 0], $atts, $tag);
             if (empty($atts['id'])) {
-                return "<!-- Banner ID missing -->";
+                return "";
             }
 
             $banner_post = get_post(intval($atts['id']));
@@ -46,7 +46,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             $banner_type_slug = $this->get_type_slug_from_tag($tag);
 
             if (empty($banner_type_slug) || !$this->is_valid_banner($banner_post, $banner_type_slug, 'Embeddable')) {
-                 return "<!-- Invalid Banner ID or Type/Method Mismatch -->";
+                 return "";
             }
 
             $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
@@ -61,7 +61,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             $base_tag = str_replace('_fixed', '', $tag);
             $banner_type_slug = $this->get_type_slug_from_tag($base_tag);
 
-            if (empty($banner_type_slug)) return "<!-- Unknown fixed banner type: $base_tag -->";
+            if (empty($banner_type_slug)) return "";
 
             // Only query for the specific fixed banner type needed for this shortcode
             $args = [
@@ -77,7 +77,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             ];
 
             $banners = get_posts($args);
-            if (empty($banners)) return "<!-- No active fixed banner found for type: $banner_type_slug -->";
+            if (empty($banners)) return "";
 
             $queried_object_id = get_queried_object_id();
 
@@ -89,7 +89,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
                 }
             }
 
-            return "<!-- No fixed banner of type $banner_type_slug matched display conditions -->";
+            return "";
         }
 
         // Helper function to convert shortcode tag to banner type slug
@@ -104,8 +104,8 @@ if (!class_exists('Yab_Shortcode_Handler')) {
                 'contenthtml' => 'content-html-banner',
                 'contenthtmlsidebar' => 'content-html-sidebar-banner',
                 'tourcarousel' => 'tour-carousel',
-                'hotelcarousel' => 'hotel-carousel',
-                'welcomepackagebanner' => 'welcome-package-banner' // Added mapping
+                'hotelcarousel' => 'hotel-carousel'
+                 // Removed 'welcomepackagebanner' mapping
             ];
             return $map[$tag] ?? '';
         }
@@ -184,11 +184,11 @@ if (!class_exists('Yab_Shortcode_Handler')) {
                      return $renderer->render();
                 } catch (Throwable $e) { // Catch Throwable for broader error handling
                     error_log("Tappersia Render Error: Failed to instantiate or render class {$class_name} for banner ID {$banner_id}: " . $e->getMessage() . "\nTrace: " . $e->getTraceAsString());
-                     return "<!-- Error rendering banner ID {$banner_id} -->";
+                     return "";
                 }
             } else {
                  error_log("Tappersia Render Error: Renderer class {$class_name} not found for type {$type_slug}.");
-                 return "<!-- Renderer not found for banner type {$type_slug} -->";
+                 return "";
             }
         }
     }

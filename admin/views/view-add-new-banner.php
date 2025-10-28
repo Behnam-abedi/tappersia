@@ -5,7 +5,6 @@
             <div class="p-8 text-center ">
                 <h1 class="text-3xl font-bold mb-8 text-gray-200 ">Create a New Element</h1>
                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ltr">
-                    <!-- Existing Banner Types -->
                     <div @click="selectElementType('single-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
                         <span class="dashicons dashicons-format-image text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Single Banner</h3>
@@ -50,12 +49,7 @@
                         <span class="dashicons dashicons-airplane text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Flight Ticket</h3>
                     </div>
-                     <!-- New Welcome Package Banner Type -->
-                     <div @click="selectElementType('welcome-package-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-cart text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
-                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Welcome Package</h3>
-                    </div>
-                </div>
+                     </div>
             </div>
         </div>
 
@@ -74,7 +68,7 @@
                 'tour-carousel'                 => 'tour-carousel/tour-carousel-editor.php',
                 'hotel-carousel'                => 'hotel-carousel/hotel-carousel-editor.php',
                 'flight-ticket'                 => 'flight-ticket/flight-ticket-editor.php',
-                'welcome-package-banner'        => 'welcome-package-banner/welcome-package-editor.php' // Added welcome package editor path
+                 // Removed 'welcome-package-banner' path
             ];
 
             foreach ($banner_editors as $type => $file_path) {
@@ -102,7 +96,7 @@
     require_once YAB_PLUGIN_DIR . 'admin/views/components/hotel-modal.php';
     require_once YAB_PLUGIN_DIR . 'admin/views/components/tour-modal.php';
     require_once YAB_PLUGIN_DIR . 'admin/views/components/flight-ticket-modal.php';
-    require_once YAB_PLUGIN_DIR . 'admin/views/components/welcome-package-modal.php'; // Include the new modal
+     // Removed require_once for welcome-package-modal.php
     ?>
 
 </div>

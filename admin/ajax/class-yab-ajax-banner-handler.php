@@ -22,7 +22,7 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
                 'tour-carousel'                 => 'Yab_Tour_Carousel',
                 'hotel-carousel'                => 'Yab_Hotel_Carousel',
                 'flight-ticket'                 => 'Yab_Flight_Ticket',
-                'welcome-package-banner'        => 'Yab_Welcome_Package_Banner', // Added Welcome Package Banner
+                 // Removed 'welcome-package-banner'
             ];
 
             if (array_key_exists($banner_type_slug, $handlers)) {

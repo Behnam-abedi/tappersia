@@ -20,8 +20,7 @@ import { useTourCarousel } from './composables/useTourCarousel.js';
 import { useTourCarouselValidation } from './composables/useTourCarouselValidation.js';
 import { useTourThumbnails } from './composables/useTourThumbnails.js';
 import { useFlightTicket } from '../composables/useFlightTicket.js';
-import { useWelcomePackageBanner } from '../composables/useWelcomePackageBanner.js';
-
+// Removed import for useWelcomePackageBanner
 
 export function initializeApp(yabData) {
     const app = createApp({
@@ -55,9 +54,7 @@ export function initializeApp(yabData) {
             const hotelThumbnailContainerRef = ref(null);
             const { thumbnailHotels, isLoadingThumbnails: isLoadingHotelThumbnails } = useHotelThumbnails(banner, ajax, hotelThumbnailContainerRef);
 
-            // --- Welcome Package ---
-            const welcomePackageLogic = useWelcomePackageBanner(banner, showModal, ajax);
-
+            // Removed welcomePackageLogic
 
             // --- Lifecycle Hooks ---
             onMounted(() => {
@@ -76,9 +73,7 @@ export function initializeApp(yabData) {
                      if (banner.type === 'api-banner' && banner.api.selectedTour?.id) {
                         apiBannerLogic.fetchFullTourDetails(banner.api.selectedTour.id);
                     }
-                    if (banner.type === 'welcome-package-banner' && banner.welcome_package.selectedPackageKey) {
-                        // Rely on saved data for preview initially
-                    }
+                    // Removed welcome package initial fetch/check
 
                     // *** FIX: Set appState AFTER merging existing data ***
                     appState.value = 'editor';
@@ -172,7 +167,7 @@ export function initializeApp(yabData) {
                 ...bannerStyling,
                 ...computedProperties,
                 ...flightTicketLogic,
-                ...welcomePackageLogic,
+                // Removed welcomePackageLogic
                  // Helpers
                 addGradientStop, removeGradientStop,
                 // Tour Carousel refs & data

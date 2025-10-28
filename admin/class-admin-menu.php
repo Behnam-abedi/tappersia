@@ -122,8 +122,7 @@ class Yab_Admin_Menu {
                  // Special cases for longer names if needed
                 $base_shortcode = str_replace('contenthtmlbanner', 'contenthtml', $base_shortcode);
                 $base_shortcode = str_replace('contenthtmlsidebarbanner', 'contenthtmlsidebar', $base_shortcode);
-                $base_shortcode = str_replace('welcomepackagebanner', 'welcomepackagebanner', $base_shortcode); // Handle new type
-
+                // Removed welcomepackagebanner handling
 
                 if ($display_method === 'Embeddable') {
                     $shortcode = '[' . $base_shortcode . ' id="' . $banner_id . '"]';

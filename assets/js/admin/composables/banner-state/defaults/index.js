@@ -9,4 +9,4 @@ export * from './stickySimpleBanner.js';
 export * from './tourCarousel.js';
 export * from './hotelCarousel.js';
 export * from './flightTicket.js';
-export * from './welcomePackageBanner.js'; // Added Welcome Package
+// Removed export for welcomePackageBanner.js

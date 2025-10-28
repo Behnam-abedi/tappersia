@@ -22,110 +22,12 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             add_action('wp_ajax_nopriv_yab_fetch_hotel_details_by_ids', [$this, 'fetch_hotel_details_by_ids']);
             add_action('wp_ajax_yab_fetch_airports_from_api', [$this, 'fetch_airports_from_api']);
 
-            // New hooks for Welcome Package
-            add_action('wp_ajax_yab_fetch_welcome_packages', [$this, 'fetch_welcome_packages']);
-            add_action('wp_ajax_nopriv_yab_fetch_welcome_package_prices_live', [$this, 'fetch_welcome_package_prices_live']); // Frontend accessible
-            add_action('wp_ajax_yab_fetch_welcome_package_prices_live', [$this, 'fetch_welcome_package_prices_live']); // Logged-in accessible
+            // Removed hooks for Welcome Package
         }
 
-        // --- New Method: Fetch Welcome Packages for Admin Modal ---
-        public function fetch_welcome_packages() {
-            check_ajax_referer('yab_nonce', 'nonce');
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error(['message' => 'Permission denied.'], 403);
-                return;
-            }
+        // --- Removed fetch_welcome_packages method ---
 
-            $api_url = 'https://b2bapi.tapexplore.com/api/service-fee/packages';
-            $response = wp_remote_get($api_url, ['timeout' => 15]);
-
-            if (is_wp_error($response)) {
-                wp_send_json_error(['message' => 'Failed to fetch packages from API: ' . $response->get_error_message()], 500);
-                return;
-            }
-
-            $body = wp_remote_retrieve_body($response);
-            $data = json_decode($body, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE || !isset($data['success']) || !$data['success'] || !isset($data['data'])) {
-                $error_msg = isset($data['message']) ? $data['message'] : 'Invalid response format from packages API.';
-                error_log("Tappersia Plugin: Welcome Package API Error - " . $body);
-                wp_send_json_error(['message' => $error_msg], 500);
-                return;
-            }
-
-            // Optional: Filter or process data if needed
-            $packages = $data['data'];
-
-            wp_send_json_success($packages);
-            wp_die();
-        }
-
-         // --- New Method: Fetch Live Prices for Frontend ---
-        public function fetch_welcome_package_prices_live() {
-            // No nonce check needed for public endpoint, but consider security implications
-             // Optional: Add nonce check if you generate a nonce specifically for the frontend banner script
-             // check_ajax_referer('your_frontend_nonce_action', '_ajax_nonce');
-
-            if (empty($_POST['package_key'])) {
-                wp_send_json_error(['message' => 'Package key not provided.'], 400);
-                return;
-            }
-
-            $package_key_to_find = sanitize_text_field($_POST['package_key']);
-
-            // Fetch *all* packages again (consider caching this response for a short period)
-            $transient_key = 'yab_welcome_packages_live';
-            $cached_data = get_transient($transient_key);
-
-            if (false === $cached_data) {
-                $api_url = 'https://b2bapi.tapexplore.com/api/service-fee/packages';
-                $response = wp_remote_get($api_url, ['timeout' => 10]); // Shorter timeout for frontend
-
-                if (is_wp_error($response)) {
-                    wp_send_json_error(['message' => 'Failed to fetch live package data.'], 503); // Service Unavailable
-                    return;
-                }
-
-                $body = wp_remote_retrieve_body($response);
-                $data = json_decode($body, true);
-
-                if (json_last_error() !== JSON_ERROR_NONE || !isset($data['success']) || !$data['success'] || !isset($data['data'])) {
-                     error_log("Tappersia Plugin: Live Welcome Package API Error - " . $body);
-                     wp_send_json_error(['message' => 'Could not retrieve live package data.'], 500);
-                    return;
-                }
-                $packages = $data['data'];
-                set_transient($transient_key, $packages, 5 * MINUTE_IN_SECONDS); // Cache for 5 minutes
-            } else {
-                $packages = $cached_data;
-            }
-
-
-            // Find the specific package by key
-            $found_package = null;
-            foreach ($packages as $pkg) {
-                if (isset($pkg['key']) && $pkg['key'] === $package_key_to_find) {
-                    $found_package = [
-                        'key' => $pkg['key'],
-                        'moneyValue' => isset($pkg['moneyValue']) ? number_format((float)$pkg['moneyValue'], 2, '.', '') : null,
-                        'originalMoneyValue' => isset($pkg['originalMoneyValue']) ? number_format((float)$pkg['originalMoneyValue'], 2, '.', '') : null,
-                    ];
-                    break;
-                }
-            }
-
-            if ($found_package) {
-                wp_send_json_success($found_package);
-            } else {
-                wp_send_json_error(['message' => 'Package key not found in live data.'], 404);
-            }
-
-            wp_die();
-        }
-
-
-        // --- Existing Methods (Keep them) ---
+        // --- Keep existing methods ---
 
         public function fetch_hotel_details_by_ids() {
             // No nonce check needed if used on frontend potentially
