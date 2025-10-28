@@ -137,7 +137,7 @@ export function useBannerSync(banner, currentView) {
 
             // 2. Apply specific mobile overrides (mirroring tour carousel)
             mobile.slidesPerView = 1;
-            mobile.spaceBetween = 15; // Example override
+            mobile.spaceBetween = 20; // Example override
 
             // Explicitly ensure mobile card settings match desktop initially if needed
              mobile.card.height = desktop.card.height;

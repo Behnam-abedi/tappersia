@@ -97,7 +97,7 @@ class Yab_Hotel_Carousel {
         $sanitized = [];
         $sanitized['slidesPerView'] = isset($settings['slidesPerView']) ? intval($settings['slidesPerView']) : 3;
         $sanitized['loop'] = isset($settings['loop']) ? boolval($settings['loop']) : false;
-        $sanitized['spaceBetween'] = isset($settings['spaceBetween']) ? intval($settings['spaceBetween']) : 18;
+        $sanitized['spaceBetween'] = isset($settings['spaceBetween']) ? intval($settings['spaceBetween']) : 20;
         $sanitized['isDoubled'] = isset($settings['isDoubled']) ? boolval($settings['isDoubled']) : false;
         $sanitized['gridFill'] = isset($settings['gridFill']) ? sanitize_text_field($settings['gridFill']) : 'column';
         $sanitized['direction'] = isset($settings['direction']) ? sanitize_text_field($settings['direction']) : 'ltr';

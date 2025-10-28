@@ -4,7 +4,7 @@
 export const createDefaultHotelCarouselDesktopPart = () => ({
     slidesPerView: 3,
     loop: false,
-    spaceBetween: 18, // Default space for new card design
+    spaceBetween: 20, // Default space for new card design
     isDoubled: false,
     gridFill: 'column',
     direction: 'ltr',

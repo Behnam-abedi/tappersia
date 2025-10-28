@@ -142,7 +142,12 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
              <style>
                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-slide {
                     width: <?php echo $card_width; ?>px !important; box-sizing: border-box;
-                    <?php if ($is_doubled): ?> height: calc((100% - <?php echo esc_js($space_between); ?>px) / 2) !important; margin-bottom: <?php echo esc_js($space_between); ?>px !important; <?php else: ?> height: auto !important; <?php endif; ?>
+                    <?php if ($is_doubled): ?>
+                        height: calc((100% - 20px) / 2) !important; /* FIX: Use fixed 20px gap */
+                        /* margin-bottom: <?php // echo esc_js($space_between); ?>px !important; */ /* FIX: Remove margin-bottom */
+                    <?php else: ?>
+                        height: auto !important;
+                    <?php endif; ?>
                 }
                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next, #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-perv { background: white; border-radius: 8px; box-shadow: inset 0 0 0 2px #E5E5E5; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; width: 36px; height: 36px; box-sizing: border-box; }
                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .tappersia-carusel-next { <?php echo $is_rtl ? 'padding-left: 2px' : 'padding-right: 4px'; ?> }
