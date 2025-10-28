@@ -17,7 +17,7 @@ if (!class_exists('Yab_Ajax_Handler')) {
 
         private function register_handlers() {
             $api_handler = new Yab_Ajax_Api_Handler();
-            $api_handler->register_hooks();
+            $api_handler->register_hooks(); // This already registers welcome package related hooks
 
             $banner_handler = new Yab_Ajax_Banner_Handler();
             $banner_handler->register_hooks();

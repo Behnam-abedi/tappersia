@@ -49,7 +49,11 @@
                         <span class="dashicons dashicons-airplane text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Flight Ticket</h3>
                     </div>
-                     </div>
+                    <div @click="selectElementType('welcome-package-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-products text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Welcome Package</h3>
+                    </div>
+                 </div>
             </div>
         </div>
 
@@ -68,7 +72,7 @@
                 'tour-carousel'                 => 'tour-carousel/tour-carousel-editor.php',
                 'hotel-carousel'                => 'hotel-carousel/hotel-carousel-editor.php',
                 'flight-ticket'                 => 'flight-ticket/flight-ticket-editor.php',
-                 // Removed 'welcome-package-banner' path
+                'welcome-package-banner'        => 'welcome-package-banner/welcome-package-banner-editor.php', // Added
             ];
 
             foreach ($banner_editors as $type => $file_path) {
@@ -96,7 +100,7 @@
     require_once YAB_PLUGIN_DIR . 'admin/views/components/hotel-modal.php';
     require_once YAB_PLUGIN_DIR . 'admin/views/components/tour-modal.php';
     require_once YAB_PLUGIN_DIR . 'admin/views/components/flight-ticket-modal.php';
-     // Removed require_once for welcome-package-modal.php
+    require_once YAB_PLUGIN_DIR . 'admin/views/components/welcome-package-modal.php'; // Added
     ?>
 
 </div>

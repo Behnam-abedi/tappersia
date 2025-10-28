@@ -22,14 +22,15 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
                 'tour-carousel'                 => 'Yab_Tour_Carousel',
                 'hotel-carousel'                => 'Yab_Hotel_Carousel',
                 'flight-ticket'                 => 'Yab_Flight_Ticket',
-                 // Removed 'welcome-package-banner'
+                'welcome-package-banner'        => 'Yab_Welcome_Package_Banner', // Added
             ];
 
             if (array_key_exists($banner_type_slug, $handlers)) {
                 $class_name = $handlers[$banner_type_slug];
 
                 // Adjusted folder name logic slightly for consistency
-                $folder_name = str_replace(['Yab_', '_'], ['', ''], $class_name); // Generates HotelCarousel, TourCarousel, WelcomePackageBanner etc.
+                // Converts Yab_Welcome_Package_Banner to WelcomePackageBanner
+                $folder_name = str_replace(['Yab_', '_'], ['', ''], $class_name);
                 $file_path = YAB_PLUGIN_DIR . 'includes/BannerTypes/' . $folder_name . '/' . $folder_name . '.php';
 
 
@@ -82,16 +83,14 @@ if (!class_exists('Yab_Ajax_Banner_Handler')) {
             }
 
             // Call the handler's save method (which should handle wp_send_json_success/error and wp_die)
-            // The handler's save method itself now contains the wp_die()
              $handler->save($banner_data);
 
              // Fallback wp_die() in case handler doesn't call it (should not happen ideally)
              wp_die();
-
         }
 
+        // --- delete_banner function remains unchanged ---
         public function delete_banner() {
-             // ... (no changes needed here) ...
              check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
             if (!isset($_POST['banner_id']) || !is_numeric($_POST['banner_id'])) { wp_send_json_error(['message' => 'Invalid banner ID.'], 400); return; }

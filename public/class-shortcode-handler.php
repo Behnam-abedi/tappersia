@@ -6,7 +6,7 @@ if (!class_exists('Yab_Shortcode_Handler')) {
     // Autoload renderer classes
     spl_autoload_register(function ($class_name) {
         if (strpos($class_name, 'Yab_') === 0 && strpos($class_name, '_Renderer') !== false) {
-            // Adjusted file name generation
+            // Converts Yab_Welcome_Package_Banner_Renderer to welcome-package-banner
             $file_part = strtolower(str_replace('_', '-', str_replace(['Yab_', '_Renderer'], '', $class_name)));
             $file = YAB_PLUGIN_DIR . 'public/Renderers/class-' . $file_part . '-renderer.php';
 
@@ -21,12 +21,10 @@ if (!class_exists('Yab_Shortcode_Handler')) {
     class Yab_Shortcode_Handler {
 
         public function register_shortcodes() {
-            // Removed 'welcomepackagebanner'
             $banner_types = [
                 'singlebanner', 'doublebanner', 'apibanner', 'simplebanner',
                 'stickysimplebanner', 'promotionbanner', 'contenthtml',
-                'contenthtmlsidebar', 'tourcarousel', 'hotelcarousel'
-                 // Removed 'welcomepackagebanner'
+                'contenthtmlsidebar', 'tourcarousel', 'hotelcarousel', 'welcomepackage' // Added 'welcomepackage'
             ];
             foreach ($banner_types as $type) {
                 add_shortcode($type, [$this, 'render_embeddable_banner']);
@@ -45,11 +43,21 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             // Determine banner_type_slug based on the tag
             $banner_type_slug = $this->get_type_slug_from_tag($tag);
 
-            if (empty($banner_type_slug) || !$this->is_valid_banner($banner_post, $banner_type_slug, 'Embeddable')) {
+            if (empty($banner_type_slug)) {
+                 error_log("Tappersia Render Error: Unknown shortcode tag '{$tag}'.");
+                 return "";
+            }
+
+            if (!$this->is_valid_banner($banner_post, $banner_type_slug, 'Embeddable')) {
+                 // is_valid_banner logs specific errors
                  return "";
             }
 
             $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
+             if (empty($data)) {
+                 error_log("Tappersia Render Error: Banner data missing for embeddable banner ID {$banner_post->ID}.");
+                 return "";
+             }
             return $this->render_banner($banner_type_slug, $data, $banner_post->ID);
         }
 
@@ -61,7 +69,10 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             $base_tag = str_replace('_fixed', '', $tag);
             $banner_type_slug = $this->get_type_slug_from_tag($base_tag);
 
-            if (empty($banner_type_slug)) return "";
+            if (empty($banner_type_slug)) {
+                error_log("Tappersia Render Error: Unknown fixed shortcode tag '{$tag}'.");
+                return ""; // Unknown type
+            }
 
             // Only query for the specific fixed banner type needed for this shortcode
             $args = [
@@ -85,11 +96,15 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             foreach ($banners as $banner_post) {
                 if ($this->should_display_fixed($banner_post, $queried_object_id, $post)) {
                     $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
+                     if (empty($data)) {
+                        error_log("Tappersia Render Error: Banner data missing for fixed banner ID {$banner_post->ID}.");
+                        continue; // Skip banner if data is missing
+                    }
                     return $this->render_banner($banner_type_slug, $data, $banner_post->ID);
                 }
             }
 
-            return "";
+            return ""; // No matching fixed banner found for this page
         }
 
         // Helper function to convert shortcode tag to banner type slug
@@ -104,8 +119,8 @@ if (!class_exists('Yab_Shortcode_Handler')) {
                 'contenthtml' => 'content-html-banner',
                 'contenthtmlsidebar' => 'content-html-sidebar-banner',
                 'tourcarousel' => 'tour-carousel',
-                'hotelcarousel' => 'hotel-carousel'
-                 // Removed 'welcomepackagebanner' mapping
+                'hotelcarousel' => 'hotel-carousel',
+                'welcomepackage' => 'welcome-package-banner', // Added mapping
             ];
             return $map[$tag] ?? '';
         }
@@ -120,69 +135,68 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             $page_ids = !empty($cond['pages']) ? array_map('intval', $cond['pages']) : [];
             $cat_ids  = !empty($cond['categories']) ? array_map('intval', $cond['categories']) : [];
 
-            // If no specific IDs are set, don't display (prevent accidental global display)
-            // Or, you could change this to display everywhere if empty, based on desired logic.
+            // If no specific IDs are set, don't display
             if (empty($post_ids) && empty($page_ids) && empty($cat_ids)) {
                  return false;
              }
 
-
             if (is_singular('post') && in_array($queried_object_id, $post_ids)) return true;
             if (is_page() && in_array($queried_object_id, $page_ids)) return true;
-            // Check category archive pages and single posts within those categories
             if (!empty($cat_ids) && (is_category($cat_ids) || (is_singular('post') && $global_post && has_category($cat_ids, $global_post)))) return true;
-             // Add checks for other conditions if needed (e.g., is_home(), is_front_page())
 
             return false;
         }
 
         private function is_valid_banner($banner_post, string $expected_type, string $expected_method): bool {
-            if (!$banner_post || $banner_post->post_type !== 'yab_banner' || $banner_post->post_status !== 'publish') {
+            if (!$banner_post || !is_a($banner_post, 'WP_Post') || $banner_post->post_type !== 'yab_banner' || $banner_post->post_status !== 'publish') {
+                error_log("Tappersia Render Warning: Banner object invalid, not found, not 'yab_banner', or not published.");
                 return false;
             }
-            $banner_type_meta = get_post_meta($banner_post->ID, '_yab_banner_type', true);
-            $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
-            $display_method_meta = $data['displayMethod'] ?? 'Fixed'; // Default to Fixed if not set
 
-            // Check type match
-             if ($banner_type_meta !== $expected_type) {
-                 error_log("Tappersia Render Warning: Banner ID {$banner_post->ID} has type '{$banner_type_meta}' but expected '{$expected_type}'.");
-                 return false; // Type must match
-             }
+            $banner_id = $banner_post->ID; // Get ID for logging
+            $banner_type_meta = get_post_meta($banner_id, '_yab_banner_type', true);
+            $data = get_post_meta($banner_id, '_yab_banner_data', true);
+
+            // Check banner type first
+            if ($banner_type_meta !== $expected_type) {
+                error_log("Tappersia Render Warning: Banner ID {$banner_id} has type '{$banner_type_meta}' but expected '{$expected_type}'.");
+                return false;
+            }
 
              // Check active status
-             if (empty($data) || empty($data['isActive'])) {
-                 return false; // Banner data missing or inactive
+             if (empty($data) || !isset($data['isActive']) || $data['isActive'] !== true) {
+                 error_log("Tappersia Render Warning: Banner ID {$banner_id} data is missing or banner is inactive.");
+                 return false;
              }
 
-             // Check display method match
-             if ($display_method_meta !== $expected_method) {
-                // Allow embeddable carousels to render even if method is fixed (legacy or error?)
-                // Or be stricter: return false;
-                 error_log("Tappersia Render Warning: Banner ID {$banner_post->ID} has method '{$display_method_meta}' but expected '{$expected_method}'. Rendering anyway (or return false based on strictness).");
-                // return false; // Uncomment for stricter check
+             // Check display method match (relevant for embeddable shortcodes primarily)
+             $display_method_meta = $data['displayMethod'] ?? 'Fixed'; // Default to Fixed if not set
+             if ($expected_method === 'Embeddable' && $display_method_meta !== 'Embeddable') {
+                 error_log("Tappersia Render Warning: Banner ID {$banner_id} is set to '{$display_method_meta}' but used with an Embeddable shortcode '[".str_replace('-', '', $expected_type)." id=\"{$banner_id}\"]'. Banner will not render.");
+                 return false; // Stricter check: Embeddable shortcode requires Embeddable method.
              }
+             // Note: Fixed shortcodes don't check method here, they query specifically for 'Fixed' banners.
 
-            // Specific check for Embeddable Carousels (Tour or Hotel) - They are active regardless of displayMethod meta if type matches
-            // This is somewhat redundant now with the checks above but kept for clarity/legacy
-             if (($expected_type === 'tour-carousel' || $expected_type === 'hotel-carousel') && $expected_method === 'Embeddable') {
-                 return true; // Already passed type and active check
-             }
-
-            // Standard check passed
+            // If all checks pass
             return true;
         }
 
+
         private function render_banner(string $type_slug, array $data, int $banner_id): string {
-            // Converts 'hotel-carousel' to 'Hotel_Carousel', etc.
+            // Converts 'welcome-package-banner' to 'Welcome_Package_Banner', etc.
             $class_name_part = str_replace('-', '_', ucwords($type_slug, '-'));
             $class_name = 'Yab_' . $class_name_part . '_Renderer';
 
             if (class_exists($class_name)) {
                 try {
+                     // Ensure data integrity before passing to renderer
+                     if (!isset($data['isActive']) || $data['isActive'] !== true) {
+                         return "";
+                     }
+
                      $renderer = new $class_name($data, $banner_id);
                      return $renderer->render();
-                } catch (Throwable $e) { // Catch Throwable for broader error handling
+                } catch (Throwable $e) { // Catch Throwable for broader error handling (PHP 7+)
                     error_log("Tappersia Render Error: Failed to instantiate or render class {$class_name} for banner ID {$banner_id}: " . $e->getMessage() . "\nTrace: " . $e->getTraceAsString());
                      return "";
                 }

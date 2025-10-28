@@ -20,7 +20,7 @@ import { useTourCarousel } from './composables/useTourCarousel.js';
 import { useTourCarouselValidation } from './composables/useTourCarouselValidation.js';
 import { useTourThumbnails } from './composables/useTourThumbnails.js';
 import { useFlightTicket } from '../composables/useFlightTicket.js';
-// Removed import for useWelcomePackageBanner
+import { useWelcomePackageBanner } from '../composables/useWelcomePackageBanner.js'; // Added
 
 export function initializeApp(yabData) {
     const app = createApp({
@@ -42,6 +42,7 @@ export function initializeApp(yabData) {
             const bannerStyling = useBannerStyling(banner);
             const computedProperties = useComputedProperties(banner, currentView, selectedDoubleBanner);
             const flightTicketLogic = useFlightTicket(banner, showModal, ajax);
+            const welcomePackageLogic = useWelcomePackageBanner(banner, showModal, ajax); // Added
             useBannerSync(banner, currentView);
 
             // --- Tour Carousel ---
@@ -54,7 +55,6 @@ export function initializeApp(yabData) {
             const hotelThumbnailContainerRef = ref(null);
             const { thumbnailHotels, isLoadingThumbnails: isLoadingHotelThumbnails } = useHotelThumbnails(banner, ajax, hotelThumbnailContainerRef);
 
-            // Removed welcomePackageLogic
 
             // --- Lifecycle Hooks ---
             onMounted(() => {
@@ -73,30 +73,23 @@ export function initializeApp(yabData) {
                      if (banner.type === 'api-banner' && banner.api.selectedTour?.id) {
                         apiBannerLogic.fetchFullTourDetails(banner.api.selectedTour.id);
                     }
-                    // Removed welcome package initial fetch/check
+                    // Welcome package initial fetch/check - no specific fetch needed on load, happens in modal
 
-                    // *** FIX: Set appState AFTER merging existing data ***
                     appState.value = 'editor';
                 } else {
                     appState.value = 'selection';
                 }
-
-                // *** FIX: Removed initial Coloris call from onMounted ***
-                // Coloris will now be initialized only when appState changes to 'editor'
             });
 
             // Helper function to initialize/reinitialize Coloris
             const reinitializeColoris = () => {
-                 // Removed setTimeout wrapper, rely on nextTick in the watcher
                  if (typeof Coloris !== 'undefined') {
                      console.log('Attempting to initialize Coloris (without el constraint)...');
                      Coloris({
-                         // el: '#yab-app', // <- Removed this constraint
                          theme: 'pill',
                          themeMode: 'dark',
                          format: 'mixed',
                          onChange: (color, inputEl) => {
-                             // Dispatch an 'input' event manually if v-model isn't updating
                              if (inputEl) {
                                   inputEl.dispatchEvent(new Event('input', { bubbles: true }));
                              }
@@ -113,26 +106,21 @@ export function initializeApp(yabData) {
             watch(currentView, async (newView, oldView) => {
                 if (newView !== oldView) {
                     await nextTick();
-                    // Optional: Reinitialize if needed after view change
-                    // reinitializeColoris();
                 }
             });
             watch(selectedDoubleBanner, async (newSelection, oldSelection) => {
                  if (newSelection !== oldSelection) {
                     await nextTick();
-                    // Optional: Reinitialize if needed after changing double banner side
-                     // reinitializeColoris();
                  }
             });
 
              watch(appState, async (newState, oldState) => {
-                // Initialize Coloris *only* when transitioning into the editor state
                 if (newState === 'editor' && oldState !== 'editor') {
-                    await nextTick(); // Wait for the editor's DOM elements to be rendered by Vue
+                    await nextTick();
                     console.log('App state changed to editor, initializing Coloris...');
-                    reinitializeColoris(); // Initialize Coloris now
+                    reinitializeColoris();
                 }
-             }, { immediate: false }); // immediate: false prevents running on initial load
+             }, { immediate: false });
 
 
             // --- Helper Methods (Gradient Stops) ---
@@ -142,8 +130,6 @@ export function initializeApp(yabData) {
                  const newStopPosition = Math.min(100, lastStop + 10);
                  settings.gradientStops.push({ color: 'rgba(255, 255, 255, 0.5)', stop: newStopPosition });
                  settings.gradientStops.sort((a, b) => a.stop - b.stop);
-                 // Optional: Reinitialize after adding a stop if new inputs appear
-                 // nextTick(reinitializeColoris);
              };
             const removeGradientStop = (settings, index) => {
                 if (settings.gradientStops.length > 1) {
@@ -167,7 +153,7 @@ export function initializeApp(yabData) {
                 ...bannerStyling,
                 ...computedProperties,
                 ...flightTicketLogic,
-                // Removed welcomePackageLogic
+                ...welcomePackageLogic, // Added Welcome Package Logic
                  // Helpers
                 addGradientStop, removeGradientStop,
                 // Tour Carousel refs & data

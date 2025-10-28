@@ -18,13 +18,13 @@ import {
     createDefaultTourCarouselPart,
     createDefaultHotelCarouselPart,
     createDefaultFlightTicketPart,
-    // Removed import for Welcome Package
+    createDefaultWelcomePackagePart, // Added import
 } from './defaults/index.js';
 
 export function useBannerState() {
     const createDefaultBanner = () => ({
         id: null, name: '', displayMethod: 'Fixed', isActive: true, type: null,
-        isMobileConfigured: false,
+        isMobileConfigured: false, // General flag, might be overridden by specific types
         displayOn: { posts: [], pages: [], categories: [] },
 
         // Existing types...
@@ -55,19 +55,21 @@ export function useBannerState() {
         hotel_carousel: createDefaultHotelCarouselPart(),
         flight_ticket: createDefaultFlightTicketPart(),
 
-        // Removed welcome_package property
+        // New Welcome Package type
+        welcome_package: createDefaultWelcomePackagePart(),
     });
 
     const banner = reactive(createDefaultBanner());
 
     const shortcode = computed(() => {
         if (!banner.type) return '';
-        // Removed welcomepackagebanner replacement logic
+        // Add welcomepackagebanner replacement logic
         const base = banner.type.replace(/-/g, '')
                                 .replace('contenthtmlbanner', 'contenthtml')
                                 .replace('contenthtmlsidebarbanner', 'contenthtmlsidebar')
                                 .replace('tourcarousel', 'tourcarousel')
-                                .replace('hotelcarousel', 'hotelcarousel'); // Removed welcome package
+                                .replace('hotelcarousel', 'hotelcarousel')
+                                .replace('welcomepackagebanner', 'welcomepackage'); // Added
 
         if (banner.displayMethod === 'Embeddable') {
             return banner.id ? `[${base} id="${banner.id}"]` : `[${base} id="..."]`;
@@ -79,10 +81,25 @@ export function useBannerState() {
         const deepMerge = (target, source) => {
             for (const key in source) {
                 if (source.hasOwnProperty(key)) {
-                    if (source[key] instanceof Object && key in target && target[key] instanceof Object && !(source[key] instanceof Array) && key !== 'gradientStops') {
-                         deepMerge(target[key], source[key]);
+                    // Check if target has the key and both are objects (but not arrays, except specific cases)
+                    if (key in target && target[key] !== null && typeof target[key] === 'object' && !Array.isArray(target[key]) &&
+                        source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                        deepMerge(target[key], source[key]);
+                    } else if (Array.isArray(source[key]) && key in target && Array.isArray(target[key])) {
+                        // Smart array merge (replace or simple concat depending on context)
+                        // For displayOn and selected items, replace is usually desired.
+                        if (['posts', 'pages', 'categories', 'selectedTours', 'selectedHotels'].includes(key)) {
+                            target[key] = [...source[key]];
+                        } else if (key === 'gradientStops') {
+                             target[key] = source[key].map(stop => ({...stop})); // Deep copy stops
+                        }
+                         else {
+                            // Default: simple concat (might need refinement for other array types)
+                            // target[key] = [...target[key], ...source[key]];
+                             target[key] = [...source[key]]; // Default to replacing arrays for simplicity for now
+                        }
                     } else {
-                        // Directly assign arrays or primitives
+                         // Assign primitives, nulls, or replace if types mismatch or target key doesn't exist
                         target[key] = source[key];
                     }
                 }
@@ -92,20 +109,20 @@ export function useBannerState() {
 
         // Set mobile configured flags if editing an existing banner
         if (existingData.id) {
-             if (existingData.single) existingData.isMobileConfigured = true; // Use banner level flag for single
+             if (existingData.single) existingData.isMobileConfigured = true;
              if (existingData.double) existingData.double.isMobileConfigured = true;
              if (existingData.api) existingData.api.isMobileConfigured = true;
              if (existingData.tour_carousel) existingData.tour_carousel.isMobileConfigured = true;
              if (existingData.hotel_carousel) existingData.hotel_carousel.isMobileConfigured = true;
-             if (existingData.simple) existingData.isMobileConfigured = true; // Use banner level flag
-             if (existingData.sticky_simple) existingData.isMobileConfigured = true; // Use banner level flag
-             if (existingData.promotion) existingData.isMobileConfigured = true; // Use banner level flag
-             // Removed welcome package banner check
+             if (existingData.simple) existingData.isMobileConfigured = true;
+             if (existingData.sticky_simple) existingData.isMobileConfigured = true;
+             if (existingData.promotion) existingData.isMobileConfigured = true;
+             // No mobile config for Welcome Package
         }
 
         deepMerge(banner, existingData);
 
-        // Ensure displayOn exists and its arrays are valid
+        // Ensure displayOn exists and its arrays are valid AFTER merging
         if (!banner.displayOn) {
             banner.displayOn = { posts: [], pages: [], categories: [] };
         } else {
@@ -114,19 +131,31 @@ export function useBannerState() {
             if (!Array.isArray(banner.displayOn.categories)) banner.displayOn.categories = [];
         }
 
-        // Ensure arrays exist for specific types
-        if (banner.type === 'promotion-banner' && !Array.isArray(banner.promotion.links)) {
-            banner.promotion.links = [];
+        // Ensure arrays/objects exist for specific types AFTER merging
+        if (banner.type === 'promotion-banner') {
+            if (!banner.promotion) banner.promotion = createDefaultPromotionPart();
+            if (!Array.isArray(banner.promotion.links)) banner.promotion.links = [];
         }
-        if (banner.type === 'hotel-carousel' && !Array.isArray(banner.hotel_carousel.selectedHotels)) {
-            banner.hotel_carousel.selectedHotels = [];
+        if (banner.type === 'hotel-carousel') {
+             if (!banner.hotel_carousel) banner.hotel_carousel = createDefaultHotelCarouselPart();
+            if (!Array.isArray(banner.hotel_carousel.selectedHotels)) banner.hotel_carousel.selectedHotels = [];
         }
-        if (banner.type === 'tour-carousel' && !Array.isArray(banner.tour_carousel.selectedTours)) {
-            banner.tour_carousel.selectedTours = [];
+        if (banner.type === 'tour-carousel') {
+            if (!banner.tour_carousel) banner.tour_carousel = createDefaultTourCarouselPart();
+            if (!Array.isArray(banner.tour_carousel.selectedTours)) banner.tour_carousel.selectedTours = [];
         }
-         // Removed welcome package object check
+         if (banner.type === 'welcome-package-banner') {
+             if (!banner.welcome_package) banner.welcome_package = createDefaultWelcomePackagePart();
+             // Ensure properties exist even if loading minimal data
+             if (typeof banner.welcome_package.selectedKey === 'undefined') banner.welcome_package.selectedKey = null;
+             if (typeof banner.welcome_package.selectedPrice === 'undefined') banner.welcome_package.selectedPrice = null;
+             if (typeof banner.welcome_package.selectedOriginalPrice === 'undefined') banner.welcome_package.selectedOriginalPrice = null;
+             if (typeof banner.welcome_package.html === 'undefined') banner.welcome_package.html = '';
+         }
+         // Add similar checks for other types if needed
 
     };
+
 
     const resetBannerState = () => {
         Object.assign(banner, createDefaultBanner());

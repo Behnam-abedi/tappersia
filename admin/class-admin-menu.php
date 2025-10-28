@@ -16,6 +16,7 @@ class Yab_Admin_Menu {
     }
 
     public function display_add_new_page() {
+        // Add welcome package modal include here
         require_once YAB_PLUGIN_DIR . 'admin/views/view-add-new-banner.php';
     }
 
@@ -23,6 +24,7 @@ class Yab_Admin_Menu {
         require_once YAB_PLUGIN_DIR . 'admin/views/view-list-banners.php';
     }
 
+    // --- enqueue_styles_and_scripts function remains unchanged ---
     public function enqueue_styles_and_scripts( $hook ) {
         // Check if the current page is one of the plugin's pages
         if ( strpos($hook, $this->plugin_name) === false ) {
@@ -42,10 +44,9 @@ class Yab_Admin_Menu {
         // Enqueue SortableJS
         wp_enqueue_script( 'sortable-js', 'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js', array(), '1.15.0', true );
 
-        // *** START: Enqueue Coloris library ***
-        wp_enqueue_style( 'yab-coloris-css', YAB_PLUGIN_URL . 'assets/vendor/coloris/coloris.min.css', array(), '0.23.0', 'all' ); // Adjust version if needed
-        wp_enqueue_script( 'yab-coloris-js', YAB_PLUGIN_URL . 'assets/vendor/coloris/coloris.min.js', array(), '0.23.0', true ); // Adjust version if needed
-        // *** END: Enqueue Coloris library ***
+        // Enqueue Coloris library
+        wp_enqueue_style( 'yab-coloris-css', YAB_PLUGIN_URL . 'assets/vendor/coloris/coloris.min.css', array(), '0.23.0', 'all' );
+        wp_enqueue_script( 'yab-coloris-js', YAB_PLUGIN_URL . 'assets/vendor/coloris/coloris.min.js', array(), '0.23.0', true );
 
         // Enqueue WordPress Media Uploader scripts
         wp_enqueue_media();
@@ -57,7 +58,7 @@ class Yab_Admin_Menu {
         wp_enqueue_script( 'yab-vue', 'https://unpkg.com/vue@3/dist/vue.global.js', array(), '3.4.27', true );
 
         // Enqueue Admin Style
-        wp_enqueue_style( 'yab-admin-style', YAB_PLUGIN_URL . 'assets/css/admin-style.css', array('yab-coloris-css'), $this->version, 'all' ); // Added yab-coloris-css dependency
+        wp_enqueue_style( 'yab-admin-style', YAB_PLUGIN_URL . 'assets/css/admin-style.css', array('yab-coloris-css'), $this->version, 'all' );
 
         // Enqueue Modal Component
         wp_enqueue_script( 'yab-modal-component', YAB_PLUGIN_URL . 'assets/js/admin-modal-component.js', array( 'yab-vue' ), $this->version, true );
@@ -71,9 +72,7 @@ class Yab_Admin_Menu {
                 wp_localize_script( 'yab-list-app', 'yab_list_data', $this->get_list_page_data() );
             } else {
                 // Enqueue Main Editor App
-                // *** START: Added 'yab-coloris-js' dependency ***
                 wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component', 'swiper-js', 'sortable-js', 'yab-coloris-js' ), $this->version, true );
-                // *** END: Added 'yab-coloris-js' dependency ***
 
                 // Make the main app script a module
                 add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
@@ -89,6 +88,7 @@ class Yab_Admin_Menu {
         }
     }
 
+    // --- remove_admin_notices, get_list_page_data, get_add_new_page_data methods remain unchanged ---
     /**
      * Remove all admin notices from plugin pages.
      */
@@ -122,7 +122,8 @@ class Yab_Admin_Menu {
                  // Special cases for longer names if needed
                 $base_shortcode = str_replace('contenthtmlbanner', 'contenthtml', $base_shortcode);
                 $base_shortcode = str_replace('contenthtmlsidebarbanner', 'contenthtmlsidebar', $base_shortcode);
-                // Removed welcomepackagebanner handling
+                $base_shortcode = str_replace('welcomepackagebanner', 'welcomepackage', $base_shortcode); // Add Welcome Package
+
 
                 if ($display_method === 'Embeddable') {
                     $shortcode = '[' . $base_shortcode . ' id="' . $banner_id . '"]';
@@ -158,7 +159,7 @@ class Yab_Admin_Menu {
         ];
     }
 
-    private function get_add_new_page_data() {
+     private function get_add_new_page_data() {
         // Fetch initial content lists (posts, pages, categories)
         $initial_posts = get_posts(['numberposts' => 50, 'post_status' => 'publish', 'orderby' => 'date', 'order' => 'DESC']);
         $initial_categories = get_categories(['hide_empty' => false, 'number' => 50, 'orderby' => 'name', 'order' => 'ASC']);
@@ -207,7 +208,6 @@ class Yab_Admin_Menu {
                 }
             } else {
                  // Handle case where banner ID is invalid or data is missing (optional: show error)
-                 // You might redirect or display a notice here if needed.
             }
         }
 
