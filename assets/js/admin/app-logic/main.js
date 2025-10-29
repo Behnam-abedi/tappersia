@@ -14,13 +14,13 @@ import { useAppSetup } from './composables/useAppSetup.js';
 import { useBannerActions } from './composables/useBannerActions.js';
 import { useBannerSync } from './composables/useBannerSync.js';
 import { useBannerStyling } from './composables/useBannerStyling.js';
-import { useComputedProperties } from './composables/useComputedProperties.js';
+import { useComputedProperties } from './composables/useComputedProperties.js'; // Import this
 import { usePromotionBanner } from './composables/usePromotionBanner.js';
 import { useTourCarousel } from './composables/useTourCarousel.js';
 import { useTourCarouselValidation } from './composables/useTourCarouselValidation.js';
 import { useTourThumbnails } from './composables/useTourThumbnails.js';
 import { useFlightTicket } from '../composables/useFlightTicket.js';
-import { useWelcomePackageBanner } from '../composables/useWelcomePackageBanner.js'; // Added
+import { useWelcomePackageBanner } from '../composables/useWelcomePackageBanner.js';
 
 export function initializeApp(yabData) {
     const app = createApp({
@@ -40,9 +40,10 @@ export function initializeApp(yabData) {
             const apiBannerLogic = useApiBanner(banner, showModal, ajax);
             const promotionBannerLogic = usePromotionBanner(banner, showModal);
             const bannerStyling = useBannerStyling(banner);
-            const computedProperties = useComputedProperties(banner, currentView, selectedDoubleBanner);
+            // *** FIX: Pass computedProperties result directly into return ***
+            const computedProps = useComputedProperties(banner, currentView, selectedDoubleBanner);
             const flightTicketLogic = useFlightTicket(banner, showModal, ajax);
-            const welcomePackageLogic = useWelcomePackageBanner(banner, showModal, ajax); // Added
+            const welcomePackageLogic = useWelcomePackageBanner(banner, showModal, ajax);
             useBannerSync(banner, currentView);
 
             // --- Tour Carousel ---
@@ -58,7 +59,8 @@ export function initializeApp(yabData) {
 
             // --- Lifecycle Hooks ---
             onMounted(() => {
-                displayConditionsLogic.siteData.posts = yabData.posts || [];
+                // ... (keep existing onMounted logic) ...
+                 displayConditionsLogic.siteData.posts = yabData.posts || [];
                 displayConditionsLogic.siteData.pages = yabData.pages || [];
                 displayConditionsLogic.siteData.categories = yabData.categories || [];
 
@@ -83,6 +85,7 @@ export function initializeApp(yabData) {
 
             // Helper function to initialize/reinitialize Coloris
             const reinitializeColoris = () => {
+                // ... (keep existing reinitializeColoris logic) ...
                  if (typeof Coloris !== 'undefined') {
                      console.log('Attempting to initialize Coloris (without el constraint)...');
                      Coloris({
@@ -104,17 +107,20 @@ export function initializeApp(yabData) {
 
             // Watchers for view and state changes
             watch(currentView, async (newView, oldView) => {
-                if (newView !== oldView) {
+                // ... (keep existing watch logic) ...
+                 if (newView !== oldView) {
                     await nextTick();
-                }
+                 }
             });
             watch(selectedDoubleBanner, async (newSelection, oldSelection) => {
+                // ... (keep existing watch logic) ...
                  if (newSelection !== oldSelection) {
                     await nextTick();
                  }
             });
 
              watch(appState, async (newState, oldState) => {
+                 // ... (keep existing watch logic) ...
                 if (newState === 'editor' && oldState !== 'editor') {
                     await nextTick();
                     console.log('App state changed to editor, initializing Coloris...');
@@ -125,6 +131,7 @@ export function initializeApp(yabData) {
 
             // --- Helper Methods (Gradient Stops) ---
             const addGradientStop = (settings) => {
+                // ... (keep existing addGradientStop logic) ...
                  if (!settings.gradientStops) settings.gradientStops = [];
                  const lastStop = settings.gradientStops.length > 0 ? settings.gradientStops[settings.gradientStops.length - 1].stop : 0;
                  const newStopPosition = Math.min(100, lastStop + 10);
@@ -132,6 +139,7 @@ export function initializeApp(yabData) {
                  settings.gradientStops.sort((a, b) => a.stop - b.stop);
              };
             const removeGradientStop = (settings, index) => {
+                // ... (keep existing removeGradientStop logic) ...
                 if (settings.gradientStops.length > 1) {
                     settings.gradientStops.splice(index, 1);
                 } else {
@@ -151,9 +159,9 @@ export function initializeApp(yabData) {
                 ...displayConditionsLogic,
                 ...promotionBannerLogic,
                 ...bannerStyling,
-                ...computedProperties,
+                ...computedProps, // *** FIX: Expose computed properties ***
                 ...flightTicketLogic,
-                ...welcomePackageLogic, // Added Welcome Package Logic
+                ...welcomePackageLogic,
                  // Helpers
                 addGradientStop, removeGradientStop,
                 // Tour Carousel refs & data

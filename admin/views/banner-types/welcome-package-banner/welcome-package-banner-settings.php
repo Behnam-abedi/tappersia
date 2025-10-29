@@ -23,8 +23,8 @@
 <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
     <h3 class="font-bold text-xl text-white tracking-wide mb-5">Banner HTML Template</h3>
      <p class="text-xs text-gray-400 mb-3">
-        Enter your custom HTML below. Use <code class="bg-[#292929] px-1 rounded">{{price}}</code> and <code class="bg-[#292929] px-1 rounded">{{originalPrice}}</code> as placeholders.
-        These will be replaced with the latest API values when the banner is displayed.
+         Enter your custom HTML below. Use <code class="bg-[#292929] px-1 rounded">{{price}}</code>, <code class="bg-[#292929] px-1 rounded">{{originalPrice}}</code>, and <code class="bg-[#292929] px-1 rounded">{{selectedKey}}</code> as placeholders.
+         These will be replaced with the latest API values when the banner is displayed.
     </p>
     <textarea
         v-model="banner.welcome_package.html"

@@ -3,7 +3,7 @@ const { computed } = Vue;
 
 export function useComputedProperties(banner, currentView, selectedDoubleBanner) {
     const previewBodyText = computed(() => {
-        // ... (بدون تغییر) ...
+        // ... (Keep existing promo banner logic) ...
         const promo = currentView.value === 'desktop' ? banner.promotion : banner.promotion_mobile;
         if (!promo || !promo.bodyText) return '';
         let text = promo.bodyText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -21,19 +21,41 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
         return text;
     });
 
+    // --- START: NEW Computed Property for Welcome Package Admin Preview ---
+    const welcomePackagePreviewHtml = computed(() => {
+        if (banner.type !== 'welcome-package-banner' || !banner.welcome_package?.html) {
+            return '';
+        }
+        const pkg = banner.welcome_package;
+        let html = pkg.html;
+        // Replace placeholders with SAVED values for admin preview
+        const price = pkg.selectedPrice !== null ? pkg.selectedPrice.toFixed(2) : 'N/A';
+        const originalPrice = pkg.selectedOriginalPrice !== null ? pkg.selectedOriginalPrice.toFixed(2) : 'N/A';
+        const key = pkg.selectedKey || 'Package'; // Default text if key is somehow null
+
+        html = html.replace(/\{\{price\}\}/g, price);
+        html = html.replace(/\{\{originalPrice\}\}/g, originalPrice);
+        html = html.replace(/\{\{selectedKey\}\}/g, key);
+
+        return html;
+    });
+    // --- END: NEW Computed Property ---
+
+
     const apiItem = computed(() => {
-        // ... (بدون تغییر) ...
+        // ... (Keep existing API banner logic) ...
         return banner.type === 'api-banner' ? (banner.api.selectedHotel || banner.api.selectedTour) : null;
     });
-    
+
     const isApiHotel = computed(() => {
-         // ... (بدون تغییر) ...
+         // ... (Keep existing API banner logic) ...
         return !!(banner.type === 'api-banner' && banner.api.selectedHotel);
     });
-    
+
     const settings = computed(() => {
+        // ... (Keep existing settings logic) ...
         if (!banner.type) return { header: {} }; // بازگشت یک آبجکت پایه برای جلوگیری از ارور
-    
+
         switch (banner.type) {
             case 'api-banner':
                 return currentView.value === 'desktop' ? banner.api.design : banner.api.design_mobile;
@@ -49,12 +71,9 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
                 return currentView.value === 'desktop' ? banner.promotion : banner.promotion_mobile;
             case 'tour-carousel':
                 return currentView.value === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile;
-            
-            // --- START: FIX ---
-            case 'hotel-carousel': // این case اضافه شد
+            case 'hotel-carousel':
                 return currentView.value === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile;
-            // --- END: FIX ---
-
+            // No specific settings object needed for welcome package in this computed
             default:
                 // Return an empty object with a nested header to prevent the 'text' error
                 return { header: {} };
@@ -63,6 +82,7 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
 
     return {
         previewBodyText,
+        welcomePackagePreviewHtml, // Expose the new computed property
         apiItem,
         isApiHotel,
         settings

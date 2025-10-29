@@ -7,7 +7,7 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
         private $api_key = '0963b596-1f23-4188-b46c-d7d671028940'; // Store API key securely if possible
 
         public function register_hooks() {
-            // Existing hooks...
+            // ... (Existing hooks remain the same) ...
             add_action('wp_ajax_yab_fetch_hotels_from_api', [$this, 'fetch_hotels_from_api']);
             add_action('wp_ajax_yab_fetch_cities_from_api', [$this, 'fetch_cities_from_api']);
             add_action('wp_ajax_yab_fetch_hotel_details_from_api', [$this, 'fetch_hotel_details_from_api']);
@@ -21,18 +21,13 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             add_action('wp_ajax_yab_fetch_hotel_details_by_ids', [$this, 'fetch_hotel_details_by_ids']);
             add_action('wp_ajax_nopriv_yab_fetch_hotel_details_by_ids', [$this, 'fetch_hotel_details_by_ids']);
             add_action('wp_ajax_yab_fetch_airports_from_api', [$this, 'fetch_airports_from_api']);
-
-            // --- New Hooks for Welcome Package ---
             add_action('wp_ajax_yab_fetch_welcome_packages', [$this, 'fetch_welcome_packages']);
-            // SSR endpoint - can be nopriv if banners might be shown to logged-out users
             add_action('wp_ajax_nopriv_yab_render_welcome_package_ssr', [$this, 'render_welcome_package_ssr']);
             add_action('wp_ajax_yab_render_welcome_package_ssr', [$this, 'render_welcome_package_ssr']);
-            // --- End New Hooks ---
         }
 
-        // --- New Method: Fetch Welcome Packages ---
         public function fetch_welcome_packages() {
-            // Check nonce if called from admin authenticated context
+             // ... (Keep existing fetch_welcome_packages logic) ...
             check_ajax_referer('yab_nonce', 'nonce');
             if (!current_user_can('manage_options')) {
                 wp_send_json_error(['message' => 'Permission denied.'], 403);
@@ -40,7 +35,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             }
 
             $api_url = 'https://b2bapi.tapexplore.com/api/service-fee/packages';
-            // Use API Key if required by the endpoint, otherwise remove header
             $response = wp_remote_get($api_url, ['headers' => ['api-key' => $this->api_key], 'timeout' => 15]);
 
             if (is_wp_error($response)) {
@@ -56,17 +50,11 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
                 wp_send_json_error(['message' => 'Invalid or failed response from Welcome Packages API.'], 500);
                 return;
             }
-
-            // Return only the data array
             wp_send_json_success($data['data']);
             wp_die();
         }
 
-// --- New Method: Server-Side Rendering for Welcome Package Banner ---
         public function render_welcome_package_ssr() {
-             // Nonce check might be needed depending on security requirements for SSR endpoint
-             // check_ajax_referer('yab_render_wp_banner', 'nonce');
-
             if (empty($_POST['banner_id']) || !is_numeric($_POST['banner_id'])) {
                 wp_send_json_error(['message' => 'Invalid Banner ID.'], 400);
                 return;
@@ -75,7 +63,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             $banner_id = intval($_POST['banner_id']);
             $banner_post = get_post($banner_id);
 
-            // Check if banner exists, is the correct type, and is published
             if (!$banner_post || $banner_post->post_type !== 'yab_banner' || $banner_post->post_status !== 'publish') {
                 wp_send_json_error(['message' => 'Banner not found or not published.'], 404);
                 return;
@@ -88,21 +75,19 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
 
             $data = get_post_meta($banner_id, '_yab_banner_data', true);
 
-            // Check essential data
             if (empty($data['welcome_package']) || empty($data['welcome_package']['selectedKey']) || !isset($data['welcome_package']['html'])) {
                  error_log("Tappersia Plugin SSR Error: Incomplete banner data for ID {$banner_id}.");
                  wp_send_json_error(['message' => 'Banner configuration is incomplete.'], 500);
                  return;
             }
 
-             // Fetch latest package data from API
             $api_url = 'https://b2bapi.tapexplore.com/api/service-fee/packages';
-            // ***** FIX: Added comma after 'timeout' *****
             $response = wp_remote_get($api_url, ['headers' => ['api-key' => $this->api_key], 'timeout' => 15]);
 
-
-            $current_price = 'N/A';
-            $current_original_price = 'N/A';
+            // ** REVISED: Use stored values as fallback **
+            $selected_key = $data['welcome_package']['selectedKey'] ?? '';
+            $current_price = number_format($data['welcome_package']['selectedPrice'] ?? 0, 2); // Default to saved
+            $current_original_price = number_format($data['welcome_package']['selectedOriginalPrice'] ?? 0, 2); // Default to saved
 
             if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
                 $body = wp_remote_retrieve_body($response);
@@ -111,42 +96,36 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
                 if (isset($api_data['success']) && $api_data['success'] === true && isset($api_data['data']) && is_array($api_data['data'])) {
                      $found_package = null;
                      foreach ($api_data['data'] as $package) {
-                         if (isset($package['key']) && $package['key'] === $data['welcome_package']['selectedKey']) {
+                         if (isset($package['key']) && $package['key'] === $selected_key) { // Correct comparison
                              $found_package = $package;
                              break;
                          }
                      }
 
                      if ($found_package) {
-                        // Use number_format for consistent decimal places
+                        // ** Update prices ONLY if package found in API **
                         $current_price = number_format($found_package['moneyValue'] ?? 0, 2);
                         $current_original_price = number_format($found_package['originalMoneyValue'] ?? 0, 2);
                     } else {
-                         error_log("Tappersia Plugin SSR Warning: Saved package key '{$data['welcome_package']['selectedKey']}' not found in current API response for banner ID {$banner_id}.");
-                         // Keep 'N/A' or use stored prices as fallback? Using 'N/A' for now.
-                         // $current_price = number_format($data['welcome_package']['selectedPrice'] ?? 0, 2);
-                         // $current_original_price = number_format($data['welcome_package']['selectedOriginalPrice'] ?? 0, 2);
+                         error_log("Tappersia Plugin SSR Warning: Saved package key '{$selected_key}' not found in current API response for banner ID {$banner_id}. Using saved prices.");
                     }
                 } else {
-                     error_log("Tappersia Plugin SSR Error: Invalid or failed API response while rendering banner ID {$banner_id}: " . $body);
+                     error_log("Tappersia Plugin SSR Error: Invalid or failed API response while rendering banner ID {$banner_id}. Using saved prices. Body: " . $body);
                 }
             } else {
                 $error_message = is_wp_error($response) ? $response->get_error_message() : wp_remote_retrieve_response_message($response);
-                error_log("Tappersia Plugin SSR Error: Failed to fetch API for banner ID {$banner_id}. Error: " . $error_message);
+                error_log("Tappersia Plugin SSR Error: Failed to fetch API for banner ID {$banner_id}. Using saved prices. Error: " . $error_message);
             }
 
-            // Replace placeholders in the stored HTML
+            // Replace placeholders
             $html_template = $data['welcome_package']['html'] ?? '';
-            // Use wp_specialchars_decode to prevent double encoding issues if needed, but usually not necessary here.
             $rendered_html = str_replace(
                 ['{{price}}', '{{originalPrice}}', '{{selectedKey}}'],
-                [esc_html($current_price), esc_html($current_original_price), esc_html($data['welcome_package']['selectedKey'])],
-                $html_template // Use the already sanitized HTML from DB
+                [esc_html($current_price), esc_html($current_original_price), esc_html($selected_key)], // Ensure all 3 are replaced
+                $html_template
             );
 
-
-            // ***** FIX: Updated this array to match the user's changes *****
-             $allowed_tags = [
+             $allowed_tags = [ /* ... (Keep your allowed tags array here) ... */
                  'html'   => ['lang' => true, 'dir' => true],
                  'head'   => [],
                  'body'   => ['class' => true, 'id' => true, 'style' => true],
@@ -154,12 +133,12 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
                  'title'  => [],
                  'style'  => ['type' => true],
                  'script' => ['type' => true, 'src' => true, 'async' => true, 'defer' => true],
-                 'div'    => ['class' => true, 'id' => true, 'style' => true, 'role' => true, 'aria-label' => true], // Added role, aria-label
-                 'article'=> ['class' => true, 'id' => true, 'style' => true], // Added article
+                 'div'    => ['class' => true, 'id' => true, 'style' => true, 'role' => true, 'aria-label' => true],
+                 'article'=> ['class' => true, 'id' => true, 'style' => true],
                  'span'   => ['class' => true, 'id' => true, 'style' => true],
                  'p'      => ['class' => true, 'id' => true, 'style' => true],
-                 'a'      => ['href' => true, 'target' => true, 'rel' => true, 'class' => true, 'id' => true, 'style' => true], // Removed duplicate 'style'
-                 'img'    => ['src' => true, 'alt' => true, 'width' => true, 'height' => true, 'class' => true, 'id' => true, 'style' => true, 'role' => true, 'aria-label' => true], // Added role, aria-label
+                 'a'      => ['href' => true, 'target' => true, 'rel' => true, 'class' => true, 'id' => true, 'style' => true],
+                 'img'    => ['src' => true, 'alt' => true, 'width' => true, 'height' => true, 'class' => true, 'id' => true, 'style' => true, 'role' => true, 'aria-label' => true],
                  'h1'     => ['class' => true, 'id' => true, 'style' => true],
                  'h2'     => ['class' => true, 'id' => true, 'style' => true],
                  'h3'     => ['class' => true, 'id' => true, 'style' => true],
@@ -177,18 +156,14 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
                  'td'     => ['class' => true, 'id' => true, 'style' => true, 'colspan' => true, 'rowspan' => true],
                  'button' => ['class' => true, 'id' => true, 'style' => true, 'type' => true, 'onclick' => true],
              ];
-             // ***** END FIX *****
-
              $final_sanitized_html = wp_kses($rendered_html, $allowed_tags);
-
 
              wp_send_json_success(['html' => $final_sanitized_html]);
              wp_die();
         }
 
-        // --- Keep existing methods (fetch_hotel_details_by_ids, fetch_airports_from_api, etc.) ---
+        // --- Keep existing methods ---
         // ... (rest of the existing methods) ...
-
          public function fetch_hotel_details_by_ids() {
             // No nonce check needed if used on frontend potentially
             if (empty($_POST['hotel_ids']) || !is_array($_POST['hotel_ids'])) {
