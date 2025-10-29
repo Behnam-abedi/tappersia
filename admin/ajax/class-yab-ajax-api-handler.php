@@ -84,11 +84,13 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             $api_url = 'https://b2bapi.tapexplore.com/api/service-fee/packages';
             $response = wp_remote_get($api_url, ['headers' => ['api-key' => $this->api_key], 'timeout' => 15]);
 
-            // ** REVISED: Use stored values as fallback **
+            // Use stored values as fallback
             $selected_key = $data['welcome_package']['selectedKey'] ?? '';
-            $current_price = number_format($data['welcome_package']['selectedPrice'] ?? 0, 2); // Default to saved
-            $current_original_price = number_format($data['welcome_package']['selectedOriginalPrice'] ?? 0, 2); // Default to saved
+            $price_val = $data['welcome_package']['selectedPrice'] ?? 0; // Use numeric value for calculation
+            $original_price_val = $data['welcome_package']['selectedOriginalPrice'] ?? 0; // Use numeric value for calculation
+            $discount_percentage = 0; // Default discount
 
+            // Try fetching from API
             if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
                 $body = wp_remote_retrieve_body($response);
                 $api_data = json_decode($body, true);
@@ -96,16 +98,16 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
                 if (isset($api_data['success']) && $api_data['success'] === true && isset($api_data['data']) && is_array($api_data['data'])) {
                      $found_package = null;
                      foreach ($api_data['data'] as $package) {
-                         if (isset($package['key']) && $package['key'] === $selected_key) { // Correct comparison
+                         if (isset($package['key']) && $package['key'] === $selected_key) {
                              $found_package = $package;
                              break;
                          }
                      }
 
                      if ($found_package) {
-                        // ** Update prices ONLY if package found in API **
-                        $current_price = number_format($found_package['moneyValue'] ?? 0, 2);
-                        $current_original_price = number_format($found_package['originalMoneyValue'] ?? 0, 2);
+                        // ** Update numeric values from API **
+                        $price_val = $found_package['moneyValue'] ?? 0;
+                        $original_price_val = $found_package['originalMoneyValue'] ?? 0;
                     } else {
                          error_log("Tappersia Plugin SSR Warning: Saved package key '{$selected_key}' not found in current API response for banner ID {$banner_id}. Using saved prices.");
                     }
@@ -117,11 +119,28 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
                 error_log("Tappersia Plugin SSR Error: Failed to fetch API for banner ID {$banner_id}. Using saved prices. Error: " . $error_message);
             }
 
+            // ** START: Calculate Discount Percentage **
+            if ($original_price_val > 0 && $original_price_val > $price_val) {
+                 $discount_percentage = round((($original_price_val - $price_val) / $original_price_val) * 100);
+            } else {
+                $discount_percentage = 0; // No discount if original price is zero or less than/equal to current price
+            }
+            // ** END: Calculate Discount Percentage **
+
+            // Format prices for display
+            $current_price_formatted = number_format($price_val, 2);
+            $current_original_price_formatted = number_format($original_price_val, 2);
+
             // Replace placeholders
             $html_template = $data['welcome_package']['html'] ?? '';
             $rendered_html = str_replace(
-                ['{{price}}', '{{originalPrice}}', '{{selectedKey}}'],
-                [esc_html($current_price), esc_html($current_original_price), esc_html($selected_key)], // Ensure all 3 are replaced
+                ['{{price}}', '{{originalPrice}}', '{{selectedKey}}', '{{discountPercentage}}'], // Added {{discountPercentage}}
+                [
+                    esc_html($current_price_formatted),
+                    esc_html($current_original_price_formatted),
+                    esc_html($selected_key),
+                    esc_html($discount_percentage) // Add calculated percentage
+                ],
                 $html_template
             );
 

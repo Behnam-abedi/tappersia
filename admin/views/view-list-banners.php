@@ -49,6 +49,10 @@
                         <span class="dashicons dashicons-airplane text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Flight Tickets</h3>
                     </div>
+                    <div @click="selectType('welcome-package-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
+                        <span class="dashicons dashicons-products text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Welcome Packages</h3>
+                    </div>
                     </div>
             </div>
         </div>

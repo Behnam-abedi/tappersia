@@ -1,29 +1,42 @@
 // tappersia/assets/js/admin/app-logic/main.js
-const { createApp, ref, onMounted, watch, nextTick } = Vue; // Added nextTick
+const { createApp, ref, onMounted, watch, nextTick } = Vue;
+
+// Import کامپوننت‌ها به جای composables
+import { HotelCarouselLogic } from './composables/useHotelCarousel.js';
+import { TourCarouselLogic } from './composables/useTourCarousel.js';
 
 // Existing imports...
-import { useHotelCarousel } from './composables/useHotelCarousel.js';
 import { useHotelCarouselValidation } from './composables/useHotelCarouselValidation.js';
 import { useHotelThumbnails } from './composables/useHotelThumbnails.js';
 import { useAjax } from '../composables/useAjax.js';
 import { useBannerState } from '../composables/banner-state/bannerState.js';
 import { useApiBanner } from '../composables/useApiBanner.js';
 import { useDisplayConditions } from '../composables/useDisplayConditions.js';
-import { ImageLoader } from './components.js';
+import { ImageLoader } from './components.js'; // Keep import
 import { useAppSetup } from './composables/useAppSetup.js';
 import { useBannerActions } from './composables/useBannerActions.js';
 import { useBannerSync } from './composables/useBannerSync.js';
 import { useBannerStyling } from './composables/useBannerStyling.js';
-import { useComputedProperties } from './composables/useComputedProperties.js'; // Import this
+import { useComputedProperties } from './composables/useComputedProperties.js';
 import { usePromotionBanner } from './composables/usePromotionBanner.js';
-import { useTourCarousel } from './composables/useTourCarousel.js';
 import { useTourCarouselValidation } from './composables/useTourCarouselValidation.js';
 import { useTourThumbnails } from './composables/useTourThumbnails.js';
 import { useFlightTicket } from '../composables/useFlightTicket.js';
 import { useWelcomePackageBanner } from '../composables/useWelcomePackageBanner.js';
 
+// Assuming YabModal is globally available via admin-modal-component.js
+// If not, you'd need to import it as well.
+// import { YabModal } from '../path/to/admin-modal-component.js'; // Example path
+
 export function initializeApp(yabData) {
     const app = createApp({
+        // ثبت کامپوننت‌ها
+        components: {
+            'yab-modal': YabModal,
+            'image-loader': ImageLoader,
+            'tour-carousel-logic': TourCarouselLogic,    // ثبت شد
+            'hotel-carousel-logic': HotelCarouselLogic   // ثبت شد
+        },
         setup() {
             // --- Core State & Composables ---
             const { banner, shortcode, mergeWithExisting, resetBannerState } = useBannerState();
@@ -40,7 +53,6 @@ export function initializeApp(yabData) {
             const apiBannerLogic = useApiBanner(banner, showModal, ajax);
             const promotionBannerLogic = usePromotionBanner(banner, showModal);
             const bannerStyling = useBannerStyling(banner);
-            // *** FIX: Pass computedProperties result directly into return ***
             const computedProps = useComputedProperties(banner, currentView, selectedDoubleBanner);
             const flightTicketLogic = useFlightTicket(banner, showModal, ajax);
             const welcomePackageLogic = useWelcomePackageBanner(banner, showModal, ajax);
@@ -68,14 +80,12 @@ export function initializeApp(yabData) {
                      const existingBannerCopy = JSON.parse(JSON.stringify(yabData.existing_banner));
                      mergeWithExisting(existingBannerCopy);
 
-                    // Fetch details for API banner if needed
                     if (banner.type === 'api-banner' && banner.api.selectedHotel?.id) {
                         apiBannerLogic.fetchFullHotelDetails(banner.api.selectedHotel.id);
                     }
                      if (banner.type === 'api-banner' && banner.api.selectedTour?.id) {
                         apiBannerLogic.fetchFullTourDetails(banner.api.selectedTour.id);
                     }
-                    // Welcome package initial fetch/check - no specific fetch needed on load, happens in modal
 
                     appState.value = 'editor';
                 } else {
@@ -85,37 +95,47 @@ export function initializeApp(yabData) {
 
             // Helper function to initialize/reinitialize Coloris
             const reinitializeColoris = () => {
-                // ... (keep existing reinitializeColoris logic) ...
+                 // ... (keep existing reinitializeColoris logic) ...
                  if (typeof Coloris !== 'undefined') {
-                     console.log('Attempting to initialize Coloris (without el constraint)...');
                      Coloris({
                          theme: 'pill',
                          themeMode: 'dark',
                          format: 'mixed',
+                         alpha: true, // اطمینان از فعال بودن alpha
                          onChange: (color, inputEl) => {
                              if (inputEl) {
-                                  inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+                                  // Trigger 'input' event for Vue model binding
+                                  const event = new Event('input', { bubbles: true });
+                                  inputEl.value = color; // Update value directly first
+                                  inputEl.dispatchEvent(event);
+
+                                  // Also update the color preview sibling if it exists
+                                   const preview = inputEl.previousElementSibling;
+                                    if (preview && preview.style) {
+                                        preview.style.backgroundColor = color;
+                                    }
                              }
                          }
                      });
-                     console.log('Coloris initialized.');
                  } else {
-                     console.error("Coloris library is not loaded when trying to reinitialize.");
+                     console.error("Coloris library is not loaded.");
                  }
             };
 
 
             // Watchers for view and state changes
             watch(currentView, async (newView, oldView) => {
-                // ... (keep existing watch logic) ...
+                 // ... (keep existing watch logic) ...
                  if (newView !== oldView) {
-                    await nextTick();
+                     await nextTick();
+                     reinitializeColoris(); // Reinitialize on view change too
                  }
             });
             watch(selectedDoubleBanner, async (newSelection, oldSelection) => {
-                // ... (keep existing watch logic) ...
+                 // ... (keep existing watch logic) ...
                  if (newSelection !== oldSelection) {
-                    await nextTick();
+                     await nextTick();
+                      reinitializeColoris(); // Reinitialize on selection change
                  }
             });
 
@@ -123,13 +143,12 @@ export function initializeApp(yabData) {
                  // ... (keep existing watch logic) ...
                 if (newState === 'editor' && oldState !== 'editor') {
                     await nextTick();
-                    console.log('App state changed to editor, initializing Coloris...');
                     reinitializeColoris();
                 }
-             }, { immediate: false });
+             }, { immediate: true }); // immediate: true ensures it runs on initial load if starting in editor
 
 
-            // --- Helper Methods (Gradient Stops) ---
+            // --- Helper Methods ---
             const addGradientStop = (settings) => {
                 // ... (keep existing addGradientStop logic) ...
                  if (!settings.gradientStops) settings.gradientStops = [];
@@ -147,6 +166,31 @@ export function initializeApp(yabData) {
                 }
              };
 
+             const copyPlaceholder = (placeholder) => {
+                // ... (keep existing copyPlaceholder logic) ...
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(placeholder).then(() => {
+                        showModal('Copied!', `Placeholder "${placeholder}" copied to clipboard.`);
+                    }).catch(err => {
+                        console.error('Failed to copy placeholder: ', err);
+                        showModal('Error', 'Could not copy placeholder.');
+                    });
+                } else {
+                    try {
+                        const textArea = document.createElement("textarea");
+                        textArea.value = placeholder;
+                        textArea.style.position = "absolute"; textArea.style.left = "-9999px";
+                        document.body.appendChild(textArea);
+                        textArea.select(); document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        showModal('Copied!', `Placeholder "${placeholder}" copied to clipboard.`);
+                    } catch (err) {
+                        console.error('Fallback copy failed: ', err);
+                        showModal('Error', 'Could not copy placeholder.');
+                    }
+                }
+            };
+
             return {
                 // Core state & methods
                 appState, isSaving, banner, shortcode, modalComponent, currentView, selectedDoubleBanner,
@@ -159,11 +203,12 @@ export function initializeApp(yabData) {
                 ...displayConditionsLogic,
                 ...promotionBannerLogic,
                 ...bannerStyling,
-                ...computedProps, // *** FIX: Expose computed properties ***
+                ...computedProps,
                 ...flightTicketLogic,
                 ...welcomePackageLogic,
                  // Helpers
                 addGradientStop, removeGradientStop,
+                copyPlaceholder,
                 // Tour Carousel refs & data
                 tourThumbnailContainerRef,
                 thumbnailTours,
@@ -172,13 +217,8 @@ export function initializeApp(yabData) {
                 hotelThumbnailContainerRef,
                 thumbnailHotels,
                 isLoadingHotelThumbnails,
+                // *** حذف کامپوننت‌های منطقی از return ***
             };
-        },
-        components: {
-            'yab-modal': YabModal,
-            'image-loader': ImageLoader,
-            'TourCarouselLogic': useTourCarousel(),
-            'HotelCarouselLogic': useHotelCarousel(),
         }
     });
 

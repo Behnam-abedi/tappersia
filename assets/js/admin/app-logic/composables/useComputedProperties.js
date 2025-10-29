@@ -21,25 +21,38 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
         return text;
     });
 
-    // --- START: NEW Computed Property for Welcome Package Admin Preview ---
     const welcomePackagePreviewHtml = computed(() => {
         if (banner.type !== 'welcome-package-banner' || !banner.welcome_package?.html) {
             return '';
         }
         const pkg = banner.welcome_package;
         let html = pkg.html;
-        // Replace placeholders with SAVED values for admin preview
-        const price = pkg.selectedPrice !== null ? pkg.selectedPrice.toFixed(2) : 'N/A';
-        const originalPrice = pkg.selectedOriginalPrice !== null ? pkg.selectedOriginalPrice.toFixed(2) : 'N/A';
-        const key = pkg.selectedKey || 'Package'; // Default text if key is somehow null
 
-        html = html.replace(/\{\{price\}\}/g, price);
-        html = html.replace(/\{\{originalPrice\}\}/g, originalPrice);
+        // Get saved values
+        const price_val = pkg.selectedPrice ?? 0;
+        const original_price_val = pkg.selectedOriginalPrice ?? 0;
+        const key = pkg.selectedKey || 'Package';
+
+        // ** START: Calculate Discount Percentage for Preview **
+        let discountPercentage = 0;
+        if (original_price_val > 0 && original_price_val > price_val) {
+             discountPercentage = Math.round(((original_price_val - price_val) / original_price_val) * 100);
+        }
+        // ** END: Calculate Discount Percentage for Preview **
+
+        // Format prices for display
+        const priceFormatted = price_val.toFixed(2);
+        const originalPriceFormatted = original_price_val.toFixed(2);
+
+        // Replace placeholders
+        html = html.replace(/\{\{price\}\}/g, priceFormatted);
+        html = html.replace(/\{\{originalPrice\}\}/g, originalPriceFormatted);
         html = html.replace(/\{\{selectedKey\}\}/g, key);
+        // ** Add replacement for discountPercentage **
+        html = html.replace(/\{\{discountPercentage\}\}/g, discountPercentage);
 
         return html;
     });
-    // --- END: NEW Computed Property ---
 
 
     const apiItem = computed(() => {
@@ -54,7 +67,7 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
 
     const settings = computed(() => {
         // ... (Keep existing settings logic) ...
-        if (!banner.type) return { header: {} }; // بازگشت یک آبجکت پایه برای جلوگیری از ارور
+        if (!banner.type) return { header: {} };
 
         switch (banner.type) {
             case 'api-banner':
@@ -73,9 +86,7 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
                 return currentView.value === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile;
             case 'hotel-carousel':
                 return currentView.value === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile;
-            // No specific settings object needed for welcome package in this computed
             default:
-                // Return an empty object with a nested header to prevent the 'text' error
                 return { header: {} };
         }
     });
