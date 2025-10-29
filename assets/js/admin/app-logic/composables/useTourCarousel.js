@@ -170,7 +170,7 @@ export const TourCarouselLogic = {
                                 <span style="color: ${card.province?.color || '#FFFFFF'}; font-size: ${card.province?.fontSize || 14}px; font-weight: ${card.province?.fontWeight || 500}; line-height: 24px;">${escapeHTML(startProvinceName)}</span>
                             </div>
                         </div>
-                        <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${rtlTextAlign}; min-height: 0;"> /* Added min-height */
+                        <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${rtlTextAlign}; min-height: 0;">
                             <div><h4 style="font-weight: ${card.title?.fontWeight || 600}; font-size: ${card.title?.fontSize || 14}px; line-height: ${card.title?.lineHeight || 1.5}; color: ${card.title?.color || '#000000ff'}; text-overflow: ellipsis; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; margin: 0;">${escapeHTML(tour.title)}</h4></div>
                             <div style="margin-top: auto; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; direction:ltr; flex-direction: ${rtlFlex};">
                                 <div style="display: flex; flex-direction: row; gap: 4px; align-items: baseline;">

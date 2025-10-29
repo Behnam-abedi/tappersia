@@ -59,9 +59,20 @@
          <div v-if="settings.enableBorder" class="grid grid-cols-3 gap-2">
             <div>
                 <label class="setting-label-sm">Color</label>
-                <div class="yab-color-input-wrapper">
-                    <input type="color" v-model="settings.borderColor" class="yab-color-picker">
-                     <input type="text" v-model="settings.borderColor" class="yab-hex-input" placeholder="Color">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.borderColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Border color input"
+                        type="text"
+                        :value="settings.borderColor"
+                        @input="event => settings.borderColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
             <div>
@@ -83,9 +94,20 @@
         </div>
         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
             <label class="setting-label-sm">Background Color</label>
-            <div class="yab-color-input-wrapper">
-                <input type="color" v-model="settings.bgColor" class="yab-color-picker">
-                <input type="text" v-model="settings.bgColor" class="yab-hex-input" placeholder="#hexcode">
+            <div class="flex items-center gap-1">
+                <div
+                    :style="{ backgroundColor: settings.bgColor }"
+                    class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                    title="Selected color preview">
+                </div>
+                <input
+                    aria-label="Background color input"
+                    type="text"
+                    :value="settings.bgColor"
+                    @input="event => settings.bgColor = event.target.value"
+                    data-coloris
+                    class="yab-form-input clr-field flex-grow"
+                    placeholder="Select color...">
             </div>
         </div>
         <div v-else class="space-y-4">
@@ -104,9 +126,20 @@
                             <button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings, index)" class="text-red-500 hover:text-red-400 text-xs">Remove</button>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div class="yab-color-input-wrapper">
-                            <input type="color" v-model="stop.color" class="yab-color-picker">
-                            <input type="text" v-model="stop.color" class="yab-hex-input" placeholder="e.g., transparent">
+                        <div class="flex items-center gap-1">
+                            <div
+                                :style="{ backgroundColor: stop.color }"
+                                class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                                title="Selected color preview">
+                            </div>
+                            <input
+                                aria-label="Gradient stop color input"
+                                type="text"
+                                :value="stop.color"
+                                @input="event => stop.color = event.target.value"
+                                data-coloris
+                                class="yab-form-input clr-field flex-grow"
+                                placeholder="Select color...">
                         </div>
                         <button @click="stop.color = 'transparent'" class="bg-gray-600 text-white text-xs rounded-md hover:bg-gray-500">Set Transparent</button>
                     </div>
@@ -125,9 +158,20 @@
         <div class="grid grid-cols-2 gap-2">
             <div class="col-span-2">
                 <label class="setting-label-sm">Color</label>
-                 <div class="yab-color-input-wrapper">
-                    <input type="color" v-model="settings.titleColor" class="yab-color-picker">
-                    <input type="text" v-model="settings.titleColor" class="yab-hex-input" placeholder="#hexcode">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.titleColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Title color input"
+                        type="text"
+                        :value="settings.titleColor"
+                        @input="event => settings.titleColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
             <div>
@@ -156,9 +200,20 @@
             </div>
             <div class="col-span-2">
                  <label class="setting-label-sm">City Color</label>
-                 <div class="yab-color-input-wrapper">
-                     <input type="color" v-model="settings.cityColor" class="yab-color-picker">
-                     <input type="text" v-model="settings.cityColor" class="yab-hex-input" placeholder="City Color">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.cityColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="City color input"
+                        type="text"
+                        :value="settings.cityColor"
+                        @input="event => settings.cityColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
         </div>
@@ -169,16 +224,38 @@
         <div class="grid grid-cols-2 gap-2">
             <div>
                 <label class="setting-label-sm">Rating Box BG</label>
-                <div class="yab-color-input-wrapper">
-                    <input type="color" v-model="settings.ratingBoxBgColor" class="yab-color-picker">
-                     <input type="text" v-model="settings.ratingBoxBgColor" class="yab-hex-input" placeholder="Rating BG">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.ratingBoxBgColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Rating box background color input"
+                        type="text"
+                        :value="settings.ratingBoxBgColor"
+                        @input="event => settings.ratingBoxBgColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
             <div>
                 <label class="setting-label-sm">Rating Box Text</label>
-                <div class="yab-color-input-wrapper">
-                    <input type="color" v-model="settings.ratingBoxColor" class="yab-color-picker">
-                    <input type="text" v-model="settings.ratingBoxColor" class="yab-hex-input" placeholder="Rating Text">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.ratingBoxColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Rating box text color input"
+                        type="text"
+                        :value="settings.ratingBoxColor"
+                        @input="event => settings.ratingBoxColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
             <div>
@@ -193,9 +270,20 @@
             </div>
             <div>
                 <label class="setting-label-sm">Rating Text Color</label>
-                <div class="yab-color-input-wrapper">
-                    <input type="color" v-model="settings.ratingTextColor" class="yab-color-picker">
-                     <input type="text" v-model="settings.ratingTextColor" class="yab-hex-input" placeholder="Rating Text">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.ratingTextColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Rating text color input"
+                        type="text"
+                        :value="settings.ratingTextColor"
+                        @input="event => settings.ratingTextColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
              <div>
@@ -210,9 +298,20 @@
             </div>
             <div>
                 <label class="setting-label-sm">Review Count Color</label>
-                 <div class="yab-color-input-wrapper">
-                     <input type="color" v-model="settings.reviewColor" class="yab-color-picker">
-                     <input type="text" v-model="settings.reviewColor" class="yab-hex-input" placeholder="Review Text">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.reviewColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Review count color input"
+                        type="text"
+                        :value="settings.reviewColor"
+                        @input="event => settings.reviewColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
              <div>
@@ -227,9 +326,20 @@
          <div class="grid grid-cols-2 gap-2">
             <div>
                 <label class="setting-label-sm">Amount Color</label>
-                 <div class="yab-color-input-wrapper">
-                    <input type="color" v-model="settings.priceAmountColor" class="yab-color-picker">
-                    <input type="text" v-model="settings.priceAmountColor" class="yab-hex-input" placeholder="Amount Color">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.priceAmountColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Price amount color input"
+                        type="text"
+                        :value="settings.priceAmountColor"
+                        @input="event => settings.priceAmountColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
             <div>
@@ -238,9 +348,20 @@
             </div>
             <div>
                 <label class="setting-label-sm">"From" & "/ night" Color</label>
-                 <div class="yab-color-input-wrapper">
-                     <input type="color" v-model="settings.priceFromColor" class="yab-color-picker">
-                     <input type="text" v-model="settings.priceFromColor" class="yab-hex-input" placeholder="Text Color">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.priceFromColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Price from text color input"
+                        type="text"
+                        :value="settings.priceFromColor"
+                        @input="event => settings.priceFromColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
             <div>

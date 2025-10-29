@@ -26,12 +26,14 @@
             </div>
             </div>
 
+
         </div>
 <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
     <div v-if="banner.tour_carousel" :key="currentView">
         <div :set="settings = currentView === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile">
             <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Carousel Settings</h3>
             <div class="space-y-4">
+
 
                 <div v-if="currentView === 'desktop'">
                     <h4 class="section-title">Slides Per View</h4>
@@ -59,16 +61,16 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="setting-label-sm">Pagination Color</label>
-                                <div class="yab-color-input-wrapper">
-                                    <input type="color" v-model="settings.pagination.paginationColor" class="yab-color-picker">
-                                    <input type="text" v-model="settings.pagination.paginationColor" class="yab-hex-input">
+                                <div class="flex items-center gap-1">
+                                    <div :style="{ backgroundColor: settings.pagination.paginationColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div>
+                                    <input aria-label="Pagination color input" type="text" :value="settings.pagination.paginationColor" @input="event => settings.pagination.paginationColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color...">
                                 </div>
                             </div>
                             <div>
                                 <label class="setting-label-sm">Pagination Active Color</label>
-                                <div class="yab-color-input-wrapper">
-                                    <input type="color" v-model="settings.pagination.paginationActiveColor" class="yab-color-picker">
-                                    <input type="text" v-model="settings.pagination.paginationActiveColor" class="yab-hex-input">
+                                <div class="flex items-center gap-1">
+                                    <div :style="{ backgroundColor: settings.pagination.paginationActiveColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div>
+                                    <input aria-label="Pagination active color input" type="text" :value="settings.pagination.paginationActiveColor" @input="event => settings.pagination.paginationActiveColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color...">
                                 </div>
                             </div>
                         </div>
@@ -78,6 +80,7 @@
         </div>
     </div>
 </div>
+
 
 <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
                 <div v-if="currentView === 'desktop'">
@@ -99,8 +102,8 @@
                         <div><label class="setting-label-sm">Font Weight</label><select v-model="settings.header.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option></select></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="setting-label-sm">Text Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="settings.header.color" class="yab-color-picker"><input type="text" v-model="settings.header.color" class="yab-hex-input"></div></div>
-                        <div><label class="setting-label-sm">Accent Line Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="settings.header.lineColor" class="yab-color-picker"><input type="text" v-model="settings.header.lineColor" class="yab-hex-input"></div></div>
+                        <div><label class="setting-label-sm">Text Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: settings.header.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Text color input" type="text" :value="settings.header.color" @input="event => settings.header.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
+                        <div><label class="setting-label-sm">Accent Line Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: settings.header.lineColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Accent line color input" type="text" :value="settings.header.lineColor" @input="event => settings.header.lineColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                     </div>
                     <div><label class="setting-label-sm">Space between header and slider</label><input type="number" v-model.number="settings.header.marginTop" class="yab-form-input"></div>
                 </div>
@@ -123,20 +126,22 @@
                     <div v-if="currentView === 'desktop'">
                         <h4 class="section-title">Background</h4>
                         <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none p-1"><button @click="card.backgroundType = 'solid'" :class="{'active-tab': card.backgroundType === 'solid'}" class="flex-1 tab-button rounded-md">Solid</button><button @click="card.backgroundType = 'gradient'" :class="{'active-tab': card.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-md">Gradient</button></div>
-                        <div v-if="card.backgroundType === 'solid'"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="card.bgColor" class="yab-color-picker"><input type="text" v-model="card.bgColor" class="yab-hex-input"></div></div>
-                        <div v-else class="space-y-4"><div><label class="setting-label-sm">Gradient Angle: {{ card.gradientAngle }}deg</label><input type="range" v-model.number="card.gradientAngle" min="0" max="360" class="w-full"></div><div><label class="setting-label-sm">Colors</label><div v-for="(stop, index) in card.gradientStops" class="flex items-center gap-2 mb-2"><div class="yab-color-input-wrapper flex-grow"><input type="color" v-model="stop.color" class="yab-color-picker"><input type="text" v-model="stop.color" class="yab-hex-input"></div><input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full flex-grow"><span>{{ stop.stop }}%</span></div></div></div>
+                        <div v-if="card.backgroundType === 'solid'"><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: card.bgColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Background color input" type="text" :value="card.bgColor" @input="event => card.bgColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
+                        <div v-else class="space-y-4"><div><label class="setting-label-sm">Gradient Angle: {{ card.gradientAngle }}deg</label><input type="range" v-model.number="card.gradientAngle" min="0" max="360" class="w-full"></div><div><label class="setting-label-sm">Colors</label><div v-for="(stop, index) in card.gradientStops" class="flex items-center gap-2 mb-2"><div class="flex items-center gap-1 flex-grow"><div :style="{ backgroundColor: stop.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Gradient color input" type="text" :value="stop.color" @input="event => stop.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div><input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full flex-grow"><span>{{ stop.stop }}%</span></div></div></div>
                         <hr class="section-divider">
                     </div>
+
 
                     <div>
                         <h4 class="section-title">Border</h4>
                         <div class="grid grid-cols-3 gap-2">
                             <div><label class="setting-label-sm">Width (px)</label><input type="number" v-model.number="card.borderWidth" class="yab-form-input"></div>
                             <div><label class="setting-label-sm">Radius (px)</label><input type="number" v-model.number="card.borderRadius" class="yab-form-input"></div>
-                            <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="card.borderColor" class="yab-color-picker"><input type="text" v-model="card.borderColor" class="yab-hex-input"></div></div>
+                            <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: card.borderColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Border color input" type="text" :value="card.borderColor" @input="event => card.borderColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                         </div>
                     </div>
                     <hr class="section-divider">
+
 
                     <div>
                         <h4 class="section-title">Image</h4>
@@ -151,8 +156,8 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="province.fontSize" class="yab-form-input"></div>
                                 <div><label class="setting-label-sm">Font Weight</label><select v-model="province.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option></select></div>
-                                <div><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="province.color" class="yab-color-picker"><input type="text" v-model="province.color" class="yab-hex-input"></div></div>
-                                <div><label class="setting-label-sm">Background Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="province.bgColor" class="yab-color-picker"><input type="text" v-model="province.bgColor" class="yab-hex-input"></div></div>
+                                <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: province.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Province color input" type="text" :value="province.color" @input="event => province.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
+                                <div><label class="setting-label-sm">Background Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: province.bgColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Province background color input" type="text" :value="province.bgColor" @input="event => province.bgColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 <div><label class="setting-label-sm">Blur (px)</label><input type="number" v-model.number="province.blur" class="yab-form-input"></div>
                                 <div><label class="setting-label-sm">Bottom Spacing (px)</label><input type="number" v-model.number="province.bottom" class="yab-form-input"></div>
                                 <div class="col-span-2"><label class="setting-label-sm">Side Spacing (px)</label><input type="number" v-model.number="province.side" class="yab-form-input"></div>
@@ -164,7 +169,7 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="title.fontSize" class="yab-form-input"></div>
                                 <div><label class="setting-label-sm">Font Weight</label><select v-model="title.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option></select></div>
-                                <div><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="title.color" class="yab-color-picker"><input type="text" v-model="title.color" class="yab-hex-input"></div></div>
+                                <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: title.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Title color input" type="text" :value="title.color" @input="event => title.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 <div><label class="setting-label-sm">Line Height</label><input type="number" step="0.1" v-model.number="title.lineHeight" class="yab-form-input"></div>
                             </div>
                         </div>
@@ -175,7 +180,7 @@
                                 <div class="grid grid-cols-2 gap-2">
                                     <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="price.fontSize" class="yab-form-input"></div>
                                     <div><label class="setting-label-sm">Font Weight</label><select v-model="price.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option></select></div>
-                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="price.color" class="yab-color-picker"><input type="text" v-model="price.color" class="yab-hex-input"></div></div>
+                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: price.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Price color input" type="text" :value="price.color" @input="event => price.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 </div>
                             </div>
                             <div :set="duration = card.duration">
@@ -183,7 +188,7 @@
                                 <div class="grid grid-cols-2 gap-2">
                                     <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="duration.fontSize" class="yab-form-input"></div>
                                     <div><label class="setting-label-sm">Font Weight</label><select v-model="duration.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option></select></div>
-                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="duration.color" class="yab-color-picker"><input type="text" v-model="duration.color" class="yab-hex-input"></div></div>
+                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: duration.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Duration color input" type="text" :value="duration.color" @input="event => duration.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 </div>
                             </div>
                         </div>
@@ -194,7 +199,7 @@
                                 <div class="grid grid-cols-2 gap-2">
                                     <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="rating.fontSize" class="yab-form-input"></div>
                                     <div><label class="setting-label-sm">Font Weight</label><select v-model="rating.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="700">Bold</option></select></div>
-                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="rating.color" class="yab-color-picker"><input type="text" v-model="rating.color" class="yab-hex-input"></div></div>
+                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: rating.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Rating color input" type="text" :value="rating.color" @input="event => rating.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 </div>
                             </div>
                             <div :set="reviews = card.reviews">
@@ -202,7 +207,7 @@
                                 <div class="grid grid-cols-2 gap-2">
                                     <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="reviews.fontSize" class="yab-form-input"></div>
                                     <div><label class="setting-label-sm">Font Weight</label><select v-model="reviews.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option></select></div>
-                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="reviews.color" class="yab-color-picker"><input type="text" v-model="reviews.color" class="yab-hex-input"></div></div>
+                                    <div class="col-span-2"><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: reviews.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Reviews color input" type="text" :value="reviews.color" @input="event => reviews.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 </div>
                             </div>
                         </div>
@@ -212,8 +217,8 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="button.fontSize" class="yab-form-input"></div>
                                 <div><label class="setting-label-sm">Font Weight</label><select v-model="button.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="600">Semi-Bold</option></select></div>
-                                <div><label class="setting-label-sm">Color</label><div class="yab-color-input-wrapper"><input type="color" v-model="button.color" class="yab-color-picker"><input type="text" v-model="button.color" class="yab-hex-input"></div></div>
-                                <div><label class="setting-label-sm">Background</label><div class="yab-color-input-wrapper"><input type="color" v-model="button.bgColor" class="yab-color-picker"><input type="text" v-model="button.bgColor" class="yab-hex-input"></div></div>
+                                <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: button.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Button color input" type="text" :value="button.color" @input="event => button.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
+                                <div><label class="setting-label-sm">Background</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: button.bgColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Button background color input" type="text" :value="button.bgColor" @input="event => button.bgColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 <div class="col-span-2"><label class="setting-label-sm">Arrow Size (px)</label><input type="number" v-model.number="button.arrowSize" class="yab-form-input"></div>
                             </div>
                         </div>

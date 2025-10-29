@@ -39,9 +39,20 @@
                          <button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings, index)" class="text-red-500 hover:text-red-400 text-xs">Remove</button>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div class="yab-color-input-wrapper">
-                            <input type="color" v-model="stop.color" class="yab-color-picker">
-                            <input type="text" v-model="stop.color" class="yab-hex-input" placeholder="e.g., transparent">
+                        <div class="flex items-center gap-1">
+                            <div
+                                :style="{ backgroundColor: stop.color }"
+                                class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                                title="Selected color preview">
+                            </div>
+                            <input
+                                aria-label="Gradient color input"
+                                type="text"
+                                :value="stop.color"
+                                @input="event => stop.color = event.target.value"
+                                data-coloris
+                                class="yab-form-input clr-field flex-grow"
+                                placeholder="Select color...">
                         </div>
                         <button @click="stop.color = 'transparent'" class="bg-gray-600 text-white text-xs rounded-md hover:bg-gray-500">Set Transparent</button>
                     </div>
@@ -102,9 +113,20 @@
         <div class="grid grid-cols-2 gap-2">
             <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Color</label>
-                <div class="yab-color-input-wrapper">
-                    <input type="color" v-model="settings.textColor" class="yab-color-picker">
-                    <input type="text" v-model="settings.textColor" class="yab-hex-input" placeholder="#hexcode">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.textColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Text color input"
+                        type="text"
+                        :value="settings.textColor"
+                        @input="event => settings.textColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-2" :class="{'col-span-2': currentView === 'mobile'}">
@@ -134,16 +156,38 @@
         <div class="grid grid-cols-2 gap-2 mb-2" v-if="currentView === 'desktop'">
             <div>
                 <label class="setting-label-sm">Background Color</label>
-                <div class="yab-color-input-wrapper">
-                    <input type="color" v-model="settings.buttonBgColor" class="yab-color-picker">
-                    <input type="text" v-model="settings.buttonBgColor" class="yab-hex-input" placeholder="#1EC2AF">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.buttonBgColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Button background color input"
+                        type="text"
+                        :value="settings.buttonBgColor"
+                        @input="event => settings.buttonBgColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
             <div>
                 <label class="setting-label-sm">Text Color</label>
-                <div class="yab-color-input-wrapper">
-                    <input type="color" v-model="settings.buttonTextColor" class="yab-color-picker">
-                    <input type="text" v-model="settings.buttonTextColor" class="yab-hex-input" placeholder="#FFFFFF">
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.buttonTextColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Button text color input"
+                        type="text"
+                        :value="settings.buttonTextColor"
+                        @input="event => settings.buttonTextColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
                 </div>
             </div>
         </div>
