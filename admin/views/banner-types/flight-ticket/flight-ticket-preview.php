@@ -1,5 +1,9 @@
 <?php
 // tappersia/admin/views/banner-types/flight-ticket/flight-ticket-preview.php
+
+// FIX: Define YAB_PLUGIN_URL correctly for the admin preview environment
+$plugin_url = defined('YAB_PLUGIN_URL') ? YAB_PLUGIN_URL : plugins_url('tappersia/') . 'tappersia/';
+$svg_url = $plugin_url . 'assets/image/ticket-shape.svg';
 ?>
 <div class="bg-[#434343] p-4 rounded-lg">
     <h3 class="preview-title">Live Preview</h3>
@@ -48,11 +52,11 @@
               }">{{ settings.content3.text }}</span>
             </div>
             
-            <div class="ticket" id="flight-ticket-preview-container">
-              <div id="cutter-top" class="ticket__cutter ticket__cutter--top"></div>
-              <div id="cutter-bottom" class="ticket__cutter ticket__cutter--bottom"></div>
-        
-              <div class="ticket__section ticket__section--actions">
+            <div class="ticket">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 352px; height: 129px;">
+                    <img src="<?php echo esc_url($svg_url); ?>" alt="Ticket Shape Background" style="width:100%; height:100%; object-fit: contain;">
+                </div>
+                <div class="ticket__section ticket__section--actions">
                 <div class="ticket__price">
                   <div class="ticket__price-icon">
                     <svg width="19" height="15" viewBox="0 0 19 15" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,130 +1,78 @@
 /*
  * Tappersia Public Styles
- * This file contains styles for banners on the front-end.
+ * Cleaned for optimization.
  */
 
-/*
- * Force Roboto font on all banner wrappers and their children with high specificity.
- * This ensures the theme's font styles are overridden.
- */
-body .yab-wrapper,
-body [class*="yab-double-banner-wrapper-"],
-body .yab-promo-banner-wrapper,
-body .yab-simple-banner-wrapper,
-body .yab-sticky-simple-banner-wrapper,
-body .yab-api-banner-wrapper,
-body .yab-api-banner-placeholder,
-body [class*="yab-tour-carousel-wrapper-"],
-body [class*="yab-hotel-carousel-wrapper-"] /* Added Hotel Carousel */ {
+/* --- Font Overrides --- */
+body .yab-wrapper, body [class*="yab-double-banner-wrapper-"] *, body .yab-promo-banner-wrapper *, body .yab-simple-banner-wrapper *, body .yab-sticky-simple-banner-wrapper *, body .yab-api-banner-wrapper *, body .yab-api-banner-placeholder *, body [class*="yab-tour-carousel-wrapper-"] *, body [class*="yab-hotel-carousel-wrapper-"] * {
     font-family: 'Roboto', sans-serif !important;
 }
 
-/* Ensure child elements like buttons and inputs also inherit the font correctly */
-body .yab-wrapper *,
-body [class*="yab-double-banner-wrapper-"] *,
-body .yab-promo-banner-wrapper *,
-body .yab-simple-banner-wrapper *,
-body .yab-sticky-simple-banner-wrapper *,
-body .yab-api-banner-wrapper *,
-body .yab-api-banner-placeholder *,
-body [class*="yab-tour-carousel-wrapper-"] *,
-body [class*="yab-hotel-carousel-wrapper-"] * /* Added Hotel Carousel */ {
-    font-family: inherit !important;
-}
-
-/* START: SKELETON LOADER STYLES */
-.yab-skeleton-loader {
-    position: relative;
-    overflow: hidden; /* Important for the shimmer effect */
-    background-color: #f0f0f0; /* Added base color */
-}
-
+/* --- Loading States --- */
+.yab-skeleton-loader { position: relative; overflow: hidden; background-color: #f0f0f0; }
 .yab-skeleton-loader::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    /* Use a lighter shimmer for frontend */
+    content: ''; position: absolute; inset: 0; transform: translateX(-100%);
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
     animation: yab-shimmer 1.5s infinite;
 }
+@keyframes yab-shimmer { 100% { transform: translateX(100%); } }
+@keyframes yab-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
-@keyframes yab-shimmer {
-    100% {
-        transform: translateX(100%);
-    }
-}
-/* END: SKELETON LOADER STYLES */
 
-@keyframes yab-fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* START: Scoped Swiper styles to prevent conflicts (Applied to both Tour & Hotel) */
+/* --- Swiper (Carousel) Styles --- */
 [class*="yab-tour-carousel-wrapper-"] .swiper-pagination-bullet,
-[class*="yab-hotel-carousel-wrapper-"] .swiper-pagination-bullet /* Added Hotel Carousel */ {
-    width: 20px !important;
-    height: 6px !important;
-    border-radius: 4px !important;
-    background-color: rgba(0, 186, 164, 0.31) !important; /* Added !important */
-    opacity: 1 !important; /* Ensure bullets are visible */
+[class*="yab-hotel-carousel-wrapper-"] .swiper-pagination-bullet {
+    width: 20px !important; height: 6px !important; border-radius: 4px !important; opacity: 1 !important;
 }
-
 [class*="yab-tour-carousel-wrapper-"] .swiper-pagination-bullet-active,
-[class*="yab-hotel-carousel-wrapper-"] .swiper-pagination-bullet-active /* Added Hotel Carousel */ {
+[class*="yab-hotel-carousel-wrapper-"] .swiper-pagination-bullet-active {
     background-color: #00BAA4 !important;
 }
-
 [class*="yab-tour-carousel-wrapper-"] .swiper-button-disabled,
-[class*="yab-hotel-carousel-wrapper-"] .swiper-button-disabled /* Added Hotel Carousel */ {
-    opacity: 0.5 !important;
-    cursor: auto !important;
-    pointer-events: none !important;
+[class*="yab-hotel-carousel-wrapper-"] .swiper-button-disabled {
+    opacity: 0.5 !important; cursor: auto !important; pointer-events: none !important;
 }
-/* END: Scoped Swiper styles */
 
-/* START: Added Hotel Tag Styles for Frontend */
-.hotel-label-base {
-    margin-top: 7px;
-    width: fit-content;
-    border-radius: 3px;
-    padding: 2px 6px;
-    font-size: 11px;
-    line-height: 1;
-    display: inline-block;
-    box-sizing: border-box;
-}
-.hotel-label-luxury {
-    background: #333333;
-    color: #fff;
-}
-.hotel-label-business {
-    background: #DAF6FF;
-    color: #04A5D8;
-}
-.hotel-label-boutique {
-    background: #f8f3b0;
-    color: #a8a350;
-}
-.hotel-label-traditional {
-    background: #FAECE0;
-    color: #B68960;
-}
-.hotel-label-economy {
-    background: #FFE9F7;
-    color: #FF48C3;
-}
-.hotel-label-hostel {
-    background: #B0B0B0;
-    color: #FFF;
-}
-.hotel-label-default { /* Style for unrecognized tags */
-    background: #e0e0e0;
-    color: #555;
-}
-/* END: Added Hotel Tag Styles */
-.yab-hotel-card a:focus,
-.yab-hotel-card a:active{
-    outline: none!important;
-}
+
+/* --- Hotel Tag Styles --- */
+.hotel-label-base { margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block; box-sizing: border-box; }
+.hotel-label-luxury { background: #333333; color: #fff; }
+.hotel-label-business { background: #DAF6FF; color: #04A5D8; }
+.hotel-label-boutique { background: #f8f3b0; color: #a8a350; }
+.hotel-label-traditional { background: #FAECE0; color: #B68960; }
+.hotel-label-economy { background: #FFE9F7; color: #FF48C3; }
+.hotel-label-hostel { background: #B0B0B0; color: #FFF; }
+.hotel-label-default { background: #e0e0e0; color: #555; }
+.yab-hotel-card a:focus, .yab-hotel-card a:active { outline: none!important; }
+
+
+/* --- Flight Ticket & Promo Banner Styles --- */
+.promo-banner { width: 100%; min-height: 150px; border-radius: 16px; display: flex; align-items: center; padding: 0 12px; position: relative; isolation: isolate; box-sizing: border-box; }
+.promo-banner__background { width: 100%; height: 100%; position: absolute; right: 0; z-index: 1; border-radius: 16px; top: 0; left: 0; }
+.promo-banner__image-wrapper { width: 100%; height: 100%; position: absolute; right: 0; z-index: 2; border-radius: 16px; top: 0; left: 0; overflow: hidden; }
+.promo-banner__image-wrapper img { object-fit: contain; }
+.promo-banner__content { direction: ltr; display: flex; flex-direction: column; position: absolute; z-index: 3; margin-left: 16px; }
+.promo-banner__content_1 { line-height: normal; }
+.promo-banner__content_2 { line-height: normal;}
+.promo-banner__content_3 { line-height: normal; }
+
+/* Ticket Container */
+.ticket { width: 352px; height: 129px; position: relative; border-radius: 17px; display: flex; z-index: 50; margin-left: auto; box-sizing: border-box; direction: rtl; overflow: hidden; background-color: transparent; }
+.ticket__section { position: relative; z-index: 5; height: 100%; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; width: 50%; }
+.ticket__section--actions { align-items: center; gap: 21px; }
+.ticket__section--details { align-items: flex-end; }
+.ticket__city { display: flex; flex-direction: row; align-items: center; gap: 8px; padding-left: 22px; width: 100%; box-sizing: border-box; }
+.ticket__city-name { line-height: 19px; overflow-wrap: break-word; direction: ltr; padding-right: 20px; flex-grow: 1; text-align: left; }
+.ticket__city-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.ticket__city-dot--origin { background-color: #5191FA; }
+.ticket__city-dot--destination { background-color: #FF48C3; }
+.ticket__flight-path { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px; width: 100%; margin: 8px 0; }
+.ticket__flight-arrow--bottom { transform: rotate(180deg); }
+.ticket__price { display: flex; flex-direction: row-reverse; align-items: center; justify-content: center; gap: 7px; }
+.ticket__price-icon { display: flex; justify-content: center; align-items: center; width: 20px; height: 20px; }
+.ticket__price-label { display: flex; justify-content: center; align-items: center; font-weight: 400; font-size: 10px; line-height: 12px; color: #666666; }
+.ticket__price-amount { display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 17px; line-height: 21px; }
+.ticket__button { border-radius: 8px; padding: 10px 33px; cursor: pointer; }
+.ticket__button-text { font-size: 13px; font-weight: 600; line-height: 16px; display: flex; justify-content: center; align-items: center; }
+.ticket__flight-arrow--top{display: flex;align-items: flex-end;}
+.ticket__flight-arrow--bottom{display: flex;align-items: flex-start;}

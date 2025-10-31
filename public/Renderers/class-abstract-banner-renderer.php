@@ -42,9 +42,21 @@ if (!class_exists('Yab_Abstract_Banner_Renderer')) {
         }
 
         protected function get_image_style(array $b): string {
-            $right = isset($b['imagePosRight']) && $b['imagePosRight'] !== null ? intval($b['imagePosRight']) . 'px' : '0';
+            // --- START FIX: Added support for imagePosLeft with fallback to imagePosRight ---
+            $left = isset($b['imagePosLeft']) && $b['imagePosLeft'] !== null ? intval($b['imagePosLeft']) . 'px' : 'auto';
+            $right = isset($b['imagePosRight']) && $b['imagePosRight'] !== null ? intval($b['imagePosRight']) . 'px' : 'auto';
             $bottom = isset($b['imagePosBottom']) && $b['imagePosBottom'] !== null ? intval($b['imagePosBottom']) . 'px' : '0';
-            $style = "position: absolute; object-fit: cover; right: {$right}; bottom: {$bottom};";
+
+            // Priority is given to Left if set, otherwise Right is used (default/legacy behavior)
+            if ($left !== 'auto') {
+                $style = "position: absolute; object-fit: cover; left: {$left}; right: auto; bottom: {$bottom};";
+            } elseif ($right !== 'auto') {
+                $style = "position: absolute; object-fit: cover; right: {$right}; left: auto; bottom: {$bottom};";
+            } else {
+                // Fallback to absolute right: 0, bottom: 0 if neither are set
+                $style = "position: absolute; object-fit: cover; right: 0; bottom: 0;";
+            }
+            // --- END FIX ---
 
             if (!empty($b['enableCustomImageSize'])) {
                 $width_unit = isset($b['imageWidthUnit']) && in_array($b['imageWidthUnit'], ['px', '%']) ? $b['imageWidthUnit'] : 'px';

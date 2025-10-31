@@ -18,9 +18,22 @@ export const imageStyleObject = (b) => {
     const style = { 
         position: 'absolute', 
         objectFit: 'cover', // Always cover
-        right: `${b.imagePosRight||0}px`, 
-        bottom: `${b.imagePosBottom||0}px` 
+        bottom: `${b.imagePosBottom||0}px`,
+        // --- START FIX: Prioritize Left, default to Right if neither is properly set in legacy data ---
+        right: 'auto', // Reset right by default
+        left: 'auto'
     };
+
+    if (b.imagePosLeft !== undefined) {
+        // Use Left position if it exists (Flight Ticket / New Single)
+        style.left = `${b.imagePosLeft || 0}px`;
+        style.right = 'auto';
+    } else {
+        // Use Right position for legacy/default Single Banner behavior
+        style.right = `${b.imagePosRight || 0}px`;
+        style.left = 'auto';
+    }
+    // --- END FIX ---
 
     if (b.enableCustomImageSize) {
         // Use custom values if they exist, otherwise fallback to default

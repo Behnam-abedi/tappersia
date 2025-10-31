@@ -63,22 +63,8 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
                         placeholder_<?php echo $banner_id; ?>.style.position = '';
                         placeholder_<?php echo $banner_id; ?>.style.overflow = '';
 
-                        // پیدا کردن و اجرای مجدد تگ‌های اسکریپت (مخصوص اسکریپت clip-path)
-                        const scripts = placeholder_<?php echo $banner_id; ?>.querySelectorAll('script');
-                        scripts.forEach(oldScript => {
-                            const newScript = document.createElement('script');
-                            
-                            // کپی کردن اتریبیوت‌ها
-                            Array.from(oldScript.attributes).forEach(attr => {
-                                newScript.setAttribute(attr.name, attr.value);
-                            });
-                            
-                            // کپی کردن محتوای داخلی اسکریپت
-                            newScript.textContent = oldScript.textContent;
-                            
-                            // جایگزینی اسکریپت قدیمی با جدید برای اجرا شدن
-                            oldScript.parentNode.replaceChild(newScript, oldScript);
-                        });
+                        // حذف اجرای مجدد تگ‌های اسکریپت مرتبط با clip-path که اکنون حذف شده است
+                        // (چون SSR ما دیگر اسکریپت clip-path را بر نمی‌گرداند، این بخش نیازی به کدهای پیچیده ندارد)
 
                     } else {
                         console.error('Tappersia: Failed to load Flight Ticket banner:', result.data ? result.data.message : 'Unknown error');

@@ -107,9 +107,20 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
         }
 
         private function _get_image_style_for_flight(array $b): string {
-            $right = isset($b['imagePosRight']) && $b['imagePosRight'] !== null ? intval($b['imagePosRight']) . 'px' : '0';
+             // FIX: Prioritize Left for image position
+            $left = isset($b['imagePosLeft']) && $b['imagePosLeft'] !== null ? intval($b['imagePosLeft']) . 'px' : 'auto';
+            $right = isset($b['imagePosRight']) && $b['imagePosRight'] !== null ? intval($b['imagePosRight']) . 'px' : 'auto';
             $bottom = isset($b['imagePosBottom']) && $b['imagePosBottom'] !== null ? intval($b['imagePosBottom']) . 'px' : '0';
-            $style = "position: absolute; object-fit: cover; right: {$right}; bottom: {$bottom};";
+
+            if ($left !== 'auto') {
+                $style = "position: absolute; object-fit: cover; left: {$left}; right: auto; bottom: {$bottom};";
+            } elseif ($right !== 'auto') {
+                $style = "position: absolute; object-fit: cover; right: {$right}; left: auto; bottom: {$bottom};";
+            } else {
+                 $style = "position: absolute; object-fit: cover; right: 0; bottom: 0;";
+            }
+            // END FIX
+
             if (!empty($b['enableCustomImageSize'])) {
                 $width_unit = isset($b['imageWidthUnit']) && in_array($b['imageWidthUnit'], ['px', '%']) ? $b['imageWidthUnit'] : 'px';
                 $height_unit = isset($b['imageHeightUnit']) && in_array($b['imageHeightUnit'], ['px', '%']) ? $b['imageHeightUnit'] : 'px';
@@ -117,7 +128,7 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                 $height = isset($b['imageHeight']) && $b['imageHeight'] !== null && $b['imageHeight'] !== '' ? intval($b['imageHeight']) . $height_unit : '100%';
                 $style .= "width: {$width}; height: {$height};";
             } else {
-                $style .= 'width: auto; height: 100%;'; // Default behavior from single-banner
+                $style .= 'width: auto; height: 100%;'; // Default behavior
             }
             return $style;
         }
@@ -181,7 +192,8 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
             $defaults = [
                 'minHeight' => 150, 'borderRadius' => 16, 'padding' => 12,
                 'layerOrder' => 'overlay-below-image', 'backgroundType' => 'solid', 'bgColor' => '#CEE8F6',
-                'imageUrl' => 'https://www.textmagic.com/wp-content/uploads/2022/05/Nestle-Building.png',
+                'imageUrl' => '', // FIX: Default removed
+                'imagePosLeft' => 0, // FIX: Default added
                 'content1' => ['text' => 'Offering', 'color' => '#555555', 'fontSize' => 12, 'fontWeight' => '400'],
                 'content2' => ['text' => 'BEST DEALS', 'color' => '#111111', 'fontSize' => 18, 'fontWeight' => '700'],
                 'content3' => ['text' => 'on Iran Domestic Flight Booking', 'color' => '#333333', 'fontSize' => 14, 'fontWeight' => '400'],
@@ -243,6 +255,10 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
             $price_display = esc_html($cheapest_price_formatted);
             $url_display = esc_url($booking_url);
             
+            // Define the SVG image URL using the plugin constant
+            $plugin_url = defined('YAB_PLUGIN_URL') ? YAB_PLUGIN_URL : plugins_url('tappersia/') . 'tappersia/'; 
+            $svg_url = $plugin_url . 'assets/image/ticket-shape.svg'; 
+
             // --- START: Apply Dynamic Styles ---
             $promo_banner_style = sprintf(
                 'min-height: %spx; border-radius: %spx; padding: %spx;',
@@ -279,7 +295,7 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
             $to_city_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($design['toCity']['color']), esc_attr($design['toCity']['fontSize']), esc_attr($design['toCity']['fontWeight']));
             // --- END: Apply Dynamic Styles ---
 
-            // --- START: Updated HTML block ---
+            // --- START: Updated HTML block with SVG and removed JS ---
             $html = <<<HTML
             <div class="promo-banner" style="{$promo_banner_style}">
                 <div class="promo-banner__background" style="{$background_style}"></div>
@@ -290,8 +306,9 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                     <span class="promo-banner__content_3" style="{$content3_style}">{$design['content3']['text']}</span>
                 </div>
                 <div class="ticket" id="{$unique_id}">
-                    <div id="cutter-top-{$banner_id}" class="ticket__cutter ticket__cutter--top"></div>
-                    <div id="cutter-bottom-{$banner_id}" class="ticket__cutter ticket__cutter--bottom"></div>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 352px; height: 129px;">
+                        <img src="{$svg_url}" alt="Ticket Shape Background" style="width:100%; height:100%; object-fit: contain;">
+                    </div>
                     <div class="ticket__section ticket__section--actions">
                         <div class="ticket__price">
                             <div class="ticket__price-icon">
@@ -320,77 +337,8 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                     </div>
                 </div>
             </div>
-            
-            <script>
-            (function() {
-                var container = document.getElementById('{$unique_id}');
-                if (!container) return;
-                
-                var updateClipPath = function() {
-                    try {
-                        var cutters = container.querySelectorAll('.ticket__cutter');
-                        if (!cutters || cutters.length === 0) return;
-                        
-                        var pathString = 'M0,0 H' + container.offsetWidth + ' V' + container.offsetHeight + ' H0 Z';
-                        
-                        cutters.forEach(function(cutter) {
-                            var x = cutter.offsetLeft;
-                            var y = cutter.offsetTop;
-                            var width = cutter.offsetWidth;
-                            var r = width / 2;
-                            var cx = x + r;
-                            var cy = y + r;
-                            pathString += ' M' + (cx - r) + ',' + cy + ' A' + r + ',' + r + ' 0 1,0 ' + (cx + r) + ',' + cy + ' A' + r + ',' + r + ' 0 1,0 ' + (cx - r) + ',' + cy + ' Z';
-                        });
-                        
-                        var dashWidth = 1;
-                        var dashLength = 3;
-                        var gapLength = 3;
-                        var radius = 17 / 2;
-                        var centerX = container.offsetWidth / 2;
-                        var lineStartY = radius;
-                        var lineEndY = container.offsetHeight - radius;
-                        
-                        for (var y = lineStartY; y < lineEndY; y += (dashLength + gapLength)) {
-                            var startX = centerX - (dashWidth / 2);
-                            var endX = centerX + (dashWidth / 2);
-                            var currentDashEnd = y + dashLength;
-                            if (currentDashEnd > lineEndY) { currentDashEnd = lineEndY; }
-                            pathString += ' M' + startX + ',' + y + ' L' + endX + ',' + y + ' L' + endX + ',' + currentDashEnd + ' L' + startX + ',' + currentDashEnd + ' Z';
-                        }
-                        
-                        container.style.clipPath = "path(evenodd, '" + pathString + "')";
-                    } catch (e) {
-                        console.error('Error applying clip-path: ', e);
-                    }
-                };
-                
-                // Run on load
-                updateClipPath();
-                
-                // Re-run on resize
-                var resizeTimer;
-                var onResize = function() {
-                    clearTimeout(resizeTimer);
-                    resizeTimer = setTimeout(updateClipPath, 100);
-                };
-                window.addEventListener('resize', onResize);
-                
-                // Fallback for MutationObserver if needed, e.g., if styles load late
-                if (window.MutationObserver) {
-                    new MutationObserver(function(mutations) {
-                        for(var m of mutations) {
-                            if(m.type === 'attributes' && m.attributeName === 'style') {
-                                updateClipPath();
-                                break;
-                            }
-                        }
-                    }).observe(container, { attributes: true });
-                }
-            })();
-            </script>
 HTML;
-            // --- END: Updated HTML block ---
+            // --- END: Updated HTML block with SVG and removed JS ---
 
             wp_send_json_success(['html' => $html]);
             wp_die();

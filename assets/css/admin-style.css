@@ -1,5 +1,6 @@
 /*
  * Tappersia Admin Styles
+ * Cleaned for optimization.
  */
 
 /* Force Roboto font for the entire Vue app wrapper in the admin panel */
@@ -7,550 +8,136 @@
     font-family: 'Roboto', sans-serif !important;
 }
 
-/* * Ensure child elements inherit the font correctly,
- * but exclude WordPress Dashicons to prevent them from breaking.
-*/
 #yab-app *:not([class*="dashicons"]) {
     font-family: inherit !important;
 }
 
 
-/* --- General Styles --- */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 8px;
-  border-radius: 10px;
-}
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: #434343;
-  border-radius: 10px;
-}
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #656565;
-  border-radius: 10px;
-  border: 2px solid #434343;
-}
-.overflow-x-auto::-webkit-scrollbar {
-  height: 8px;
-  border-radius: 10px;
-}
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: #434343;
-  border-radius: 10px;
-}
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background-color: #656565;
-  border-radius: 10px;
-  border: 2px solid #434343;
-}
-#wpbody-content {
-    padding-bottom: 0 !important;
-}
+/* --- General Admin Layout & Scrollbars --- */
+.overflow-y-auto::-webkit-scrollbar { width: 8px; border-radius: 10px; }
+.overflow-y-auto::-webkit-scrollbar-track { background: #434343; border-radius: 10px; }
+.overflow-y-auto::-webkit-scrollbar-thumb { background-color: #656565; border-radius: 10px; border: 2px solid #434343; }
+.overflow-x-auto::-webkit-scrollbar { height: 8px; border-radius: 10px; }
+.overflow-x-auto::-webkit-scrollbar-track { background: #434343; border-radius: 10px; }
+.overflow-x-auto::-webkit-scrollbar-thumb { background-color: #656565; border-radius: 10px; border: 2px solid #434343; }
+#wpbody-content { padding-bottom: 0 !important; }
+.metabox-prefs, .hide-if-no-js, .screen-meta-toggle,#wpfooter { display: none!important; }
+#wpbody { background-color:#232323!important ; }
 
-.yab-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-}
-.metabox-prefs, .hide-if-no-js, .screen-meta-toggle,#wpfooter {
-  display: none!important;
-}
-#wpbody{
-  background-color:#232323!important ;
-}
+
+/* --- Loading States & Spinners --- */
 .yab-spinner {
-    border: 4px solid rgba(0, 186, 164, 0.2); /* Lighter track color */
-    border-top: 4px solid #00baa4; /* Blue spinner color */
+    border: 4px solid rgba(0, 186, 164, 0.2);
+    border-top: 4px solid #00baa4;
     border-radius: 50%;
     animation: yab-spin 1s linear infinite;
 }
+@keyframes yab-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-
-.yab-image-loader-container {
-    position: relative;
-    width: 96px;
-    height: 96px;
-    flex-shrink: 0;
-    background-color: #292929;
-    border-radius: 0.375rem;
-    overflow: hidden;
-}
-
-/* *** FIX: Corrected Skeleton Loader styles for proper animation *** */
-.yab-skeleton-loader {
-    position: relative; /* Changed from absolute */
-    overflow: hidden;
-}
+.yab-image-loader-container { position: relative; width: 96px; height: 96px; flex-shrink: 0; background-color: #292929; border-radius: 0.375rem; overflow: hidden; }
+.yab-skeleton-loader { position: relative; overflow: hidden; }
 .yab-skeleton-loader::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
+    content: ''; position: absolute; inset: 0; transform: translateX(-100%);
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
     animation: yab-shimmer 1.5s infinite;
 }
+@keyframes yab-shimmer { 100% { transform: translateX(100%); } }
 
-.yab-image-loader-container img {
-    transition: opacity 0.3s ease-in-out;
-}
+/* --- Vue Transitions & UI Elements --- */
+.yab-modal-fade-enter-active, .yab-modal-fade-leave-active { transition: opacity 0.3s ease-in-out; }
+.yab-modal-fade-enter-from, .yab-modal-fade-leave-to { opacity: 0; }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+.yab-sortable-ghost { opacity: 0.4; background: #00baa4; }
 
-@keyframes yab-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes yab-shimmer {
-    100% {
-        transform: translateX(100%);
-    }
-}
-
-/* START: Added styles for disabled Swiper buttons */
-.swiper-button-disabled {
-    opacity: 0.35 !important;
-    cursor: auto !important;
-    pointer-events: none !important;
-}
-/* END: Added styles */
+.section-title { color: #fff; font-size: 15px; margin-bottom: 8px; background: #656565; padding: 5px 10px; border-radius: 7px; font-weight: 600; }
+.section-divider { height: 1px; margin: 12px 0; background-color: #656565; border: 0; }
+.tab-button { text-align: center; padding: 6px 0; cursor: pointer; color: #fff; transition: all 0.2s; border: none; background: transparent; }
+.active-tab { background: #00baa4; font-weight: bold; }
 
 
-.filter-label { display: block; font-size: 0.875rem; font-weight: 500; color: #d1d5db; margin-bottom: 8px; }
-.filter-input { width: 100%; background: #434343; border: 1px solid #6b7280; color: white; padding: 8px 12px; border-radius: 6px; }
+/* --- Form Elements & Inputs --- */
+.setting-label { display: block; font-size: 0.875rem; font-weight: 500; color: #d1d5db; margin-bottom: 8px; }
+.setting-label-sm { display: block; font-size: 0.75rem; font-weight: 500; color: #9ca3af; margin-bottom: 4px; }
+.yab-form-input { width: 100%; height: 40px; background: #292929; border: 1px solid #656565; border-radius: 6px; padding: 0 12px; color: #ffffff; transition: border-color 0.2s; }
+.yab-form-input:focus { outline: none; border-color: #00baa4; box-shadow: 0 0 0 2px rgba(0, 186, 164, 0.5); }
+textarea.yab-form-input { height: auto; padding-top: 8px; padding-bottom: 8px; }
+
+/* Color Picker & Range Inputs */
 input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: #4b5563; border-radius: 5px; outline: none; }
 input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #00baa4; cursor: pointer; border-radius: 50%; }
 input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: #00baa4; cursor: pointer; border-radius: 50%; }
-.yab-modal-fade-enter-active,
-.yab-modal-fade-leave-active {
-  transition: opacity 0.3s ease-in-out;
-}
 
-.yab-modal-fade-enter-from,
-.yab-modal-fade-leave-to {
-  opacity: 0;
-}
-
-.yab-modal-fade-enter-active .transform,
-.yab-modal-fade-leave-active .transform {
-  transition: all 0.3s ease-in-out;
-}
-
-.yab-modal-fade-enter-from .transform,
-.yab-modal-fade-leave-to .transform {
-  transform: scale(0.95);
-  opacity: 0;
-}
-
-/* Page Fade Animation */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
+/* --- Search & Checkbox (Display Conditions) --- */
+.filter-label { display: block; font-size: 0.875rem; font-weight: 500; color: #d1d5db; margin-bottom: 8px; }
+.filter-input { width: 100%; background: #434343; border: 1px solid #6b7280; color: white; padding: 8px 12px; border-radius: 6px; }
+.checkbox-label { display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; }
+.checkbox-label:hover { background-color: #333; }
+.checkbox-custom { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid #888; border-radius: 6px; transition: all 0.2s; }
+.peer:checked ~ .checkbox-custom { background-color: #00baa4; border-color: #00baa4; }
+.checkbox-text { color: #d1d5db; transition: color 0.2s; }
+.checkbox-label:hover .checkbox-text { color: white; }
 
 
-/* New & Updated UI Helper Classes */
-.setting-label {
-    display: block;
-    font-size: 0.875rem; /* 14px */
-    font-weight: 500;
-    color: #d1d5db; /* gray-300 */
-    margin-bottom: 8px;
-}
-.setting-label-sm {
-    display: block;
-    font-size: 0.75rem; /* 12px */
-    font-weight: 500;
-    color: #9ca3af; /* gray-400 */
-    margin-bottom: 4px;
-}
+/* --- Hotel/Tour Carousel Tags (Used in Modals) --- */
+.hotel-label-base { margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block; box-sizing: border-box; }
+.hotel-label-luxury { background: #333333; color: #fff; }
+.hotel-label-business { background: #DAF6FF; color: #04A5D8; }
+.hotel-label-boutique { background: #f8f3b0; color: #a8a350; }
+.hotel-label-traditional { background: #FAECE0; color: #B68960; }
+.hotel-label-economy { background: #FFE9F7; color: #FF48C3; }
+.hotel-label-hostel { background: #B0B0B0; color: #FFF; }
+.hotel-label-default { background: #e0e0e0; color: #555; }
 
-/* Modern Form Inputs */
-.yab-form-input {
-    width: 100%;
-    height: 40px;
-    background: #292929;
-    border: 1px solid #656565;
-    border-radius: 6px;
-    padding: 0 12px;
-    color: #ffffff;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.yab-form-input:focus {
-    outline: none;
-    border-color: #00baa4;
-    box-shadow: 0 0 0 2px rgba(0, 186, 164, 0.5);
-}
-textarea.yab-form-input {
-    height: auto;
-    padding-top: 8px;
-    padding-bottom: 8px;
-}
 
-/* Custom Color Picker Component */
-.yab-color-input-wrapper {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 40px;
-    background: #292929;
-    border: 1px solid #656565;
-    color: #ffffff;
-    border-radius: 6px;
-    overflow: hidden;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.yab-color-input-wrapper .yab-color-picker {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: 40px;
-    height: 40px;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    flex-shrink: 0;
-    margin-left: 1px;
-    border-radius: 14px;
-}
-
-.yab-color-input-wrapper .yab-color-picker:focus,
-.yab-color-input-wrapper .yab-hex-input:focus {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-
-.yab-color-input-wrapper .yab-color-picker:active {
-    outline: none !important;
-    border: none !important;
-}
-
-.yab-color-input-wrapper .yab-color-picker::-webkit-color-swatch {
-    border-radius: 0;
-    border: none;
-}
-
-.yab-color-input-wrapper .yab-color-picker::-moz-color-swatch {
-    border-radius: 0;
-    border: none;
-}
-
-.yab-color-input-wrapper .yab-hex-input {
-    flex-grow: 1;
-    background: transparent;
-    border: none;
-    color: #ffffff;
-    padding-left: 12px;
-    height: 100%;
-    border-left: 1px solid #656565;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    margin-left: 1px;
-}
-
-.swiper-pagination-bullet{
-    width: 20px !important;
-    height: 6px!important;
-    border-radius: 4px!important;
-    background-color: rgba(0, 186, 164, 0.31);
-}
-.swiper-pagination-bullet-active{
-    background-color: #00BAA4!important;
-}
-.yab-sortable-ghost {
-    opacity: 0.4;
-    background: #00baa4;
-}
-
-/* START: Added Hotel Tag Styles */
-.hotel-label-base {
-    margin-top: 7px;
-    width: fit-content;
-    border-radius: 3px;
-    padding: 2px 6px;
-    font-size: 11px;
-    line-height: 1;
-    display: inline-block;
-    box-sizing: border-box; /* Add this */
-}
-.hotel-label-luxury {
-    background: #333333;
-    color: #fff;
-}
-.hotel-label-business {
-    background: #DAF6FF;
-    color: #04A5D8;
-}
-.hotel-label-boutique {
-    background: #f8f3b0;
-    color: #a8a350;
-}
-.hotel-label-traditional {
-    background: #FAECE0;
-    color: #B68960;
-}
-.hotel-label-economy {
-    background: #FFE9F7;
-    color: #FF48C3;
-}
-.hotel-label-hostel {
-    background: #B0B0B0;
-    color: #FFF;
-}
-.hotel-label-default { /* Style for unrecognized tags */
-    background: #e0e0e0;
-    color: #555;
-}
-/* END: Added Hotel Tag Styles */
-.yab-hotel-card a:focus,
-.yab-hotel-card a:active{
-    outline: none!important;
-}
-
-/* START: Added Flight Ticket Preview Styles */
-/* =========================
-    Promotional Banner
-    ========================= */
+/* --- Flight Ticket & Promo Banner Preview Styles --- */
+/* Base Promo Banner Container */
 #yab-app .promo-banner {
-  width: 100%;
-  min-height: 150px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  position: relative;
-  /* Added for stacking context */
-  isolation: isolate;
-  box-sizing: border-box; /* Added for safety */
+  width: 100%; min-height: 150px; border-radius: 16px; display: flex; align-items: center; padding: 0 12px;
+  position: relative; isolation: isolate; box-sizing: border-box;
 }
 
+/* Background/Overlay */
 #yab-app .promo-banner__background {
-  width: 100%;
-  height: 100%;
-  background-color: #CEE8F6;
-  position: absolute;
-  right: 0;
-  z-index: 1;
-  border-radius: 16px;
-  /* Ensure it's inside the parent */
-  top: 0;
-  left: 0;
+  width: 100%; height: 100%; position: absolute; right: 0; z-index: 1; border-radius: 16px; top: 0; left: 0;
 }
 
+/* Image Wrapper */
 #yab-app .promo-banner__image-wrapper {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  right: 0;
-  z-index: 2;
-  border-radius: 16px;
-  /* Ensure it's inside the parent */
-  top: 0;
-  left: 0;
-  overflow: hidden; /* Added */
+  width: 100%; height: 100%; position: absolute; right: 0; z-index: 2; border-radius: 16px; top: 0; left: 0; overflow: hidden;
 }
-
 #yab-app .promo-banner__image-wrapper img {
-  width: 50px;
-  height: 100%;
-  position: absolute;
-  left: 188px;
-  object-fit: contain; /* Added */
+  width: 50px; height: 100%; position: absolute; left: 188px; object-fit: contain;
 }
 
+/* Text Content */
 #yab-app .promo-banner__content {
-  direction: ltr;
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  z-index: 3;
-  left: 16px;
-  /* Added text colors for visibility in dark admin */
-  color: #333; 
+  direction: ltr; display: flex; flex-direction: column; position: absolute; z-index: 3; margin-left: 16px;
 }
+#yab-app .promo-banner__content_1 { line-height: normal; }
+#yab-app .promo-banner__content_2 { line-height: normal;}
+#yab-app .promo-banner__content_3 { line-height: normal; }
 
-/* Added text colors for visibility */
-#yab-app .promo-banner__content_1 { font-size: 12px; color: #555; }
-#yab-app .promo-banner__content_2 { font-size: 18px; font-weight: bold; color: #111; }
-#yab-app .promo-banner__content_3 { font-size: 14px; color: #333; }
-
-/* =========================
-    Ticket Container
-    ========================= */
+/* Ticket Container */
 #yab-app .ticket {
-  width: 352px;
-  height: 129px;
-  background-color: rgb(255, 255, 255);
-  position: relative; 
-  border-radius: 17px;
-  display: flex;
-  z-index: 50;
-  margin-left: auto; /* Push to the right */
-  box-sizing: border-box; /* Added for safety */
-  direction: rtl;
+  width: 352px; height: 129px; position: relative; border-radius: 17px; display: flex; z-index: 50;
+  margin-left: auto; box-sizing: border-box; direction: rtl; overflow: hidden;
 }
-
-/* Ticket Cutters */
-#yab-app .ticket__cutter {
-  position: absolute;
-  border-radius: 50%;
-  width: 17px;
-  height: 17px;
-  left: 50%;
-  margin-left: -8.5px;
-  opacity: 0; /* These are used by the clip-path JS */
-}
-
-#yab-app .ticket__cutter--top {
-  top: -8.5px;
-}
-
-#yab-app .ticket__cutter--bottom {
-  bottom: -8.5px;
-}
-
-/* =========================
-    Ticket Sections
-    ========================= */
-#yab-app .ticket__section {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 50%;
-}
-
-#yab-app .ticket__section--actions {
-  align-items: center;
-  gap: 21px;
-}
-
-#yab-app .ticket__section--details {
-  align-items: flex-end; 
-}
-
-/* =========================
-    Flight Details
-    ========================= */
-#yab-app .ticket__city {
-  display: flex;
-  flex-direction: row;
-  color: #000000;
-  align-items: center;
-  gap: 8px;
-  padding-left: 22px;
-  width: 100%; /* Added for proper alignment */
-  box-sizing: border-box; /* Added */
-}
-
-#yab-app .ticket__city-name {
-  font-size: 16px;
-  font-weight: bold;
-  line-height: 19px;
-  overflow-wrap: break-word;
-  direction: ltr;
-  padding-right: 20px;
-  flex-grow: 1; /* Added */
-  text-align: left; /* Added */
-  color: #000000; /* Ensure text is visible */
-}
-
-#yab-app .ticket__city-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  flex-shrink: 0; /* Added */
-}
-
-#yab-app .ticket__city-dot--origin {
-  background-color: #5191FA;
-}
-
-#yab-app .ticket__city-dot--destination {
-  background-color: #FF48C3;
-}
-
-/* Flight Path */
-#yab-app .ticket__flight-path {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  margin: 8px 0;
-}
-
-#yab-app .ticket__flight-arrow--top {
-}
-
-#yab-app .ticket__flight-arrow--bottom {
-  transform: rotate(180deg);
-}
-
-/* =========================
-    Price Display
-    ========================= */
-#yab-app .ticket__price {
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-}
-
-#yab-app .ticket__price-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 20px;
-  height: 20px;
-}
-
-#yab-app .ticket__price-label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 400;
-  font-size: 10px;
-  line-height: 12px;
-  color: #666666;
-}
-
-#yab-app .ticket__price-amount {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 700;
-  font-size: 17px;
-  line-height: 21px;
-  color: #00BAA4;
-}
-
-/* =========================
-    Booking Button
-    ========================= */
-#yab-app .ticket__button {
-  background-color: #1EC2AF;
-  border-radius: 8px;
-  padding: 10px 33px;
-  cursor: pointer;
-}
-
-#yab-app .ticket__button-text {
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 16px;
-  color: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-/* END: Added Flight Ticket Preview Styles */
+#yab-app .ticket__section { position: relative; z-index: 4; height: 100%; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; width: 50%; }
+#yab-app .ticket__section--actions { align-items: center; gap: 21px; }
+#yab-app .ticket__section--details { align-items: flex-end; }
+#yab-app .ticket__city { display: flex; flex-direction: row; align-items: center; gap: 8px; padding-left: 22px; width: 100%; box-sizing: border-box; }
+#yab-app .ticket__city-name { line-height: 19px; overflow-wrap: break-word; direction: ltr; padding-right: 20px; flex-grow: 1; text-align: left; }
+#yab-app .ticket__city-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+#yab-app .ticket__city-dot--origin { background-color: #5191FA; }
+#yab-app .ticket__city-dot--destination { background-color: #FF48C3; }
+#yab-app .ticket__flight-path { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px; width: 100%; margin: 8px 0; }
+#yab-app .ticket__flight-arrow--bottom { transform: rotate(180deg); }
+#yab-app .ticket__price { display: flex; flex-direction: row-reverse; align-items: center; justify-content: center; gap: 7px; }
+#yab-app .ticket__price-icon { display: flex; justify-content: center; align-items: center; width: 20px; height: 20px; }
+#yab-app .ticket__price-label { display: flex; justify-content: center; align-items: center; font-weight: 400; font-size: 10px; line-height: 12px; color: #666666; }
+#yab-app .ticket__price-amount { display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 17px; line-height: 21px; }
+#yab-app .ticket__button { border-radius: 8px; padding: 10px 33px; cursor: pointer; }
+#yab-app .ticket__button-text { font-size: 13px; font-weight: 600; line-height: 16px; display: flex; justify-content: center; align-items: center; }
+#yab-app .ticket__flight-arrow--top{display: flex;align-items: center;}
+#yab-app .icket__flight-arrow--bottom{display: flex;align-items: center;}

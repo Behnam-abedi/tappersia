@@ -76,12 +76,15 @@ export function useFlightTicket(banner, showModal, ajax) {
 
         // 1. Get tomorrow's date
         const tomorrow = new Date();
+        console.log(tomorrow);
+        
         tomorrow.setDate(tomorrow.getDate() + 1);
         const yyyy = tomorrow.getFullYear();
         const mm = String(tomorrow.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
         const dd = String(tomorrow.getDate()).padStart(2, '0');
         const departureDate = `${yyyy}-${mm}-${dd}`;
-
+        console.log(departureDate);
+        
         // 2. Get data from banner state
         const from = banner.flight_ticket.from;
         const to = banner.flight_ticket.to;

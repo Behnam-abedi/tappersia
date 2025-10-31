@@ -113,10 +113,10 @@
                 </div>
                 <div class="grid grid-cols-2 gap-2 mt-2">
                     <div>
-                        <label class="setting-label-sm">Right (px)</label>
+                        <label class="setting-label-sm">Left (px)</label>
                         <input type="number" 
-                               :value="settings.imagePosRight" 
-                               @input="settings.imagePosRight = parseInt($event.target.value)" 
+                               :value="settings.imagePosLeft" 
+                               @input="settings.imagePosLeft = parseInt($event.target.value)" 
                                class="yab-form-input">
                     </div>
                     <div><label class="setting-label-sm">Bottom (px)</label><input type="number" :value="settings.imagePosBottom" @input="settings.imagePosBottom = parseInt($event.target.value)" class="yab-form-input"></div>
@@ -139,7 +139,7 @@
                            class="yab-form-input">
                 </div>
                 <div class="grid grid-cols-3 gap-2 mt-2">
-                    <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" :value="content.color" @input="settings.content1.color = $event.target.value; console.log('DEBUG: SET content1.color ->', settings.content1.color)" data-coloris class="yab-form-input clr-field flex-grow"></div></div>
+                    <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" :value="content.color" @input="settings.content1.color = $event.target.value" data-coloris class="yab-form-input clr-field flex-grow"></div></div>
                     <div><label class="setting-label-sm">Size (px)</label><input type="number" :value="content.fontSize" @input="settings.content1.fontSize = parseInt($event.target.value)" class="yab-form-input"></div>
                     <div><label class="setting-label-sm">Weight</label><select :value="content.fontWeight" @input="settings.content1.fontWeight = $event.target.value" class="yab-form-input"><option value="400">400</option><option value="500">500</option><option value="600">600</option><option value="700">700</option></select></div>
                 </div>
@@ -150,7 +150,7 @@
                 <h4 class="section-title">Content 2 (e.g., "BEST DEALS")</h4>
                 <div><label class="setting-label-sm">Text</label><input type="text" :value="content.text" @input="settings.content2.text = $event.target.value" class="yab-form-input"></div>
                 <div class="grid grid-cols-3 gap-2 mt-2">
-                    <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" :value="content.color" @input="settings.content2.color = $event.target.value; console.log('DEBUG: SET content2.color ->', settings.content2.color)" data-coloris class="yab-form-input clr-field flex-grow"></div></div>
+                    <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" :value="content.color" @input="settings.content2.color = $event.target.value" data-coloris class="yab-form-input clr-field flex-grow"></div></div>
                     <div><label class="setting-label-sm">Size (px)</label><input type="number" :value="content.fontSize" @input="settings.content2.fontSize = parseInt($event.target.value)" class="yab-form-input"></div>
                     <div><label class="setting-label-sm">Weight</label><select :value="content.fontWeight" @input="settings.content2.fontWeight = $event.target.value" class="yab-form-input"><option value="400">400</option><option value="500">500</option><option value="600">600</option><option value="700">700</option></select></div>
                 </div>
@@ -161,7 +161,7 @@
                 <h4 class="section-title">Content 3 (e.g., "on Iran...")</h4>
                 <div><label class="setting-label-sm">Text</label><input type="text" :value="content.text" @input="settings.content3.text = $event.target.value" class="yab-form-input"></div>
                 <div class="grid grid-cols-3 gap-2 mt-2">
-                    <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" :value="content.color" @input="settings.content3.color = $event.target.value; console.log('DEBUG: SET content3.color ->', settings.content3.color)" data-coloris class="yab-form-input clr-field flex-grow"></div></div>
+                    <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" :value="content.color" @input="settings.content3.color = $event.target.value" data-coloris class="yab-form-input clr-field flex-grow"></div></div>
                     <div><label class="setting-label-sm">Size (px)</label><input type="number" :value="content.fontSize" @input="settings.content3.fontSize = parseInt($event.target.value)" class="yab-form-input"></div>
                     <div><label class="setting-label-sm">Weight</label><select :value="content.fontWeight" @input="settings.content3.fontWeight = $event.target.value" class="yab-form-input"><option value="400">400</option><option value="500">500</option><option value="600">600</option><option value="700">700</option></select></div>
                 </div>
@@ -182,7 +182,7 @@
                             <div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div>
                             <input type="text" 
                                    :value="content.color" 
-                                   @input="settings.price.color = $event.target.value; console.log('DEBUG: SET price.color ->', settings.price.color)" 
+                                   @input="settings.price.color = $event.target.value" 
                                    data-coloris 
                                    class="yab-form-input clr-field flex-grow">
                         </div>
@@ -202,7 +202,7 @@
                             <div :style="{ backgroundColor: content.bgColor }" class="w-8 h-[40px] rounded border border-gray-500"></div>
                             <input type="text" 
                                    :value="content.bgColor" 
-                                   @input="settings.button.bgColor = $event.target.value; console.log('DEBUG: SET button.bgColor ->', settings.button.bgColor)" 
+                                   @input="settings.button.bgColor = $event.target.value" 
                                    data-coloris 
                                    class="yab-form-input clr-field flex-grow">
                         </div>
@@ -223,7 +223,7 @@
                             <div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div>
                             <input type="text" 
                                    :value="content.color" 
-                                   @input="settings.fromCity.color = $event.target.value; console.log('DEBUG: SET fromCity.color ->', settings.fromCity.color)" 
+                                   @input="settings.fromCity.color = $event.target.value" 
                                    data-coloris 
                                    class="yab-form-input clr-field flex-grow">
                         </div>
@@ -243,7 +243,7 @@
                             <div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div>
                             <input type="text" 
                                    :value="content.color" 
-                                   @input="settings.toCity.color = $event.target.value; console.log('DEBUG: SET toCity.color ->', settings.toCity.color)" 
+                                   @input="settings.toCity.color = $event.target.value" 
                                    data-coloris 
                                    class="yab-form-input clr-field flex-grow">
                         </div>

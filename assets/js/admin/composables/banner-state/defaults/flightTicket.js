@@ -26,13 +26,13 @@ export const createDefaultFlightTicketPart = () => ({
         ],
         
         // .promo-banner__image-wrapper (Image) - Mirrored from singleBanner
-        imageUrl: 'https://www.textmagic.com/wp-content/uploads/2022/05/Nestle-Building.png', // Default image
+        imageUrl: '', // <<<< FIX: Removed default image URL
         enableCustomImageSize: false,
         imageWidth: null,
         imageWidthUnit: 'px',
         imageHeight: null,
         imageHeightUnit: 'px',
-        imagePosRight: 0,
+        imagePosLeft: 0, // <<<< FIX: Changed to Left
         imagePosBottom: 0,
         
         // .promo-banner__content (Texts)
