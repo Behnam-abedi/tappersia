@@ -68,6 +68,51 @@ export function useFlightTicket(banner, showModal, ajax) {
         }
     };
 
+    // START: Added bookingUrl computed property
+    const bookingUrl = computed(() => {
+        if (!banner.flight_ticket.from || !banner.flight_ticket.to) {
+            return '#'; // Return placeholder if data is missing
+        }
+
+        // 1. Get tomorrow's date
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const yyyy = tomorrow.getFullYear();
+        const mm = String(tomorrow.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const dd = String(tomorrow.getDate()).padStart(2, '0');
+        const departureDate = `${yyyy}-${mm}-${dd}`;
+
+        // 2. Get data from banner state
+        const from = banner.flight_ticket.from;
+        const to = banner.flight_ticket.to;
+
+        // 3. Build URL parts
+        const baseUrl = 'https://www.tappersia.com/iran-flights/';
+        // Sanitize city names for URL path (e.g., "Tehran" -> "tehran", "Qeshm Island" -> "qeshm-island")
+        const fromCityPath = from.city.toLowerCase().replace(/\s+/g, '-');
+        const toCityPath = to.city.toLowerCase().replace(/\s+/g, '-');
+        
+        const path = `${fromCityPath}/${toCityPath}`;
+
+        // 4. Build query parameters
+        const params = new URLSearchParams({
+            fromCountryName: from.countryName,
+            fromCityName: from.city,
+            fromAirportCode: from.iataCode,
+            toCountryName: to.countryName,
+            toCityName: to.city,
+            toAirportCode: to.iataCode,
+            departureDate: departureDate,
+            pageNumber: 1,
+            pageSize: 10,
+            sort: 'earliest_time'
+        });
+
+        // 5. Combine and return
+        return `${baseUrl}${path}?${params.toString()}`;
+    });
+    // END: Added bookingUrl computed property
+
     const openFlightModal = async () => {
         isFlightModalOpen.value = true;
         
@@ -164,5 +209,6 @@ export function useFlightTicket(banner, showModal, ajax) {
         isAirportSelected,
         confirmAirportSelection,
         fetchCheapestFlight, // Expose for use in main.js
+        bookingUrl, // START: Expose the new computed property
     };
 }

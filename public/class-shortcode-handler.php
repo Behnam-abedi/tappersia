@@ -24,7 +24,8 @@ if (!class_exists('Yab_Shortcode_Handler')) {
             $banner_types = [
                 'singlebanner', 'doublebanner', 'apibanner', 'simplebanner',
                 'stickysimplebanner', 'promotionbanner', 'contenthtml',
-                'contenthtmlsidebar', 'tourcarousel', 'hotelcarousel', 'welcomepackage' // Added 'welcomepackage'
+                'contenthtmlsidebar', 'tourcarousel', 'hotelcarousel', 'welcomepackage',
+                'flightticket' // START: Added 'flightticket'
             ];
             foreach ($banner_types as $type) {
                 add_shortcode($type, [$this, 'render_embeddable_banner']);
@@ -120,7 +121,8 @@ if (!class_exists('Yab_Shortcode_Handler')) {
                 'contenthtmlsidebar' => 'content-html-sidebar-banner',
                 'tourcarousel' => 'tour-carousel',
                 'hotelcarousel' => 'hotel-carousel',
-                'welcomepackage' => 'welcome-package-banner', // Added mapping
+                'welcomepackage' => 'welcome-package-banner',
+                'flightticket' => 'flight-ticket', // START: Added mapping
             ];
             return $map[$tag] ?? '';
         }

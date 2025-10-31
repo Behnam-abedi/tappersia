@@ -5,11 +5,10 @@
     <h3 class="preview-title">Live Preview</h3>
     
     <div v-if="!banner.flight_ticket.from || !banner.flight_ticket.to" class="flex flex-col items-center justify-center h-80 bg-[#292929] rounded-lg p-6">
-        <span class="dashicons dashicons-airplane text-6xl text-gray-600 mb-4"></span>
-        <p class="text-gray-500">Please select an origin and destination.</p>
+        <p class="text-gray-500 pt-[30px]">Please select an origin and destination.</p>
     </div>
     
-    <div v-else class="bg-[#292929] rounded-lg p-6 overflow-hidden"> <?php // START: Added custom flight ticket HTML template as requested ?>
+    <div v-else class="bg-[#292929] rounded-lg p-6 overflow-hidden">
         <div class="promo-banner">
             <div class="promo-banner__background"></div>
             
@@ -23,7 +22,7 @@
               <span class="promo-banner__content_3">on Iran Domestic Flight Booking</span>
             </div>
             
-            <div class="ticket" id="flight-ticket-preview-container"> <?php // Added ID for script targeting ?>
+            <div class="ticket" id="flight-ticket-preview-container">
               <div id="cutter-top" class="ticket__cutter ticket__cutter--top"></div>
               <div id="cutter-bottom" class="ticket__cutter ticket__cutter--bottom"></div>
         
@@ -39,18 +38,26 @@
                     <span>From</span>
                   </div>
                   <div class="ticket__price-amount">
-                    <span>$250</span>
-                  </div>
+                    <span v-if="banner.flight_ticket.isLoadingFlights">...</span>
+                    <span v-else-if="banner.flight_ticket.cheapestPrice !== null">
+                        €{{ banner.flight_ticket.cheapestPrice.toFixed(2) }}
+                    </span>
+                    <span v-else>N/A</span>
+                    </div>
                 </div>
-                
-                <div class="ticket__button">
-                  <a href="#" style="text-decoration: none;"><span class="ticket__button-text">Book Now</span></a>
+                <div>
+                    <a :href="bookingUrl" target="_blank" style="text-decoration: none;">
+                        <div class="ticket__button">
+                            <span class="ticket__button-text">Book Now</span>
+                        </div>
+                    </a>
                 </div>
+
               </div>
         
               <div class="ticket__section ticket__section--details">
                 <div class="ticket__city">
-                  <span class="ticket__city-name ticket-from-country">Qeshm Island Island</span>
+                  <span class="ticket__city-name ticket-from-country">{{ banner.flight_ticket.from ? banner.flight_ticket.from.city : 'Origin' }}</span>
                   <div class="ticket__city-dot ticket__city-dot--origin"></div>
                 </div>
         
@@ -70,15 +77,11 @@
                 </div>
         
                 <div class="ticket__city">
-                  <span class="ticket__city-name ticket-to-country">Tehran</span>
+                  <span class="ticket__city-name ticket-to-country">{{ banner.flight_ticket.to ? banner.flight_ticket.to.city : 'Destination' }}</span>
                   <div class="ticket__city-dot ticket__city-dot--destination"></div>
                 </div>
               </div>
             </div>
           </div>
-        <?php // END: Added custom flight ticket HTML ?>
     </div>
-    </div>
-
-<?php // We can't run the script here as Vue will strip it. I have added the style to admin-style.css ?>
-<?php // The clip-path script will need to be added to your main.js file and triggered on a Vue 'watch' or 'nextTick' to function correctly. ?>
+</div>

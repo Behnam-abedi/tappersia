@@ -31,7 +31,6 @@
         </div>
          <div v-else-if="banner.flight_ticket.cheapestPrice !== null" class="text-center">
              <span class="text-2xl font-bold text-green-400">€{{ banner.flight_ticket.cheapestPrice.toFixed(2) }}</span>
-             <span class="text-xs text-gray-400"> (Cheapest)</span>
         </div>
         <div v-else class="text-center text-gray-500">
             Select origin and destination to search for prices.

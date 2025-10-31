@@ -54,10 +54,20 @@ class Yab_Flight_Ticket {
     
         foreach ($data as $key => $value) {
             if ($key === 'flight_ticket' && is_array($value)) {
+                // START: Updated logic to save full airport objects
                 $sanitized['flight_ticket'] = [
-                    'fromAirportCode' => isset($value['fromAirportCode']) ? sanitize_text_field($value['fromAirportCode']) : null,
-                    'toAirportCode' => isset($value['toAirportCode']) ? sanitize_text_field($value['toAirportCode']) : null,
+                    'from' => isset($value['from']) && is_array($value['from']) ? [
+                        'countryName' => isset($value['from']['countryName']) ? sanitize_text_field($value['from']['countryName']) : null,
+                        'city' => isset($value['from']['city']) ? sanitize_text_field($value['from']['city']) : null,
+                        'iataCode' => isset($value['from']['iataCode']) ? sanitize_text_field($value['from']['iataCode']) : null,
+                    ] : null,
+                    'to' => isset($value['to']) && is_array($value['to']) ? [
+                        'countryName' => isset($value['to']['countryName']) ? sanitize_text_field($value['to']['countryName']) : null,
+                        'city' => isset($value['to']['city']) ? sanitize_text_field($value['to']['city']) : null,
+                        'iataCode' => isset($value['to']['iataCode']) ? sanitize_text_field($value['to']['iataCode']) : null,
+                    ] : null,
                 ];
+                // END: Updated logic
             } elseif (is_array($value)) {
                 $sanitized[$key] = $this->sanitize_banner_data($value);
             } elseif (is_bool($value)) {
