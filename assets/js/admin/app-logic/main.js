@@ -87,6 +87,13 @@ export function initializeApp(yabData) {
                         apiBannerLogic.fetchFullTourDetails(banner.api.selectedTour.id);
                     }
 
+                    // START: Added logic for flight ticket
+                    if (banner.type === 'flight-ticket' && banner.flight_ticket.from && banner.flight_ticket.to) {
+                        // Fetch flight price on load if airports are already selected
+                        flightTicketLogic.fetchCheapestFlight();
+                    }
+                    // END: Added logic
+
                     appState.value = 'editor';
                 } else {
                     appState.value = 'selection';

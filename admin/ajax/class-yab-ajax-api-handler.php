@@ -21,6 +21,11 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             add_action('wp_ajax_yab_fetch_hotel_details_by_ids', [$this, 'fetch_hotel_details_by_ids']);
             add_action('wp_ajax_nopriv_yab_fetch_hotel_details_by_ids', [$this, 'fetch_hotel_details_by_ids']);
             add_action('wp_ajax_yab_fetch_airports_from_api', [$this, 'fetch_airports_from_api']);
+            
+            // START: Add new action for flight search
+            add_action('wp_ajax_yab_fetch_flight_search', [$this, 'fetch_flight_search']);
+            // END: Add new action
+
             add_action('wp_ajax_yab_fetch_welcome_packages', [$this, 'fetch_welcome_packages']);
             add_action('wp_ajax_nopriv_yab_render_welcome_package_ssr', [$this, 'render_welcome_package_ssr']);
             add_action('wp_ajax_yab_render_welcome_package_ssr', [$this, 'render_welcome_package_ssr']);
@@ -180,6 +185,114 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
              wp_send_json_success(['html' => $final_sanitized_html]);
              wp_die();
         }
+
+        // START: New method for flight search
+        public function fetch_flight_search() {
+            check_ajax_referer('yab_nonce', 'nonce');
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(['message' => 'Permission denied.'], 403);
+                return;
+            }
+
+            // 1. Get data from frontend
+            $required_fields = ['fromAirportCode', 'fromCountryName', 'toAirportCode', 'toCountryName'];
+            foreach ($required_fields as $field) {
+                if (empty($_POST[$field])) {
+                    wp_send_json_error(['message' => 'Missing required field: ' . $field], 400);
+                    return;
+                }
+            }
+
+            $from_code = sanitize_text_field($_POST['fromAirportCode']);
+            $from_country = sanitize_text_field($_POST['fromCountryName']);
+            $to_code = sanitize_text_field($_POST['toAirportCode']);
+            $to_country = sanitize_text_field($_POST['toCountryName']);
+
+            // 2. Generate tomorrow's date
+            try {
+                // Use UTC for consistency in API requests
+                $tomorrow = new DateTime('now', new DateTimeZone('UTC')); 
+                $tomorrow->add(new DateInterval('P1D'));
+                $departure_date_string = $tomorrow->format('Y-m-d');
+            } catch (Exception $e) {
+                wp_send_json_error(['message' => 'Failed to calculate departure date: ' . $e->getMessage()], 500);
+                return;
+            }
+
+            // 3. Build API request body
+            $api_url = 'https://b2bapi.tapexplore.com/api/booking/flight/search';
+            $api_body = [
+                'departureDateString' => $departure_date_string,
+                'fromAirportCode' => $from_code,
+                'fromCountryName' => $from_country,
+                'toAirportCode' => $to_code,
+                'toCountryName' => $to_country,
+                'adult' => 1,
+                'child' => 0,
+                'infant' => 0
+            ];
+
+            $args = [
+                'method' => 'POST',
+                'headers' => [
+                    'api-key' => $this->api_key, // Use the stored API key
+                    'Content-Type' => 'application/json'
+                ],
+                'body' => json_encode($api_body),
+                'timeout' => 20, // Increased timeout for search
+            ];
+
+            // 4. Make the wp_remote_post call
+            $response = wp_remote_post($api_url, $args);
+
+            if (is_wp_error($response)) {
+                wp_send_json_error(['message' => 'Failed to fetch flight data from API. ' . $response->get_error_message()], 500);
+                return;
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE || !isset($data['success']) || $data['success'] !== true || !isset($data['data']['data'])) {
+                error_log("Tappersia Plugin: Invalid JSON or failed response from Flight Search API: " . $body);
+                // Send back the API's message if it exists, otherwise a generic one
+                $api_message = $data['message'] ?? 'Invalid or failed response from Flight Search API.';
+                wp_send_json_error(['message' => $api_message, 'raw_response' => $body], 500);
+                return;
+            }
+            
+            $flights = $data['data']['data'];
+
+            // 5. Find the minimum price
+            if (empty($flights) || !is_array($flights)) {
+                wp_send_json_success(['cheapestPrice' => null, 'cheapestFlight' => null, 'message' => 'No flights found.', 'allFlights' => []]);
+                wp_die();
+            }
+
+            $cheapest_price = null;
+            $cheapest_flight = null;
+
+            foreach ($flights as $flight) {
+                if (isset($flight['pricing']['internationalPrice'])) {
+                    $current_price = (float) $flight['pricing']['internationalPrice'];
+                    if ($cheapest_price === null || $current_price < $cheapest_price) {
+                        $cheapest_price = $current_price;
+                        $cheapest_flight = $flight;
+                    }
+                }
+            }
+
+            // 6. Send success response
+            wp_send_json_success([
+                'cheapestPrice' => $cheapest_price,
+                'cheapestFlight' => $cheapest_flight, // Send the full cheapest flight object
+                'totalFlights' => count($flights),
+                'allFlights' => $flights // Send all flights for console logging
+            ]);
+            wp_die();
+        }
+        // END: Add new method
+
 
         // --- Keep existing methods ---
         // ... (rest of the existing methods) ...

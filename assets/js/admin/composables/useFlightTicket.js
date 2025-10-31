@@ -1,5 +1,5 @@
 // tappersia/assets/js/admin/composables/useFlightTicket.js
-const { ref, reactive, computed } = Vue;
+const { ref, reactive, computed, watch } = Vue;
 
 export function useFlightTicket(banner, showModal, ajax) {
     const isFlightModalOpen = ref(false);
@@ -23,23 +23,78 @@ export function useFlightTicket(banner, showModal, ajax) {
         );
     });
 
+    /**
+     * Fetches the cheapest flight for the selected route for tomorrow.
+     */
+    const fetchCheapestFlight = async () => {
+        if (!banner.flight_ticket.from || !banner.flight_ticket.to) {
+            return; // Don't fetch if selection is incomplete
+        }
+        
+        banner.flight_ticket.isLoadingFlights = true;
+        banner.flight_ticket.cheapestPrice = null;
+        banner.flight_ticket.cheapestFlightDetails = null;
+        banner.flight_ticket.lastSearchError = null;
+
+        try {
+            const params = {
+                fromAirportCode: banner.flight_ticket.from.iataCode,
+                fromCountryName: banner.flight_ticket.from.countryName,
+                toAirportCode: banner.flight_ticket.to.iataCode,
+                toCountryName: banner.flight_ticket.to.countryName,
+            };
+
+            // This is the new AJAX action we will create in PHP
+            const result = await ajax.post('yab_fetch_flight_search', params);
+            
+            // As requested, log the result
+            console.log('Flight Search Result:', result);
+
+            if (result && result.cheapestPrice !== null) {
+                banner.flight_ticket.cheapestPrice = result.cheapestPrice;
+                banner.flight_ticket.cheapestFlightDetails = result.cheapestFlight;
+                console.log(`Found cheapest price: €${result.cheapestPrice}`);
+            } else {
+                 console.log('No flights found or no price available.');
+                 banner.flight_ticket.lastSearchError = result.message || 'No flights found for tomorrow.';
+            }
+
+        } catch (error) {
+            console.error('Error fetching flight search:', error);
+            banner.flight_ticket.lastSearchError = error.message;
+            showModal('Error', `Could not fetch flight data: ${error.message}`);
+        } finally {
+            banner.flight_ticket.isLoadingFlights = false;
+        }
+    };
+
     const openFlightModal = async () => {
         isFlightModalOpen.value = true;
-        tempSelectedAirports.from = banner.flight_ticket.fromAirportCode ? airports.value.find(a => a.iataCode === banner.flight_ticket.fromAirportCode) || null : null;
-        tempSelectedAirports.to = banner.flight_ticket.toAirportCode ? airports.value.find(a => a.iataCode === banner.flight_ticket.toAirportCode) || null : null;
+        
+        const findAirportByIata = (iataCode) => {
+            if (!iataCode) return null;
+            return airports.value.find(a => a.iataCode === iataCode) || null;
+        };
+
+        // Set temp selection based on current banner state
+        const setTempFromBanner = () => {
+            tempSelectedAirports.from = findAirportByIata(banner.flight_ticket.from?.iataCode);
+            tempSelectedAirports.to = findAirportByIata(banner.flight_ticket.to?.iataCode);
+        };
 
         if (airports.value.length === 0) {
             isAirportsLoading.value = true;
             try {
                 const data = await ajax.post('yab_fetch_airports_from_api');
-                // *** FIX START: Removed the filter to show all airports ***
                 airports.value = data;
-                // *** FIX END ***
+                setTempFromBanner(); // Set selection *after* data is loaded
             } catch (error) {
                 showModal('Error', `Could not fetch airports: ${error.message}`);
             } finally {
                 isAirportsLoading.value = false;
             }
+        } else {
+            setTempFromBanner(); // Airports already loaded, just set selection
         }
     };
 
@@ -76,9 +131,22 @@ export function useFlightTicket(banner, showModal, ajax) {
 
     const confirmAirportSelection = () => {
         if (tempSelectedAirports.from && tempSelectedAirports.to) {
-            banner.flight_ticket.fromAirportCode = tempSelectedAirports.from.iataCode;
-            banner.flight_ticket.toAirportCode = tempSelectedAirports.to.iataCode;
+            // Store the required fields from the full airport object
+            banner.flight_ticket.from = {
+                countryName: tempSelectedAirports.from.countryName,
+                city: tempSelectedAirports.from.city,
+                iataCode: tempSelectedAirports.from.iataCode
+            };
+            banner.flight_ticket.to = {
+                countryName: tempSelectedAirports.to.countryName,
+                city: tempSelectedAirports.to.city,
+                iataCode: tempSelectedAirports.to.iataCode
+            };
+            
             closeFlightModal();
+            
+            // Trigger the flight search
+            fetchCheapestFlight(); 
         } else {
             showModal('Selection Incomplete', 'Please select both an origin and a destination airport.');
         }
@@ -95,5 +163,6 @@ export function useFlightTicket(banner, showModal, ajax) {
         selectAirport,
         isAirportSelected,
         confirmAirportSelection,
+        fetchCheapestFlight, // Expose for use in main.js
     };
 }
