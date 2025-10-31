@@ -288,7 +288,13 @@ export function initializeApp(yabData) {
                 ...displayConditionsLogic,
                 ...promotionBannerLogic,
                 ...bannerStyling,
-                ...computedProps,
+                // --- START FIX: Manually spread computedProps and rename settings ---
+                previewBodyText: computedProps.previewBodyText,
+                welcomePackagePreviewHtml: computedProps.welcomePackagePreviewHtml,
+                apiItem: computedProps.apiItem,
+                isApiHotel: computedProps.isApiHotel,
+                computedSettings: computedProps.settings, // <--- Renamed here
+                // --- END FIX ---
                 ...flightTicketLogic,
                 ...welcomePackageLogic,
                  // Helpers

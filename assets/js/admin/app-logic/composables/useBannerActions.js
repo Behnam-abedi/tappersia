@@ -30,6 +30,13 @@ export function useBannerActions(banner, isSaving, showModal, ajax) {
                 banner.promotion.iconUrl = attachment.url;
                 return;
             }
+            
+            // --- START: Added case for flight ticket ---
+            if (targetKey === 'flight_ticket_design') {
+                banner.flight_ticket.design.imageUrl = attachment.url;
+                return;
+            }
+            // --- END: Added case for flight ticket ---
 
             let targetObject = banner;
             const keys = targetKey.split('_'); // e.g., ['double', 'desktop', 'left']
@@ -60,6 +67,13 @@ export function useBannerActions(banner, isSaving, showModal, ajax) {
             banner.promotion.iconUrl = '';
             return;
         }
+
+        // --- START: Added case for flight ticket ---
+        if (targetKey === 'flight_ticket_design') {
+            banner.flight_ticket.design.imageUrl = '';
+            return;
+        }
+        // --- END: Added case for flight ticket ---
 
         let targetObject = banner;
         const keys = targetKey.split('_');

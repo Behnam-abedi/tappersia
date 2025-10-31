@@ -8,18 +8,44 @@
         <p class="text-gray-500 pt-[30px]">Please select an origin and destination.</p>
     </div>
     
-    <div v-else class="bg-[#292929] rounded-lg p-6 overflow-hidden">
-        <div class="promo-banner">
-            <div class="promo-banner__background"></div>
+    <div v-else class="bg-[#292929] rounded-lg p-6 overflow-hidden" :set="settings = banner.flight_ticket.design">
+        <div class="promo-banner" :style="{ 
+            minHeight: settings.minHeight + 'px', 
+            borderRadius: settings.borderRadius + 'px', 
+            padding: settings.padding + 'px',
+            overflow: 'hidden' 
+        }">
+        <div class="promo-banner__background" :style="{ 
+                background: bannerStyles(settings), 
+                zIndex: settings.layerOrder === 'overlay-below-image' ? 1 : 2 
+            }"></div>
             
-            <div class="promo-banner__image-wrapper">
-              <img src="https://www.textmagic.com/wp-content/uploads/2022/05/Nestle-Building.png" alt="">
+            <div v-if="settings.imageUrl" class="promo-banner__image-wrapper" :style="{ 
+                zIndex: settings.layerOrder === 'overlay-below-image' ? 2 : 1, 
+                borderRadius: settings.borderRadius + 'px', 
+                overflow: 'hidden' 
+            }">
+            <img :src="settings.imageUrl" alt="Banner Image" :style="imageStyleObject(settings)">
             </div>
             
             <div class="promo-banner__content">
-              <span class="promo-banner__content_1">Offering</span>
-              <span class="promo-banner__content_2">BEST DEALS</span>
-              <span class="promo-banner__content_3">on Iran Domestic Flight Booking</span>
+              <span class="promo-banner__content_1" :style="{ 
+                  color: settings.content1.color, 
+                  fontSize: settings.content1.fontSize + 'px', 
+                  fontWeight: settings.content1.fontWeight 
+              }">{{ settings.content1.text }}</span>
+              
+              <span class="promo-banner__content_2" :style="{ 
+                  color: settings.content2.color, 
+                  fontSize: settings.content2.fontSize + 'px', 
+                  fontWeight: settings.content2.fontWeight 
+              }">{{ settings.content2.text }}</span>
+              
+              <span class="promo-banner__content_3" :style="{ 
+                  color: settings.content3.color, 
+                  fontSize: settings.content3.fontSize + 'px', 
+                  fontWeight: settings.content3.fontWeight 
+              }">{{ settings.content3.text }}</span>
             </div>
             
             <div class="ticket" id="flight-ticket-preview-container">
@@ -38,17 +64,33 @@
                     <span>From</span>
                   </div>
                   <div class="ticket__price-amount">
-                    <span v-if="banner.flight_ticket.isLoadingFlights">...</span>
-                    <span v-else-if="banner.flight_ticket.cheapestPrice !== null">
+                    <span v-if="banner.flight_ticket.isLoadingFlights" :style="{ 
+                        color: settings.price.color, 
+                        fontSize: settings.price.fontSize + 'px', 
+                        fontWeight: settings.price.fontWeight 
+                    }">...</span>
+                    <span v-else-if="banner.flight_ticket.cheapestPrice !== null" :style="{ 
+                        color: settings.price.color, 
+                        fontSize: settings.price.fontSize + 'px', 
+                        fontWeight: settings.price.fontWeight 
+                    }">
                         €{{ banner.flight_ticket.cheapestPrice.toFixed(2) }}
                     </span>
-                    <span v-else>N/A</span>
+                    <span v-else :style="{ 
+                        color: settings.price.color, 
+                        fontSize: settings.price.fontSize + 'px', 
+                        fontWeight: settings.price.fontWeight 
+                    }">N/A</span>
                     </div>
                 </div>
                 <div>
                     <a :href="bookingUrl" target="_blank" style="text-decoration: none;">
-                        <div class="ticket__button">
-                            <span class="ticket__button-text">Book Now</span>
+                        <div class="ticket__button" :style="{ backgroundColor: settings.button.bgColor }">
+                            <span class="ticket__button-text" :style="{ 
+                                color: settings.button.color, 
+                                fontSize: settings.button.fontSize + 'px', 
+                                fontWeight: settings.button.fontWeight 
+                            }">Book Now</span>
                         </div>
                     </a>
                 </div>
@@ -57,7 +99,11 @@
         
               <div class="ticket__section ticket__section--details">
                 <div class="ticket__city">
-                  <span class="ticket__city-name ticket-from-country">{{ banner.flight_ticket.from ? banner.flight_ticket.from.city : 'Origin' }}</span>
+                  <span class="ticket__city-name ticket-from-country" :style="{ 
+                      color: settings.fromCity.color, 
+                      fontSize: settings.fromCity.fontSize + 'px', 
+                      fontWeight: settings.fromCity.fontWeight 
+                  }">{{ banner.flight_ticket.from ? banner.flight_ticket.from.city : 'Origin' }}</span>
                   <div class="ticket__city-dot ticket__city-dot--origin"></div>
                 </div>
         
@@ -77,7 +123,11 @@
                 </div>
         
                 <div class="ticket__city">
-                  <span class="ticket__city-name ticket-to-country">{{ banner.flight_ticket.to ? banner.flight_ticket.to.city : 'Destination' }}</span>
+                  <span class="ticket__city-name ticket-to-country" :style="{ 
+                      color: settings.toCity.color, 
+                      fontSize: settings.toCity.fontSize + 'px', 
+                      fontWeight: settings.toCity.fontWeight 
+                  }">{{ banner.flight_ticket.to ? banner.flight_ticket.to.city : 'Destination' }}</span>
                   <div class="ticket__city-dot ticket__city-dot--destination"></div>
                 </div>
               </div>

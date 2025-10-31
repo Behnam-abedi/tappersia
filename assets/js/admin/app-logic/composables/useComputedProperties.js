@@ -65,8 +65,9 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
         return !!(banner.type === 'api-banner' && banner.api.selectedHotel);
     });
 
-    const settings = computed(() => {
-        // ... (Keep existing settings logic) ...
+    // --- START FIX: Renamed to avoid conflict ---
+    const computedSettings = computed(() => { 
+    // --- END FIX ---
         if (!banner.type) return { header: {} };
 
         switch (banner.type) {
@@ -86,6 +87,12 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
                 return currentView.value === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile;
             case 'hotel-carousel':
                 return currentView.value === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile;
+            // --- START FIX: Added flight-ticket case ---
+            case 'flight-ticket':
+                // This template creates its own 'settings' var, but we add this for robustness
+                // and to prevent the computed prop from returning a default object.
+                return banner.flight_ticket.design; 
+            // --- END FIX ---
             default:
                 return { header: {} };
         }
@@ -96,6 +103,8 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
         welcomePackagePreviewHtml, // Expose the new computed property
         apiItem,
         isApiHotel,
-        settings
+        // --- START FIX: Return renamed computed prop ---
+        settings: computedSettings 
+        // --- END FIX ---
     };
 }

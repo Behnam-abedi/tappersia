@@ -48,13 +48,14 @@ class Yab_Flight_Ticket {
         wp_die();
     }
     
+    // --- START: Updated sanitize_banner_data ---
     private function sanitize_banner_data($data) {
         $sanitized = [];
         if (!is_array($data)) return $sanitized;
     
         foreach ($data as $key => $value) {
             if ($key === 'flight_ticket' && is_array($value)) {
-                // START: Updated logic to save full airport objects
+                // Sanitize the flight_ticket part
                 $sanitized['flight_ticket'] = [
                     'from' => isset($value['from']) && is_array($value['from']) ? [
                         'countryName' => isset($value['from']['countryName']) ? sanitize_text_field($value['from']['countryName']) : null,
@@ -67,8 +68,14 @@ class Yab_Flight_Ticket {
                         'iataCode' => isset($value['to']['iataCode']) ? sanitize_text_field($value['to']['iataCode']) : null,
                     ] : null,
                 ];
-                // END: Updated logic
+                
+                // Sanitize the new 'design' object
+                if (isset($value['design']) && is_array($value['design'])) {
+                    $sanitized['flight_ticket']['design'] = $this->sanitize_design_part($value['design']);
+                }
+
             } elseif (is_array($value)) {
+                // Recursively sanitize other arrays (like displayOn)
                 $sanitized[$key] = $this->sanitize_banner_data($value);
             } elseif (is_bool($value)) {
                 $sanitized[$key] = $value;
@@ -80,5 +87,47 @@ class Yab_Flight_Ticket {
         }
         return $sanitized;
     }
+    // --- END: Updated sanitize_banner_data ---
+    
+    // --- START: Added sanitize_design_part (based on SingleBanner) ---
+    private function sanitize_design_part($design_part) {
+        $sanitized = [];
+        foreach ($design_part as $key => $value) {
+             if (is_array($value)) {
+                // Handle nested objects like content1, content2, price, button, etc.
+                // And gradientStops
+                $sanitized[$key] = $this->sanitize_design_part($value);
+            } elseif (is_bool($value)) {
+                $sanitized[$key] = $value;
+            } elseif (is_numeric($value) || $value === null) {
+                $sanitized[$key] = $value;
+            } else {
+                switch ($key) {
+                    case 'imageUrl':
+                        $sanitized[$key] = esc_url_raw(trim($value));
+                        break;
+                    case 'text': // For content1, content2, content3
+                        $sanitized[$key] = sanitize_text_field(trim($value));
+                        break;
+                    case 'bgColor':
+                    case 'borderColor':
+                    case 'color': // For text colors
+                    case 'bgColor': // For button bg
+                        $sanitized[$key] = sanitize_text_field($value); // Use sanitize_text_field to allow rgba
+                        break;
+                    case 'widthUnit':
+                    case 'minHeightUnit':
+                    case 'imageWidthUnit':
+                    case 'imageHeightUnit':
+                         $sanitized[$key] = in_array($value, ['px', '%']) ? $value : 'px';
+                        break;
+                    default:
+                        $sanitized[$key] = sanitize_text_field(trim($value));
+                }
+            }
+        }
+        return $sanitized;
+    }
+    // --- END: Added sanitize_design_part ---
 }
 endif;
