@@ -12,17 +12,26 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
          * @param string $from_country
          * @param string $to_code
          * @param string $to_country
+         * @param string $explicit_date - Date provided by the client (YYYY-MM-DD).
          * @return array ['status' => 'success'|'error', 'data' => mixed]
          */
-        private function _fetch_cheapest_flight($from_code, $from_country, $to_code, $to_country) {
-            try {
-                // Use UTC for consistency in API requests
-                $tomorrow = new DateTime('now', new DateTimeZone('UTC'));
-                $tomorrow->add(new DateInterval('P1D'));
-                $departure_date_string = $tomorrow->format('Y-m-d');
-            } catch (Exception $e) {
-                return ['status' => 'error', 'data' => ['message' => 'Failed to calculate departure date: ' . $e->getMessage()]];
+        private function _fetch_cheapest_flight($from_code, $from_country, $to_code, $to_country, $explicit_date = null) {
+            
+            // FIX: Use explicit date if provided by client (SSR/Live Preview)
+            if (!empty($explicit_date)) {
+                $departure_date_string = sanitize_text_field($explicit_date);
+            } else {
+                // FALLBACK: Use local Tehran time if no date is provided (e.g., direct admin AJAX calls)
+                try {
+                    $tz = new DateTimeZone('Asia/Tehran');
+                    $date_to_use = new DateTime('now', $tz); 
+                    $date_to_use->modify('+1 day');
+                    $departure_date_string = $date_to_use->format('Y-m-d');
+                } catch (Exception $e) {
+                     return ['status' => 'error', 'data' => ['message' => 'Failed to calculate departure date: ' . $e->getMessage()]];
+                }
             }
+
 
             $api_url = 'https://b2bapi.tapexplore.com/api/booking/flight/search';
             $api_body = [
@@ -149,6 +158,8 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                 }
             }
 
+            // Note: Since this is an admin/live-preview call, we use the fallback Tehran time for consistency
+            // if client-side date is not explicitly available via a different mechanism.
             $result = $this->_fetch_cheapest_flight(
                 sanitize_text_field($_POST['fromAirportCode']),
                 sanitize_text_field($_POST['fromCountryName']),
@@ -215,8 +226,13 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
             $from = $data['flight_ticket']['from'];
             $to = $data['flight_ticket']['to'];
 
+            // FIX: Get the local departure date passed from the client-side JS
+            $local_departure_date = isset($_POST['local_departure_date']) ? sanitize_text_field($_POST['local_departure_date']) : null;
+            
+            // Pass the local date to the fetcher
             $flight_result = $this->_fetch_cheapest_flight(
-                $from['iataCode'], $from['countryName'], $to['iataCode'], $to['countryName']
+                $from['iataCode'], $from['countryName'], $to['iataCode'], $to['countryName'],
+                $local_departure_date // FIX: Pass the client's tomorrow date
             );
 
             $cheapest_price_formatted = "N/A";
@@ -224,13 +240,8 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                 $cheapest_price_formatted = '€' . number_format($flight_result['data']['cheapestPrice'], 2);
             }
 
-            try {
-                $tomorrow = new DateTime('now', new DateTimeZone('UTC'));
-                $tomorrow->add(new DateInterval('P1D'));
-                $departure_date = $tomorrow->format('Y-m-d');
-            } catch (Exception $e) {
-                $departure_date = date('Y-m-d', strtotime('+1 day')); // Fallback
-            }
+            // FIX: Use the client's provided date for the booking URL as well, for consistency
+            $departure_date = !empty($local_departure_date) ? $local_departure_date : date('Y-m-d', strtotime('+1 day')); 
 
             $from_city_path = strtolower(str_replace(' ', '-', $from['city']));
             $to_city_path = strtolower(str_replace(' ', '-', $to['city']));

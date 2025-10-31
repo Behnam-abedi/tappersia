@@ -33,13 +33,25 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
                 const placeholder_<?php echo $banner_id; ?> = document.getElementById('<?php echo esc_js($placeholder_id); ?>');
                 if (!placeholder_<?php echo $banner_id; ?>) return;
 
+                // FIX: Calculate tomorrow's date using the client's local time
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+
+                const yyyy = tomorrow.getFullYear();
+                const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                const dd = String(tomorrow.getDate()).padStart(2, '0');
+                const tomorrowDateString = `${yyyy}-${mm}-${dd}`;
+                // END FIX
+
                 // درخواست به اکشن AJAX عمومی که قیمت به‌روز را محاسبه می‌کند
                 fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({
                         'action': 'yab_render_flight_ticket_ssr', // اکشن AJAX عمومی جدید
-                        'banner_id': '<?php echo $banner_id; ?>'
+                        'banner_id': '<?php echo $banner_id; ?>',
+                        'local_departure_date': tomorrowDateString // FIX: Pass client's tomorrow date
                     })
                 })
                 .then(response => {
