@@ -24,8 +24,9 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
             ob_start();
             ?>
             
-            <div id="<?php echo esc_attr($placeholder_id); ?>" class="yab-flight-ticket-placeholder yab-skeleton-loader" style="width: 100%; min-height: 150px; background-color: #f0f0f0; border-radius: 16px; margin: 20px 0; max-width: 700px; position: relative; overflow: hidden;">
-                 <div style="padding: 20px; text-align: center; color: #ccc; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Loading flight deals...</div>
+            <div id="<?php echo esc_attr($placeholder_id); ?>" class="yab-flight-ticket-placeholder " style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;width: 100%; height: 150px; background-color: #f0f0f0; border-radius: 16px; margin: 0px 0; width:100%;">
+                <div style="width:300px;height:90px;background-color: #dfdcdc96;border-radius:16px;margin: 0 0 0 30px;" class="yab-skeleton-loader"></div>
+                <div style="width:300px;height:124px;background-color: #dfdcdc96;border-radius:16px;margin: 0 15px 0 0px;" class="yab-skeleton-loader"></div>
             </div>
 
             <script>
