@@ -69,6 +69,79 @@ export function initializeApp(yabData) {
             const { thumbnailHotels, isLoadingThumbnails: isLoadingHotelThumbnails } = useHotelThumbnails(banner, ajax, hotelThumbnailContainerRef);
 
 
+            // --- START: Added Flight Ticket Clip-Path Script ---
+            
+            // This is the function from your script
+            function updateClipPath() {
+                try {
+                    // Scoped query to be safer within the app
+                    const container = document.querySelector('#flight-ticket-preview-container'); 
+                    if (!container) {
+                      return; // Element not ready yet
+                    }
+                    
+                    const cutters = container.querySelectorAll('.ticket__cutter'); // Scoped query
+                    
+                    let pathString = `M0,0 H${container.offsetWidth} V${container.offsetHeight} H0 Z`;
+              
+                    // بخش ۱: برش دایره‌ها
+                    cutters.forEach(cutter => {
+                      const x = cutter.offsetLeft;
+                      const y = cutter.offsetTop;
+                      const width = cutter.offsetWidth;
+                      const r = width / 2;
+                      const cx = x + r;
+                      const cy = y + r;
+              
+                      pathString += ` M${cx - r},${cy} A${r},${r} 0 1,0 ${cx + r},${cy} A${r},${r} 0 1,0 ${cx - r},${cy} Z`;
+                    });
+              
+                    // بخش ۲: برش خط‌چین
+                    const dashWidth = 1;
+                    const dashLength = 3;
+                    const gapLength = 3;
+                    const radius = 17 / 2;
+                    const centerX = container.offsetWidth / 2;
+                    const lineStartY = radius;
+                    const lineEndY = container.offsetHeight - radius;
+              
+                    for (let y = lineStartY; y < lineEndY; y += (dashLength + gapLength)) {
+                      const startX = centerX - (dashWidth / 2);
+                      const endX = centerX + (dashWidth / 2);
+                      let currentDashEnd = y + dashLength;
+                      
+                      if (currentDashEnd > lineEndY) {
+                        currentDashEnd = lineEndY;
+                      }
+                      
+                      pathString += ` M${startX},${y} L${endX},${y} L${endX},${currentDashEnd} L${startX},${currentDashEnd} Z`;
+                    }
+                    
+                    // بخش ۳: اعمال مسیر نهایی
+                    container.style.clipPath = `path(evenodd, '${pathString}')`;
+                  } catch (e) {
+                      console.error("Error running clip-path logic:", e);
+                  }
+            }
+
+            // Watch for when the preview becomes visible
+            watch(() => [banner.flight_ticket.from, banner.flight_ticket.to], ([newFrom, newTo]) => {
+                if (banner.type === 'flight-ticket' && newFrom && newTo) {
+                    // Wait for Vue to render the v-else block
+                    nextTick(() => {
+                        updateClipPath();
+                        // Also add a resize listener in case the window size changes
+                        window.removeEventListener('resize', updateClipPath); // Remove old one first
+                        window.addEventListener('resize', updateClipPath);
+                    });
+                } else {
+                    // Clean up listener if preview is hidden
+                    window.removeEventListener('resize', updateClipPath);
+                }
+            });
+            // --- END: Added Flight Ticket Clip-Path Script ---
+
+
             // --- Lifecycle Hooks ---
             onMounted(() => {
                 // ... (keep existing onMounted logic) ...
@@ -91,6 +164,11 @@ export function initializeApp(yabData) {
                     if (banner.type === 'flight-ticket' && banner.flight_ticket.from && banner.flight_ticket.to) {
                         // Fetch flight price on load if airports are already selected
                         flightTicketLogic.fetchCheapestFlight();
+                        // Run clip-path on load if banner is pre-filled
+                        nextTick(() => {
+                           updateClipPath();
+                           window.addEventListener('resize', updateClipPath);
+                        });
                     }
                     // END: Added logic
 
