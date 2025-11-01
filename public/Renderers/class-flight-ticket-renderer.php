@@ -37,15 +37,16 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
             
             <div id="<?php echo esc_attr($placeholder_id); ?>" class="yab-flight-ticket-placeholder yab-skeleton-loader" style="width: 100%; position: relative;">
                 
-                <div class="yab-ft-skeleton-desktop" style="display:flex; flex-direction:row; align-items:center; justify-content:space-between; width: 100%; height: <?php echo $desktop_height; ?>; background-color: #f0f0f0; border-radius: <?php echo $desktop_radius; ?>; margin: 0; padding: <?php echo esc_attr($desktop_design['padding'] ?? 12); ?>px; box-sizing: border-box;">
+                <div class="yab-ft-skeleton-desktop" style=" flex-direction:row; align-items:center; justify-content:space-between; width: 100%; height: <?php echo $desktop_height; ?>; background-color: #f0f0f0; border-radius: <?php echo $desktop_radius; ?>; margin: 0; padding: <?php echo esc_attr($desktop_design['padding'] ?? 12); ?>px; box-sizing: border-box;">
                     <div style="flex-grow: 1; height: 90%; background-color: #e0e0e0; border-radius:10px; margin-right: 20px;" class="yab-skeleton-inner"></div>
                     <div style="width:352px; height:129px; background-color: #e0e0e0; border-radius:10px; flex-shrink: 0;" class="yab-skeleton-inner"></div>
                 </div>
 
-                <div class="yab-ft-skeleton-mobile" style="display:none; flex-direction:row; align-items:center; justify-content:space-between; width: 100%; height: <?php echo $mobile_height; ?>; background-color: #f0f0f0; border-radius: <?php echo $mobile_radius; ?>; margin: 0; padding: <?php echo esc_attr($mobile_design['padding'] ?? 5); ?>px; box-sizing: border-box;">
-                    <div style="flex-grow: 1; height: 80%; background-color: #e0e0e0; border-radius:8px; margin-right: 10px;" class="yab-skeleton-inner"></div>
-                    <div style="width:10%; height:60px; background-color: #e0e0e0; border-radius:8px; flex-shrink: 0;" class="yab-skeleton-inner"></div>
-                </div>
+                <div class="yab-ft-skeleton-mobile" style="flex-direction:row; align-items:center; justify-content:space-between;padding:0 5px; width: 100%; height: <?php echo $mobile_height; ?>; background-color: #f0f0f0; border-radius: <?php echo $mobile_radius; ?>; margin: 0;  box-sizing: border-box;">
+                    <div style="width:40%; height: 80%; background-color: #e0e0e0; border-radius:8px; margin-right: 10px;" class="yab-skeleton-inner"></div>
+                    
+                    <div style="width:30%; height:60px; background-color: #e0e0e0; border-radius:8px; flex-shrink: 0;" class="yab-skeleton-inner"></div>
+                    </div>
 
             </div>
             
@@ -100,6 +101,7 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
                         placeholder_<?php echo $banner_id; ?>.style.maxWidth = '';
                         placeholder_<?php echo $banner_id; ?>.style.position = '';
                         placeholder_<?php echo $banner_id; ?>.style.overflow = '';
+
                     } else {
                         console.error('Tappersia: Failed to load Flight Ticket banner:', result.data ? result.data.message : 'Unknown error');
                         placeholder_<?php echo $banner_id; ?>.innerHTML = '';
