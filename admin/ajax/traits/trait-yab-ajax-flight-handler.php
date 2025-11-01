@@ -175,11 +175,143 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
             wp_die();
         }
 
+        // +++ START: NEW HELPER FUNCTION TO RENDER A SINGLE VIEW +++
+        /**
+         * Renders the HTML for a single flight ticket view (desktop or mobile).
+         *
+         * @param array $design - The design settings array (desktop or mobile).
+         * @param array $desktop_design - The desktop design settings (for fallback colors/text).
+         * @param array $from - Origin data.
+         * @param array $to - Destination data.
+         * @param string $price_formatted - The formatted price string.
+         * @param string $booking_url - The booking URL.
+         * @param string $svg_url - The URL to the ticket shape SVG.
+         * @param string $unique_id - A unique ID for this render.
+         * @return string - The rendered HTML.
+         */
+        private function _render_flight_ticket_html($design, $desktop_design, $from, $to, $price_formatted, $booking_url, $svg_url, $unique_id) {
+            
+            // --- Apply Dynamic Styles ---
+            $promo_banner_style = sprintf(
+                'min-height: %spx; border-radius: %spx; padding: %spx;',
+                esc_attr($design['minHeight']),
+                esc_attr($design['borderRadius']),
+                esc_attr($design['padding'])
+            );
+            
+            // Use desktop colors/text as fallback
+            $bg_z_index = ($desktop_design['layerOrder'] === 'overlay-below-image') ? 1 : 2;
+            $img_z_index = ($desktop_design['layerOrder'] === 'overlay-below-image') ? 2 : 1;
+            
+            // +++ START FIX 1: Add border-radius to background style +++
+            $background_style = $this->_get_background_style_for_flight($desktop_design) . 
+                                ' z-index: ' . $bg_z_index . ';' .
+                                ' border-radius: ' . esc_attr($design['borderRadius']) . 'px;';
+            // +++ END FIX 1 +++
+            
+            $image_html = '';
+            if (!empty($desktop_design['imageUrl'])) {
+                // Use mobile positioning but desktop image URL
+                $image_style_settings = $design; // Use mobile layout settings
+                $image_style_settings['imageUrl'] = $desktop_design['imageUrl']; // Use desktop image
+                
+                $image_style = $this->_get_image_style_for_flight($image_style_settings); // z-index is applied to wrapper now
+                
+                // +++ START FIX 2: Add border-radius and overflow to image wrapper +++
+                $image_wrapper_style = sprintf(
+                    'z-index: %s; border-radius: %spx; overflow: hidden;', 
+                    esc_attr($img_z_index), 
+                    esc_attr($design['borderRadius'])
+                );
+                
+                $image_html = sprintf(
+                    '<div class="promo-banner__image-wrapper" style="%s"><img src="%s" alt="" style="%s"></div>',
+                    $image_wrapper_style,
+                    esc_url($desktop_design['imageUrl']),
+                    esc_attr($image_style)
+                );
+                // +++ END FIX 2 +++
+            }
+            
+            $content1_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content1']['color']), esc_attr($design['content1']['fontSize']), esc_attr($design['content1']['fontWeight']));
+            $content2_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content2']['color']), esc_attr($design['content2']['fontSize']), esc_attr($design['content2']['fontWeight']));
+            $content3_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content3']['color']), esc_attr($design['content3']['fontSize']), esc_attr($design['content3']['fontWeight']));
+            
+            $price_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['price']['color']), esc_attr($design['price']['fontSize']), esc_attr($desktop_design['price']['fontWeight']));
+            $price_from_style = sprintf('font-size: %spx;', esc_attr($design['price']['fromFontSize'] ?? 5)); // Add from style
+            
+            $button_style = sprintf(
+                'background-color: %s; padding: %spx %spx; border-radius: %spx;', 
+                esc_attr($desktop_design['button']['bgColor']),
+                esc_attr($design['button']['paddingY'] ?? 4),
+                esc_attr($design['button']['paddingX'] ?? 13),
+                esc_attr($design['button']['borderRadius'] ?? 4)
+            );
+            $button_text_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['button']['color']), esc_attr($design['button']['fontSize']), esc_attr($design['button']['fontWeight']));
+            
+            $from_city_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['fromCity']['color']), esc_attr($design['fromCity']['fontSize']), esc_attr($desktop_design['fromCity']['fontWeight']));
+            $to_city_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['toCity']['color']), esc_attr($design['toCity']['fontSize']), esc_attr($desktop_design['toCity']['fontWeight']));
+            
+            $origin_city = esc_html($from['city']);
+            $dest_city = esc_html($to['city']);
+
+            // --- Updated HTML block ---
+            return <<<HTML
+            <div class="promo-banner" style="{$promo_banner_style}">
+                <div class="promo-banner__background" style="{$background_style}"></div>
+                {$image_html}
+                <div class="promo-banner__content">
+                    <span class="promo-banner__content_1" style="{$content1_style}">{$desktop_design['content1']['text']}</span>
+                    <span class="promo-banner__content_2" style="{$content2_style}">{$desktop_design['content2']['text']}</span>
+                    <span class="promo-banner__content_3" style="{$content3_style}">{$desktop_design['content3']['text']}</span>
+                </div>
+                <div class="ticket" id="{$unique_id}">
+                    <div class="ticket__svg-shape-wrapper">
+                        <img src="{$svg_url}" alt="Ticket Shape Background" class="ticket__svg-shape-img">
+                    </div>
+                    <div class="ticket__section ticket__section--actions">
+                        <div class="ticket__price">
+                            <div class="ticket__price-icon">
+                                <svg width="19" height="15" viewBox="0 0 19 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.60641 0.0468752C3.37203 0.171875 1.78609 1.40625 1.73922 1.49219C1.68453 1.625 1.68453 1.75 1.74703 1.86719C1.78609 1.92969 2.60641 2.52344 4.29391 3.69531C5.66891 4.64062 6.82516 5.44531 6.85641 5.47656C6.91891 5.52344 6.82516 5.58594 5.68453 6.22656C4.63766 6.8125 4.42672 6.92969 4.30172 6.92969C4.16891 6.92969 4.03609 6.85156 3.05953 6.22656C2.45797 5.84375 1.92672 5.50781 1.87984 5.47656C1.70016 5.38281 1.60641 5.42969 0.856406 5.91406C0.239219 6.3125 0.106406 6.41406 0.051719 6.52344C-0.0810935 6.78906 -0.0654685 6.80469 1.45016 8.28906C2.95797 9.75781 2.98922 9.78906 3.56734 9.9375C4.34078 10.1328 5.51266 10.0312 6.66891 9.66406C7.19234 9.5 8.62984 8.94531 9.17672 8.69531C10.5127 8.09375 14.4736 5.82031 15.9267 4.82031C17.622 3.64844 18.083 3.25 18.333 2.70312C18.6455 2.02344 18.2002 1.42188 17.2861 1.28125C16.0986 1.09375 13.6455 1.72656 11.997 2.64062L11.458 2.94531L7.66891 1.47656C5.57516 0.664063 3.83297 0 3.77828 0C3.73141 0 3.65328 0.0234377 3.60641 0.0468752ZM7.18453 2.1875C9.00484 2.89844 10.497 3.48437 10.497 3.5C10.497 3.52344 7.84078 5.02344 7.77047 5.04688C7.72359 5.0625 2.87203 1.71094 2.87203 1.66406C2.87203 1.63281 3.81734 0.90625 3.86422 0.90625C3.87203 0.898438 5.36422 1.48438 7.18453 2.1875ZM17.2783 2.13281C17.5283 2.1875 17.622 2.26562 17.5908 2.39844C17.5205 2.67187 16.5595 3.42969 14.7392 4.65625C14.1298 5.0625 10.4814 7.13281 9.43453 7.66406C8.54391 8.11719 6.83297 8.78906 6.08297 8.98437C4.95016 9.27344 3.90328 9.28906 3.43453 9.01562C3.31734 8.94531 1.12203 6.82031 1.12203 6.78125C1.12203 6.73437 1.70797 6.38281 1.75484 6.40625C1.77828 6.41406 2.23141 6.70312 2.75484 7.03906C3.27828 7.375 3.77047 7.67969 3.84859 7.71094C4.04391 7.79687 4.45797 7.8125 4.65328 7.75C4.74703 7.71875 6.58297 6.69531 8.74703 5.47656C10.9111 4.25 12.8017 3.1875 12.9502 3.11719C14.208 2.47656 16.4892 1.96094 17.2783 2.13281Z" fill="#777777"/><path d="M0.223989 13.4687C-0.057261 13.625 -0.041636 14.0547 0.255239 14.2031C0.380239 14.2656 18.0834 14.2656 18.2084 14.2031C18.4974 14.0547 18.5209 13.6406 18.2474 13.4844C18.1537 13.4297 17.4974 13.4219 9.22399 13.4219C2.14586 13.4219 0.294301 13.4297 0.223989 13.4687Z" fill="#777777"/></svg>
+                            </div>
+                            <div class="ticket__price-label"><span style="{$price_from_style}">From</span></div>
+                            <div class="ticket__price-amount"><span style="{$price_style}">{$price_formatted}</span></div>
+                        </div>
+                        <a href="{$booking_url}" target="_blank" style="text-decoration: none;">
+                            <div class="ticket__button" style="{$button_style}">
+                                <span class="ticket__button-text" style="{$button_text_style}">Book Now</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="ticket__section ticket__section--details">
+                        <div class="ticket__city">
+                            <span class="ticket__city-name ticket-from-country" style="{$from_city_style}">{$origin_city}</span>
+                            <div class="ticket__city-dot ticket__city-dot--origin"></div>
+                        </div>
+                        <div class="ticket__flight-path">
+                            <div class="ticket__flight-arrow ticket__flight-arrow--top"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="20" viewBox="0 0 7 20" fill="none"><path d="M0.99 1.5L6.01 6.51" stroke="#999999" stroke-width="1.5" stroke-linecap="round"/><path d="M0.99 18.5V1.5" stroke="#999999" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="ticket__flight-arrow ticket__flight-arrow--bottom"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="20" viewBox="0 0 7 20" fill="none"><path d="M0.99 1.5L6.01 6.51" stroke="#999999" stroke-width="1.5" stroke-linecap="round"/><path d="M0.99 18.5V1.5" stroke="#999999" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                        </div>
+                        <div class="ticket__city">
+                            <span class="ticket__city-name ticket-to-country" style="{$to_city_style}">{$dest_city}</span>
+                            <div class="ticket__city-dot ticket__city-dot--destination"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+HTML;
+        }
+        // +++ END: NEW HELPER FUNCTION +++
+
         public function render_flight_ticket_ssr() {
             if (empty($_POST['banner_id']) || !is_numeric($_POST['banner_id'])) {
                 wp_send_json_error(['message' => 'Invalid Banner ID.'], 400);
                 return;
             }
+
+            // +++ START: Detect client type +++
+            $is_mobile = isset($_POST['is_mobile']) && $_POST['is_mobile'] === '1';
+            // +++ END: Detect client type +++
 
             $banner_id = intval($_POST['banner_id']);
             $banner_post = get_post($banner_id);
@@ -188,7 +320,7 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                 wp_send_json_error(['message' => 'Banner not found or not published.'], 404);
                 return;
             }
-            $banner_type_meta = get_post_meta($banner_id, '_yab_banner_type', true);
+             $banner_type_meta = get_post_meta($banner_id, '_yab_banner_type', true);
             if ($banner_type_meta !== 'flight-ticket') {
                  wp_send_json_error(['message' => 'Invalid banner type for this request.'], 400);
                  return;
@@ -197,24 +329,40 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
             $data = get_post_meta($banner_id, '_yab_banner_data', true);
             
             // --- START: Load Design Settings ---
-            $design = $data['flight_ticket']['design'] ?? []; // Get design settings
+            $desktop_design = $data['flight_ticket']['design'] ?? []; // Get desktop design
             
-            // Set defaults if not present (for banners saved before this update)
+            // Set defaults if not present
             $defaults = [
                 'minHeight' => 150, 'borderRadius' => 16, 'padding' => 12,
                 'layerOrder' => 'overlay-below-image', 'backgroundType' => 'solid', 'bgColor' => '#CEE8F6',
-                'imageUrl' => '', // FIX: Default removed
-                'imagePosLeft' => 0, // FIX: Default added
+                'imageUrl' => '', 'imagePosLeft' => 0,
                 'content1' => ['text' => 'Offering', 'color' => '#555555', 'fontSize' => 12, 'fontWeight' => '400'],
                 'content2' => ['text' => 'BEST DEALS', 'color' => '#111111', 'fontSize' => 18, 'fontWeight' => '700'],
                 'content3' => ['text' => 'on Iran Domestic Flight Booking', 'color' => '#333333', 'fontSize' => 14, 'fontWeight' => '400'],
-                'price' => ['color' => '#00BAA4', 'fontSize' => 17, 'fontWeight' => '700'],
-                'button' => ['bgColor' => '#1EC2AF', 'color' => '#FFFFFF', 'fontSize' => 13, 'fontWeight' => '600'],
+                'price' => ['color' => '#00BAA4', 'fontSize' => 17, 'fontWeight' => '700', 'fromFontSize' => 10],
+                'button' => ['bgColor' => '#1EC2AF', 'color' => '#FFFFFF', 'fontSize' => 13, 'fontWeight' => '600', 'paddingX' => 33, 'paddingY' => 10, 'borderRadius' => 8],
                 'fromCity' => ['color' => '#000000', 'fontSize' => 16, 'fontWeight' => '700'],
                 'toCity' => ['color' => '#000000', 'fontSize' => 16, 'fontWeight' => '700'],
             ];
-            // Use array_merge_recursive to fill in missing keys without overwriting existing ones
-            $design = array_replace_recursive($defaults, $design);
+            $desktop_design = array_replace_recursive($defaults, $desktop_design);
+            
+            // Load mobile design ONLY if needed
+            $mobile_design = $desktop_design; // Default to desktop
+            if ($is_mobile) {
+                $mobile_design = $data['flight_ticket']['design_mobile'] ?? $desktop_design;
+                $mobile_defaults = [
+                    'minHeight' => 70, 'borderRadius' => 8, 'padding' => 5,
+                    'content1' => ['fontSize' => $desktop_design['content1']['fontSize']], // Inherit desktop sizes if not set
+                    'content2' => ['fontSize' => $desktop_design['content2']['fontSize']],
+                    'content3' => ['fontSize' => $desktop_design['content3']['fontSize']],
+                    'price' => ['fontSize' => 8, 'fromFontSize' => 5],
+                    'button' => ['fontSize' => 8, 'paddingX' => 13, 'paddingY' => 4, 'borderRadius' => 4],
+                    'fromCity' => ['fontSize' => 8],
+                    'toCity' => ['fontSize' => 8],
+                ];
+                // Deep merge: Start with defaults, apply desktop, then apply mobile-specific defaults, then apply saved mobile settings
+                $mobile_design = array_replace_recursive($defaults, $desktop_design, $mobile_defaults, $mobile_design);
+            }
             // --- END: Load Design Settings ---
             
             if (empty($data['flight_ticket']) || empty($data['flight_ticket']['from']) || empty($data['flight_ticket']['to'])) {
@@ -258,98 +406,67 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                 'pageSize' => 10,
                 'sort' => 'earliest_time'
             ], "https://www.tappersia.com/iran-flights/{$from_city_path}/{$to_city_path}");
-
-            $unique_id = "yab-ft-ticket-" . $banner_id;
             
-            $origin_city = esc_html($from['city']);
-            $dest_city = esc_html($to['city']);
-            $price_display = esc_html($cheapest_price_formatted);
-            $url_display = esc_url($booking_url);
-            
-            // Define the SVG image URL using the plugin constant
             $plugin_url = defined('YAB_PLUGIN_URL') ? YAB_PLUGIN_URL : plugins_url('tappersia/') . 'tappersia/'; 
+            
+            // +++ START: Define both SVG URLs +++
             $svg_url = $plugin_url . 'assets/image/ticket-shape.svg'; 
+            $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg'; 
+            // +++ END: Define both SVG URLs +++
 
-            // --- START: Apply Dynamic Styles ---
-            $promo_banner_style = sprintf(
-                'min-height: %spx; border-radius: %spx; padding: %spx;',
-                esc_attr($design['minHeight']),
-                esc_attr($design['borderRadius']),
-                esc_attr($design['padding'])
-            );
-            
-            $bg_z_index = ($design['layerOrder'] === 'overlay-below-image') ? 1 : 2;
-            $img_z_index = ($design['layerOrder'] === 'overlay-below-image') ? 2 : 1;
-            
-            $background_style = $this->_get_background_style_for_flight($design) . ' z-index: ' . $bg_z_index . ';';
-            
-            $image_html = '';
-            if (!empty($design['imageUrl'])) {
-                $image_style = $this->_get_image_style_for_flight($design) . ' z-index: ' . $img_z_index . ';';
-                $image_html = sprintf(
-                    '<div class="promo-banner__image-wrapper" style="z-index: %s;"><img src="%s" alt="" style="%s"></div>',
-                    esc_attr($img_z_index),
-                    esc_url($design['imageUrl']),
-                    esc_attr($image_style)
+            // --- START: Render EITHER desktop or mobile view ---
+            $html = ""; // Initialize
+            $wrapper_class = "yab-flight-ticket-wrapper-{$banner_id}"; // Common wrapper class
+
+            if ($is_mobile) {
+                $html_content = $this->_render_flight_ticket_html(
+                    $mobile_design, $desktop_design, $from, $to, 
+                    $cheapest_price_formatted, $booking_url, $svg_mobile_url, 
+                    "yab-ft-ticket-{$banner_id}-mobile"
                 );
-            }
-            
-            $content1_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($design['content1']['color']), esc_attr($design['content1']['fontSize']), esc_attr($design['content1']['fontWeight']));
-            $content2_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($design['content2']['color']), esc_attr($design['content2']['fontSize']), esc_attr($design['content2']['fontWeight']));
-            $content3_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($design['content3']['color']), esc_attr($design['content3']['fontSize']), esc_attr($design['content3']['fontWeight']));
-            
-            $price_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($design['price']['color']), esc_attr($design['price']['fontSize']), esc_attr($design['price']['fontWeight']));
-            $button_style = sprintf('background-color: %s;', esc_attr($design['button']['bgColor']));
-            $button_text_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($design['button']['color']), esc_attr($design['button']['fontSize']), esc_attr($design['button']['fontWeight']));
-            
-            $from_city_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($design['fromCity']['color']), esc_attr($design['fromCity']['fontSize']), esc_attr($design['fromCity']['fontWeight']));
-            $to_city_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($design['toCity']['color']), esc_attr($design['toCity']['fontSize']), esc_attr($design['toCity']['fontWeight']));
-            // --- END: Apply Dynamic Styles ---
-
-            // --- START: Updated HTML block with SVG and removed JS ---
-            $html = <<<HTML
-            <div class="promo-banner" style="{$promo_banner_style}">
-                <div class="promo-banner__background" style="{$background_style}"></div>
-                {$image_html}
-                <div class="promo-banner__content">
-                    <span class="promo-banner__content_1" style="{$content1_style}">{$design['content1']['text']}</span>
-                    <span class="promo-banner__content_2" style="{$content2_style}">{$design['content2']['text']}</span>
-                    <span class="promo-banner__content_3" style="{$content3_style}">{$design['content3']['text']}</span>
-                </div>
-                <div class="ticket" id="{$unique_id}">
-                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 352px; height: 129px;">
-                        <img src="{$svg_url}" alt="Ticket Shape Background" style="width:100%; height:100%; object-fit: contain;">
-                    </div>
-                    <div class="ticket__section ticket__section--actions">
-                        <div class="ticket__price">
-                            <div class="ticket__price-icon">
-                                <svg width="19" height="15" viewBox="0 0 19 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.60641 0.0468752C3.37203 0.171875 1.78609 1.40625 1.73922 1.49219C1.68453 1.625 1.68453 1.75 1.74703 1.86719C1.78609 1.92969 2.60641 2.52344 4.29391 3.69531C5.66891 4.64062 6.82516 5.44531 6.85641 5.47656C6.91891 5.52344 6.82516 5.58594 5.68453 6.22656C4.63766 6.8125 4.42672 6.92969 4.30172 6.92969C4.16891 6.92969 4.03609 6.85156 3.05953 6.22656C2.45797 5.84375 1.92672 5.50781 1.87984 5.47656C1.70016 5.38281 1.60641 5.42969 0.856406 5.91406C0.239219 6.3125 0.106406 6.41406 0.051719 6.52344C-0.0810935 6.78906 -0.0654685 6.80469 1.45016 8.28906C2.95797 9.75781 2.98922 9.78906 3.56734 9.9375C4.34078 10.1328 5.51266 10.0312 6.66891 9.66406C7.19234 9.5 8.62984 8.94531 9.17672 8.69531C10.5127 8.09375 14.4736 5.82031 15.9267 4.82031C17.622 3.64844 18.083 3.25 18.333 2.70312C18.6455 2.02344 18.2002 1.42188 17.2861 1.28125C16.0986 1.09375 13.6455 1.72656 11.997 2.64062L11.458 2.94531L7.66891 1.47656C5.57516 0.664063 3.83297 0 3.77828 0C3.73141 0 3.65328 0.0234377 3.60641 0.0468752ZM7.18453 2.1875C9.00484 2.89844 10.497 3.48437 10.497 3.5C10.497 3.52344 7.84078 5.02344 7.77047 5.04688C7.72359 5.0625 2.87203 1.71094 2.87203 1.66406C2.87203 1.63281 3.81734 0.90625 3.86422 0.90625C3.87203 0.898438 5.36422 1.48438 7.18453 2.1875ZM17.2783 2.13281C17.5283 2.1875 17.622 2.26562 17.5908 2.39844C17.5205 2.67187 16.5595 3.42969 14.7392 4.65625C14.1298 5.0625 10.4814 7.13281 9.43453 7.66406C8.54391 8.11719 6.83297 8.78906 6.08297 8.98437C4.95016 9.27344 3.90328 9.28906 3.43453 9.01562C3.31734 8.94531 1.12203 6.82031 1.12203 6.78125C1.12203 6.73437 1.70797 6.38281 1.75484 6.40625C1.77828 6.41406 2.23141 6.70312 2.75484 7.03906C3.27828 7.375 3.77047 7.67969 3.84859 7.71094C4.04391 7.79687 4.45797 7.8125 4.65328 7.75C4.74703 7.71875 6.58297 6.69531 8.74703 5.47656C10.9111 4.25 12.8017 3.1875 12.9502 3.11719C14.208 2.47656 16.4892 1.96094 17.2783 2.13281Z" fill="#777777"/></svg>
-                            </div>
-                            <div class="ticket__price-label"><span>From</span></div>
-                            <div class="ticket__price-amount"><span style="{$price_style}">{$price_display}</span></div>
-                        </div>
-                        <div class="ticket__button" style="{$button_style}">
-                            <a href="{$url_display}" target="_blank" style="text-decoration: none;"><span class="ticket__button-text" style="{$button_text_style}">Book Now</span></a>
-                        </div>
-                    </div>
-                    <div class="ticket__section ticket__section--details">
-                        <div class="ticket__city">
-                            <span class="ticket__city-name ticket-from-country" style="{$from_city_style}">{$origin_city}</span>
-                            <div class="ticket__city-dot ticket__city-dot--origin"></div>
-                        </div>
-                        <div class="ticket__flight-path">
-                            <div class="ticket__flight-arrow ticket__flight-arrow--top"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="20" viewBox="0 0 7 20" fill="none"><path d="M0.99 1.5L6.01 6.51" stroke="#999999" stroke-width="1.5" stroke-linecap="round"/><path d="M0.99 18.5V1.5" stroke="#999999" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-                            <div class="ticket__flight-arrow ticket__flight-arrow--bottom"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="20" viewBox="0 0 7 20" fill="none"><path d="M0.99 1.5L6.01 6.51" stroke="#999999" stroke-width="1.5" stroke-linecap="round"/><path d="M0.99 18.5V1.5" stroke="#999999" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-                        </div>
-                        <div class="ticket__city">
-                            <span class="ticket__city-name ticket-to-country" style="{$to_city_style}">{$dest_city}</span>
-                            <div class="ticket__city-dot ticket__city-dot--destination"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                
+                // +++ START FIX: Remove indentation from HEREDOC +++
+                $html = <<<HTML
+<style>
+/* Mobile SVG sizing (scoped) */
+.{$wrapper_class} .yab-ft-mobile .ticket { width: 165px; height: 60px; }
+.{$wrapper_class} .yab-ft-mobile .ticket .ticket__svg-shape-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 165px; height: 60px; }
+.{$wrapper_class} .yab-ft-mobile .ticket .ticket__svg-shape-img { width:100%; height:100%; object-fit: contain; }
+.{$wrapper_class} .yab-ft-mobile .ticket__price-icon { width: 10px; height: 10px; }
+.{$wrapper_class} .yab-ft-mobile .ticket__price-icon svg { width: 10px; height: 10px; }
+</style>
+<div class="{$wrapper_class}">
+    <div class="yab-ft-mobile">
+        {$html_content}
+    </div>
+</div>
 HTML;
-            // --- END: Updated HTML block with SVG and removed JS ---
+                // +++ END FIX +++
+
+            } else {
+                $html_content = $this->_render_flight_ticket_html(
+                    $desktop_design, $desktop_design, $from, $to, 
+                    $cheapest_price_formatted, $booking_url, $svg_url, 
+                    "yab-ft-ticket-{$banner_id}-desktop"
+                );
+                
+                // +++ START FIX: Remove indentation from HEREDOC +++
+                $html = <<<HTML
+<style>
+/* Desktop SVG sizing (scoped) */
+.{$wrapper_class} .yab-ft-desktop .ticket { width: 352px; height: 129px; }
+.{$wrapper_class} .yab-ft-desktop .ticket .ticket__svg-shape-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 352px; height: 129px; }
+.{$wrapper_class} .yab-ft-desktop .ticket .ticket__svg-shape-img { width:100%; height:100%; object-fit: contain; }
+</style>
+<div class="{$wrapper_class}">
+    <div class="yab-ft-desktop">
+        {$html_content}
+    </div>
+</div>
+HTML;
+                // +++ END FIX +++
+            }
+            // --- END: Render conditional view ---
 
             wp_send_json_success(['html' => $html]);
             wp_die();

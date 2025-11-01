@@ -99,7 +99,11 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: #
 
 /* Background/Overlay */
 #yab-app .promo-banner__background {
-  width: 100%; height: 100%; position: absolute; right: 0; z-index: 1; border-radius: 16px; top: 0; left: 0;
+  width: 100%; height: 100%; position: absolute; right: 0; z-index: 1; 
+  /* +++ START FIX: Removed hardcoded border-radius +++ */
+  /* border-radius: 16px; */
+  /* +++ END FIX +++ */
+  top: 0; left: 0;
 }
 
 /* Image Wrapper */
@@ -120,7 +124,7 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: #
 
 /* Ticket Container */
 #yab-app .ticket {
-  width: 352px; height: 129px; position: relative; border-radius: 17px; display: flex; z-index: 50;
+  width: 352px; height: 129px; position: relative;  display: flex; z-index: 50;
   margin-left: auto; box-sizing: border-box; direction: rtl; overflow: hidden;
 }
 #yab-app .ticket__section { position: relative; z-index: 4; height: 100%; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; width: 50%; }
@@ -141,3 +145,85 @@ input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: #
 #yab-app .ticket__button-text { font-size: 13px; font-weight: 600; line-height: 16px; display: flex; justify-content: center; align-items: center; }
 #yab-app .ticket__flight-arrow--top{display: flex;align-items: center;}
 #yab-app .icket__flight-arrow--bottom{display: flex;align-items: center;}
+
+/* +++ START: Mobile Preview Styles (FIXES) +++ */
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview {
+    width: 165px;
+    height: 60px;
+    margin-left: auto;
+    gap: 0;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__section--actions {
+    align-items: center;
+    gap: 5px;
+    padding-left: 5px;
+}
+
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__section--details {
+    align-items: flex-end;
+    padding-right: 5px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__city {
+    gap: 4px;
+    padding-left: 10px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__city-name {
+    /* +++ FIX: Removed !important for Bugs 4 & 5 +++ */
+    line-height: 1.2;
+    padding-right: 10px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__city-dot {
+    width: 3px;
+    height: 3px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__flight-path {
+    gap: 3px;
+    margin: 4px 0;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__flight-path svg {
+    width: 4px;
+    height: 12px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price {
+    gap: 3px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price-icon {
+    width: 10px;
+    height: 10px;
+}
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price-label {
+    /* +++ FIX: Removed !important for Bug 2 +++ */
+    line-height: 1;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price-amount {
+    /* +++ FIX: Removed !important (was font-size: 8px !important;) +++ */
+    line-height: 1;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__button {
+    /* +++ FIX: Removed !important for Bug 3 +++ */
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__button-text {
+    /* +++ FIX: Removed !important for Bug 3 +++ */
+    line-height: 1;
+}
+    #yab-app .w-\[375px\] .promo-banner__content {
+        margin-left: 7px;
+    }
+/* +++ END: Mobile Preview Styles (FIXES) +++ */

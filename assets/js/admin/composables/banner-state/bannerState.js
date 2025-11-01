@@ -18,7 +18,8 @@ import {
     createDefaultTourCarouselPart,
     createDefaultHotelCarouselPart,
     createDefaultFlightTicketPart,
-    createDefaultWelcomePackagePart, // Added import
+    createDefaultFlightTicketMobilePart, // <<< IMPORTED
+    createDefaultWelcomePackagePart,
 } from './defaults/index.js';
 
 export function useBannerState() {
@@ -53,7 +54,17 @@ export function useBannerState() {
         },
         tour_carousel: createDefaultTourCarouselPart(),
         hotel_carousel: createDefaultHotelCarouselPart(),
-        flight_ticket: createDefaultFlightTicketPart(),
+        
+        // --- START: MODIFIED FLIGHT TICKET ---
+        flight_ticket: {
+            ...createDefaultFlightTicketPart(), // Spread the defaults
+            isMobileConfigured: false, // Add mobile flag
+            
+            // +++ START FIX: Add .design to get the correct object +++
+            design_mobile: createDefaultFlightTicketMobilePart().design, 
+            // +++ END FIX +++
+        },
+        // --- END: MODIFIED FLIGHT TICKET ---
 
         // New Welcome Package type
         welcome_package: createDefaultWelcomePackagePart(),
@@ -69,7 +80,8 @@ export function useBannerState() {
                                 .replace('contenthtmlsidebarbanner', 'contenthtmlsidebar')
                                 .replace('tourcarousel', 'tourcarousel')
                                 .replace('hotelcarousel', 'hotelcarousel')
-                                .replace('welcomepackagebanner', 'welcomepackage'); // Added
+                                .replace('welcomepackagebanner', 'welcomepackage')
+                                .replace('flightticket', 'flightticket'); // <<< ENSURED MAPPING
 
         if (banner.displayMethod === 'Embeddable') {
             return banner.id ? `[${base} id="${banner.id}"]` : `[${base} id="..."]`;
@@ -117,6 +129,7 @@ export function useBannerState() {
              if (existingData.simple) existingData.isMobileConfigured = true;
              if (existingData.sticky_simple) existingData.isMobileConfigured = true;
              if (existingData.promotion) existingData.isMobileConfigured = true;
+             if (existingData.flight_ticket) existingData.flight_ticket.isMobileConfigured = true; // <<< ADDED
              // No mobile config for Welcome Package
         }
 
@@ -152,6 +165,13 @@ export function useBannerState() {
              if (typeof banner.welcome_package.selectedOriginalPrice === 'undefined') banner.welcome_package.selectedOriginalPrice = null;
              if (typeof banner.welcome_package.html === 'undefined') banner.welcome_package.html = '';
          }
+         // +++ START: ADDED FLIGHT TICKET CHECK +++
+         if (banner.type === 'flight-ticket') {
+             if (!banner.flight_ticket) banner.flight_ticket = createDefaultBanner().flight_ticket;
+             // This line was already correct, as it assumes the wrong structure from the import
+             if (!banner.flight_ticket.design_mobile) banner.flight_ticket.design_mobile = createDefaultFlightTicketMobilePart().design;
+         }
+         // +++ END: ADDED FLIGHT TICKET CHECK +++
          // Add similar checks for other types if needed
 
     };

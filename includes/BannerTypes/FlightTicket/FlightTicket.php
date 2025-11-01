@@ -67,12 +67,19 @@ class Yab_Flight_Ticket {
                         'city' => isset($value['to']['city']) ? sanitize_text_field($value['to']['city']) : null,
                         'iataCode' => isset($value['to']['iataCode']) ? sanitize_text_field($value['to']['iataCode']) : null,
                     ] : null,
+                    'isMobileConfigured' => isset($value['isMobileConfigured']) ? boolval($value['isMobileConfigured']) : false, // <<< ADDED
                 ];
                 
-                // Sanitize the new 'design' object
+                // Sanitize the 'design' object
                 if (isset($value['design']) && is_array($value['design'])) {
                     $sanitized['flight_ticket']['design'] = $this->sanitize_design_part($value['design']);
                 }
+
+                // +++ START: ADDED mobile design sanitization +++
+                if (isset($value['design_mobile']) && is_array($value['design_mobile'])) {
+                    $sanitized['flight_ticket']['design_mobile'] = $this->sanitize_design_part($value['design_mobile']);
+                }
+                // +++ END: ADDED mobile design sanitization +++
 
             } elseif (is_array($value)) {
                 // Recursively sanitize other arrays (like displayOn)

@@ -21,14 +21,34 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
             $banner_id = $this->banner_id;
             $placeholder_id = "yab-flight-ticket-placeholder-" . $banner_id;
 
+            // +++ START: Load designs for skeleton sizing +++
+            $desktop_design = $this->data['flight_ticket']['design'] ?? [];
+            $mobile_design = $this->data['flight_ticket']['design_mobile'] ?? $desktop_design;
+
+            $desktop_height = esc_attr($desktop_design['minHeight'] ?? 150) . 'px';
+            $desktop_radius = esc_attr($desktop_design['borderRadius'] ?? 16) . 'px';
+
+            $mobile_height = esc_attr($mobile_design['minHeight'] ?? 70) . 'px';
+            $mobile_radius = esc_attr($mobile_design['borderRadius'] ?? 8) . 'px';
+            // +++ END: Load designs for skeleton sizing +++
+
             ob_start();
             ?>
             
-            <div id="<?php echo esc_attr($placeholder_id); ?>" class="yab-flight-ticket-placeholder " style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;width: 100%; height: 150px; background-color: #f0f0f0; border-radius: 16px; margin: 0px 0; width:100%;">
-                <div style="width:300px;height:90px;background-color: #dfdcdc96;border-radius:16px;margin: 0 0 0 30px;" class="yab-skeleton-loader"></div>
-                <div style="width:300px;height:124px;background-color: #dfdcdc96;border-radius:16px;margin: 0 15px 0 0px;" class="yab-skeleton-loader"></div>
-            </div>
+            <div id="<?php echo esc_attr($placeholder_id); ?>" class="yab-flight-ticket-placeholder yab-skeleton-loader" style="width: 100%; position: relative;">
+                
+                <div class="yab-ft-skeleton-desktop" style="display:flex; flex-direction:row; align-items:center; justify-content:space-between; width: 100%; height: <?php echo $desktop_height; ?>; background-color: #f0f0f0; border-radius: <?php echo $desktop_radius; ?>; margin: 0; padding: <?php echo esc_attr($desktop_design['padding'] ?? 12); ?>px; box-sizing: border-box;">
+                    <div style="flex-grow: 1; height: 90%; background-color: #e0e0e0; border-radius:10px; margin-right: 20px;" class="yab-skeleton-inner"></div>
+                    <div style="width:352px; height:129px; background-color: #e0e0e0; border-radius:10px; flex-shrink: 0;" class="yab-skeleton-inner"></div>
+                </div>
 
+                <div class="yab-ft-skeleton-mobile" style="display:none; flex-direction:row; align-items:center; justify-content:space-between; width: 100%; height: <?php echo $mobile_height; ?>; background-color: #f0f0f0; border-radius: <?php echo $mobile_radius; ?>; margin: 0; padding: <?php echo esc_attr($mobile_design['padding'] ?? 5); ?>px; box-sizing: border-box;">
+                    <div style="flex-grow: 1; height: 80%; background-color: #e0e0e0; border-radius:8px; margin-right: 10px;" class="yab-skeleton-inner"></div>
+                    <div style="width:165px; height:60px; background-color: #e0e0e0; border-radius:8px; flex-shrink: 0;" class="yab-skeleton-inner"></div>
+                </div>
+
+            </div>
+            
             <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const placeholder_<?php echo $banner_id; ?> = document.getElementById('<?php echo esc_js($placeholder_id); ?>');
@@ -44,6 +64,10 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
                 const dd = String(tomorrow.getDate()).padStart(2, '0');
                 const tomorrowDateString = `${yyyy}-${mm}-${dd}`;
                 // END FIX
+                
+                // +++ START: Add is_mobile check +++
+                const isMobileClient = window.innerWidth <= 768;
+                // +++ END: Add is_mobile check +++
 
                 // درخواست به اکشن AJAX عمومی که قیمت به‌روز را محاسبه می‌کند
                 fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
@@ -52,7 +76,8 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
                     body: new URLSearchParams({
                         'action': 'yab_render_flight_ticket_ssr', // اکشن AJAX عمومی جدید
                         'banner_id': '<?php echo $banner_id; ?>',
-                        'local_departure_date': tomorrowDateString // FIX: Pass client's tomorrow date
+                        'local_departure_date': tomorrowDateString, // FIX: Pass client's tomorrow date
+                        'is_mobile': isMobileClient ? '1' : '0' // +++ ADDED: Send client type +++
                     })
                 })
                 .then(response => {
@@ -75,10 +100,6 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
                         placeholder_<?php echo $banner_id; ?>.style.maxWidth = '';
                         placeholder_<?php echo $banner_id; ?>.style.position = '';
                         placeholder_<?php echo $banner_id; ?>.style.overflow = '';
-
-                        // حذف اجرای مجدد تگ‌های اسکریپت مرتبط با clip-path که اکنون حذف شده است
-                        // (چون SSR ما دیگر اسکریپت clip-path را بر نمی‌گرداند، این بخش نیازی به کدهای پیچیده ندارد)
-
                     } else {
                         console.error('Tappersia: Failed to load Flight Ticket banner:', result.data ? result.data.message : 'Unknown error');
                         placeholder_<?php echo $banner_id; ?>.innerHTML = '';
@@ -94,7 +115,25 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
             </script>
             
             <style>
-                .yab-flight-ticket-placeholder.yab-skeleton-loader::before {
+                /* Skeleton Responsive Styles */
+                .yab-flight-ticket-placeholder .yab-ft-skeleton-mobile { display: none; }
+                .yab-flight-ticket-placeholder .yab-ft-skeleton-desktop { display: flex; }
+                @media (max-width: 768px) {
+                    .yab-flight-ticket-placeholder .yab-ft-skeleton-desktop { display: none; }
+                    .yab-flight-ticket-placeholder .yab-ft-skeleton-mobile { display: flex; }
+                }
+                /* Skeleton Animation */
+                .yab-flight-ticket-placeholder.yab-skeleton-loader {
+                    position: relative; 
+                    overflow: hidden; 
+                    background-color: #f0f0f0;
+                }
+                .yab-flight-ticket-placeholder.yab-skeleton-loader .yab-skeleton-inner {
+                     position: relative;
+                     overflow: hidden;
+                     background-color: #e0e0e0;
+                }
+                .yab-flight-ticket-placeholder.yab-skeleton-loader .yab-skeleton-inner::before {
                     content: ''; 
                     position: absolute; 
                     inset: 0; 

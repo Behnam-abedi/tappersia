@@ -57,7 +57,11 @@ body .yab-wrapper, body [class*="yab-double-banner-wrapper-"] *, body .yab-promo
 .promo-banner__content_3 { line-height: normal; }
 
 /* Ticket Container */
-.ticket { width: 352px; height: 129px; position: relative; border-radius: 17px; display: flex; z-index: 50; margin-left: auto; box-sizing: border-box; direction: rtl; overflow: hidden; background-color: transparent; }
+.ticket { width: 352px; height: 129px; position: relative; display: flex; z-index: 50; margin-left: auto; box-sizing: border-box; direction: rtl; overflow: hidden; background-color: transparent; }
+/* +++ START: ADDED SVG Wrapper +++ */
+.ticket__svg-shape-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 352px; height: 129px; }
+.ticket__svg-shape-img { width:100%; height:100%; object-fit: contain; }
+/* +++ END: ADDED SVG Wrapper +++ */
 .ticket__section { position: relative; z-index: 5; height: 100%; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; width: 50%; }
 .ticket__section--actions { align-items: center; gap: 21px; }
 .ticket__section--details { align-items: flex-end; }
@@ -76,3 +80,79 @@ body .yab-wrapper, body [class*="yab-double-banner-wrapper-"] *, body .yab-promo
 .ticket__button-text { font-size: 13px; font-weight: 600; line-height: 16px; display: flex; justify-content: center; align-items: center; }
 .ticket__flight-arrow--top{display: flex;align-items: flex-end;}
 .ticket__flight-arrow--bottom{display: flex;align-items: flex-start;}
+
+
+/* +++ START: ADDED Mobile Styles for Flight Ticket +++ */
+@media (max-width: 768px) {
+    .yab-ft-mobile .ticket {
+        width: 165px !important; /* USER REQ 2 */
+        height: 60px !important; /* USER REQ 3 */
+        gap: 0;
+    }
+    .yab-ft-mobile .ticket__svg-shape-wrapper {
+        width: 165px !important; /* USER REQ 2 */
+        height: 60px !important; /* USER REQ 3 */
+    }
+    .yab-ft-mobile .ticket__section--actions {
+        align-items: center;
+        gap: 5px;
+        padding-left: 5px;
+    }
+    .yab-ft-mobile .ticket__section--details {
+        align-items: flex-end;
+        padding-right: 5px;
+    }
+    .yab-ft-mobile .ticket__city {
+        gap: 4px;
+        padding-left: 10px;
+    }
+    .yab-ft-mobile .ticket__city-name {
+        font-size: 8px !important; /* USER REQ 4 & 5 */
+        line-height: 1.2;
+        padding-right: 10px;
+    }
+    .yab-ft-mobile .ticket__city-dot {
+        width: 3px;
+        height: 3px;
+    }
+    .yab-ft-mobile .ticket__flight-path {
+        gap: 3px;
+        margin: 4px 0;
+    }
+    .yab-ft-mobile .ticket__flight-path svg {
+        width: 4px;
+        height: 12px;
+    }
+    .yab-ft-mobile .ticket__price {
+        gap: 3px;
+    }
+    .yab-ft-mobile .ticket__price-icon {
+        width: 10px !important; /* USER REQ 11 */
+        height: 10px !important; /* USER REQ 11 */
+    }
+    .yab-ft-mobile .ticket__price-icon svg {
+        width: 10px;
+        height: 10px;
+    }
+    .yab-ft-mobile .ticket__price-label {
+        font-size: 5px !important; /* USER REQ 11 */
+        line-height: 1;
+    }
+    .yab-ft-mobile .ticket__price-amount {
+        font-size: 8px !important; /* USER REQ 10 */
+        line-height: 1;
+    }
+    .yab-ft-mobile .ticket__button {
+        /* USER REQ 7, 8, 9 */
+        padding: 4px 13px !important; 
+        border-radius: 4px !important; 
+    }
+    .yab-ft-mobile .ticket__button-text {
+        font-size: 8px !important; /* USER REQ 6 */
+        line-height: 1;
+    }
+    .promo-banner__content {
+        margin-left: 7px;
+    }
+}
+/* +++ END: ADDED Mobile Styles for Flight Ticket +++ */

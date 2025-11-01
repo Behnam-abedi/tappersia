@@ -107,8 +107,10 @@ export function useBannerSync(banner, currentView) {
             banner.api.design_mobile.paddingLeft = 24; banner.api.design_mobile.paddingRight = 15;
             banner.api.design_mobile.titleSize = 16; banner.api.design_mobile.starSize = 11;
             banner.api.design_mobile.citySize = 11; banner.api.design_mobile.ratingBoxSize = 10;
-            banner.api.design_mobile.ratingTextSize = 10; banner.api.design_mobile.reviewSize = 8;
-            banner.api.design_mobile.priceAmountSize = 12; banner.api.design_mobile.priceFromSize = 9;
+            banner.api.design_mobile.ratingTextSize = 10;
+            banner.api.design_mobile.reviewSize = 8;
+            banner.api.design_mobile.priceAmountSize = 12;
+            banner.api.design_mobile.priceFromSize = 9;
             banner.api.isMobileConfigured = true;
         }
 
@@ -151,6 +153,35 @@ export function useBannerSync(banner, currentView) {
             banner.hotel_carousel.isMobileConfigured = true;
         }
         // --- END: ADDED HOTEL CAROUSEL SYNC ---
+        
+        // +++ START: ADDED FLIGHT TICKET SYNC +++
+        if (banner.type === 'flight-ticket' && newView === 'mobile' && !banner.flight_ticket.isMobileConfigured) {
+            const desktop = banner.flight_ticket.design;
+            const mobile = banner.flight_ticket.design_mobile;
+
+            // 1. Deep copy desktop settings to mobile
+            Object.assign(mobile, JSON.parse(JSON.stringify(desktop)));
+
+            // 2. Apply specific mobile overrides based on user request
+            mobile.minHeight = 70;
+            mobile.borderRadius = 8;
+            mobile.padding = 5;
+            
+            mobile.fromCity.fontSize = 8;
+            mobile.toCity.fontSize = 8;
+            
+            mobile.button.fontSize = 8;
+            mobile.button.paddingX = 13;
+            mobile.button.paddingY = 4;
+            mobile.button.borderRadius = 4;
+            
+            mobile.price.fontSize = 8;
+            mobile.price.fromFontSize = 5;
+            
+            banner.flight_ticket.isMobileConfigured = true;
+        }
+        // +++ END: ADDED FLIGHT TICKET SYNC +++
+
     });
 
     // Continuous sync for shared properties from desktop to mobile
@@ -295,4 +326,35 @@ export function useBannerSync(banner, currentView) {
 
     }, { deep: true });
     // --- END: ADDED HOTEL CAROUSEL CONTINUOUS SYNC ---
+
+    // +++ START: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
+    watch(() => banner.flight_ticket.design, (newDesktopSettings) => {
+        if (banner.type !== 'flight-ticket' || !banner.flight_ticket.isMobileConfigured) return;
+
+        const mobile = banner.flight_ticket.design_mobile;
+
+        // Sync shared properties (texts, colors, image)
+        mobile.layerOrder = newDesktopSettings.layerOrder;
+        mobile.backgroundType = newDesktopSettings.backgroundType;
+        mobile.bgColor = newDesktopSettings.bgColor;
+        mobile.gradientAngle = newDesktopSettings.gradientAngle;
+        mobile.gradientStops = JSON.parse(JSON.stringify(newDesktopSettings.gradientStops));
+        
+        mobile.imageUrl = newDesktopSettings.imageUrl;
+
+        mobile.content1.text = newDesktopSettings.content1.text;
+        mobile.content1.color = newDesktopSettings.content1.color;
+        mobile.content2.text = newDesktopSettings.content2.text;
+        mobile.content2.color = newDesktopSettings.content2.color;
+        mobile.content3.text = newDesktopSettings.content3.text;
+        mobile.content3.color = newDesktopSettings.content3.color;
+
+        mobile.price.color = newDesktopSettings.price.color;
+        mobile.button.bgColor = newDesktopSettings.button.bgColor;
+        mobile.button.color = newDesktopSettings.button.color;
+        mobile.fromCity.color = newDesktopSettings.fromCity.color;
+        mobile.toCity.color = newDesktopSettings.toCity.color;
+
+    }, { deep: true });
+    // +++ END: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
 }
