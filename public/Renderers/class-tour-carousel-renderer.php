@@ -56,7 +56,7 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
             $autoplay_delay = $settings['autoplay']['delay'] ?? 3000;
             $navigation_enabled = $settings['navigation']['enabled'] ?? true;
             $pagination_enabled = $settings['pagination']['enabled'] ?? true;
-            $pagination_color = $settings['pagination']['paginationColor'] ?? 'rgba(0, 186, 164, 0.31)';
+            $pagination_color = $settings['pagination']['paginationColor'] ?? '#00BAA44F';
             $pagination_active_color = $settings['pagination']['paginationActiveColor'] ?? '#00BAA4';
 
             $slides_to_render = $original_tours_ids;

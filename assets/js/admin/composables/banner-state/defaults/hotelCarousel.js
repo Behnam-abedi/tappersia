@@ -121,7 +121,7 @@ export const createDefaultHotelCarouselDesktopPart = () => ({
     navigation: { enabled: true },
     pagination: {
         enabled: true,
-        // rgba(0, 186, 164, 0.31) → #00BAA44F (0.31 × 255 ≈ 79 → 4F)
+        // #00BAA44F → #00BAA44F (0.31 × 255 ≈ 79 → 4F)
         paginationColor: '#00BAA44F',
         paginationActiveColor: '#00BAA4',
     },

@@ -120,7 +120,7 @@ class Yab_Hotel_Carousel {
         $sanitized['navigation'] = [ 'enabled' => isset($settings['navigation']['enabled']) ? boolval($settings['navigation']['enabled']) : true ];
         $sanitized['pagination'] = [
             'enabled' => isset($settings['pagination']['enabled']) ? boolval($settings['pagination']['enabled']) : true,
-            'paginationColor' => isset($settings['pagination']['paginationColor']) ? sanitize_text_field($settings['pagination']['paginationColor']) : 'rgba(0, 186, 164, 0.31)',
+            'paginationColor' => isset($settings['pagination']['paginationColor']) ? sanitize_text_field($settings['pagination']['paginationColor']) : '#00BAA44F',
             'paginationActiveColor' => isset($settings['pagination']['paginationActiveColor']) ? sanitize_text_field($settings['pagination']['paginationActiveColor']) : '#00BAA4',
         ];
         // --- END: Update to include new card settings ---

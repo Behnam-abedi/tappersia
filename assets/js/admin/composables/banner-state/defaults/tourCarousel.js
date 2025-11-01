@@ -46,7 +46,7 @@ export const createDefaultTourCarouselDesktopPart = () => ({
     navigation: { enabled: true },
     pagination: { 
         enabled: true,
-        paginationColor: 'rgba(0, 186, 164, 0.31)',
+        paginationColor: '#00BAA44F',
         paginationActiveColor: '#00BAA4',
     },
 });

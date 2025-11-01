@@ -61,7 +61,8 @@ export function initializeApp(yabData) {
             // --- Tour Carousel ---
             useTourCarouselValidation(banner, showModal);
             const tourThumbnailContainerRef = ref(null);
-            const { thumbnailTours, isLoadingThumbnails: isLoadingTourThumbnails } = useTourThumbnails(banner, ajax, tourThumbnailContainerRef);
+            // با این خط جایگزین کنید:
+            const { thumbnailTours, isLoadingTourThumbnails } = useTourThumbnails(banner, ajax, tourThumbnailContainerRef);
 
             // --- Hotel Carousel ---
             useHotelCarouselValidation(banner, showModal);

@@ -1,18 +1,26 @@
-const { ref, watch, onMounted } = Vue;
+const { ref, watch, onMounted, nextTick } = Vue; // nextTick دیگر نیاز نیست، اما بودنش مشکلی ندارد
 
 export function useTourThumbnails(banner, ajax, thumbnailContainerRef) {
+    // *** شروع تغییر ۱: تغییر نام متغیر ***
+    const isLoadingTourThumbnails = ref(false);
+    // *** پایان تغییر ۱ ***
     const thumbnailTours = ref([]);
-    const isLoadingThumbnails = ref(false);
     let sortableInstance = null;
 
     const fetchThumbnailTours = async () => {
         const ids = banner.tour_carousel.selectedTours;
         if (!ids || ids.length === 0) {
             thumbnailTours.value = [];
+            if (sortableInstance) {
+                sortableInstance.destroy();
+                sortableInstance = null;
+            }
             return;
         }
 
-        isLoadingThumbnails.value = true;
+        // *** شروع تغییر ۲: استفاده از نام جدید ***
+        isLoadingTourThumbnails.value = true;
+        // *** پایان تغییر ۲ ***
         try {
             const toursData = await ajax.post('yab_fetch_tour_details_by_ids', { tour_ids: ids });
             thumbnailTours.value = ids.map(id => toursData.find(t => t.id === id)).filter(Boolean);
@@ -20,15 +28,19 @@ export function useTourThumbnails(banner, ajax, thumbnailContainerRef) {
             console.error('Could not fetch tour thumbnails:', error);
             thumbnailTours.value = [];
         } finally {
-            isLoadingThumbnails.value = false;
+            // *** شروع تغییر ۳: استفاده از نام جدید ***
+            isLoadingTourThumbnails.value = false;
+            // *** پایان تغییر ۳ ***
         }
     };
 
     const initSortable = () => {
-        if (thumbnailContainerRef.value) {
+        if (thumbnailContainerRef.value) { 
             if (sortableInstance) {
-                sortableInstance.destroy();
+                sortableInstance.destroy(); 
+                sortableInstance = null;
             }
+
             sortableInstance = new Sortable(thumbnailContainerRef.value, {
                 animation: 150,
                 ghostClass: 'yab-sortable-ghost',
@@ -43,7 +55,6 @@ export function useTourThumbnails(banner, ajax, thumbnailContainerRef) {
         }
     };
 
-    // FIX: Simplified watcher to ensure thumbnails are always fetched on change.
     watch(() => banner.tour_carousel.selectedTours, () => {
         fetchThumbnailTours();
     }, {
@@ -56,11 +67,15 @@ export function useTourThumbnails(banner, ajax, thumbnailContainerRef) {
             if (newEl) {
                 initSortable();
             }
-        }, { immediate: true });
+        }, {
+            immediate: true 
+        });
     });
 
     return {
         thumbnailTours,
-        isLoadingThumbnails
+        // *** شروع تغییر ۴: بازگرداندن متغیر با نام جدید ***
+        isLoadingTourThumbnails 
+        // *** پایان تغییر ۴ ***
     };
 }

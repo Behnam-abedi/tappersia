@@ -25,7 +25,7 @@ export const TourCarouselLogic = {
              // ... (keep existing logic but use uniqueId.value for scoping) ...
             if (!uniqueId.value) return; // Use uniqueId.value
             const paginationSettings = props.settings.pagination || {};
-            const color = paginationSettings.paginationColor || 'rgba(0, 186, 164, 0.31)';
+            const color = paginationSettings.paginationColor || '#00BAA44F';
             const activeColor = paginationSettings.paginationActiveColor || '#00BAA4';
 
             // Scoped CSS
