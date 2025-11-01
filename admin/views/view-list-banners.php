@@ -6,51 +6,51 @@
                 <h1 class="text-3xl font-bold mb-8 text-gray-200">All Elements</h1>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                      <div @click="selectType('single-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-format-image text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-format-image text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Single Banners</h3>
                     </div>
                     <div @click="selectType('double-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-columns text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-columns text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Double Banners</h3>
                     </div>
                      <div @click="selectType('api-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-rest-api text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-rest-api text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">API Banners</h3>
                     </div>
                     <div @click="selectType('simple-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-text-page text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-text-page text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Simple Banners</h3>
                     </div>
                     <div @click="selectType('sticky-simple-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-sticky text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-sticky text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Sticky Simple Banners</h3>
                     </div>
                     <div @click="selectType('promotion-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-megaphone text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-megaphone text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Promotion Banners</h3>
                     </div>
                     <div @click="selectType('content-html-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-editor-code text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-editor-code text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Content HTML</h3>
                     </div>
                     <div @click="selectType('content-html-sidebar-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-align-pull-right text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-align-pull-right text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Content HTML Sidebar</h3>
                     </div>
                     <div @click="selectType('tour-carousel')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-slides text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-slides text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Tour Carousels</h3>
                     </div>
                     <div @click="selectType('hotel-carousel')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-building text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-building text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Hotel Carousels</h3>
                     </div>
                      <div @click="selectType('flight-ticket')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-airplane text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-airplane text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Flight Tickets</h3>
                     </div>
                     <div @click="selectType('welcome-package-banner')" class="cursor-pointer bg-[#656565] p-8 rounded-lg transform hover:-translate-y-1 transition-all duration-300 group flex justify-center items-center flex-col gap-2">
-                        <span class="dashicons dashicons-products text-5xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
+                        <span class="dashicons dashicons-products text-4xl mb-4 text-[#00baa4] group-hover:text-white transition-colors flex justify-center"></span>
                         <h3 class="font-semibold text-lg text-gray-200 group-hover:text-white">Welcome Packages</h3>
                     </div>
                     </div>
