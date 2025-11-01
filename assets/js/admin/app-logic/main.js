@@ -214,13 +214,13 @@ export function initializeApp(yabData) {
                 ...displayConditionsLogic,
                 ...promotionBannerLogic,
                 ...bannerStyling,
-                // --- START FIX: Manually spread computedProps and rename settings ---
-                previewBodyText: computedProps.previewBodyText,
-                welcomePackagePreviewHtml: computedProps.welcomePackagePreviewHtml,
-                apiItem: computedProps.apiItem,
-                isApiHotel: computedProps.isApiHotel,
-                computedSettings: computedProps.settings, // <--- Renamed here
-                // --- END FIX ---
+                
+                // --- START: FIX ---
+                // بلاک مشکل‌دار حذف شد و این خط جایگزین شد
+                // این خط شامل پراپرتی 'settings' مورد نیاز شماست
+                ...computedProps, 
+                // --- END: FIX ---
+
                 ...flightTicketLogic,
                 ...welcomePackageLogic,
                  // Helpers

@@ -1,8 +1,9 @@
 // tappersia/assets/js/admin/composables/banner-state/defaults/singleBanner.js
 export const createDefaultPart = () => ({
+    layerOrder: 'image-below-overlay', // 'image-below-overlay' or 'overlay-below-image'
     alignment: 'left',
     backgroundType: 'solid',
-    bgColor: 'rgba(12, 165, 234, 0.85)',
+    bgColor: '#0facf0',
     gradientAngle: 90,
     gradientStops: [
         { color: '#0CA5EACC', stop: 0 },
@@ -63,6 +64,7 @@ export const createDefaultMobilePart = () => {
     const mobileDefaults = createDefaultPart();
     
     // Mobile specific overrides
+    mobileDefaults.layerOrder = 'image-below-overlay'; // Add this
     mobileDefaults.minHeight = 145;
     mobileDefaults.paddingTop = 20;
     mobileDefaults.paddingRight = 22;

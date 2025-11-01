@@ -9,6 +9,7 @@ export function useBannerSync(banner, currentView) {
         if (banner.type === 'single-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
             banner.single_mobile = JSON.parse(JSON.stringify(banner.single));
             // Apply mobile overrides AFTER copying
+            banner.single_mobile.layerOrder = banner.single.layerOrder; // <<< ADDED
             banner.single_mobile.minHeight = 145;
             banner.single_mobile.paddingTop = 20;
             banner.single_mobile.paddingRight = 22;
@@ -201,6 +202,7 @@ export function useBannerSync(banner, currentView) {
         mobile.buttonTextColor = newDesktop.buttonTextColor;
         mobile.buttonBgHoverColor = newDesktop.buttonBgHoverColor;
         mobile.borderColor = newDesktop.borderColor; // Sync border color
+        mobile.layerOrder = newDesktop.layerOrder; // <<< ADDED
      }, { deep: true });
 
     watch(() => banner.simple, (newDesktop) => {

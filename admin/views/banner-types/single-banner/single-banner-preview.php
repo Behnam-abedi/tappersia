@@ -9,8 +9,8 @@
             <span class="text-xs text-gray-400 mb-2">Desktop View</span>
             <div class="flex justify-center w-full">
                 <div class="relative overflow-hidden flex-shrink-0" :style="getBannerContainerStyles('desktop')">
-                    <img v-if="banner.single.imageUrl" :src="banner.single.imageUrl" :style="{...imageStyleObject(banner.single), zIndex: 1}" />
-                    <div class="absolute inset-0" :style="{background: bannerStyles(banner.single), zIndex: 2}"></div>
+                    <img v-if="banner.single.imageUrl" :src="banner.single.imageUrl" :style="{...imageStyleObject(banner.single), zIndex: banner.single.layerOrder === 'image-below-overlay' ? 1 : 2}" />
+                    <div class="absolute inset-0" :style="{background: bannerStyles(banner.single), zIndex: banner.single.layerOrder === 'image-below-overlay' ? 2 : 1}"></div>
                     <div class="w-full h-full flex flex-col z-10 relative" :style="{...getContentStyles('desktop'), zIndex: 3}">
                         <h4 :style="getTitleStyles('desktop')">{{ banner.single.titleText }}</h4>
                         <p :style="getDescriptionStyles('desktop')">{{ banner.single.descText }}</p>
@@ -24,8 +24,8 @@
             <span class="text-xs text-gray-400 mb-2">Mobile View</span>
             <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
                 <div class="relative overflow-hidden flex-shrink-0 w-full" :style="getBannerContainerStyles('mobile')">
-                    <img v-if="banner.single_mobile.imageUrl" :src="banner.single_mobile.imageUrl" :style="{...imageStyleObject(banner.single_mobile), zIndex: 1}" />
-                    <div class="absolute inset-0" :style="{background: bannerStyles(banner.single_mobile), zIndex: 2}"></div>
+                    <img v-if="banner.single_mobile.imageUrl" :src="banner.single_mobile.imageUrl" :style="{...imageStyleObject(banner.single_mobile), zIndex: banner.single.layerOrder === 'image-below-overlay' ? 1 : 2}" />
+                    <div class="absolute inset-0" :style="{background: bannerStyles(banner.single_mobile), zIndex: banner.single.layerOrder === 'image-below-overlay' ? 2 : 1}"></div>
                     <div class="w-full h-full flex flex-col z-10 relative" :style="{...getContentStyles('mobile'), zIndex: 3}">
                         <h4 :style="getTitleStyles('mobile')">{{ banner.single_mobile.titleText }}</h4>
                         <p :style="getDescriptionStyles('mobile')">{{ banner.single_mobile.descText }}</p>

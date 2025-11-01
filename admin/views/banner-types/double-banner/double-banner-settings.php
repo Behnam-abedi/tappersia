@@ -120,7 +120,7 @@
                     <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-md">Gradient</button>
                 </div>
                 <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
-                     <label class="setting-label-sm">Color (supports transparency)</label>
+                     <label class="setting-label-sm">Color</label>
                     <div class="flex items-center gap-1">
                         <div
                             :style="{ backgroundColor: settings.bgColor }"

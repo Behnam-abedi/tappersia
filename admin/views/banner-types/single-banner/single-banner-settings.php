@@ -99,7 +99,7 @@
             <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg border-none">Gradient</button>
         </div>
         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
-            <label class="setting-label-sm">Color (supports transparency)</label>
+            <label class="setting-label-sm">Color</label>
             <div class="flex items-center gap-1">
                 <div
                     :style="{ backgroundColor: settings.bgColor }"
@@ -206,12 +206,21 @@
         </div>
     </div>
     <hr class="section-divider">
+
+    <div v-if="currentView === 'desktop' && settings.imageUrl">
+        <h4 class="section-title">Layers Control</h4>
+        <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
+            <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Image Below Color (Overlay)</button>
+            <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Color Below Image</button>
+        </div>
+    </div>
+    <hr v-if="currentView === 'desktop' && settings.imageUrl" class="section-divider">
     <div v-if="currentView === 'desktop'">
         <h4 class="section-title">Content Alignment</h4>
-        <div class="flex rounded-lg bg-[#292929] overflow-hidden">
-            <button @click="settings.alignment = 'left'" :class="settings.alignment === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Left</button>
-            <button @click="settings.alignment = 'center'" :class="settings.alignment === 'center' ? 'active-tab' : ''" class="flex-1 tab-button">Center</button>
-            <button @click="settings.alignment = 'right'" :class="settings.alignment === 'right' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Right</button>
+        <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
+            <button @click="settings.alignment = 'left'" :class="settings.alignment === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Left</button>
+            <button @click="settings.alignment = 'center'" :class="settings.alignment === 'center' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Center</button>
+            <button @click="settings.alignment = 'right'" :class="settings.alignment === 'right' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Right</button>
         </div>
     </div>
     <hr class="section-divider">

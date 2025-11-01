@@ -18,11 +18,11 @@ export const createDefaultDoubleBannerPart = () => ({
     paddingLeft: 24,
 
     backgroundType: 'solid',
-    bgColor: 'rgba(18, 76, 136, 0.8)',
+    bgColor: '#124c88',
     gradientAngle: 90,
     gradientStops: [
-        { color: 'rgba(12, 165, 234, 0.8)', stop: 0 },
-        { color: 'rgba(18, 76, 136, 0.8)', stop: 100 }
+        { color: '#0ca5ea', stop: 0 },
+        { color: '#124c88', stop: 100 }
     ],
 
     imageUrl: '',

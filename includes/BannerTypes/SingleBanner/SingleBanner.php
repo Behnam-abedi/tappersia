@@ -147,6 +147,11 @@ class Yab_Single_Banner {
                     case 'imageUrl':
                         $sanitized[$key] = esc_url_raw(trim($value));
                         break;
+                    // --- START: Added layerOrder ---
+                    case 'layerOrder':
+                        $sanitized[$key] = sanitize_text_field(trim($value));
+                        break;
+                    // --- END: Added layerOrder ---
                     case 'descText':
                         $sanitized[$key] = wp_kses_post(trim($value));
                         break;
