@@ -191,7 +191,7 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
                 'height' => 'auto',
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
                 'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0',
-                'background-color' => '#f0f0f0' // Skeleton base color
+                'background-color' => '#f4f4f4' // Skeleton base color
             ];
             if (!empty($b['enableBorder'])) { 
                 $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 0) . 'px solid ' . esc_attr($b['borderColor'] ?? '#FFFFFF');

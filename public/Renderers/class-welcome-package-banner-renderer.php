@@ -17,7 +17,7 @@ if (!class_exists('Yab_Welcome_Package_Banner_Renderer')) {
 
             ob_start();
             ?>
-            <div id="<?php echo esc_attr($placeholder_id); ?>" class="yab-wp-banner-placeholder yab-skeleton-loader" style="width: 100%; min-height: 100px; background-color: #f0f0f0; border-radius: 8px; margin: 20px 0;">
+            <div id="<?php echo esc_attr($placeholder_id); ?>" class="yab-wp-banner-placeholder yab-skeleton-loader" style="width: 100%; min-height: 100px; background-color: #f4f4f4; border-radius: 8px; margin: 20px 0;">
                  <div style="padding: 20px; text-align: center; color: #ccc;">Loading banner...</div>
             </div>
 

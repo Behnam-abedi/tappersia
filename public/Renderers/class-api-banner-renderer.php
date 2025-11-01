@@ -100,7 +100,7 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
                 'display' => 'flex',
                 'align-items' => 'stretch',
                 'overflow' => 'hidden',
-                'background-color' => '#f0f0f0',
+                'background-color' => '#f4f4f4',
                 'margin' => '20px 0',
                 'flex-direction' => $is_right_layout ? 'row-reverse' : 'row',
             ];
@@ -108,15 +108,15 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
             ob_start();
             ?>
             <div>
-                <div style="display: flex;flex-direction: row;width: 100%;height: 150px;background-color: #f0f0f0;align-items: center;padding: 0 10px;border-radius: 16px;justify-content:space-between">
-                    <div style="width: 30%;height: 127px;border-radius: 16px;background-color: #e0e0e0;" class="yab-skeleton-loader"></div>
+                <div style="display: flex;flex-direction: row;width: 100%;height: 150px;background-color: #f4f4f4;align-items: center;padding: 0 10px;border-radius: 16px;justify-content:space-between">
+                    <div style="width: 30%;height: 127px;border-radius: 16px;background-color: #ebebeb;" class="yab-skeleton-loader"></div>
                     <div style="width: 100%">
                         <div style="flex-grow: 1; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
-                            <div style="height: 26px; background-color: #e0e0e0; border-radius: 4px; width: 75%;" class="yab-skeleton-loader"></div>
-                            <div style="height: 16px; background-color: #e0e0e0; border-radius: 4px; width: 50%;" class="yab-skeleton-loader"></div>
+                            <div style="height: 26px; background-color: #ebebeb; border-radius: 4px; width: 75%;" class="yab-skeleton-loader"></div>
+                            <div style="height: 16px; background-color: #ebebeb; border-radius: 4px; width: 50%;" class="yab-skeleton-loader"></div>
                             <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 10px;">
-                                <div style="height: 26px; background-color: #e0e0e0; border-radius: 4px; width: 40%;" class="yab-skeleton-loader"></div>
-                                <div style="height: 26px; background-color: #e0e0e0; border-radius: 4px; width: 30%;" class="yab-skeleton-loader"></div>
+                                <div style="height: 26px; background-color: #ebebeb; border-radius: 4px; width: 40%;" class="yab-skeleton-loader"></div>
+                                <div style="height: 26px; background-color: #ebebeb; border-radius: 4px; width: 30%;" class="yab-skeleton-loader"></div>
                             </div>
                         </div>
                     </div>
@@ -145,7 +145,7 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
             $wrapper_styles = [
                 'font-family' => "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", 'width' => '100%', 
                 'min-height' => $default_height, 'height' => 'auto', 'margin' => '20px 0',
-                'border-radius' => $get_design('borderRadius', 16) . 'px', 'border' => $get_design('enableBorder', false) ? $get_design('borderWidth', 1) . 'px solid ' . $get_design('borderColor', '#E0E0E0') : 'none',
+                'border-radius' => $get_design('borderRadius', 16) . 'px', 'border' => $get_design('enableBorder', false) ? $get_design('borderWidth', 1) . 'px solid ' . $get_design('borderColor', '#ebebeb') : 'none',
                 'overflow' => 'hidden', 'align-items' => 'stretch',
                 'flex-direction' => $is_right_layout ? 'row-reverse' : 'row', 'position' => 'relative',
                 'text-decoration' => 'none', 'color' => 'inherit'

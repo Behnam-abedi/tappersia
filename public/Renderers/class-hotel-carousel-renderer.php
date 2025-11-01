@@ -54,7 +54,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                 #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_desktop'); ?> .hotel-label-hostel,
                 #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_mobile'); ?> .hotel-label-hostel { background: #B0B0B0; color: #FFF; }
                 #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_desktop'); ?> .hotel-label-default,
-                #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_mobile'); ?> .hotel-label-default { background: #e0e0e0; color: #555; }
+                #yab-hotel-carousel-<?php echo esc_attr($banner_id . '_mobile'); ?> .hotel-label-default { background: #ebebeb; color: #555; }
 
                 /* Skeleton Animation */
                  .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader {
@@ -62,7 +62,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                  }
                 .yab-hotel-carousel-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader::before {
                     content: ''; position: absolute; inset: 0; transform: translateX(-100%);
-                    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
                     animation: yab-shimmer-<?php echo $banner_id; ?> 1.5s infinite;
                 }
                  @keyframes yab-shimmer-<?php echo $banner_id; ?> { 100% { transform: translateX(100%); } }
@@ -139,9 +139,9 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
 
             ob_start();
             ?>
-             <style>
+            <style>
                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-slide {
-                    width: <?php echo $card_width; ?>px !important; box-sizing: border-box;
+                    /* width: <?php echo $card_width; ?>px !important; */ box-sizing: border-box;
                     <?php if ($is_doubled): ?>
                         height: calc((100% - 20px) / 2) !important; /* FIX: Use fixed 20px gap */
                         /* margin-bottom: <?php // echo esc_js($space_between); ?>px !important; */ /* FIX: Remove margin-bottom */
@@ -180,22 +180,22 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                              // Skeleton based on new card settings
                             // --- START: Added overflow: hidden to inner flex container ---
                             $skeleton_html = <<<HTML
-<div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; height:357px; width: 295px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #ffffff; box-sizing: border-box; overflow: hidden;">
-  <div style="height: 176px; width: 100%; border-radius: 14px; background-color: #f0f0f0;"></div>
+<div name="card-skeleton" class="yab-hotel-card-skeleton " style="margin: 0; height:357px; width: 295px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #f4f4f4; box-sizing: border-box; overflow: hidden;">
+  <div style="height: 176px; width: 100%; border-radius: 14px; background-color: #ebebeb;" class="yab-skeleton-loader"></div>
   <div style="margin: 14px 19px 0 19px;">
     <div style="min-height: 34px; width: 100%; margin-bottom: 7px;">
-      <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 75%; margin-bottom: 8px;"></div>
-      <div style="height: 16px; background-color: #f0f0f0; border-radius: 4px; width: 50%;"></div>
+      <div style="height: 16px; background-color: #ebebeb; border-radius: 4px; width: 75%; margin-bottom: 8px;" class="yab-skeleton-loader"></div>
+      <div style="height: 16px; background-color: #ebebeb; border-radius: 4px; width: 50%;" class="yab-skeleton-loader"></div>
     </div>
     <div name="description-skeleton">
-      <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: 6px; margin-top: 7px;">
-        <div style="height: 30px; width: 60%; border-radius: 3px; background-color: #f0f0f0;"></div>
+      <div name="rating-skeleton" style="display: flex; flex-direction: row; align-items: center; gap: 6px; margin-top: 7px;visibility:hidden">
+        <div style="height: 30px; width: 60%; border-radius: 3px; background-color: #ebebeb;" class="yab-skeleton-loader"></div>
       </div>
     </div>
     <hr style="margin: 9.5px 0 7.5px 0; border: 0; border-top: 1px solid #EEEEEE;background-color:unset!important" />
     <div name="price-skeleton" style="display: flex; flex-direction: row; justify-content: space-between;">
-       <div style="height: 30px; background-color: #f0f0f0; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
-       <div style="height: 30px; background-color: #f0f0f0; border-radius: 4px; width: 40%; margin-bottom: 4px;"></div>
+       <div style="height: 30px; background-color: #ebebeb; border-radius: 4px; width: 100%; margin-bottom: 4px;" class="yab-skeleton-loader"></div>
+       <div style="height: 30px; background-color: #ebebeb; border-radius: 4px; width: 40%; margin-bottom: 4px;visibility:hidden" class="yab-skeleton-loader"></div>
     </div>
   </div>
 </div>

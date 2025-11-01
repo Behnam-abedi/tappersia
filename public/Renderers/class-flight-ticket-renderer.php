@@ -37,15 +37,15 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
             
             <div id="<?php echo esc_attr($placeholder_id); ?>" class="yab-flight-ticket-placeholder " style="width: 100%; position: relative;">
                 
-                <div class="yab-ft-skeleton-desktop" style=" flex-direction:row; align-items:center; justify-content:space-between; width: 100%; height: <?php echo $desktop_height; ?>; background-color: #f0f0f0; border-radius: 16px; margin: 0; padding: <?php echo esc_attr($desktop_design['padding'] ?? 12); ?>px; box-sizing: border-box;">
-                    <div style="width:40%; height: 90%; background-color: #e0e0e0; border-radius:10px; margin-right: 20px;" class=" yab-skeleton-loader"></div>
-                    <div style="width:30%; height:129px; background-color: #e0e0e0; border-radius:10px; flex-shrink: 0;" class=" yab-skeleton-loader"></div>
+                <div class="yab-ft-skeleton-desktop" style=" flex-direction:row; align-items:center; justify-content:space-between; width: 100%; height: <?php echo $desktop_height; ?>; background-color: #f4f4f4; border-radius: 16px; margin: 0; padding: <?php echo esc_attr($desktop_design['padding'] ?? 12); ?>px; box-sizing: border-box;">
+                    <div style="width:40%; height: 90%; background-color: #ebebeb; border-radius:10px; margin-right: 20px;" class=" yab-skeleton-loader"></div>
+                    <div style="width:30%; height:129px; background-color: #ebebeb; border-radius:10px; flex-shrink: 0;" class=" yab-skeleton-loader"></div>
                 </div>
 
-                <div class="yab-ft-skeleton-mobile" style="flex-direction:row; align-items:center; justify-content:space-between;padding:0 5px; width: 100%; height: <?php echo $mobile_height; ?>; background-color: #f0f0f0; border-radius:8px; margin: 0;  box-sizing: border-box;">
-                    <div style="width:40%; height: 80%; background-color: #e0e0e0; border-radius:8px; " class=" yab-skeleton-loader"></div>
+                <div class="yab-ft-skeleton-mobile" style="flex-direction:row; align-items:center; justify-content:space-between;padding:0 5px; width: 100%; height: <?php echo $mobile_height; ?>; background-color: #f4f4f4; border-radius:8px; margin: 0;  box-sizing: border-box;">
+                    <div style="width:40%; height: 80%; background-color: #ebebeb; border-radius:8px; " class=" yab-skeleton-loader"></div>
                     
-                    <div style="width:30%; height:60px; background-color: #e0e0e0; border-radius:8px; flex-shrink: 0;" class=" yab-skeleton-loader"></div>
+                    <div style="width:30%; height:60px; background-color: #ebebeb; border-radius:8px; flex-shrink: 0;" class=" yab-skeleton-loader"></div>
                 </div>
 
             </div>
@@ -130,12 +130,12 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
                 .yab-flight-ticket-placeholder.yab-skeleton-loader {
                     position: relative; 
                     overflow: hidden; 
-                    background-color: #f0f0f0;
+                    background-color: #f4f4f4;
                 }
                 .yab-flight-ticket-placeholder.yab-skeleton-loader .yab-skeleton-inner {
                      position: relative;
                      overflow: hidden;
-                     background-color: #e0e0e0;
+                     background-color: #ebebeb;
                 }
                 .yab-flight-ticket-placeholder.yab-skeleton-loader .yab-skeleton-inner::before {
                     content: ''; 

@@ -159,10 +159,10 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                 'position' => 'relative', 
                 'overflow' => 'hidden', 
                 'flex-shrink' => '0',
-                'background-color' => '#f0f0f0' // Skeleton base color
+                'background-color' => '#f4f4f4' // Skeleton base color
             ];
             if (!empty($b['enableBorder'])) { 
-                $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 1) . 'px solid ' . esc_attr($b['borderColor'] ?? '#E0E0E0'); 
+                $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 1) . 'px solid ' . esc_attr($b['borderColor'] ?? '#ebebeb'); 
             }
 
             // Get content padding for internal layout
@@ -206,7 +206,7 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
                 'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0'
             ];
-             if (!empty($b['enableBorder'])) { $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 1) . 'px solid ' . esc_attr($b['borderColor'] ?? '#E0E0E0'); }
+             if (!empty($b['enableBorder'])) { $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 1) . 'px solid ' . esc_attr($b['borderColor'] ?? '#ebebeb'); }
 
             // Wrapper styles for the content div (will be absolute positioned)
             $wrapper_styles = [

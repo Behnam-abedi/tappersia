@@ -184,7 +184,7 @@ class Yab_Tour_Carousel {
             ];
         }, $card_settings['gradientStops']) : [];
         $sanitized['borderWidth'] = isset($card_settings['borderWidth']) ? intval($card_settings['borderWidth']) : 1;
-        $sanitized['borderColor'] = isset($card_settings['borderColor']) ? sanitize_hex_color($card_settings['borderColor']) : '#E0E0E0';
+        $sanitized['borderColor'] = isset($card_settings['borderColor']) ? sanitize_hex_color($card_settings['borderColor']) : '#ebebeb';
         $sanitized['borderRadius'] = isset($card_settings['borderRadius']) ? intval($card_settings['borderRadius']) : 14;
         $sanitized['padding'] = isset($card_settings['padding']) ? intval($card_settings['padding']) : 9;
         $sanitized['imageHeight'] = isset($card_settings['imageHeight']) ? intval($card_settings['imageHeight']) : 204;
