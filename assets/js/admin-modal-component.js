@@ -42,8 +42,8 @@ const YabModal = {
   // *** FIX START: Wrapped template in a <transition> component ***
   template: `
     <transition name="yab-modal-fade">
-      <div v-if="isVisible" class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4" @click.self="handleConfirm(false)">
-          <div class="bg-[#434343] rounded-lg shadow-xl p-6 w-full max-w-md text-center transform transition-all">
+      <div v-if="isVisible" class="fixed inset-0 bg-black bg-opacity-70 z-[10000] flex items-center justify-center p-4" @click.self="handleConfirm(false)">
+          <div class="bg-[#434343] rounded-lg shadow-xl p-6 w-full max-w-md text-center transform transition-all" >
               <h3 class="text-xl font-bold mb-4 text-white">{{ title }}</h3>
               <p class="text-gray-300 mb-6" style="white-space: pre-wrap;">{{ message }}</p>
               <div class="flex justify-center gap-4">

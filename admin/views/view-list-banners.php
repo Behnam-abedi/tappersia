@@ -92,10 +92,34 @@
                             </td>
                             <td class="p-4 text-gray-400">{{ banner.date }}</td>
                             <td class="p-4">
-                                <div class="flex gap-4">
-                                    <a :href="banner.edit_url" class="text-blue-400 hover:text-blue-300">Edit</a>
-                                    <button @click="confirmDelete(banner.id)" class="text-red-400 hover:text-red-300 bg-transparent border-none cursor-pointer p-0">Trash</button>
-                                </div>
+<div class="flex gap-4">
+  <a 
+    :href="banner.edit_url" 
+    class="px-4 py-2 rounded-xl bg-blue-500 text-white font-medium shadow-md 
+           transition-all duration-300 ease-in-out 
+           hover:bg-blue-100 hover:text-blue-700">
+    Edit
+  </a>
+
+  <button 
+    @click="duplicateBanner(banner)" 
+    :disabled="banner.isDuplicating"
+    class="px-4 py-2 rounded-xl bg-green-500 text-white font-medium shadow-md 
+           transition-all duration-300 ease-in-out 
+           hover:bg-green-100 hover:text-green-700 
+           disabled:opacity-50 disabled:cursor-not-allowed">
+    {{ banner.isDuplicating ? 'Duplicating...' : 'Duplicate' }}
+  </button>
+
+  <button 
+    @click="confirmDelete(banner.id)" 
+    class="px-4 py-2 rounded-xl bg-red-500 text-white font-medium shadow-md 
+           transition-all duration-300 ease-in-out 
+           hover:bg-red-100 hover:text-red-700">
+    Trash
+  </button>
+</div>
+
                             </td>
                         </tr>
                     </tbody>

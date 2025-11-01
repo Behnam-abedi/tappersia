@@ -113,9 +113,40 @@ createApp({
         });
     };
 
+    // (+) فانکشن جدید داپلیکیت
+    const duplicateBanner = (banner) => {
+        banner.isDuplicating = true;
+        jQuery.ajax({
+            url: window.yab_list_data.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'yab_duplicate_banner',
+                nonce: nonce.value,
+                banner_id: banner.id,
+            },
+            success: function(response) {
+                if (response.success) {
+                    // اضافه کردن بنر جدید به ابتدای لیست
+                    const newBanner = {...response.data.newBanner, isDuplicating: false};
+                    allBanners.unshift(newBanner);
+                    showModal('Success', response.data.message);
+                } else {
+                    showModal('Error', response.data.message || 'Could not duplicate the banner.');
+                }
+            },
+            error: function() {
+                showModal('Error', 'An unknown error occurred while duplicating the banner.');
+            },
+            complete: function() {
+                banner.isDuplicating = false;
+            }
+        });
+    };
+
     onMounted(() => {
       if (window.yab_list_data) {
-        allBanners.push(...window.yab_list_data.banners);
+        // (+) اضافه کردن پراپرتی `isDuplicating` به آبجکت بنرها
+        allBanners.push(...window.yab_list_data.banners.map(b => ({...b, isDuplicating: false})));
         addNewURL.value = window.yab_list_data.addNewURL;
         nonce.value = window.yab_list_data.nonce;
       } else {
@@ -139,6 +170,7 @@ createApp({
       prevPage,
       copyShortcode,
       confirmDelete,
+      duplicateBanner, // (+) اکسپوز کردن فانکشن
       modalComponent,
     };
   },
