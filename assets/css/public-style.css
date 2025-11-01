@@ -52,9 +52,9 @@ body .yab-wrapper, body [class*="yab-double-banner-wrapper-"] *, body .yab-promo
 .promo-banner__image-wrapper { width: 100%; height: 100%; position: absolute; right: 0; z-index: 2; border-radius: 16px; top: 0; left: 0; overflow: hidden; }
 .promo-banner__image-wrapper img { object-fit: contain; }
 .promo-banner__content { direction: ltr; display: flex; flex-direction: column; position: absolute; z-index: 3; margin-left: 16px; }
-.promo-banner__content_1 { line-height: 1; }
-.promo-banner__content_2 { line-height: 1;}
-.promo-banner__content_3 { line-height: 1; }
+.promo-banner__content_1 { line-height: normal; }
+.promo-banner__content_2 { line-height: normal;}
+.promo-banner__content_3 { line-height: normal; }
 
 /* Ticket Container */
 .ticket { width: 352px; height: 129px; position: relative; display: flex; z-index: 50; margin-left: auto; box-sizing: border-box; direction: rtl; overflow: hidden; background-color: transparent; }
