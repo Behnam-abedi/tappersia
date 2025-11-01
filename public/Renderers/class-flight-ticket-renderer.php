@@ -43,7 +43,7 @@ if (!class_exists('Yab_Flight_Ticket_Renderer')) {
                 </div>
 
                 <div class="yab-ft-skeleton-mobile" style="flex-direction:row; align-items:center; justify-content:space-between;padding:0 5px; width: 100%; height: <?php echo $mobile_height; ?>; background-color: #f0f0f0; border-radius:8px; margin: 0;  box-sizing: border-box;">
-                    <div style="width:40%; height: 80%; background-color: #e0e0e0; border-radius:8px; margin-right: 10px;" class="yab-skeleton-inner"></div>
+                    <div style="width:40%; height: 80%; background-color: #e0e0e0; border-radius:8px; " class="yab-skeleton-inner"></div>
                     
                     <div style="width:30%; height:60px; background-color: #e0e0e0; border-radius:8px; flex-shrink: 0;" class="yab-skeleton-inner"></div>
                     </div>
