@@ -208,3 +208,35 @@ body .yab-wrapper, body [class*="yab-double-banner-wrapper-"] *, body .yab-promo
     }
 }
 /* --- END: Added Single Banner Skeleton Styles --- */
+
+/* --- START: Added Double Banner Skeleton Styles --- */
+.yab-double-skeleton .yab-skeleton-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.yab-double-skeleton .yab-skeleton-text-lg {
+    width: 40%;
+    height: 22px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.yab-double-skeleton .yab-skeleton-text-md {
+    width: 60%;
+    height: 16px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.yab-double-skeleton .yab-skeleton-button {
+    width: 120px;
+    height: 40px;
+    background-color: #e0e0e0;
+    border-radius: 8px;
+}
+/* --- END: Added Double Banner Skeleton Styles --- */
