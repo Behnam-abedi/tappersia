@@ -209,9 +209,12 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
              if (!empty($b['enableBorder'])) { $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 1) . 'px solid ' . esc_attr($b['borderColor'] ?? '#E0E0E0'); }
 
             // Wrapper styles for the content div (will be absolute positioned)
-             $wrapper_styles = [
-                'position' => 'absolute', 'top' => 0, 'left' => 0, 'width' => '100%', 'height' => '100%',
-             ];
+            $wrapper_styles = [
+            'position' => 'relative',
+            'width' => '100%',
+            'height' => 'auto',
+            ];
+
 
             $content_styles = [
                 'padding' => sprintf('%spx %spx %spx %spx', 
