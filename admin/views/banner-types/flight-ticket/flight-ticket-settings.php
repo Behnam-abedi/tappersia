@@ -44,8 +44,8 @@
     </div>
 </div>
 
-<div :set="settings = (currentView === 'desktop' ? banner.flight_ticket.design : banner.flight_ticket.design_mobile)" :key="currentView">
-    <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
+<div class="gap-6 flex flex-col" :set="settings = (currentView === 'desktop' ? banner.flight_ticket.design : banner.flight_ticket.design_mobile)" :key="currentView">
+    <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2 ">
         <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Banner Layout</h3>
         <div class="space-y-4">
             <div>
