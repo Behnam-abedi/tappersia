@@ -62,7 +62,7 @@
                 <div v-if="currentView === 'desktop'" class="flex flex-col items-center">
                     <span class="text-xs text-gray-400 mb-2">Desktop View</span>
                     <div class="flex justify-center w-full">
-                        <div class="yab-api-banner-wrapper shadow-lg flex items-stretch font-sans" :style="getApiBannerStyles('desktop', banner)">
+                        <a :href="apiItem.detailUrl" target="_blank" class="yab-api-banner-wrapper shadow-lg flex items-stretch font-sans focus:outline-none focus:ring-0 active:outline-none" :style="getApiBannerStyles('desktop', banner)" style="text-decoration: none;">
                             <div class="flex-shrink-0" :style="{ 
                                 width: settings.imageContainerWidth + 'px', 
                                 zIndex: 2,
@@ -74,14 +74,14 @@
                             <div class="flex-grow flex flex-col relative justify-between" :style="getApiContentStyles('desktop', banner)">
                                 <?php include 'api-banner-preview-content.php'; ?>
                             </div>
+                        </a>
                         </div>
-                    </div>
                 </div>
                 
                 <div v-else-if="currentView === 'mobile'" class="flex flex-col items-center">
                     <span class="text-xs text-gray-400 mb-2">Mobile View</span>
                     <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
-                        <div class="yab-api-banner-wrapper shadow-lg flex items-stretch font-sans w-full" :style="getApiBannerStyles('mobile', banner)">
+                        <a :href="apiItem.detailUrl" target="_blank" class="yab-api-banner-wrapper shadow-lg flex items-stretch font-sans w-full focus:outline-none focus:ring-0 active:outline-none" :style="getApiBannerStyles('mobile', banner)" style="text-decoration: none;">
                             <div class="flex-shrink-0" :style="{ 
                                 width: settings.imageContainerWidth + 'px', 
                                 zIndex: 2,
@@ -93,8 +93,8 @@
                             <div class="flex-grow flex flex-col relative" :style="getApiContentStyles('mobile', banner)">
                                 <?php include 'api-banner-preview-content.php'; ?>
                             </div>
+                        </a>
                         </div>
-                    </div>
                 </div>
             </transition>
         </div>

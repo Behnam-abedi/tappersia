@@ -64,7 +64,11 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
                             </div>
                             <div>
                                 <a :href="bookingUrl" target="_blank" style="text-decoration: none;">
-                                    <div class="ticket__button" :style="{ backgroundColor: settings.button.bgColor, padding: settings.button.paddingY + 'px ' + settings.button.paddingX + 'px', borderRadius: settings.button.borderRadius + 'px' }">
+                                    <div class="ticket__button" 
+                                         :style="{ backgroundColor: settings.button.bgColor, padding: settings.button.paddingY + 'px ' + settings.button.paddingX + 'px', borderRadius: settings.button.borderRadius + 'px', transition: 'background-color 0.3s' }"
+                                         @mouseover="event.currentTarget.style.backgroundColor = settings.button.BgHoverColor || settings.button.bgColor"
+                                         @mouseout="event.currentTarget.style.backgroundColor = settings.button.bgColor"
+                                    >
                                         <span class="ticket__button-text" :style="{ color: settings.button.color, fontSize: settings.button.fontSize + 'px', fontWeight: settings.button.fontWeight }">Book Now</span>
                                     </div>
                                 </a>
@@ -143,7 +147,11 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
                             </div>
                             <div>
                                 <a :href="bookingUrl" target="_blank" style="text-decoration: none;">
-                                    <div class="ticket__button" :style="{ backgroundColor: banner.flight_ticket.design.button.bgColor, padding: settings.button.paddingY + 'px ' + settings.button.paddingX + 'px', borderRadius: settings.button.borderRadius + 'px' }">
+                                    <div class="ticket__button" 
+                                         :style="{ backgroundColor: banner.flight_ticket.design.button.bgColor, padding: settings.button.paddingY + 'px ' + settings.button.paddingX + 'px', borderRadius: settings.button.borderRadius + 'px', transition: 'background-color 0.3s' }"
+                                         @mouseover="event.currentTarget.style.backgroundColor = banner.flight_ticket.design.button.BgHoverColor || banner.flight_ticket.design.button.bgColor"
+                                         @mouseout="event.currentTarget.style.backgroundColor = banner.flight_ticket.design.button.bgColor"
+                                    >
                                         <span class="ticket__button-text" :style="{ color: banner.flight_ticket.design.button.color, fontSize: settings.button.fontSize + 'px', fontWeight: settings.button.fontWeight }">Book Now</span>
                                     </div>
                                 </a>

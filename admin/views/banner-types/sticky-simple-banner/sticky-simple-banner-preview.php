@@ -47,7 +47,11 @@
                           boxSizing: 'border-box',
                           flexShrink: 0,
                           lineHeight: 1,
-                       }">
+                          transition: 'background-color 0.3s'
+                       }"
+                       @mouseover="event.currentTarget.style.backgroundColor = banner.sticky_simple.buttonBgHoverColor || banner.sticky_simple.buttonBgColor"
+                       @mouseout="event.currentTarget.style.backgroundColor = banner.sticky_simple.buttonBgColor"
+                       >
                         {{ banner.sticky_simple.buttonText }}
                     </a>
                 </div>
@@ -95,7 +99,11 @@
                           boxSizing: 'border-box',
                           flexShrink: 0,
                           lineHeight: 1,
-                       }">
+                          transition: 'background-color 0.3s'
+                       }"
+                       @mouseover="event.currentTarget.style.backgroundColor = banner.sticky_simple.buttonBgHoverColor || banner.sticky_simple.buttonBgColor"
+                       @mouseout="event.currentTarget.style.backgroundColor = banner.sticky_simple.buttonBgColor"
+                       >
                         {{ banner.sticky_simple.buttonText }}
                     </a>
                 </div>

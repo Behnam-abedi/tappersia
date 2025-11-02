@@ -40,7 +40,14 @@ export const createDefaultTourCarouselDesktopPart = () => ({
         duration: { fontSize: 12, fontWeight: '400', color: '#757575' },
         rating: { fontSize: 13, fontWeight: '700', color: '#333333' },
         reviews: { fontSize: 12, fontWeight: '400', color: '#757575' },
-        button: { bgColor: '#00BAA4', fontSize: 13, fontWeight: '600', color: '#FFFFFF', arrowSize: 10 }
+        button: {
+            bgColor: '#00BAA4',
+            BgHoverColor: '#008a7b',
+            fontSize: 13,
+            fontWeight: '600',
+            color: '#FFFFFF',
+            arrowSize: 10
+        }
     },
     autoplay: { enabled: false, delay: 3000 },
     navigation: { enabled: true },

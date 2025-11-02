@@ -130,6 +130,7 @@ class Yab_Simple_Banner {
                     case 'bgColor':
                     case 'gradientColor1':
                     case 'gradientColor2':
+                    case 'buttonBgHoverColor':
                         $sanitized[$key] = sanitize_hex_color($value);
                         break;
                     default:

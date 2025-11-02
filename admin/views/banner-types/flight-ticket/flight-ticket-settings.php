@@ -204,6 +204,15 @@
                 <h4 class="section-title">Button</h4>
                 <div class="grid grid-cols-2 gap-2 mt-2">
                     <div v-if="currentView === 'desktop'"><label class="setting-label-sm">BG Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: content.bgColor }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" v-model="settings.button.bgColor" data-coloris class="yab-form-input clr-field flex-grow"></div></div>
+                    
+                    <div v-if="currentView === 'desktop'">
+                        <label class="setting-label-sm">BG Hover Color</label>
+                        <div class="flex items-center gap-1">
+                            <div :style="{ backgroundColor: content.BgHoverColor }" class="w-8 h-[40px] rounded border border-gray-500"></div>
+                            <input type="text" v-model="settings.button.BgHoverColor" data-coloris class="yab-form-input clr-field flex-grow">
+                        </div>
+                    </div>
+
                     <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Text Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: content.color }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" v-model="settings.button.color" data-coloris class="yab-form-input clr-field flex-grow"></div></div>
                     <div><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="settings.button.fontSize" class="yab-form-input"></div>
                     <div><label class="setting-label-sm">Weight</label><select v-model="settings.button.fontWeight" class="yab-form-input"><option value="400">400</option><option value="500">500</option><option value="600">600</option><option value="700">700</option></select></div>

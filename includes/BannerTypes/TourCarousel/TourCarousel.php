@@ -204,6 +204,7 @@ class Yab_Tour_Carousel {
         $sanitized['province']['side'] = isset($card_settings['province']['side']) ? intval($card_settings['province']['side']) : 11;
         $sanitized['title']['lineHeight'] = isset($card_settings['title']['lineHeight']) ? floatval($card_settings['title']['lineHeight']) : 1.5;
         $sanitized['button']['bgColor'] = isset($card_settings['button']['bgColor']) ? sanitize_hex_color($card_settings['button']['bgColor']) : '#00BAA4';
+        $sanitized['button']['BgHoverColor'] = isset($card_settings['button']['BgHoverColor']) ? sanitize_hex_color($card_settings['button']['BgHoverColor']) : '#008a7b';
         $sanitized['button']['arrowSize'] = isset($card_settings['button']['arrowSize']) ? intval($card_settings['button']['arrowSize']) : 10;
         
         return $sanitized;

@@ -219,6 +219,15 @@
                                 <div><label class="setting-label-sm">Font Weight</label><select v-model="button.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="600">Semi-Bold</option></select></div>
                                 <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: button.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Button color input" type="text" :value="button.color" @input="event => button.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 <div><label class="setting-label-sm">Background</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: button.bgColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Button background color input" type="text" :value="button.bgColor" @input="event => button.bgColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
+                                
+                                <div v-if="currentView === 'desktop'">
+                                    <label class="setting-label-sm">Background Hover</label>
+                                    <div class="flex items-center gap-1">
+                                        <div :style="{ backgroundColor: button.BgHoverColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div>
+                                        <input aria-label="Button background hover color input" type="text" :value="button.BgHoverColor" @input="event => button.BgHoverColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select hover color...">
+                                    </div>
+                                </div>
+                                
                                 <div class="col-span-2"><label class="setting-label-sm">Arrow Size (px)</label><input type="number" v-model.number="button.arrowSize" class="yab-form-input"></div>
                             </div>
                         </div>

@@ -213,6 +213,7 @@ export function useBannerSync(banner, currentView) {
         mobile.buttonText = newDesktop.buttonText;
         mobile.buttonLink = newDesktop.buttonLink;
         mobile.buttonBgColor = newDesktop.buttonBgColor;
+        mobile.buttonBgHoverColor = newDesktop.buttonBgHoverColor; // <<< افزوده شد
         mobile.buttonTextColor = newDesktop.buttonTextColor;
         mobile.direction = newDesktop.direction; // Sync direction
      }, { deep: true });
@@ -225,6 +226,7 @@ export function useBannerSync(banner, currentView) {
         mobile.buttonText = newDesktop.buttonText;
         mobile.buttonLink = newDesktop.buttonLink;
         mobile.buttonBgColor = newDesktop.buttonBgColor;
+        mobile.buttonBgHoverColor = newDesktop.buttonBgHoverColor; // <<< افزوده شد
         mobile.buttonTextColor = newDesktop.buttonTextColor;
         mobile.direction = newDesktop.direction; // Sync direction
      }, { deep: true });
@@ -288,6 +290,7 @@ export function useBannerSync(banner, currentView) {
         mobile.card.reviews.color = newDesktopSettings.card.reviews.color;
         mobile.card.button.color = newDesktopSettings.card.button.color;
         mobile.card.button.bgColor = newDesktopSettings.card.button.bgColor;
+        mobile.card.button.BgHoverColor = newDesktopSettings.card.button.BgHoverColor;
     }, { deep: true });
 
     // --- START: ADDED HOTEL CAROUSEL CONTINUOUS SYNC ---
@@ -353,6 +356,7 @@ export function useBannerSync(banner, currentView) {
 
         mobile.price.color = newDesktopSettings.price.color;
         mobile.button.bgColor = newDesktopSettings.button.bgColor;
+        mobile.button.BgHoverColor = newDesktopSettings.button.BgHoverColor;
         mobile.button.color = newDesktopSettings.button.color;
         mobile.fromCity.color = newDesktopSettings.fromCity.color;
         mobile.toCity.color = newDesktopSettings.toCity.color;

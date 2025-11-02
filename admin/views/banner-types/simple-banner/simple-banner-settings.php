@@ -190,7 +190,26 @@
                         placeholder="Select color...">
                 </div>
             </div>
-        </div>
+
+            <div class="col-span-2">
+                <label class="setting-label-sm">Background Hover Color</label>
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.buttonBgHoverColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Button background hover color input"
+                        type="text"
+                        :value="settings.buttonBgHoverColor"
+                        @input="event => settings.buttonBgHoverColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select hover color...">
+                </div>
+            </div>
+            </div>
         <div class="grid grid-cols-2 gap-2">
             <div>
                <label class="setting-label-sm">Border Radius (px)</label>

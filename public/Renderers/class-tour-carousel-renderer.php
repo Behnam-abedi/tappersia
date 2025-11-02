@@ -177,8 +177,10 @@ HTML;
             </div>
              <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const container = document.getElementById('yab-tour-carousel-<?php echo esc_js($unique_id); ?>');
-                if (!container) return;
+                var container = document.getElementById('yab-tour-carousel-<?php echo esc_js($unique_id); ?>');
+                if (!container || container.swiperInitialized) return;
+                container.swiperInitialized = true;
+                
                 const swiperEl = container.querySelector('.swiper');
                 const fetchedIds = new Set();
                 const isRTL = <?php echo json_encode($is_rtl); ?>;
@@ -193,14 +195,28 @@ HTML;
                     return settings.bgColor || '#FFFFFF';
                 };
 
+                const escapeHTML = (str) => {
+                     if (!str) return '';
+                     return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+                };
+
                 const generateTourCardHTML = (tour) => {
                     if (!tour) return ''; // Should not happen if data is fetched
-                    const salePrice = tour.salePrice ? tour.salePrice.toFixed(2) : '0.00';
-                    const rate = tour.rate ? tour.rate.toFixed(1) : '0.0';
+                    const salePrice = tour.salePrice != null ? tour.salePrice.toFixed(2) : (tour.price != null ? tour.price.toFixed(2) : '0.00');
+                    const rate = tour.rate != null ? tour.rate.toFixed(1) : '0.0';
+                    const rateCount = tour.rateCount != null ? tour.rateCount : 0;
+                    const durationDays = tour.durationDays != null ? tour.durationDays : '?';
+                    const startProvinceName = tour.startProvince?.name || 'N/A';
+                    const detailUrl = tour.detailUrl || '#';
+                    const bannerImageUrl = tour.bannerImage?.url || 'https://placehold.co/276x204/e0e0e0/cccccc?text=No+Image';
+
                     const rtlFlex = isRTL ? 'row-reverse' : 'row';
                     const rtlTextAlign = isRTL ? 'right' : 'left';
                     const rtlArrow = isRTL ? '-135deg' : '45deg';
                     const provincePos = isRTL ? `left: ${cardSettings.province.side}px;` : `right: ${cardSettings.province.side}px;`;
+                    
+                    const buttonBgColor = escapeHTML(cardSettings.button.bgColor || '#00BAA4');
+                    const buttonBgHoverColor = escapeHTML(cardSettings.button.BgHoverColor || buttonBgColor);
                     
                     return `
                     <div class="yab-tour-card" style="
@@ -211,28 +227,33 @@ HTML;
                         border-radius: ${cardSettings.borderRadius}px; 
                         overflow: hidden; display: flex; flex-direction: column; 
                         padding: ${cardSettings.padding}px; 
-                        direction: ${isRTL ? 'rtl' : 'ltr'};">
-                        <a href="${tour.detailUrl}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
-                            <div style="position: relative; width: 100%; height: ${cardSettings.imageHeight}px;">
-                                <img src="${tour.bannerImage.url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: ${cardSettings.borderRadius > 2 ? cardSettings.borderRadius - 2 : cardSettings.borderRadius}px;" />
+                        direction: ${isRTL ? 'rtl' : 'ltr'};
+                        box-sizing: border-box;
+                        ">
+                        <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;">
+                            <div style="position: relative; width: 100%; height: ${cardSettings.imageHeight}px; flex-shrink: 0;">
+                                <img src="${escapeHTML(bannerImageUrl)}" alt="${escapeHTML(tour.title)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: ${cardSettings.borderRadius > 2 ? cardSettings.borderRadius - 2 : cardSettings.borderRadius}px;" />
                                 <div style="position: absolute; bottom: ${cardSettings.province.bottom}px; ${provincePos} min-height: 23px; display: flex; align-items: center; justify-content: center; border-radius: 29px; background: ${cardSettings.province.bgColor}; padding: 0 11px; backdrop-filter: blur(${cardSettings.province.blur}px);">
-                                    <span style="color: ${cardSettings.province.color}; font-size: ${cardSettings.province.fontSize}px; font-weight: ${cardSettings.province.fontWeight}; line-height: 24px;">${tour.startProvince.name}</span>
+                                    <span style="color: ${cardSettings.province.color}; font-size: ${cardSettings.province.fontSize}px; font-weight: ${cardSettings.province.fontWeight}; line-height: 24px;">${escapeHTML(startProvinceName)}</span>
                                 </div>
                             </div>
-                            <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${rtlTextAlign};">
-                                <div><h4 style="font-weight: ${cardSettings.title.fontWeight}; font-size: ${cardSettings.title.fontSize}px; line-height: ${cardSettings.title.lineHeight}; color: ${cardSettings.title.color}; text-overflow: ellipsis; overflow: hidden; white-space: wrap; margin: 0;">${tour.title}</h4></div>
+                            <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${rtlTextAlign}; min-height: 0;">
+                                <div><h4 style="font-weight: ${cardSettings.title.fontWeight}; font-size: ${cardSettings.title.fontSize}px; line-height: ${cardSettings.title.lineHeight}; color: ${cardSettings.title.color}; text-overflow: ellipsis; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; margin: 0;">${escapeHTML(tour.title)}</h4></div>
                                 <div style="margin-top: auto; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; direction:ltr; flex-direction: ${rtlFlex};">
                                     <div style="display: flex; flex-direction: row; gap: 4px; align-items: baseline;">
-                                        <span style="font-size: ${cardSettings.price.fontSize}px; font-weight: ${cardSettings.price.fontWeight}; color: ${cardSettings.price.color};">${'€' + salePrice}</span>
-                                        <span style="font-size: ${cardSettings.duration.fontSize}px; font-weight: ${cardSettings.duration.fontWeight}; color: ${cardSettings.duration.color};">/${tour.durationDays} Days</span>
+                                        <span style="font-size: ${cardSettings.price.fontSize}px; font-weight: ${cardSettings.price.fontWeight}; color: ${cardSettings.price.color};">€${salePrice}</span>
+                                        <span style="font-size: ${cardSettings.duration.fontSize}px; font-weight: ${cardSettings.duration.fontWeight}; color: ${cardSettings.duration.color};">/${durationDays} Days</span>
                                     </div>
                                     <div style="display: flex; flex-direction: row; gap: 5px; align-items: baseline;">
                                         <span style="font-size: ${cardSettings.rating.fontSize}px; font-weight: ${cardSettings.rating.fontWeight}; color: ${cardSettings.rating.color};">${rate}</span>
-                                        <span style="font-size: ${cardSettings.reviews.fontSize}px; font-weight: ${cardSettings.reviews.fontWeight}; color: ${cardSettings.reviews.color};">(${tour.rateCount} Reviews)</span>
+                                        <span style="font-size: ${cardSettings.reviews.fontSize}px; font-weight: ${cardSettings.reviews.fontWeight}; color: ${cardSettings.reviews.color};">(${rateCount} Reviews)</span>
                                     </div>
                                 </div>
-                                <div style="padding: 0 4px;">
-                                    <div style="direction:ltr; display:flex; height: 33px; width: 100%; align-items: center; justify-content: space-between; border-radius: 5px; background-color: ${cardSettings.button.bgColor}; padding: 0 20px; text-decoration: none; flex-direction: ${rtlFlex};">
+                                <div style="padding: 0 4px; flex-shrink: 0;">
+                                    <div style="direction:ltr; display:flex; height: 33px; width: 100%; align-items: center; justify-content: space-between; border-radius: 5px; background-color: ${buttonBgColor}; padding: 0 20px; text-decoration: none; flex-direction: ${rtlFlex}; box-sizing: border-box; transition: background-color 0.3s;"
+                                         onmouseover="this.style.backgroundColor='${buttonBgHoverColor}'"
+                                         onmouseout="this.style.backgroundColor='${buttonBgColor}'"
+                                    >
                                         <span style="font-size: ${cardSettings.button.fontSize}px; font-weight: ${cardSettings.button.fontWeight}; color: ${cardSettings.button.color};">View More</span>
                                         <div style="width: ${cardSettings.button.arrowSize}px; height: ${cardSettings.button.arrowSize}px; border-top: 2px solid ${cardSettings.button.color}; border-right: 2px solid ${cardSettings.button.color}; transform: rotate(${rtlArrow}); border-radius: 2px;"></div>
                                     </div>
@@ -242,7 +263,7 @@ HTML;
                     </div>`;
                 };
                 
-                const fetchTourData = (idsToFetch) => {
+                const fetchTourData = (idsToFetch, retries = 2) => {
                     const uniqueIds = Array.from(new Set(idsToFetch)).filter(id => !fetchedIds.has(id));
                     if (uniqueIds.length === 0) return;
                     uniqueIds.forEach(id => fetchedIds.add(id));
@@ -257,35 +278,62 @@ HTML;
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: body
-                    }).then(r => r.json()).then(res => {
-                        if(res.success && Array.isArray(res.data)) res.data.forEach(tour => {
-                            container.querySelectorAll(`.swiper-slide[data-tour-id="${tour.id}"]`).forEach(slide => {
-                                if(slide.querySelector('.yab-tour-card-skeleton')) {
-                                    const image = new Image();
-                                    image.src = tour.bannerImage.url;
-                                    image.onload = () => { 
-                                        slide.innerHTML = generateTourCardHTML(tour); 
-                                        slide.classList.add('is-loaded'); 
-                                    };
-                                    image.onerror = () => { // Fallback if image fails to load
-                                        slide.innerHTML = generateTourCardHTML(tour); 
-                                        slide.classList.add('is-loaded'); 
-                                    };
-                                }
+                    }).then(r => r.ok ? r.json() : Promise.reject(`HTTP error! status: ${r.status}`)).then(res => {
+                        if(res.success && Array.isArray(res.data)) {
+                            res.data.forEach(tour => {
+                                if (!tour || !tour.id) return;
+                                container.querySelectorAll(`.swiper-slide[data-tour-id="${tour.id}"]`).forEach(slide => {
+                                    if(slide.querySelector('.yab-tour-card-skeleton')) {
+                                        const image = new Image();
+                                        const imageUrl = tour.bannerImage?.url || 'https://placehold.co/276x204/e0e0e0/cccccc?text=No+Image';
+                                        image.src = imageUrl;
+                                        image.onload = () => { 
+                                            slide.innerHTML = generateTourCardHTML(tour); 
+                                            slide.classList.add('is-loaded'); 
+                                        };
+                                        image.onerror = () => { // Fallback if image fails to load
+                                            slide.innerHTML = generateTourCardHTML(tour); 
+                                            slide.classList.add('is-loaded'); 
+                                        };
+                                    }
+                                });
                             });
-                        });
-                    }).catch(error => console.error('AJAX call failed!', error));
+                        } else {
+                            console.error('AJAX error or invalid data:', res.data ? res.data.message : 'Unknown error');
+                        }
+                    }).catch(error => {
+                        console.error('AJAX call failed!', error);
+                        uniqueIds.forEach(id => fetchedIds.delete(id)); // Allow retry
+                        if(retries > 0) {
+                            setTimeout(() => fetchTourData(uniqueIds, retries - 1), 2000);
+                        } else {
+                             uniqueIds.forEach(id => {
+                                container.querySelectorAll(`.swiper-slide[data-tour-id="${id}"]`).forEach(slide => {
+                                    if(slide.querySelector('.yab-tour-card-skeleton')) {
+                                         slide.innerHTML = '<div style="color: red; text-align: center; padding: 20px; width: 295px; height: 375px; box-sizing: border-box;">Load failed</div>';
+                                    }
+                                });
+                             });
+                        }
+                    });
                 };
                 
                 const checkAndLoadSlides = (swiper) => {
-                    if (!swiper || !swiper.slides || swiper.slides.length === 0) return;
+                    if (!swiper || !swiper.slides || swiper.slides.length === 0 || !swiper.params) return;
                     const idsToFetch = new Set();
                     const slides = Array.from(swiper.slides);
                     const isGrid = swiper.params.grid && swiper.params.grid.rows > 1;
                     const rows = isGrid ? swiper.params.grid.rows : 1;
-                    const slidesPerView = swiper.params.slidesPerView;
-                    const slidesToLoadCount = (slidesPerView * rows) * 2;
-                    const slidesToCheck = slides.slice(swiper.activeIndex, swiper.activeIndex + slidesToLoadCount);
+                     let slidesPerView = 1;
+                     if (swiper.params.slidesPerView && swiper.params.slidesPerView !== 'auto') {
+                         slidesPerView = parseInt(swiper.params.slidesPerView, 10);
+                         if (isNaN(slidesPerView)) slidesPerView = 1;
+                     } else if (swiper.params.slidesPerView === 'auto') {
+                         slidesPerView = swiper.visibleSlides ? swiper.visibleSlides.length : 1;
+                     }
+                    const startIndex = Math.max(0, swiper.activeIndex || 0);
+                    const slidesToLoadCount = Math.max(1, (slidesPerView * rows) * 2);
+                    const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount);
                     
                     if (slidesToCheck.length > 0) {
                         slidesToCheck.forEach(slide => { if(slide.dataset.tourId) idsToFetch.add(parseInt(slide.dataset.tourId, 10)); });
@@ -298,7 +346,9 @@ HTML;
                     spaceBetween: <?php echo esc_js($space_between); ?>,
                     loop: <?php echo json_encode($loop); ?>,
                     dir: '<?php echo esc_js($direction); ?>',
-                    on: { init: (s) => setTimeout(() => checkAndLoadSlides(s), 150), slideChange: checkAndLoadSlides, resize: checkAndLoadSlides }
+                    on: { init: (s) => setTimeout(() => checkAndLoadSlides(s), 150), slideChange: checkAndLoadSlides, resize: checkAndLoadSlides },
+                    observer: true,
+                    observeParents: true
                 };
                 
                 <?php if ($autoplay_enabled): ?> swiperOptions.autoplay = { delay: <?php echo esc_js($autoplay_delay); ?>, disableOnInteraction: false }; <?php endif; ?>
@@ -310,7 +360,15 @@ HTML;
                     swiperOptions.spaceBetween = 20;
                 <?php endif; ?>
 
-                new Swiper(swiperEl, swiperOptions);
+                if (typeof Swiper !== 'undefined') {
+                    try {
+                        new Swiper(swiperEl, swiperOptions);
+                    } catch (e) {
+                        console.error("Swiper initialization failed for <?php echo esc_js($unique_id); ?>:", e);
+                    }
+                } else {
+                    console.error("Swiper library not loaded for <?php echo esc_js($unique_id); ?>.");
+                }
             });
             </script>
             <?php

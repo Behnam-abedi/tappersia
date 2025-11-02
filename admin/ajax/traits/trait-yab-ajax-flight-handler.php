@@ -233,21 +233,23 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                 // +++ END FIX 2 +++
             }
             
-            $content1_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content1']['color']), esc_attr($design['content1']['fontSize']), esc_attr($design['content1']['fontWeight']));
-            $content2_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content2']['color']), esc_attr($design['content2']['fontSize']), esc_attr($design['content2']['fontWeight']));
-            $content3_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content3']['color']), esc_attr($design['content3']['fontSize']), esc_attr($design['content3']['fontWeight']));
+            $content1_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content1']['color']), esc_attr($design['content1']['fontSize']), esc_attr($desktop_design['content1']['fontWeight']));
+            $content2_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content2']['color']), esc_attr($design['content2']['fontSize']), esc_attr($desktop_design['content2']['fontWeight']));
+            $content3_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content3']['color']), esc_attr($design['content3']['fontSize']), esc_attr($desktop_design['content3']['fontWeight']));
             
             $price_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['price']['color']), esc_attr($design['price']['fontSize']), esc_attr($desktop_design['price']['fontWeight']));
             $price_from_style = sprintf('font-size: %spx;', esc_attr($design['price']['fromFontSize'] ?? 5)); // Add from style
             
+            $button_bg_color = esc_attr($desktop_design['button']['bgColor']);
+            $button_hover_color = esc_attr($desktop_design['button']['BgHoverColor'] ?? $button_bg_color);
             $button_style = sprintf(
-                'background-color: %s; padding: %spx %spx; border-radius: %spx;', 
-                esc_attr($desktop_design['button']['bgColor']),
+                'background-color: %s; padding: %spx %spx; border-radius: %spx; transition: background-color 0.3s;', // <-- افزودن ترنزیشن
+                $button_bg_color,
                 esc_attr($design['button']['paddingY'] ?? 4),
                 esc_attr($design['button']['paddingX'] ?? 13),
                 esc_attr($design['button']['borderRadius'] ?? 4)
             );
-            $button_text_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['button']['color']), esc_attr($design['button']['fontSize']), esc_attr($design['button']['fontWeight']));
+            $button_text_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['button']['color']), esc_attr($design['button']['fontSize']), esc_attr($desktop_design['button']['fontWeight']));
             
             $from_city_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['fromCity']['color']), esc_attr($design['fromCity']['fontSize']), esc_attr($desktop_design['fromCity']['fontWeight']));
             $to_city_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['toCity']['color']), esc_attr($design['toCity']['fontSize']), esc_attr($desktop_design['toCity']['fontWeight']));
@@ -278,7 +280,11 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                             <div class="ticket__price-amount"><span style="{$price_style}">{$price_formatted}</span></div>
                         </div>
                         <a href="{$booking_url}" target="_blank" style="text-decoration: none;">
-                            <div class="ticket__button" style="{$button_style}">
+                            <div class="ticket__button" 
+                                 style="{$button_style}"
+                                 onmouseover="this.style.backgroundColor='{$button_hover_color}'"
+                                 onmouseout="this.style.backgroundColor='{$button_bg_color}'"
+                            >
                                 <span class="ticket__button-text" style="{$button_text_style}">Book Now</span>
                             </div>
                         </a>
@@ -340,7 +346,16 @@ HTML;
                 'content2' => ['text' => 'BEST DEALS', 'color' => '#111111', 'fontSize' => 18, 'fontWeight' => '700'],
                 'content3' => ['text' => 'on Iran Domestic Flight Booking', 'color' => '#333333', 'fontSize' => 14, 'fontWeight' => '400'],
                 'price' => ['color' => '#00BAA4', 'fontSize' => 17, 'fontWeight' => '700', 'fromFontSize' => 10],
-                'button' => ['bgColor' => '#1EC2AF', 'color' => '#FFFFFF', 'fontSize' => 13, 'fontWeight' => '600', 'paddingX' => 33, 'paddingY' => 10, 'borderRadius' => 8],
+                'button' => [
+                    'bgColor' => '#1EC2AF', 
+                    'BgHoverColor' => '#169a8d', 
+                    'color' => '#FFFFFF', 
+                    'fontSize' => 13, 
+                    'fontWeight' => '600', 
+                    'paddingX' => 33, 
+                    'paddingY' => 10, 
+                    'borderRadius' => 8
+                ],
                 'fromCity' => ['color' => '#000000', 'fontSize' => 16, 'fontWeight' => '700'],
                 'toCity' => ['color' => '#000000', 'fontSize' => 16, 'fontWeight' => '700'],
             ];

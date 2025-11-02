@@ -119,7 +119,8 @@ class Yab_Flight_Ticket {
                     case 'bgColor':
                     case 'borderColor':
                     case 'color': // For text colors
-                    case 'bgColor': // For button bg
+                    // case 'bgColor': // For button bg - Duplicated, removed one
+                    case 'BgHoverColor': // <<< افزوده شد
                         $sanitized[$key] = sanitize_text_field($value); // Use sanitize_text_field to allow rgba
                         break;
                     case 'widthUnit':

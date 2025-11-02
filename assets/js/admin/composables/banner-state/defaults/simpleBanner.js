@@ -21,6 +21,7 @@ export const createDefaultSimplePart = () => ({
     buttonText: 'Click Here',
     buttonLink: '#',
     buttonBgColor: '#1EC2AF',
+    buttonBgHoverColor: '#169a8d', // <<< افزوده شد
     buttonTextColor: '#ffffff',
     buttonBorderRadius: 3,
     buttonFontSize: 8,
@@ -40,5 +41,6 @@ export const createDefaultSimpleBannerMobilePart = () => {
     mobileDefaults.buttonPaddingY = 8;
     mobileDefaults.buttonPaddingX = 12;
     mobileDefaults.buttonMinWidth = 0;
+    // buttonBgHoverColor از دسکتاپ به ارث می‌رسد
     return mobileDefaults;
 };

@@ -17,15 +17,32 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
             $mobile_b['direction'] = $desktop_b['direction'] ?? 'ltr';
             $banner_id = $this->banner_id;
             
+            // +++ START: افزودن استایل هاور +++
+            $desktop_hover_color = esc_attr($desktop_b['buttonBgHoverColor'] ?? $desktop_b['buttonBgColor']);
+            $mobile_hover_color = esc_attr($mobile_b['buttonBgHoverColor'] ?? $desktop_hover_color); // موبایل از دسکتاپ ارث‌بری می‌کند
+            // +++ END: افزودن استایل هاور +++
+
             ob_start();
             ?>
             <style>
                 .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-mobile { display: none; }
                 .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-desktop { display: flex; }
                 
+                /* +++ START: افزودن استایل هاور +++ */
+                .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-desktop .yab-simple-button:hover {
+                    background-color: <?php echo $desktop_hover_color; ?> !important;
+                }
+                /* +++ END: افزودن استایل هاور +++ */
+
                 @media (max-width: 768px) {
                     .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-desktop { display: none; }
                     .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-mobile { display: flex; }
+                
+                    /* +++ START: افزودن استایل هاور +++ */
+                    .yab-simple-banner-wrapper-<?php echo $banner_id; ?> .yab-banner-mobile .yab-simple-button:hover {
+                         background-color: <?php echo $mobile_hover_color; ?> !important;
+                    }
+                    /* +++ END: افزودن استایل هاور +++ */
                 }
             </style>
             
@@ -62,6 +79,7 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
                 </span>
                 <a href="<?php echo esc_url($b['buttonLink']); ?>" 
                    target="_blank" 
+                   class="yab-simple-button" 
                    style="background-color: <?php echo esc_attr($b['buttonBgColor']); ?>;
                           border-radius: <?php echo esc_attr($b['buttonBorderRadius']); ?>px;
                           color: <?php echo esc_attr($b['buttonTextColor']); ?>;
@@ -74,6 +92,7 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
                           box-sizing: border-box;
                           flex-shrink: 0;
                           line-height: 1;
+                          transition: background-color 0.3s; 
                           ">
                     <?php echo esc_html($b['buttonText']); ?>
                 </a>

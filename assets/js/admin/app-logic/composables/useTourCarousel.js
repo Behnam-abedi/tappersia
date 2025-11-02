@@ -151,6 +151,9 @@ export const TourCarouselLogic = {
             const rtlArrow = isRTL.value ? '-135deg' : '45deg';
             const provincePos = isRTL.value ? `left: ${card.province?.side || 11}px;` : `right: ${card.province?.side || 11}px;`;
 
+            const buttonBgColor = escapeHTML(card.button?.bgColor || '#00BAA4');
+            const buttonBgHoverColor = escapeHTML(card.button?.BgHoverColor || buttonBgColor);
+
             return `
                 <div class="yab-tour-card" style="
                     position: relative; text-decoration: none; color: inherit; display: block;
@@ -183,7 +186,10 @@ export const TourCarouselLogic = {
                                 </div>
                             </div>
                             <div style="padding: 0 4px; flex-shrink: 0;"> 
-                                <div style="direction:ltr; display:flex; height: 33px; width: 100%; align-items: center; justify-content: space-between; border-radius: 5px; background-color: ${card.button?.bgColor || '#00BAA4'}; padding: 0 20px; text-decoration: none; flex-direction: ${rtlFlex}; box-sizing: border-box;"> 
+                                <div style="direction:ltr; display:flex; height: 33px; width: 100%; align-items: center; justify-content: space-between; border-radius: 5px; background-color: ${buttonBgColor}; padding: 0 20px; text-decoration: none; flex-direction: ${rtlFlex}; box-sizing: border-box; transition: background-color 0.3s;"
+                                     onmouseover="this.style.backgroundColor='${buttonBgHoverColor}'"
+                                     onmouseout="this.style.backgroundColor='${buttonBgColor}'"
+                                > 
                                     <span style="font-size: ${card.button?.fontSize || 13}px; font-weight: ${card.button?.fontWeight || 600}; color: ${card.button?.color || '#FFFFFF'};">View More</span>
                                     <div style="width: ${card.button?.arrowSize || 10}px; height: ${card.button?.arrowSize || 10}px; border-top: 2px solid ${card.button?.color || '#FFFFFF'}; border-right: 2px solid ${card.button?.color || '#FFFFFF'}; transform: rotate(${rtlArrow}); border-radius: 2px;"></div>
                                 </div>

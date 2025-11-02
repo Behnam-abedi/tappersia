@@ -66,6 +66,7 @@ export const createDefaultFlightTicketPart = () => ({
         // .ticket__button
         button: {
             bgColor: '#1EC2AF',
+            BgHoverColor: '#169a8d',
             color: '#FFFFFF',
             fontSize: 13,
             fontWeight: '600',
