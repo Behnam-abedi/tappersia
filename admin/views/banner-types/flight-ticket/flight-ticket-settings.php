@@ -71,45 +71,69 @@
             </div>
     </div>
 
-    <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2" v-if="currentView === 'desktop'">
-        <h3 class="font-bold text-xl text-white tracking-wide mb-5">Banner Background</h3>
-        <div class="space-y-4">
-             <div>
-                <h4 class="section-title">Layers Control</h4>
-                <div class="flex rounded-lg bg-[#292929] overflow-hidden">
-                    <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Image Below Color</button>
-                    <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Color Below Image</button>
-                </div>
+<div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
+    <h3 class="font-bold text-xl text-white tracking-wide mb-5">Banner Background</h3>
+    <div class="space-y-4">
+        
+        <div v-if="currentView === 'desktop'">
+            <h4 class="section-title">Layers Control</h4>
+            <div class="flex rounded-lg bg-[#292929] overflow-hidden">
+                <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Image Below Color</button>
+                <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Color Below Image</button>
             </div>
             <hr class="section-divider">
-            <div>
-                <h4 class="section-title">Background Overlay</h4>
-                <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none">
-                    <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg border-none">Solid</button>
-                    <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg border-none">Gradient</button>
+        </div>
+
+        <div>
+            <h4 class="section-title">Background Overlay</h4>
+            
+            <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none" v-if="currentView === 'desktop'">
+                <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg border-none">Solid</button>
+                <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg border-none">Gradient</button>
+            </div>
+            
+            <div v-if="settings.backgroundType === 'solid' && currentView === 'desktop'" class="space-y-2">
+                <label class="setting-label-sm">Color</label>
+                <div class="flex items-center gap-1"><div :style="{ backgroundColor: settings.bgColor }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" v-model="settings.bgColor" data-coloris class="yab-form-input clr-field flex-grow"></div>
+            </div>
+
+            <div v-else-if="settings.backgroundType === 'gradient'" class="space-y-4">
+                
+                <div>
+                    <label class="setting-label-sm">Angle: {{ settings.gradientAngle }}deg</label>
+                    <input type="range" v-model.number="settings.gradientAngle" min="0" max="360" class="w-full">
                 </div>
-                <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
-                    <label class="setting-label-sm">Color</label>
-                    <div class="flex items-center gap-1"><div :style="{ backgroundColor: settings.bgColor }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" v-model="settings.bgColor" data-coloris class="yab-form-input clr-field flex-grow"></div>
-                </div>
-                <div v-else class="space-y-4">
-                    <div><label class="setting-label-sm">Angle: {{ settings.gradientAngle }}deg</label><input type="range" v-model.number="settings.gradientAngle" min="0" max="360" class="w-full"></div>
-                    <div>
-                        <label class="setting-label-sm">Colors</label>
-                        <div v-for="(stop, index) in settings.gradientStops" :key="index" class="bg-[#292929] p-3 rounded-lg mb-2 space-y-2">
-                            <div class="flex items-center justify-between"><span class="text-xs font-bold text-gray-300">Stop #{{ index + 1 }}</span><button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings, index)" class="text-red-500 text-xs">Remove</button></div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="flex items-center gap-1"><div :style="{ backgroundColor: stop.color }" class="w-8 h-[40px] rounded border border-gray-500"></div><input type="text" :value="stop.color" @input="event => stop.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow"></div>
-                                <button @click="stop.color = 'transparent'" class="bg-gray-600 text-white text-xs rounded-md hover:bg-gray-500">Set Transparent</button>
-                            </div>
-                            <div><label class="setting-label-sm">Position: {{ stop.stop }}%</label><input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full"></div>
+                
+                <div>
+                    <label class="setting-label-sm" v-if="currentView === 'desktop'">Colors & Positions</label>
+                    <label class="setting-label-sm" v-else>Positions (Colors synced from Desktop)</label>
+                    
+                    <div v-for="(stop, index) in settings.gradientStops" :key="index" class="bg-[#292929] p-3 rounded-lg mb-2 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-gray-300">Stop #{{ index + 1 }}</span>
+                            <button v-if="settings.gradientStops.length > 1 && currentView === 'desktop'" @click="removeGradientStop(settings, index)" class="text-red-500 text-xs">Remove</button>
                         </div>
-                        <button @click="addGradientStop(settings)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center gap-1" v-if="currentView === 'desktop'">
+                                <div :style="{ backgroundColor: stop.color }" class="w-8 h-[40px] rounded border border-gray-500"></div>
+                                <input type="text" :value="stop.color" @input="event => stop.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow">
+                            </div>
+                            <button v-if="currentView === 'desktop'" @click="stop.color = 'transparent'" class="bg-gray-600 text-white text-xs rounded-md hover:bg-gray-500">Set Transparent</button>
+                        </div>
+                        
+                        <div>
+                            <label class="setting-label-sm">Position: {{ stop.stop }}%</label>
+                            <input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full">
+                        </div>
                     </div>
+                    
+                    <button v-if="currentView === 'desktop'" @click="addGradientStop(settings)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2" v-if="currentView === 'desktop'">
         <h3 class="font-bold text-xl text-white tracking-wide mb-5">Banner Image</h3>

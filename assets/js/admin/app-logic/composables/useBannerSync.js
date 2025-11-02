@@ -344,6 +344,7 @@ export function useBannerSync(banner, currentView) {
     // --- END: ADDED HOTEL CAROUSEL CONTINUOUS SYNC ---
 
     // +++ START: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
+// +++ START: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
     watch(() => banner.flight_ticket.design, (newDesktopSettings) => {
         if (banner.type !== 'flight-ticket' || !banner.flight_ticket.isMobileConfigured) return;
 
@@ -353,8 +354,25 @@ export function useBannerSync(banner, currentView) {
         mobile.layerOrder = newDesktopSettings.layerOrder;
         mobile.backgroundType = newDesktopSettings.backgroundType;
         mobile.bgColor = newDesktopSettings.bgColor;
-        mobile.gradientAngle = newDesktopSettings.gradientAngle;
-        mobile.gradientStops = JSON.parse(JSON.stringify(newDesktopSettings.gradientStops));
+        
+        // mobile.gradientAngle = newDesktopSettings.gradientAngle; // <<< حذف شد تا زاویه موبایل مستقل باشد
+
+        // --- START: همگام سازی هوشمند رنگ گرادینت ---
+        // این بخش رنگ‌ها را سینک می‌کند اما موقعیت‌ها (stops) را مستقل نگه می‌دارد
+        if (newDesktopSettings.gradientStops && Array.isArray(newDesktopSettings.gradientStops)) {
+            const newMobileStops = [];
+            newDesktopSettings.gradientStops.forEach((desktopStop, index) => {
+                // چک می‌کند آیا آیتم متناظری در آرایه موبایل وجود دارد
+                const existingMobileStop = (mobile.gradientStops && mobile.gradientStops[index]) ? mobile.gradientStops[index] : null;
+                
+                newMobileStops.push({
+                    color: desktopStop.color, // رنگ همیشه از دسکتاپ می‌آید
+                    stop: existingMobileStop ? existingMobileStop.stop : desktopStop.stop // پوزیشن موبایل حفظ می‌شود، اگر وجود نداشت از دسکتاپ می‌آید
+                });
+            });
+            mobile.gradientStops = newMobileStops; // این کار حذف و اضافه شدن آیتم‌ها را هم مدیریت می‌کند
+        }
+        // --- END: همگام سازی هوشمند رنگ گرادینت ---
         
         mobile.imageUrl = newDesktopSettings.imageUrl;
 
@@ -373,5 +391,6 @@ export function useBannerSync(banner, currentView) {
         mobile.toCity.color = newDesktopSettings.toCity.color;
 
     }, { deep: true });
+    // +++ END: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
     // +++ END: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
 }

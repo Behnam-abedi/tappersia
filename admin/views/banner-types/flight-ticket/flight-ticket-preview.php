@@ -128,18 +128,17 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
                     justifyContent: 'space-between' /* Added */
                 }">
                 <div class="promo-banner__background" :style="{ 
-                        background: bannerStyles(banner.flight_ticket.design), /* Mobile uses desktop colors */
-                        zIndex: banner.flight_ticket.design.layerOrder === 'overlay-below-image' ? 1 : 2,
+                        background: bannerStyles(settings), /* FIX: Changed from banner.flight_ticket.design */
+                        zIndex: settings.layerOrder === 'overlay-below-image' ? 1 : 2, /* FIX: Changed from banner.flight_ticket.design */
                         borderRadius: settings.borderRadius + 'px'
                     }"></div>
                     
-                    <div v-if="banner.flight_ticket.design.imageUrl" class="promo-banner__image-wrapper" :style="{ 
-                        zIndex: banner.flight_ticket.design.layerOrder === 'overlay-below-image' ? 2 : 1, 
+                    <div v-if="settings.imageUrl" class="promo-banner__image-wrapper" :style="{ /* FIX: Changed from banner.flight_ticket.design.imageUrl */
+                        zIndex: settings.layerOrder === 'overlay-below-image' ? 2 : 1, /* FIX: Changed from banner.flight_ticket.design */
                         borderRadius: settings.borderRadius + 'px', 
                         overflow: 'hidden' 
                     }">
-                        <img :src="banner.flight_ticket.design.imageUrl" alt="Banner Image" :style="imageStyleObject(settings)">
-                    </div>
+                        <img :src="settings.imageUrl" alt="Banner Image" :style="imageStyleObject(settings)"> </div>
                     
                     <div class="promo-banner__content"
                          :style="{ 
@@ -207,5 +206,5 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
                 </div>
             </div>
         </div>
-    </transition>
+        </transition>
     </div>

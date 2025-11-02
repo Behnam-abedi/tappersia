@@ -211,11 +211,11 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
             $bg_z_index = ($desktop_design['layerOrder'] === 'overlay-below-image') ? 1 : 2;
             $img_z_index = ($desktop_design['layerOrder'] === 'overlay-below-image') ? 2 : 1;
             
-            // +++ START FIX 1: Add border-radius to background style +++
-            $background_style = $this->_get_background_style_for_flight($desktop_design) . 
+            // +++ START: *** FIX *** (Uses $design for mobile stops/angle) +++
+            $background_style = $this->_get_background_style_for_flight($design) . 
                                 ' z-index: ' . $bg_z_index . ';' .
                                 ' border-radius: ' . esc_attr($design['borderRadius']) . 'px;';
-            // +++ END FIX 1 +++
+            // +++ END: *** FIX *** +++
             
             $image_html = '';
             if (!empty($desktop_design['imageUrl'])) {
@@ -413,6 +413,15 @@ HTML;
                 ];
                 // Deep merge: Start with defaults, apply desktop, then apply mobile-specific defaults, then apply saved mobile settings
                 $mobile_design = array_replace_recursive($defaults, $desktop_design, $mobile_defaults, $mobile_design);
+
+                // *** FIX: Manually re-apply mobile-specific gradient stops and angle if they exist ***
+                // This ensures the independent mobile settings (saved in DB) override the merged desktop ones.
+                if (isset($data['flight_ticket']['design_mobile']['gradientAngle'])) {
+                    $mobile_design['gradientAngle'] = $data['flight_ticket']['design_mobile']['gradientAngle'];
+                }
+                 if (isset($data['flight_ticket']['design_mobile']['gradientStops'])) {
+                    $mobile_design['gradientStops'] = $data['flight_ticket']['design_mobile']['gradientStops'];
+                }
             }
             // --- END: Load Design Settings ---
             
