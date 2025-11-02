@@ -155,33 +155,44 @@ export function useBannerSync(banner, currentView) {
         }
         // --- END: ADDED HOTEL CAROUSEL SYNC ---
         
-        // +++ START: ADDED FLIGHT TICKET SYNC +++
+        // +++ START: --- FIX for Flight Ticket Sync --- +++
         if (banner.type === 'flight-ticket' && newView === 'mobile' && !banner.flight_ticket.isMobileConfigured) {
             const desktop = banner.flight_ticket.design;
             const mobile = banner.flight_ticket.design_mobile;
 
-            // 1. Deep copy desktop settings to mobile
-            Object.assign(mobile, JSON.parse(JSON.stringify(desktop)));
+            // به جای کپی کامل آبجکت، فقط مقادیر مشترک (متن، رنگ، عکس) را همگام‌سازی می‌کنیم
+            // این کار باعث حفظ دیفالت‌های مخصوص موبایل (مثل minHeight, padding, fontSize) می‌شود
+            // که از قبل در bannerState.js ست شده‌اند.
 
-            // 2. Apply specific mobile overrides based on user request
-            mobile.minHeight = 70;
-            mobile.borderRadius = 8;
-            mobile.padding = 5;
+            // همگام‌سازی مقادیر مشترک (متن‌ها، رنگ‌ها، تصویر)
+            mobile.layerOrder = desktop.layerOrder;
+            mobile.backgroundType = desktop.backgroundType;
+            mobile.bgColor = desktop.bgColor;
+            mobile.gradientAngle = desktop.gradientAngle;
+            mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
             
-            mobile.fromCity.fontSize = 8;
-            mobile.toCity.fontSize = 8;
-            
-            mobile.button.fontSize = 8;
-            mobile.button.paddingX = 13;
-            mobile.button.paddingY = 4;
-            mobile.button.borderRadius = 4;
-            
-            mobile.price.fontSize = 8;
-            mobile.price.fromFontSize = 5;
+            mobile.imageUrl = desktop.imageUrl;
+
+            mobile.content1.text = desktop.content1.text;
+            mobile.content1.color = desktop.content1.color;
+            mobile.content2.text = desktop.content2.text;
+            mobile.content2.color = desktop.content2.color;
+            mobile.content3.text = desktop.content3.text;
+            mobile.content3.color = desktop.content3.color;
+
+            mobile.price.color = desktop.price.color;
+            mobile.button.bgColor = desktop.button.bgColor;
+            mobile.button.BgHoverColor = desktop.button.BgHoverColor;
+            mobile.button.color = desktop.button.color;
+            mobile.fromCity.color = desktop.fromCity.color;
+            mobile.toCity.color = desktop.toCity.color;
+
+            // مقادیر چیدمان مخصوص موبایل (minHeight, padding, fontSizes و...)
+            // که از createDefaultFlightTicketMobilePart آمده‌اند، دست نخورده باقی می‌مانند.
             
             banner.flight_ticket.isMobileConfigured = true;
         }
-        // +++ END: ADDED FLIGHT TICKET SYNC +++
+        // +++ END: --- FIX for Flight Ticket Sync --- +++
 
     });
 

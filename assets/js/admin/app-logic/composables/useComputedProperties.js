@@ -87,12 +87,15 @@ export function useComputedProperties(banner, currentView, selectedDoubleBanner)
                 return currentView.value === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile;
             case 'hotel-carousel':
                 return currentView.value === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile;
-            // --- START FIX: Added flight-ticket case ---
+            
+            // --- START: --- FIX for flight-ticket case ---
             case 'flight-ticket':
-                // This template creates its own 'settings' var, but we add this for robustness
-                // and to prevent the computed prop from returning a default object.
-                return banner.flight_ticket.design; 
-            // --- END FIX ---
+                // آبجکت تنظیمات صحیح را بر اساس نمای فعلی برمی‌گرداند
+                return currentView.value === 'desktop' 
+                    ? banner.flight_ticket.design 
+                    : banner.flight_ticket.design_mobile;
+            // --- END: --- FIX for flight-ticket case ---
+            
             default:
                 return { header: {} };
         }
