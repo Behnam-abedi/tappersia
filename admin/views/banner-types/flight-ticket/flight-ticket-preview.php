@@ -19,8 +19,10 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
             <span class="text-xs text-gray-400 mb-2">Desktop View</span>
             <div class="bg-[#292929] rounded-lg p-6 overflow-hidden w-full" :set="settings = banner.flight_ticket.design">
                 
-                <div class="promo-banner" :style="{ 
-                    minHeight: settings.minHeight + 'px', 
+                <div class="promo-banner" 
+                     :class="{'right-ticket-promo': settings.ticketLayout === 'right'}"
+                     :style="{ 
+                minHeight: settings.minHeight + 'px', 
                     borderRadius: settings.borderRadius + 'px', 
                     padding: settings.padding + 'px',
                     overflow: 'hidden',
@@ -113,8 +115,11 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
             <span class="text-xs text-gray-400 mb-2">Mobile View</span>
             <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
                 
-                <div class="promo-banner w-full" :set="settings = banner.flight_ticket.design_mobile" :style="{ 
-                    minHeight: settings.minHeight + 'px', 
+                <div class="promo-banner w-full" 
+                     :set="settings = banner.flight_ticket.design_mobile"
+                     :class="{'right-ticket-promo': banner.flight_ticket.design.ticketLayout === 'right'}"
+                     :style="{ 
+                minHeight: settings.minHeight + 'px', 
                     borderRadius: settings.borderRadius + 'px', 
                     padding: settings.padding + 'px',
                     overflow: 'hidden',

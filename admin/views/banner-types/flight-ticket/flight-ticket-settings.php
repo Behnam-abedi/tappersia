@@ -60,7 +60,15 @@
                 <label class="setting-label-sm">Padding (px)</label>
                 <input type="number" v-model.number="settings.padding" class="yab-form-input" placeholder="e.g., 12">
             </div>
-        </div>
+            
+            <div v-if="currentView === 'desktop'">
+                <label class="setting-label-sm">Layout (Content Position)</label>
+                <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
+                    <button @click="settings.ticketLayout = 'left'" :class="{'active-tab': settings.ticketLayout === 'left'}" class="flex-1 tab-button rounded-md">Left</button>
+                    <button @click="settings.ticketLayout = 'right'" :class="{'active-tab': settings.ticketLayout === 'right'}" class="flex-1 tab-button rounded-md">Right</button>
+                </div>
+            </div>
+            </div>
     </div>
 
     <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2" v-if="currentView === 'desktop'">

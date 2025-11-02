@@ -10,6 +10,10 @@ export const createDefaultFlightTicketPart = () => ({
     
     // --- START: Added Design Settings ---
     design: {
+        // --- START: ADDED TICKET LAYOUT ---
+        ticketLayout: 'left', // 'left' or 'right'
+        // --- END: ADDED TICKET LAYOUT ---
+
         // .promo-banner
         minHeight: 150,
         borderRadius: 16,
@@ -101,6 +105,10 @@ export const createDefaultFlightTicketMobilePart = () => {
     const mobileDefaults = createDefaultFlightTicketPart(); // Start with desktop defaults
 
     // --- Apply Mobile Overrides ---
+    
+    // --- START: ADDED TICKET LAYOUT (Mobile inherits from desktop default) ---
+    mobileDefaults.design.ticketLayout = 'left'; 
+    // --- END: ADDED TICKET LAYOUT ---
 
     // 1. Banner Overrides
     mobileDefaults.design.minHeight = 70;

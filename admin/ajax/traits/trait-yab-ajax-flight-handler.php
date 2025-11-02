@@ -192,6 +192,12 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
         private function _render_flight_ticket_html($design, $desktop_design, $from, $to, $price_formatted, $booking_url, $svg_url, $unique_id) {
             
             // --- Apply Dynamic Styles ---
+            
+            // --- START: ADDED TICKET LAYOUT CLASS ---
+            // Read the layout setting (default to 'left' if not set)
+            $ticket_layout_class = ($desktop_design['ticketLayout'] ?? 'left') === 'right' ? ' right-ticket-promo' : '';
+            // --- END: ADDED TICKET LAYOUT CLASS ---
+
             // START: FIX - Added display:flex, align-items:center, justify-content:space-between
             $promo_banner_style = sprintf(
                 'min-height: %spx; border-radius: %spx; padding: %spx; display: flex; align-items: center; justify-content: space-between;',
@@ -276,9 +282,10 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
 
             // --- Updated HTML block ---
             // START: FIX - Added style to .ticket div
+            // --- START: ADDED TICKET LAYOUT CLASS ---
             return <<<HTML
-            <div class="promo-banner" style="{$promo_banner_style}">
-                <div class="promo-banner__background" style="{$background_style}"></div>
+            <div class="promo-banner{$ticket_layout_class}" style="{$promo_banner_style}">
+            <div class="promo-banner__background" style="{$background_style}"></div>
                 {$image_html}
                 <div class="promo-banner__content" style="{$content_container_style}">
                     <span class="promo-banner__content_1" style="{$content1_style}">{$desktop_design['content1']['text']}</span>
@@ -357,6 +364,9 @@ HTML;
             
             // Set defaults if not present
             $defaults = [
+                // --- START: ADDED TICKET LAYOUT DEFAULT ---
+                'ticketLayout' => 'left',
+                // --- END: ADDED TICKET LAYOUT DEFAULT ---
                 'minHeight' => 150, 'borderRadius' => 16, 'padding' => 12,
                 'layerOrder' => 'overlay-below-image', 'backgroundType' => 'solid', 'bgColor' => '#CEE8F6',
                 'imageUrl' => '', 'imagePosLeft' => 0,

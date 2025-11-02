@@ -140,6 +140,13 @@ class Yab_Flight_Ticket {
                         $sanitized[$key] = in_array($value, ['px', '%']) ? $value : '%';
                         break;
                     // END: ADDED contentWidthUnit
+                    
+                    // --- START: ADDED ticketLayout ---
+                    case 'ticketLayout':
+                        $sanitized[$key] = sanitize_text_field(trim($value));
+                        break;
+                    // --- END: ADDED ticketLayout ---
+
                     default:
                         $sanitized[$key] = sanitize_text_field(trim($value));
                 }
