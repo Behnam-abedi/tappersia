@@ -107,7 +107,13 @@ class Yab_Flight_Ticket {
             } elseif (is_bool($value)) {
                 $sanitized[$key] = $value;
             } elseif (is_numeric($value) || $value === null) {
-                $sanitized[$key] = $value;
+                // START: MODIFIED to include contentWidth
+                if ($key === 'contentWidth') {
+                    $sanitized[$key] = floatval($value);
+                } else {
+                    $sanitized[$key] = $value;
+                }
+                // END: MODIFIED
             } else {
                 switch ($key) {
                     case 'imageUrl':
@@ -129,6 +135,11 @@ class Yab_Flight_Ticket {
                     case 'imageHeightUnit':
                          $sanitized[$key] = in_array($value, ['px', '%']) ? $value : 'px';
                         break;
+                    // START: ADDED contentWidthUnit
+                    case 'contentWidthUnit':
+                        $sanitized[$key] = in_array($value, ['px', '%']) ? $value : '%';
+                        break;
+                    // END: ADDED contentWidthUnit
                     default:
                         $sanitized[$key] = sanitize_text_field(trim($value));
                 }

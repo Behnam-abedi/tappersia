@@ -133,7 +133,18 @@
     <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
         <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Text Content</h3>
         <div class="space-y-4">
-            
+
+            <div>
+                <label class="setting-label-sm">Content Width</label>
+                <div class="flex items-center gap-1">
+                    <input type="number" v-model.number="settings.contentWidth" class="yab-form-input" placeholder="100">
+                    <select v-model="settings.contentWidthUnit" class="yab-form-input w-20">
+                        <option>%</option>
+                        <option>px</option>
+                    </select>
+                </div>
+            </div>
+            <hr class="section-divider">
             <div :set="content = settings.content1">
                 <h4 class="section-title">Content 1 (e.g., "Offering")</h4>
                 <div v-if="currentView === 'desktop'">

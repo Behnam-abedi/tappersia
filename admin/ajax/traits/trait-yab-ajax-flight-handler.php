@@ -192,12 +192,14 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
         private function _render_flight_ticket_html($design, $desktop_design, $from, $to, $price_formatted, $booking_url, $svg_url, $unique_id) {
             
             // --- Apply Dynamic Styles ---
+            // START: FIX - Added display:flex, align-items:center, justify-content:space-between
             $promo_banner_style = sprintf(
-                'min-height: %spx; border-radius: %spx; padding: %spx;',
+                'min-height: %spx; border-radius: %spx; padding: %spx; display: flex; align-items: center; justify-content: space-between;',
                 esc_attr($design['minHeight']),
                 esc_attr($design['borderRadius']),
                 esc_attr($design['padding'])
             );
+            // END: FIX
             
             // Use desktop colors/text as fallback
             $bg_z_index = ($desktop_design['layerOrder'] === 'overlay-below-image') ? 1 : 2;
@@ -232,10 +234,25 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
                 );
                 // +++ END FIX 2 +++
             }
+
+            // START: MODIFIED Content Width and Flex properties
+            $content_width_val = $design['contentWidth'] ?? 100;
+            $content_width_unit = $design['contentWidthUnit'] ?? '%';
+            $content_container_style = sprintf(
+                'position: relative; z-index: 3; display: flex; flex-direction: column; justify-content: center; width: %s%s; min-width: 0; margin-left: %s; flex-shrink: 1; flex-grow: 1;', // CHANGED: flex-grow: 1, flex-shrink: 1
+                esc_attr($content_width_val),
+                esc_attr($content_width_unit),
+                // Use strpos to check if the unique_id contains 'mobile'
+                (strpos($unique_id, 'mobile') !== false) ? '7px' : '16px'
+            );
+            // END: MODIFIED Content Width
+
             
-            $content1_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content1']['color']), esc_attr($design['content1']['fontSize']), esc_attr($desktop_design['content1']['fontWeight']));
-            $content2_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content2']['color']), esc_attr($design['content2']['fontSize']), esc_attr($desktop_design['content2']['fontWeight']));
-            $content3_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['content3']['color']), esc_attr($design['content3']['fontSize']), esc_attr($desktop_design['content3']['fontWeight']));
+            // START: ADDED white-space and word-wrap
+            $content1_style = sprintf('color: %s; font-size: %spx; font-weight: %s; white-space: normal; word-wrap: break-word;', esc_attr($desktop_design['content1']['color']), esc_attr($design['content1']['fontSize']), esc_attr($desktop_design['content1']['fontWeight']));
+            $content2_style = sprintf('color: %s; font-size: %spx; font-weight: %s; white-space: normal; word-wrap: break-word;', esc_attr($desktop_design['content2']['color']), esc_attr($design['content2']['fontSize']), esc_attr($desktop_design['content2']['fontWeight']));
+            $content3_style = sprintf('color: %s; font-size: %spx; font-weight: %s; white-space: normal; word-wrap: break-word;', esc_attr($desktop_design['content3']['color']), esc_attr($design['content3']['fontSize']), esc_attr($desktop_design['content3']['fontWeight']));
+            // END: ADDED white-space and word-wrap
             
             $price_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['price']['color']), esc_attr($design['price']['fontSize']), esc_attr($desktop_design['price']['fontWeight']));
             $price_from_style = sprintf('font-size: %spx;', esc_attr($design['price']['fromFontSize'] ?? 5)); // Add from style
@@ -258,17 +275,18 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
             $dest_city = esc_html($to['city']);
 
             // --- Updated HTML block ---
+            // START: FIX - Added style to .ticket div
             return <<<HTML
             <div class="promo-banner" style="{$promo_banner_style}">
                 <div class="promo-banner__background" style="{$background_style}"></div>
                 {$image_html}
-                <div class="promo-banner__content">
+                <div class="promo-banner__content" style="{$content_container_style}">
                     <span class="promo-banner__content_1" style="{$content1_style}">{$desktop_design['content1']['text']}</span>
                     <span class="promo-banner__content_2" style="{$content2_style}">{$desktop_design['content2']['text']}</span>
                     <span class="promo-banner__content_3" style="{$content3_style}">{$desktop_design['content3']['text']}</span>
                 </div>
-                <div class="ticket" id="{$unique_id}">
-                    <div class="ticket__svg-shape-wrapper">
+                <div class="ticket" id="{$unique_id}" style="position: relative; flex-shrink: 0; margin-left: auto;">
+                <div class="ticket__svg-shape-wrapper">
                         <img src="{$svg_url}" alt="Ticket Shape Background" class="ticket__svg-shape-img">
                     </div>
                     <div class="ticket__section ticket__section--actions">
@@ -342,6 +360,10 @@ HTML;
                 'minHeight' => 150, 'borderRadius' => 16, 'padding' => 12,
                 'layerOrder' => 'overlay-below-image', 'backgroundType' => 'solid', 'bgColor' => '#CEE8F6',
                 'imageUrl' => '', 'imagePosLeft' => 0,
+                // START: ADDED Content Width
+                'contentWidth' => 100,
+                'contentWidthUnit' => '%',
+                // END: ADDED Content Width
                 'content1' => ['text' => 'Offering', 'color' => '#555555', 'fontSize' => 12, 'fontWeight' => '400'],
                 'content2' => ['text' => 'BEST DEALS', 'color' => '#111111', 'fontSize' => 18, 'fontWeight' => '700'],
                 'content3' => ['text' => 'on Iran Domestic Flight Booking', 'color' => '#333333', 'fontSize' => 14, 'fontWeight' => '400'],
@@ -367,6 +389,10 @@ HTML;
                 $mobile_design = $data['flight_ticket']['design_mobile'] ?? $desktop_design;
                 $mobile_defaults = [
                     'minHeight' => 70, 'borderRadius' => 8, 'padding' => 5,
+                    // START: ADDED Content Width
+                    'contentWidth' => 100,
+                    'contentWidthUnit' => '%',
+                    // END: ADDED Content Width
                     'content1' => ['fontSize' => $desktop_design['content1']['fontSize']], // Inherit desktop sizes if not set
                     'content2' => ['fontSize' => $desktop_design['content2']['fontSize']],
                     'content3' => ['fontSize' => $desktop_design['content3']['fontSize']],

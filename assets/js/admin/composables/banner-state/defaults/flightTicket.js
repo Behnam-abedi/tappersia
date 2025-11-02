@@ -36,6 +36,10 @@ export const createDefaultFlightTicketPart = () => ({
         imagePosBottom: 0,
         
         // .promo-banner__content (Texts)
+        // START: Added Content Width
+        contentWidth: 100,
+        contentWidthUnit: '%',
+        // END: Added Content Width
         content1: {
             text: 'Offering',
             color: '#555555',
@@ -117,7 +121,11 @@ export const createDefaultFlightTicketMobilePart = () => {
     mobileDefaults.design.price.fontSize = 8;
     mobileDefaults.design.price.fromFontSize = 5;
     
-    // (SVG size and Icon size are controlled by CSS)
+    // START: Added Content Width (Mobile default matches desktop)
+    // (این بخش به‌طور خودکار از دسکتاپ به ارث می‌رسد، اما برای اطمینان اضافه شده)
+    mobileDefaults.design.contentWidth = 100;
+    mobileDefaults.design.contentWidthUnit = '%';
+    // END: Added Content Width
 
     return mobileDefaults;
 };

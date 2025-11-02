@@ -18,13 +18,17 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
         <div v-if="currentView === 'desktop'" class="flex flex-col items-center" key="desktop">
             <span class="text-xs text-gray-400 mb-2">Desktop View</span>
             <div class="bg-[#292929] rounded-lg p-6 overflow-hidden w-full" :set="settings = banner.flight_ticket.design">
+                
                 <div class="promo-banner" :style="{ 
                     minHeight: settings.minHeight + 'px', 
                     borderRadius: settings.borderRadius + 'px', 
                     padding: settings.padding + 'px',
-                    overflow: 'hidden' 
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between' /* Added */
                 }">
-                    <div class="promo-banner__background" :style="{ 
+                <div class="promo-banner__background" :style="{ 
                         background: bannerStyles(settings), 
                         zIndex: settings.layerOrder === 'overlay-below-image' ? 1 : 2,
                         borderRadius: settings.borderRadius + 'px'
@@ -38,14 +42,21 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
                         <img :src="settings.imageUrl" alt="Banner Image" :style="imageStyleObject(settings)">
                     </div>
                     
-                    <div class="promo-banner__content">
-                      <span class="promo-banner__content_1" :style="{ color: settings.content1.color, fontSize: settings.content1.fontSize + 'px', fontWeight: settings.content1.fontWeight }">{{ settings.content1.text }}</span>
-                      <span class="promo-banner__content_2" :style="{ color: settings.content2.color, fontSize: settings.content2.fontSize + 'px', fontWeight: settings.content2.fontWeight }">{{ settings.content2.text }}</span>
-                      <span class="promo-banner__content_3" :style="{ color: settings.content3.color, fontSize: settings.content3.fontSize + 'px', fontWeight: settings.content3.fontWeight }">{{ settings.content3.text }}</span>
+                    <div class="promo-banner__content" 
+                         :style="{ 
+                            'position': 'relative', 'zIndex': 3, 'display': 'flex', 'flexDirection': 'column', 
+                            'width': settings.contentWidth + settings.contentWidthUnit, 
+                            'minWidth': 0, /* 'marginLeft': '16px', */ /* Removed margin-left */
+                            'justifyContent': 'center',
+                            'flexGrow': 0, /* CHANGED from 1 to 0 */
+                            'flexShrink': 1 
+                         }">
+                      <span class="promo-banner__content_1" :style="{ color: settings.content1.color, fontSize: settings.content1.fontSize + 'px', fontWeight: settings.content1.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ settings.content1.text }}</span>
+                      <span class="promo-banner__content_2" :style="{ color: settings.content2.color, fontSize: settings.content2.fontSize + 'px', fontWeight: settings.content2.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ settings.content2.text }}</span>
+                      <span class="promo-banner__content_3" :style="{ color: settings.content3.color, fontSize: settings.content3.fontSize + 'px', fontWeight: settings.content3.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ settings.content3.text }}</span>
                     </div>
-                    
-                    <div class="ticket">
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 352px; height: 129px;">
+                    <div class="ticket" :style="{ 'position': 'relative', 'flex-shrink': 0 }">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 352px; height: 129px;">
                             <img src="<?php echo esc_url($svg_url); ?>" alt="Ticket Shape Background" style="width:100%; height:100%; object-fit: contain;">
                         </div>
                         <div class="ticket__section ticket__section--actions">
@@ -101,13 +112,17 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
         <div v-else-if="currentView === 'mobile'" class="flex flex-col items-center" key="mobile">
             <span class="text-xs text-gray-400 mb-2">Mobile View</span>
             <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
+                
                 <div class="promo-banner w-full" :set="settings = banner.flight_ticket.design_mobile" :style="{ 
                     minHeight: settings.minHeight + 'px', 
                     borderRadius: settings.borderRadius + 'px', 
                     padding: settings.padding + 'px',
-                    overflow: 'hidden' 
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between' /* Added */
                 }">
-                    <div class="promo-banner__background" :style="{ 
+                <div class="promo-banner__background" :style="{ 
                         background: bannerStyles(banner.flight_ticket.design), /* Mobile uses desktop colors */
                         zIndex: banner.flight_ticket.design.layerOrder === 'overlay-below-image' ? 1 : 2,
                         borderRadius: settings.borderRadius + 'px'
@@ -121,14 +136,21 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
                         <img :src="banner.flight_ticket.design.imageUrl" alt="Banner Image" :style="imageStyleObject(settings)">
                     </div>
                     
-                    <div class="promo-banner__content">
-                      <span class="promo-banner__content_1" :style="{ color: banner.flight_ticket.design.content1.color, fontSize: settings.content1.fontSize + 'px', fontWeight: settings.content1.fontWeight }">{{ banner.flight_ticket.design.content1.text }}</span>
-                      <span class="promo-banner__content_2" :style="{ color: banner.flight_ticket.design.content2.color, fontSize: settings.content2.fontSize + 'px', fontWeight: settings.content2.fontWeight }">{{ banner.flight_ticket.design.content2.text }}</span>
-                      <span class="promo-banner__content_3" :style="{ color: banner.flight_ticket.design.content3.color, fontSize: settings.content3.fontSize + 'px', fontWeight: settings.content3.fontWeight }">{{ banner.flight_ticket.design.content3.text }}</span>
+                    <div class="promo-banner__content"
+                         :style="{ 
+                            'position': 'relative', 'zIndex': 3, 'display': 'flex', 'flexDirection': 'column', 
+                            'width': settings.contentWidth + settings.contentWidthUnit, 
+                            'minWidth': 0, /* 'marginLeft': '7px', */ /* Removed margin-left */
+                            'justifyContent': 'center',
+                            'flexGrow': 0, /* CHANGED from 1 to 0 */
+                            'flexShrink': 1
+                         }">
+                      <span class="promo-banner__content_1" :style="{ color: banner.flight_ticket.design.content1.color, fontSize: settings.content1.fontSize + 'px', fontWeight: settings.content1.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ banner.flight_ticket.design.content1.text }}</span>
+                      <span class="promo-banner__content_2" :style="{ color: banner.flight_ticket.design.content2.color, fontSize: settings.content2.fontSize + 'px', fontWeight: settings.content2.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ banner.flight_ticket.design.content2.text }}</span>
+                      <span class="promo-banner__content_3" :style="{ color: banner.flight_ticket.design.content3.color, fontSize: settings.content3.fontSize + 'px', fontWeight: settings.content3.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ banner.flight_ticket.design.content3.text }}</span>
                     </div>
-                    
-                    <div class="ticket mobile-ticket-preview">
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 100%; height: 100%;">
+                    <div class="ticket mobile-ticket-preview" :style="{ 'position': 'relative', 'flex-shrink': 0 }">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 100%; height: 100%;">
                             <img src="<?php echo esc_url($svg_mobile_url); ?>" alt="Ticket Shape Background" class="ticket-shape" style="width:100%; height:100%; object-fit: contain;">
                             </div>
                         <div class="ticket__section ticket__section--actions">
