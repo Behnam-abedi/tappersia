@@ -4,14 +4,9 @@
 <div class="flex flex-col gap-3">
     <div>
         <h4 class="section-title">Layout</h4>
-        <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
-            <label class="setting-label-sm">Enable Custom Dimensions</label>
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" v-model="settings.enableCustomDimensions" class="sr-only peer">
-                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-            </label>
-        </div>
-        <div v-if="settings.enableCustomDimensions" class="grid grid-cols-2 gap-2 mb-4">
+        <?php // *** 2. حذف چک‌باکس Enable Custom Dimensions *** ?>
+        
+        <div class="grid grid-cols-2 gap-2 mb-4"> <?php // *** 2. حذف v-if *** ?>
             <div>
                 <label class="setting-label-sm">Width</label>
                 <div class="flex items-center gap-1">
@@ -20,27 +15,28 @@
                 </div>
             </div>
             <div>
-                <label class="setting-label-sm">Min Height</label>
-                <div class="flex items-center gap-1">
-                    <input type="number" v-model.number="settings.height" class="yab-form-input" placeholder="Height">
-                    <select v-model="settings.heightUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
-                </div>
+                <?php // *** 2. تغییر Min Height فقط به پیکسل *** ?>
+                <label class="setting-label-sm">Min Height (px)</label>
+                <input type="number" v-model.number="settings.minHeight" class="yab-form-input" placeholder="e.g., 150">
             </div>
         </div>
 
         <div class="mt-4">
-             <label class="setting-label-sm">Image Container Width (px)</label>
-            <input type="number" v-model.number="settings.imageContainerWidth" class="yab-form-input">
+            <?php // *** 1. افزودن انتخابگر واحد برای Image Container Width *** ?>
+             <label class="setting-label-sm">Image Container Width</label>
+            <div class="flex items-center gap-1">
+                <input type="number" v-model.number="settings.imageContainerWidth" class="yab-form-input">
+                <select v-model="settings.imageContainerWidthUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
+            </div>
         </div>
     </div>
     <hr class="section-divider">
      <div>
+        <?php // *** 3. تبدیل 4 فیلد پدینگ به 2 فیلد *** ?>
         <h4 class="section-title">Content Padding (px)</h4>
         <div class="grid grid-cols-2 gap-2">
-            <div><label class="setting-label-sm">Top</label><input type="number" v-model.number="settings.paddingTop" class="yab-form-input"></div>
-            <div><label class="setting-label-sm">Bottom</label><input type="number" v-model.number="settings.paddingBottom" class="yab-form-input"></div>
-            <div><label class="setting-label-sm">Left</label><input type="number" v-model.number="settings.paddingLeft" class="yab-form-input"></div>
-            <div><label class="setting-label-sm">Right</label><input type="number" v-model.number="settings.paddingRight" class="yab-form-input"></div>
+            <div><label class="setting-label-sm">Padding Y (Top/Bottom)</label><input type="number" v-model.number="settings.paddingY" class="yab-form-input"></div>
+            <div><label class="setting-label-sm">Padding X (Left/Right)</label><input type="number" v-model.number="settings.paddingX" class="yab-form-input"></div>
         </div>
     </div>
     <hr class="section-divider">
@@ -86,7 +82,7 @@
             <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-md">Solid Color</button>
             <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-md">Gradient</button>
         </div>
-        <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
+        <div v-if="settings.backgroundType === 'solid'" class="space-y-2 mt-2">
             <label class="setting-label-sm">Background Color</label>
             <div class="flex items-center gap-1">
                 <div
@@ -150,7 +146,7 @@
     <div>
         <h4 class="section-title">Title</h4>
         <div class="grid grid-cols-2 gap-2">
-            <div class="col-span-2">
+            <div class="col-span-2" v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Color</label>
                 <div class="flex items-center gap-1">
                     <div
@@ -192,7 +188,7 @@
                 <label class="setting-label-sm">City Font Size (px)</label>
                 <input type="number" v-model.number="settings.citySize" class="yab-form-input w-full">
             </div>
-            <div class="col-span-2">
+            <div class="col-span-2" v-if="currentView === 'desktop'">
                  <label class="setting-label-sm">City Color</label>
                 <div class="flex items-center gap-1">
                     <div
@@ -216,7 +212,7 @@
     <div>
         <h4 class="section-title">Rating & Reviews</h4>
         <div class="grid grid-cols-2 gap-2">
-            <div>
+            <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Rating Box BG</label>
                 <div class="flex items-center gap-1">
                     <div
@@ -234,7 +230,7 @@
                         placeholder="Select color...">
                 </div>
             </div>
-            <div>
+            <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Rating Box Text</label>
                 <div class="flex items-center gap-1">
                     <div
@@ -262,7 +258,7 @@
                     <option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option>
                 </select>
             </div>
-            <div>
+            <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Rating Text Color</label>
                 <div class="flex items-center gap-1">
                     <div
@@ -280,7 +276,7 @@
                         placeholder="Select color...">
                 </div>
             </div>
-             <div>
+             <div :class="currentView === 'mobile' ? 'col-span-2' : ''">
                 <label class="setting-label-sm">Rating Text Size (px)</label>
                 <input type="number" v-model.number="settings.ratingTextSize" class="yab-form-input flex-1">
             </div>
@@ -290,7 +286,7 @@
                     <option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option>
                 </select>
             </div>
-            <div>
+            <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Review Count Color</label>
                 <div class="flex items-center gap-1">
                     <div
@@ -308,7 +304,7 @@
                         placeholder="Select color...">
                 </div>
             </div>
-             <div>
+             <div :class="currentView === 'mobile' ? 'col-span-2' : ''">
                 <label class="setting-label-sm">Review Count Size (px)</label>
                 <input type="number" v-model.number="settings.reviewSize" class="yab-form-input flex-1">
             </div>
@@ -318,7 +314,7 @@
     <div>
         <h4 class="section-title">Price</h4>
          <div class="grid grid-cols-2 gap-2">
-            <div>
+            <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Amount Color</label>
                 <div class="flex items-center gap-1">
                     <div
@@ -340,7 +336,7 @@
                 <label class="setting-label-sm">Amount Size (px)</label>
                 <input type="number" v-model.number="settings.priceAmountSize" class="yab-form-input flex-1">
             </div>
-            <div>
+            <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">"From" & "/ night" Color</label>
                 <div class="flex items-center gap-1">
                     <div

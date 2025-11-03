@@ -1,11 +1,11 @@
 // tappersia/assets/js/admin/composables/banner-state/defaults/apiBanner.js
 export const createDefaultApiDesign = () => ({
     imageContainerWidth: 360,
-    enableCustomDimensions: false,
+    imageContainerWidthUnit: 'px', // *** 1. واحد عرض تصویر اضافه شد ***
+    // enableCustomDimensions: false, // *** 2. حذف شد ***
     width: 100,
     widthUnit: '%',
-    height: 150,
-    heightUnit: 'px',
+    minHeight: 150, // *** 2. جایگزین height و heightUnit شد ***
     layout: 'left',
     backgroundType: 'solid',
     bgColor: '#ffffff',
@@ -18,10 +18,8 @@ export const createDefaultApiDesign = () => ({
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 16,
-    paddingTop: 24,
-    paddingBottom: 24,
-    paddingLeft: 35,
-    paddingRight: 35,
+    paddingY: 24, // *** 3. جایگزین paddingTop/Bottom شد ***
+    paddingX: 35, // *** 3. جایگزین paddingLeft/Right شد ***
     titleColor: '#000000', 
     titleSize: 20, 
     titleWeight: '700',
@@ -50,13 +48,12 @@ export const createDefaultApiMobileDesign = () => {
     const mobileDefaults = createDefaultApiDesign();
     
     // Mobile specific overrides
-    mobileDefaults.height = 80;
+    mobileDefaults.minHeight = 80; // *** 2. جایگزین height شد ***
     mobileDefaults.imageContainerWidth = 140;
+    mobileDefaults.imageContainerWidthUnit = 'px'; // *** 1. واحد عرض تصویر اضافه شد ***
 
-    mobileDefaults.paddingTop = 12;
-    mobileDefaults.paddingBottom = 12;
-    mobileDefaults.paddingLeft = 24;
-    mobileDefaults.paddingRight = 15;
+    mobileDefaults.paddingY = 12; // *** 3. جایگزین paddingTop/Bottom شد ***
+    mobileDefaults.paddingX = 20; // *** 3. (میانگین 24 و 15) ***
 
     mobileDefaults.titleSize = 16;
     mobileDefaults.starSize = 11;

@@ -78,13 +78,7 @@
                 <input type="number" v-model.number="settings.borderRadius" class="yab-form-input" placeholder="e.g., 10">
             </div>
         </div>
-        <div v-if="currentView === 'desktop'" class="mt-4">
-            <label class="setting-label-sm">Content Direction</label>
-            <div class="flex rounded-lg bg-[#292929] overflow-hidden">
-                <button @click="settings.direction = 'ltr'" :class="settings.direction === 'ltr' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Left to Right</button>
-                <button @click="settings.direction = 'rtl'" :class="settings.direction === 'rtl' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Right to Left</button>
-            </div>
-        </div>
+
     </div>
     <hr class="section-divider">
     <div>

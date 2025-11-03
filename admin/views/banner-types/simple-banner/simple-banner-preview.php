@@ -6,7 +6,6 @@
     
     <transition name="fade" mode="out-in">
         <div v-if="currentView === 'desktop'" class="flex flex-col items-center">
-            <span class="text-xs text-gray-400 mb-2">Desktop View</span>
             <div class="flex justify-center w-full bg-[#292929] rounded-lg p-4">
                 <div class="yab-simple-banner-wrapper" 
                     :style="{ 
@@ -59,7 +58,6 @@
         </div>
         
         <div v-else-if="currentView === 'mobile'" class="flex flex-col items-center">
-            <span class="text-xs text-gray-400 mb-2">Mobile View</span>
             <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
                 <div class="yab-simple-banner-wrapper w-full" 
                     :style="{ 

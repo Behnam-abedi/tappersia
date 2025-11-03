@@ -50,14 +50,13 @@ export const imageStyleObject = (b) => {
 // START: NEW FUNCTIONS FOR API BANNER
 export const getApiBannerStyles = (view, banner) => {
     const settings = view === 'desktop' ? banner.api.design : banner.api.design_mobile;
-    const defaultHeight = view === 'desktop' ? '150px' : '80px';
     
     return {
         background: bannerStyles(settings),
         border: `${settings.enableBorder ? settings.borderWidth : 0}px solid ${settings.borderColor}`,
         borderRadius: `${settings.borderRadius}px`,
-        width: settings.enableCustomDimensions ? `${settings.width}${settings.widthUnit}` : '100%',
-        minHeight: settings.enableCustomDimensions ? `${settings.height}${settings.heightUnit}` : defaultHeight,
+        width: `${settings.width}${settings.widthUnit}`, // *** 2. تغییر کرد ***
+        minHeight: `${settings.minHeight}px`, // *** 2. تغییر کرد ***
         height: 'auto',
         flexDirection: settings.layout === 'right' ? 'row-reverse' : 'row',
         overflow: 'hidden',
@@ -69,7 +68,7 @@ export const getApiContentStyles = (view, banner) => {
     const settings = view === 'desktop' ? banner.api.design : banner.api.design_mobile;
     
     return {
-        padding: `${settings.paddingTop}px ${settings.paddingRight}px ${settings.paddingBottom}px ${settings.paddingLeft}px`,
+        padding: `${settings.paddingY}px ${settings.paddingX}px`, // *** 3. تغییر کرد ***
         textAlign: settings.layout === 'right' ? 'right' : 'left',
         justifyContent: 'space-between'
     };

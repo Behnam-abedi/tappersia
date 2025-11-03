@@ -52,11 +52,13 @@
             <div v-else-if="isHotelDetailsLoading || isTourDetailsLoading" class="flex justify-center">
                  <div class="w-full rounded-lg bg-[#292929] flex items-stretch animate-pulse" 
                     :style="{ 
-                        minHeight: (currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).enableCustomDimensions ? `${(currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).height}${(currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).heightUnit}` : (currentView === 'desktop' ? '150px' : '80px'),
+                        minHeight: (currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).minHeight + 'px', <?php // *** 2. استفاده از minHeight *** ?>
                         height: 'auto',
+                        width: (currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).width + (currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).widthUnit, <?php // *** 2. استفاده از width *** ?>
                         flexDirection: (currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).layout === 'right' ? 'row-reverse' : 'row' 
                     }">
-                    <div class="bg-[#656565]" :style="{ width: (currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).imageContainerWidth + 'px' }"></div>
+                    <?php // *** 1. استفاده از واحد عرض تصویر *** ?>
+                    <div class="bg-[#656565]" :style="{ width: (currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).imageContainerWidth + (currentView === 'desktop' ? banner.api.design : banner.api.design_mobile).imageContainerWidthUnit }"></div>
                     <div class="flex-grow p-4 flex flex-col justify-between space-y-2">
                         <div class="h-5 bg-[#656565] rounded w-3/4"></div>
                         <div class="h-4 bg-[#656565] rounded w-1/2"></div>
@@ -74,14 +76,14 @@
                     <div class="flex justify-center w-full">
                         <a :href="apiItem.detailUrl" target="_blank" class="yab-api-banner-wrapper shadow-lg flex items-stretch font-sans focus:outline-none focus:ring-0 active:outline-none" :style="getApiBannerStyles('desktop', banner)" style="text-decoration: none;">
                             <div class="flex-shrink-0" :style="{ 
-                                width: settings.imageContainerWidth + 'px', 
+                                width: settings.imageContainerWidth + settings.imageContainerWidthUnit, <?php // *** 1. استفاده از واحد عرض تصویر *** ?>
                                 zIndex: 2,
                                 backgroundImage: 'url(' + ((banner.api.selectedHotel || banner.api.selectedTour).coverImage?.url || (banner.api.selectedHotel || banner.api.selectedTour).bannerImage?.url) + ')',
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center center'
                             }">
                             </div>
-                            <div class="flex-grow flex flex-col relative justify-between" :style="getApiContentStyles('desktop', banner)">
+                            <div class="flex-grow flex flex-col relative justify-between" :style="getApiContentStyles('desktop', banner)"> <?php // *** 3. استایل پدینگ از این فانکشن می‌آید *** ?>
                                 <?php include 'api-banner-preview-content.php'; ?>
                             </div>
                         </a>
@@ -93,14 +95,14 @@
                     <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
                         <a :href="apiItem.detailUrl" target="_blank" class="yab-api-banner-wrapper shadow-lg flex items-stretch font-sans w-full focus:outline-none focus:ring-0 active:outline-none" :style="getApiBannerStyles('mobile', banner)" style="text-decoration: none;">
                             <div class="flex-shrink-0" :style="{ 
-                                width: settings.imageContainerWidth + 'px', 
+                                width: settings.imageContainerWidth + settings.imageContainerWidthUnit, <?php // *** 1. استفاده از واحد عرض تصویر *** ?>
                                 zIndex: 2,
                                 backgroundImage: 'url(' + ((banner.api.selectedHotel || banner.api.selectedTour).coverImage?.url || (banner.api.selectedHotel || banner.api.selectedTour).bannerImage?.url) + ')',
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center center'
                             }">
                             </div>
-                            <div class="flex-grow flex flex-col relative" :style="getApiContentStyles('mobile', banner)">
+                            <div class="flex-grow flex flex-col relative" :style="getApiContentStyles('mobile', banner)"> <?php // *** 3. استایل پدینگ از این فانکشن می‌آید *** ?>
                                 <?php include 'api-banner-preview-content.php'; ?>
                             </div>
                         </a>

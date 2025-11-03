@@ -3,11 +3,20 @@
 <main class="grid grid-cols-12 gap-6 p-6 ltr">
     <div class="col-span-4 overflow-y-auto flex flex-col gap-6 [&>*:last-child]:mb-[40px] mr-2" style="max-height: calc(100vh - 120px);">
         <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
-            <div class="flex mb-4 bg-[#292929] rounded-lg p-1">
+            <div class="flex bg-[#292929] rounded-lg p-1">
                 <button @click="currentView = 'desktop'" :class="{'active-tab': currentView === 'desktop'}" class="flex-1 tab-button rounded-md">Desktop</button>
                 <button @click="currentView = 'mobile'" :class="{'active-tab': currentView === 'mobile'}" class="flex-1 tab-button rounded-md">Mobile</button>
             </div>
-
+        </div>
+        <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2" v-if="currentView === 'desktop'">
+            <div  >
+                <div class="flex bg-[#292929] rounded-lg p-1">
+                    <button @click="settings.direction = 'ltr'" :class="settings.direction === 'ltr' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-md">Left to Right</button>
+                    <button @click="settings.direction = 'rtl'" :class="settings.direction === 'rtl' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-md">Right to Left</button>
+                </div>
+            </div>
+        </div>
+        <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
             <div v-if="banner.simple && banner.simple_mobile" :key="currentView">
                 <h3 class="font-bold text-xl text-white tracking-wide mb-4 capitalize">{{ currentView }} Settings</h3>
             

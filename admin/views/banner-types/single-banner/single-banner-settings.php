@@ -31,15 +31,7 @@
          </div>
 
     </div>
-         <hr class="section-divider">
-        <div >
-            <h4 class="section-title">Layers Control</h4>
-            <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
-                <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Image Below Color</button>
-                <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Color Below Image</button>
-            </div>
-        </div>
-    <hr class="section-divider">
+        <hr class="section-divider">
     <div>
         <h4 class="section-title">Border</h4>
          <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
@@ -82,6 +74,18 @@
             </div>
         </div>
     </div>
+    <div v-if="currentView === 'desktop'">
+         <hr class="section-divider">
+        <div >
+            <h4 class="section-title">Layers Control</h4>
+            <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
+                <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Image Below Color</button>
+                <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Color Below Image</button>
+            </div>
+        </div>
+    </div>
+
+
     <hr class="section-divider">
     <div>
         <h4 class="section-title">Background Overlay</h4>
@@ -149,10 +153,11 @@
             </div>
         </div>
     </div>
-    <hr class="section-divider">
-    <div>
+    
+    <div v-if="currentView === 'desktop'">
+        <hr class="section-divider">
         <h4 class="section-title">Image</h4>
-        <div v-if="currentView === 'desktop'" class="flex gap-2 items-center">
+        <div  class="flex gap-2 items-center">
             <button @click="openMediaUploader('single')" class="flex-1 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm">
                 {{ settings.imageUrl ? 'Change Image' : 'Select Image' }}
             </button>

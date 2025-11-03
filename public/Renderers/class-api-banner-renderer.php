@@ -90,13 +90,15 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
         
         private function render_skeleton_view($design, $view) {
             $is_right_layout = ($design['layout'] ?? 'left') === 'right';
-            $default_height = ($view === 'desktop') ? '150px' : '80px';
-            $default_image_width = ($view === 'desktop') ? '360px' : '140px';
+            $default_height = ($view === 'desktop') ? 150 : 80;
+            $default_image_width = ($view === 'desktop') ? 360 : 140;
+            $default_image_width_unit = 'px';
 
              $wrapper_styles = [
-                'min-height' => ($design['enableCustomDimensions'] ?? false) ? ($design['height'] ?? '150').($design['heightUnit'] ?? 'px') : $default_height,
+                'min-height' => esc_attr($design['minHeight'] ?? $default_height) . 'px', // *** 2. تغییر کرد ***
                 'height' => 'auto',
-                'border-radius' => ($design['borderRadius'] ?? 16) . 'px',
+                'width' => esc_attr($design['width'] ?? 100) . esc_attr($design['widthUnit'] ?? '%'), // *** 2. اضافه شد ***
+                'border-radius' => esc_attr($design['borderRadius'] ?? 16) . 'px',
                 'display' => 'flex',
                 'align-items' => 'stretch',
                 'overflow' => 'hidden',
@@ -104,12 +106,15 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
                 'margin' => '20px 0',
                 'flex-direction' => $is_right_layout ? 'row-reverse' : 'row',
             ];
+            
+            $image_width = esc_attr($design['imageContainerWidth'] ?? $default_image_width) . esc_attr($design['imageContainerWidthUnit'] ?? $default_image_width_unit); // *** 1. تغییر کرد ***
 
             ob_start();
             ?>
             <div>
-                <div style="display: flex;flex-direction: row;width: 100%;height: 150px;background-color: #f4f4f4;align-items: center;padding: 0 10px;border-radius: 16px;justify-content:space-between">
-                    <div style="width: 30%;height: 127px;border-radius: 16px;background-color: #ebebeb;" class="yab-skeleton-loader"></div>
+                <?php // *** 2. استایل‌های width و min-height به div بیرونی منتقل شد *** ?>
+                <div style="<?php echo $this->get_inline_style_attr($wrapper_styles); ?>">
+                    <div style="width: <?php echo $image_width; ?>; height: auto; border-radius: 16px; background-color: #ebebeb; flex-shrink: 0;" class="yab-skeleton-loader"></div> <?php // *** 1. *** ?>
                     <div style="width: 100%">
                         <div style="flex-grow: 1; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
                             <div style="height: 26px; background-color: #ebebeb; border-radius: 4px; width: 75%;" class="yab-skeleton-loader"></div>
@@ -139,22 +144,24 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
             };
 
             $is_right_layout = $get_design('layout', 'left') === 'right';
-            $default_height = ($view === 'desktop') ? '150px' : '80px';
-            $default_image_width = ($view === 'desktop') ? '360px' : '140px';
+            $default_height = ($view === 'desktop') ? 150 : 80;
+            $default_image_width = ($view === 'desktop') ? 360 : 140;
+            $default_image_width_unit = 'px';
+
 
             $wrapper_styles = [
-                'font-family' => "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", 'width' => '100%', 
-                'min-height' => $default_height, 'height' => 'auto', 'margin' => '20px 0',
+                'font-family' => "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", 
+                'width' => $get_design('width', 100) . $get_design('widthUnit', '%'), // *** 2. تغییر کرد ***
+                'min-height' => $get_design('minHeight', $default_height) . 'px', // *** 2. تغییر کرد ***
+                'height' => 'auto', 
+                'margin' => '20px 0',
                 'border-radius' => $get_design('borderRadius', 16) . 'px', 'border' => $get_design('enableBorder', false) ? $get_design('borderWidth', 1) . 'px solid ' . $get_design('borderColor', '#ebebeb') : 'none',
                 'overflow' => 'hidden', 'align-items' => 'stretch',
                 'flex-direction' => $is_right_layout ? 'row-reverse' : 'row', 'position' => 'relative',
                 'text-decoration' => 'none', 'color' => 'inherit'
             ];
             
-            if ($get_design('enableCustomDimensions', false)) {
-                $wrapper_styles['width'] = $get_design('width', 100) . $get_design('widthUnit', '%');
-                $wrapper_styles['min-height'] = $get_design('height', ($view === 'desktop' ? 150 : 80)) . $get_design('heightUnit', 'px');
-            }
+            // *** 2. منطق enableCustomDimensions حذف شد ***
 
             $cover_image_url = $is_hotel ? ($item['coverImage']['url'] ?? '') : ($item['bannerImage']['url'] ?? '');
             $title = $item['title'] ?? ''; $star_rating = $is_hotel ? ($item['star'] ?? 0) : ceil($item['rate'] ?? 0);
@@ -169,7 +176,7 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
                 <div class="yab-api-banner-background" style="<?php echo $this->get_background_style($design); ?> position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;"></div>
                 <div style="<?php echo $style([
                     'flex-shrink' => '0',
-                    'width' => $get_design('imageContainerWidth', $default_image_width) . 'px',
+                    'width' => $get_design('imageContainerWidth', $default_image_width) . $get_design('imageContainerWidthUnit', $default_image_width_unit), // *** 1. تغییر کرد ***
                     'z-index' => 2,
                     'background-image' => 'url(\'' . esc_url($cover_image_url) . '\')',
                     'background-size' => 'cover',
@@ -179,7 +186,7 @@ if (!class_exists('Yab_Api_Banner_Renderer')) {
                 <div style="<?php echo $style([
                     'flex-grow' => '1', 'display' => 'flex', 'flex-direction' => 'column', 'justify-content' => 'space-between',
                     'position' => 'relative', 'z-index' => 2, 'direction' => $is_right_layout ? 'rtl' : 'ltr',
-                    'padding' => sprintf('%spx %spx %spx %spx', $get_design('paddingTop', 12), $get_design('paddingRight', 15), $get_design('paddingBottom', 12), $get_design('paddingLeft', 24)),
+                    'padding' => sprintf('%spx %spx', $get_design('paddingY', 12), $get_design('paddingX', 20)), // *** 3. تغییر کرد ***
                     'text-align' => $is_right_layout ? 'right' : 'left',
                 ]); ?>">
                     <div>

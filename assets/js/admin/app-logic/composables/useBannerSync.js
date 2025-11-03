@@ -98,19 +98,30 @@ export function useBannerSync(banner, currentView) {
         }
 
         if (banner.type === 'api-banner' && newView === 'mobile' && !banner.api.isMobileConfigured) {
+            // *** START: API BANNER SYNC LOGIC ***
             banner.api.design_mobile = JSON.parse(JSON.stringify(banner.api.design));
              // Apply mobile overrides
-            banner.api.design_mobile.height = 80;
+            banner.api.design_mobile.minHeight = 80; // *** 2. Changed from height ***
             banner.api.design_mobile.imageContainerWidth = 140;
-            banner.api.design_mobile.paddingTop = 12; banner.api.design_mobile.paddingBottom = 12;
-            banner.api.design_mobile.paddingLeft = 24; banner.api.design_mobile.paddingRight = 15;
-            banner.api.design_mobile.titleSize = 16; banner.api.design_mobile.starSize = 11;
-            banner.api.design_mobile.citySize = 11; banner.api.design_mobile.ratingBoxSize = 10;
+            banner.api.design_mobile.imageContainerWidthUnit = 'px'; // *** 1. Added ***
+            banner.api.design_mobile.paddingY = 12; // *** 3. Changed ***
+            banner.api.design_mobile.paddingX = 20; // *** 3. Changed ***
+            // *** 3. Remove old padding keys if they exist ***
+            delete banner.api.design_mobile.paddingTop;
+            delete banner.api.design_mobile.paddingBottom;
+            delete banner.api.design_mobile.paddingLeft;
+            delete banner.api.design_mobile.paddingRight;
+            
+            banner.api.design_mobile.titleSize = 16; 
+            banner.api.design_mobile.starSize = 11;
+            banner.api.design_mobile.citySize = 11;
+            banner.api.design_mobile.ratingBoxSize = 10;
             banner.api.design_mobile.ratingTextSize = 10;
             banner.api.design_mobile.reviewSize = 8;
             banner.api.design_mobile.priceAmountSize = 12;
             banner.api.design_mobile.priceFromSize = 9;
             banner.api.isMobileConfigured = true;
+            // *** END: API BANNER SYNC LOGIC ***
         }
 
         if (banner.type === 'tour-carousel' && newView === 'mobile' && !banner.tour_carousel.isMobileConfigured) {
@@ -346,7 +357,7 @@ export function useBannerSync(banner, currentView) {
 
     }, { deep: true });
     // --- END: ADDED HOTEL CAROUSEL CONTINUOUS SYNC ---
-
+    
     // +++ START: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
 // +++ START: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
     watch(() => banner.flight_ticket.design, (newDesktopSettings) => {

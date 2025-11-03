@@ -9,9 +9,9 @@
     <div class="flex items-center gap-5">
         <div class="flex items-center gap-2">
             <span class="text-sm">Display Method:</span>
-            <div class="flex rounded-lg bg-[#656565] overflow-hidden">
-                <button @click="banner.displayMethod = 'Fixed'" :class="banner.displayMethod === 'Fixed' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Fixed</button>
-                <button @click="banner.displayMethod = 'Embeddable'" :class="banner.displayMethod === 'Embeddable' ? 'bg-[#00baa4] text-white' : 'text-gray-300'" class="px-3 py-1 text-sm transition-colors duration-300 flex-1">Embeddable</button>
+            <div class="flex  bg-[#292929] rounded-lg p-1 w-[200px]">
+                <button @click="banner.displayMethod = 'Fixed'" :class="banner.displayMethod === 'Fixed' ? ' active-tab' : ''" class="flex-1 tab-button rounded-md">Fixed</button>
+                <button @click="banner.displayMethod = 'Embeddable'" :class="banner.displayMethod === 'Embeddable' ? ' active-tab' : ''" class="flex-1 tab-button rounded-md">Embeddable</button>
             </div>
         </div>
 

@@ -344,7 +344,7 @@
                                     placeholder="Select color...">
                             </div>
                         </div>
-                        <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="settings.buttonFontSize" class="yab-form-input"></div>
+                        <div :class="{'col-span-2': currentView === 'mobile'}"><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="settings.buttonFontSize" class="yab-form-input"></div>
                         <div class="col-span-2"><label class="setting-label-sm">Radius (px)</label><input type="number" v-model.number="settings.buttonBorderRadius" class="yab-form-input"></div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 mt-2">
