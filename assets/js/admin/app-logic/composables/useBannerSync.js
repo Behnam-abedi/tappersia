@@ -153,7 +153,7 @@ export function useBannerSync(banner, currentView) {
             mobile.spaceBetween = 20; // Example override
 
             // Explicitly ensure mobile card settings match desktop initially if needed
-             mobile.card.height = desktop.card.height;
+            mobile.card.minHeight = desktop.card.minHeight;
              mobile.card.padding = desktop.card.padding;
              mobile.card.borderRadius = desktop.card.borderRadius;
              mobile.card.borderWidth = desktop.card.borderWidth;

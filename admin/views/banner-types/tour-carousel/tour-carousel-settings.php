@@ -93,10 +93,6 @@
                     </div>
                     <hr class="section-divider my-6">
                     <h4 class="section-title">Layout</h4>
-                    <div>
-                        <label class="setting-label-sm">Header Text</label>
-                        <input type="text" v-model="settings.header.text" class="yab-form-input">
-                    </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="settings.header.fontSize" class="yab-form-input"></div>
                         <div><label class="setting-label-sm">Font Weight</label><select v-model="settings.header.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option></select></div>
@@ -109,8 +105,8 @@
                 </div>
                 <hr class="section-divider my-6">
             </div>
-    <div :key="currentView">
-        <div :set="settings = currentView === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile">
+    <div :key="currentView" v-if="currentView === 'desktop'">
+        <div :set="settings = currentView === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile" >
             <div :set="card = settings.card">
                 <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Card Styling</h3>
                 <div class="space-y-4">
@@ -122,7 +118,15 @@
                         </div>
                     </div>
                     <hr class="section-divider">
-                    
+                                        <div>
+                        <h4 class="section-title">Border</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div><label class="setting-label-sm">Width (px)</label><input type="number" v-model.number="card.borderWidth" class="yab-form-input"></div>
+                            <div><label class="setting-label-sm">Radius (px)</label><input type="number" v-model.number="card.borderRadius" class="yab-form-input"></div>
+                            <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: card.borderColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Border color input" type="text" :value="card.borderColor" @input="event => card.borderColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
+                        </div>
+                    </div>
+                    <hr class="section-divider">
                     <div v-if="currentView === 'desktop'">
                         <h4 class="section-title">Background</h4>
                         <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none p-1"><button @click="card.backgroundType = 'solid'" :class="{'active-tab': card.backgroundType === 'solid'}" class="flex-1 tab-button rounded-md">Solid</button><button @click="card.backgroundType = 'gradient'" :class="{'active-tab': card.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-md">Gradient</button></div>
@@ -132,15 +136,7 @@
                     </div>
 
 
-                    <div>
-                        <h4 class="section-title">Border</h4>
-                        <div class="grid grid-cols-3 gap-2">
-                            <div><label class="setting-label-sm">Width (px)</label><input type="number" v-model.number="card.borderWidth" class="yab-form-input"></div>
-                            <div><label class="setting-label-sm">Radius (px)</label><input type="number" v-model.number="card.borderRadius" class="yab-form-input"></div>
-                            <div v-if="currentView === 'desktop'"><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: card.borderColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Border color input" type="text" :value="card.borderColor" @input="event => card.borderColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
-                        </div>
-                    </div>
-                    <hr class="section-divider">
+
 
 
                     <div>
@@ -220,7 +216,7 @@
                                 <div><label class="setting-label-sm">Color</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: button.color }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Button color input" type="text" :value="button.color" @input="event => button.color = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 <div><label class="setting-label-sm">Background</label><div class="flex items-center gap-1"><div :style="{ backgroundColor: button.bgColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div><input aria-label="Button background color input" type="text" :value="button.bgColor" @input="event => button.bgColor = event.target.value" data-coloris class="yab-form-input clr-field flex-grow" placeholder="Select color..."></div></div>
                                 
-                                <div v-if="currentView === 'desktop'">
+                                <div v-if="currentView === 'desktop'" class="col-span-2">
                                     <label class="setting-label-sm">Background Hover</label>
                                     <div class="flex items-center gap-1">
                                         <div :style="{ backgroundColor: button.BgHoverColor }" class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0" title="Selected color preview"></div>

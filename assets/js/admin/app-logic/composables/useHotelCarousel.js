@@ -59,7 +59,7 @@ export const HotelCarouselLogic = {
         });
 
         const gridHeight = computed(() => {
-            const cardHeight = cardSettings.value.height || 357; // Use height from settings
+            const cardHeight = cardSettings.value.minHeight || 357; // Use height from settings
             const verticalSpace = 20; // Default grid gap
             return (cardHeight * 2) + verticalSpace;
         });
@@ -172,7 +172,7 @@ export const HotelCarouselLogic = {
             const imageWidth = 295 - (card.padding * 2);
 
             return `
-            <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.height}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
+            <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.minHeight}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
               <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;flex:1">
                 <div style="position: relative; height: ${card.image?.height || 176}px; width:100%; border-radius: ${card.image?.radius || 14}px; flex-shrink: 0;" name="header-content-image">
                   <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: ${card.imageContainer?.paddingY || 13}px ${card.imageContainer?.paddingX || 13}px; box-sizing: border-box;">

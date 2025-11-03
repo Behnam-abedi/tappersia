@@ -118,13 +118,23 @@
     <div v-if="banner.hotel_carousel && banner.hotel_carousel.settings">
       <h3 class="font-bold text-xl text-white tracking-wide mb-5">Header of Carousel</h3>
       <div class="space-y-4">
-        <h4 class="section-title">Content</h4>
-        <div><label class="setting-label-sm">Header Text</label><input type="text" v-model="banner.hotel_carousel.settings.header.text" class="yab-form-input"></div>
-        <hr class="section-divider my-6">
+
+        
         <h4 class="section-title">Layout & Style</h4>
         <div class="grid grid-cols-2 gap-4">
-          <div><label class="setting-label-sm">Font Size (px)</label><input type="number" v-model.number="banner.hotel_carousel.settings.header.fontSize" class="yab-form-input"></div>
-          <div><label class="setting-label-sm">Font Weight</label><select v-model="banner.hotel_carousel.settings.header.fontWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option><option value="800">Extra Bold</option></select></div>
+          <div><label class="setting-label-sm">Font Size (px)</label>
+          <input type="number" v-model.number="banner.hotel_carousel.settings.header.fontSize" class="yab-form-input">
+        </div>
+        <div>
+          <label class="setting-label-sm">Font Weight</label>
+          <select v-model="banner.hotel_carousel.settings.header.fontWeight" class="yab-form-input">
+            <option value="400">Normal</option>
+            <option value="500">Medium</option>
+            <option value="600">Semi-Bold</option>
+            <option value="700">Bold</option>
+            <option value="800">Extra Bold</option>
+          </select>
+        </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -170,11 +180,17 @@
           </div>
         </div>
         <div><label class="setting-label-sm">Space between header and slider</label><input type="number" v-model.number="banner.hotel_carousel.settings.header.marginTop" class="yab-form-input"></div>
+        <hr class="section-divider my-6">
+        <h4 class="section-title">Content</h4>
+        <div>
+          <label class="setting-label-sm">Header Text</label>
+          <input type="text" v-model="banner.hotel_carousel.settings.header.text" class="yab-form-input">
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
+  <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2" v-if="currentView === 'desktop'">
     <div :set="settings = currentView === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile">
       <div :set="card = settings.card">
         <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Card Styling</h3>
@@ -183,36 +199,12 @@
           <div>
             <h4 class="section-title">Layout</h4>
             <div class="grid grid-cols-2 gap-2">
-              <div><label class="setting-label-sm">Overall Padding (px)</label><input type="number" v-model.number="card.padding" class="yab-form-input"></div>
+              <div><label class="setting-label-sm">Card Min Height (px)</label><input type="number" v-model.number="card.minHeight" class="yab-form-input"></div>
+              <div><label class="setting-label-sm">Image Height (px)</label><input type="number" v-model.number="card.image.height" class="yab-form-input"></div>
+              <div class="col-span-2"><label class="setting-label-sm">Overall Padding (px)</label><input type="number" v-model.number="card.padding" class="yab-form-input"></div>
             </div>
           </div>
           <hr class="section-divider">
-
-          <div v-if="currentView === 'desktop'">
-            <h4 class="section-title">Background</h4>
-            <div>
-              <label class="setting-label-sm">Color</label>
-              <div class="flex items-center gap-1">
-                <div
-                  :style="{ backgroundColor: card.bgColor }"
-                  class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
-                  title="Selected color preview"
-                >
-                </div>
-                <input
-                  aria-label="Card background color input"
-                  type="text"
-                  :value="card.bgColor"
-                  @input="event => card.bgColor = event.target.value"
-                  data-coloris
-                  class="yab-form-input clr-field flex-grow"
-                  placeholder="Select color..."
-                >
-              </div>
-            </div>
-            <hr class="section-divider">
-          </div>
-
           <div>
             <h4 class="section-title">Border</h4>
             <div class="grid grid-cols-3 gap-2">
@@ -241,11 +233,10 @@
             </div>
           </div>
           <hr class="section-divider">
-
           <div>
             <h4 class="section-title">Image Area</h4>
             <div class="grid grid-cols-2 gap-2">
-              <div><label class="setting-label-sm">Image Radius (px)</label><input type="number" v-model.number="card.image.radius" class="yab-form-input"></div>
+              <div class="col-span-2"><label class="setting-label-sm">Image Radius (px)</label><input type="number" v-model.number="card.image.radius" class="yab-form-input"></div>
             </div>
             <div class="grid grid-cols-2 gap-2 mt-2">
               <div><label class="setting-label-sm">Inner Padding Y (px)</label><input type="number" v-model.number="card.imageContainer.paddingY" class="yab-form-input"></div>
@@ -253,8 +244,7 @@
             </div>
           </div>
           <hr class="section-divider">
-
-          <div v-if="currentView === 'desktop'">
+                    <div v-if="currentView === 'desktop'">
             <div :set="overlay = card.imageOverlay">
               <h4 class="section-title">Image Overlay (Gradient)</h4>
               <div class="grid grid-cols-2 gap-2">
@@ -327,14 +317,44 @@
             </div>
             <hr class="section-divider">
           </div>
+          <div v-if="currentView === 'desktop'">
+            <h4 class="section-title">Background Of Card</h4>
+            <div>
+              <label class="setting-label-sm">Color</label>
+              <div class="flex items-center gap-1">
+                <div
+                  :style="{ backgroundColor: card.bgColor }"
+                  class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                  title="Selected color preview"
+                >
+                </div>
+                <input
+                  aria-label="Card background color input"
+                  type="text"
+                  :value="card.bgColor"
+                  @input="event => card.bgColor = event.target.value"
+                  data-coloris
+                  class="yab-form-input clr-field flex-grow"
+                  placeholder="Select color..."
+                >
+              </div>
+            </div>
+            <hr class="section-divider">
+          </div>
+
+
+
+
+
+
 
           <div :set="badges = card.badges">
             <h4 class="section-title">Badges (Top of Image)</h4>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="setting-label-sm font-bold text-gray-300">Best Seller</label>
+                <label class="setting-label-sm font-bold text-gray-300 section-title">Best Seller</label>
                 <div class="grid grid-cols-2 gap-2">
-                  <div v-if="currentView === 'desktop'">
+                  <div v-if="currentView === 'desktop'" class="col-span-2">
                     <label class="setting-label-sm">Text Color</label>
                     <div class="flex items-center gap-1">
                       <div
@@ -355,7 +375,7 @@
                     </div>
                   </div>
 
-                  <div v-if="currentView === 'desktop'">
+                  <div v-if="currentView === 'desktop'" class="col-span-2">
                     <label class="setting-label-sm">BG Color</label>
                     <div class="flex items-center gap-1">
                       <div
@@ -399,9 +419,9 @@
               </div>
 
               <div>
-                <label class="setting-label-sm font-bold text-gray-300">Discount</label>
+                <label class="setting-label-sm font-bold text-gray-300 section-title">Discount</label>
                 <div class="grid grid-cols-2 gap-2">
-                  <div v-if="currentView === 'desktop'">
+                  <div v-if="currentView === 'desktop'" class="col-span-2" >
                     <label class="setting-label-sm">Text Color</label>
                     <div class="flex items-center gap-1">
                       <div
@@ -422,7 +442,7 @@
                     </div>
                   </div>
 
-                  <div v-if="currentView === 'desktop'">
+                  <div v-if="currentView === 'desktop'" class="col-span-2">
                     <label class="setting-label-sm">BG Color</label>
                     <div class="flex items-center gap-1">
                       <div
@@ -583,7 +603,7 @@
                 </div>
               </div>
               <div><label class="setting-label-sm">Line Height</label><input type="number" step="0.1" v-model.number="title.lineHeight" class="yab-form-input"></div>
-              <div><label class="setting-label-sm">Min Height (px)</label><input type="number" v-model.number="title.minHeight" class="yab-form-input"></div>
+              <div class="col-span-2"><label class="setting-label-sm">Min Height (px)</label><input type="number" v-model.number="title.minHeight" class="yab-form-input"></div>
             </div>
           </div>
           <hr class="section-divider">
@@ -596,9 +616,9 @@
             </div>
             <div class="mt-2 grid grid-cols-2 gap-4">
               <div>
-                <label class="setting-label-sm font-bold text-gray-300">Rating Box</label>
+                <label class="setting-label-sm font-bold text-gray-300 section-title">Rating Box</label>
                 <div class="grid grid-cols-2 gap-2">
-                  <div v-if="currentView === 'desktop'">
+                  <div v-if="currentView === 'desktop'" class="col-span-2">
                     <label class="setting-label-sm">BG Color</label>
                     <div class="flex items-center gap-1">
                       <div
@@ -619,7 +639,7 @@
                     </div>
                   </div>
 
-                  <div v-if="currentView === 'desktop'">
+                  <div v-if="currentView === 'desktop'" class="col-span-2">
                     <label class="setting-label-sm">Text Color</label>
                     <div class="flex items-center gap-1">
                       <div
@@ -640,7 +660,7 @@
                     </div>
                   </div>
 
-                  <div>
+                  <div class="col-span-2">
                     <label class="setting-label-sm">Font Size (px)</label>
                     <input type="number" v-model.number="rating.boxFontSize" class="yab-form-input">
                   </div>
@@ -655,7 +675,7 @@
                     <input type="number" v-model.number="rating.boxPaddingX" class="yab-form-input">
                   </div>
 
-                  <div>
+                  <div class="col-span-2">
                     <label class="setting-label-sm">Padding Y (px)</label>
                     <input type="number" v-model.number="rating.boxPaddingY" class="yab-form-input">
                   </div>
@@ -663,7 +683,7 @@
 
               </div>
               <div>
-                <label class="setting-label-sm font-bold text-gray-300">Rating Label</label>
+                <label class="setting-label-sm font-bold text-gray-300 section-title">Rating Label</label>
                 <div class="grid grid-cols-2 gap-2">
                   <div class="col-span-2" v-if="currentView === 'desktop'">
                     <label class="setting-label-sm">Color</label>
@@ -686,7 +706,7 @@
                     </div>
                   </div>
 
-                  <div>
+                  <div class="col-span-2">
                     <label class="setting-label-sm">Font Size (px)</label>
                     <input type="number" v-model.number="rating.labelFontSize" class="yab-form-input">
                   </div>
@@ -694,7 +714,7 @@
 
               </div>
               <div>
-                <label class="setting-label-sm font-bold text-gray-300">Rating Count</label>
+                <label class="setting-label-sm font-bold text-gray-300 section-title">Rating Count</label>
                 <div class="grid grid-cols-2 gap-2">
                   <div class="col-span-2" v-if="currentView === 'desktop'">
                     <label class="setting-label-sm">Color</label>
@@ -717,7 +737,7 @@
                     </div>
                   </div>
 
-                  <div>
+                  <div class="col-span-2">
                     <label class="setting-label-sm">Font Size (px)</label>
                     <input type="number" v-model.number="rating.countFontSize" class="yab-form-input">
                   </div>
@@ -738,7 +758,6 @@
               <div><label class="setting-label-sm">Padding X (px)</label><input type="number" v-model.number="tags.paddingX" class="yab-form-input"></div>
               <div><label class="setting-label-sm">Padding Y (px)</label><input type="number" v-model.number="tags.paddingY" class="yab-form-input"></div>
             </div>
-            <p class="text-xs text-gray-400 mt-2">Tag colors are dynamic based on tag name.</p>
           </div>
           <hr class="section-divider">
 
@@ -775,7 +794,7 @@
             <h4 class="section-title">Price Section</h4>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="setting-label-sm font-bold text-gray-300">'From' Text</label>
+                <label class="setting-label-sm font-bold text-gray-300 section-title">'From' Text</label>
                 <div class="grid grid-cols-2 gap-2">
                   <div class="col-span-2" v-if="currentView === 'desktop'">
                     <label class="setting-label-sm">Color</label>
@@ -797,13 +816,13 @@
                       >
                     </div>
                   </div>
-                  <div><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="price.fromSize" class="yab-form-input"></div>
+                  <div class="col-span-2"><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="price.fromSize" class="yab-form-input"></div>
                 </div>
               </div>
               <div>
-                <label class="setting-label-sm font-bold text-gray-300">Price Amount</label>
+                <label class="setting-label-sm font-bold text-gray-300 section-title">Price Amount</label>
                 <div class="grid grid-cols-2 gap-2">
-                  <div v-if="currentView === 'desktop'">
+                  <div v-if="currentView === 'desktop'" class="col-span-2">
                     <label class="setting-label-sm">Color</label>
                     <div class="flex items-center gap-1">
                       <div
@@ -823,12 +842,12 @@
                       >
                     </div>
                   </div>
-                  <div><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="price.amountSize" class="yab-form-input"></div>
-                  <div><label class="setting-label-sm">Weight</label><select v-model="price.amountWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option></select></div>
+                  <div class="col-span-2"><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="price.amountSize" class="yab-form-input"></div>
+                  <div class="col-span-2"><label class="setting-label-sm">Weight</label><select v-model="price.amountWeight" class="yab-form-input"><option value="400">Normal</option><option value="500">Medium</option><option value="600">Semi-Bold</option><option value="700">Bold</option></select></div>
                 </div>
               </div>
               <div>
-                <label class="setting-label-sm font-bold text-gray-300">'/ night' Text</label>
+                <label class="setting-label-sm font-bold text-gray-300 section-title">'/ night' Text</label>
                 <div class="grid grid-cols-2 gap-2">
                   <div class="col-span-2" v-if="currentView === 'desktop'">
                     <label class="setting-label-sm">Color</label>
@@ -850,11 +869,11 @@
                       >
                     </div>
                   </div>
-                  <div><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="price.nightSize" class="yab-form-input"></div>
+                  <div class="col-span-2"><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="price.nightSize" class="yab-form-input"></div>
                 </div>
               </div>
               <div>
-                <label class="setting-label-sm font-bold text-gray-300">Original Price</label>
+                <label class="setting-label-sm font-bold text-gray-300 section-title">Original Price</label>
                 <div class="grid grid-cols-2 gap-2">
                   <div class="col-span-2" v-if="currentView === 'desktop'">
                     <label class="setting-label-sm">Color</label>
@@ -876,7 +895,7 @@
                       >
                     </div>
                   </div>
-                  <div><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="price.originalSize" class="yab-form-input"></div>
+                  <div class="col-span-2"><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="price.originalSize" class="yab-form-input"></div>
                 </div>
               </div>
             </div>

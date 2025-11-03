@@ -164,7 +164,7 @@ class Yab_Hotel_Carousel {
         $s = []; // Use 's' for sanitized card settings
 
         // Layout & Border
-        $s['height'] = isset($card_settings['height']) ? intval($card_settings['height']) : 357;
+        $s['minHeight'] = isset($card_settings['minHeight']) ? intval($card_settings['minHeight']) : 357;
         $s['padding'] = isset($card_settings['padding']) ? intval($card_settings['padding']) : 9;
         $s['borderWidth'] = isset($card_settings['borderWidth']) ? intval($card_settings['borderWidth']) : 1;
         $s['borderColor'] = isset($card_settings['borderColor']) ? sanitize_hex_color($card_settings['borderColor']) : '#E5E5E5';

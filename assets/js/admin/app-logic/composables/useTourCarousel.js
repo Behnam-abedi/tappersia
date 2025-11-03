@@ -157,7 +157,8 @@ export const TourCarouselLogic = {
             return `
                 <div class="yab-tour-card" style="
                     position: relative; text-decoration: none; color: inherit; display: block;
-                    width: 295px; height: ${card.height || 375}px;
+                    width: 295px; min-height: ${card.height || 375}px;
+                    height:auto;
                     background: ${getCardBackground(card)};
                     border: ${card.borderWidth || 1}px solid ${card.borderColor || '#E0E0E0'};
                     border-radius: ${card.borderRadius || 14}px;
@@ -166,14 +167,14 @@ export const TourCarouselLogic = {
                     direction: ${isRTL.value ? 'rtl' : 'ltr'};
                     box-sizing: border-box; /* Added */
                     ">
-                    <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;">
+                    <a href="${escapeHTML(detailUrl)}" target="_blank" style="flex:1;text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;">
                         <div style="position: relative; width: 100%; height: ${card.imageHeight || 204}px; flex-shrink: 0;"> 
                             <img src="${escapeHTML(bannerImageUrl)}" alt="${escapeHTML(tour.title)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: ${card.borderRadius > 2 ? card.borderRadius - 2 : card.borderRadius}px;" />
                             <div style="position: absolute; bottom: ${card.province?.bottom || 9}px; ${provincePos} min-height: 23px; display: flex; align-items: center; justify-content: center; border-radius: 29px; background: ${card.province?.bgColor || 'rgba(14,14,14,0.2)'}; padding: 0 11px; backdrop-filter: blur(${card.province?.blur || 3}px);">
                                 <span style="color: ${card.province?.color || '#FFFFFF'}; font-size: ${card.province?.fontSize || 14}px; font-weight: ${card.province?.fontWeight || 500}; line-height: 24px;">${escapeHTML(startProvinceName)}</span>
                             </div>
                         </div>
-                        <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${rtlTextAlign}; min-height: 0;">
+                        <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${rtlTextAlign}; min-height: 0;height:151px">
                             <div><h4 style="font-weight: ${card.title?.fontWeight || 600}; font-size: ${card.title?.fontSize || 14}px; line-height: ${card.title?.lineHeight || 1.5}; color: ${card.title?.color || '#000000ff'}; text-overflow: ellipsis; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; margin: 0;">${escapeHTML(tour.title)}</h4></div>
                             <div style="margin-top: auto; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; direction:ltr; flex-direction: ${rtlFlex};">
                                 <div style="display: flex; flex-direction: row; gap: 4px; align-items: baseline;">

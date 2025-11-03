@@ -133,7 +133,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                 ? (($card_width * $slides_per_view) + ($space_between * ($slides_per_view - 1)))
                 : $card_width;
             // Use card height from settings for grid height calculation
-            $grid_height = ($card_settings['height'] ?? 357) * 2 + ($space_between ?? 20); // Use spaceBetween for gap
+            $grid_height = ($card_settings['minHeight'] ?? 357) * 2 + ($space_between ?? 20); // Use spaceBetween for gap
 
             $unique_id = $banner_id . '_' . $view;
 
@@ -254,7 +254,7 @@ HTML;
                          const imageWidth = 295 - (card.padding * 2);
 
                         return `
-                        <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.height}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
+                        <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.minHeight}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
                           <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;flex:1">
                             <div style="position: relative; height: ${card.image?.height}px; width: 100%; border-radius: ${card.image?.radius}px; flex-shrink: 0;" name="header-content-image">
                               <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: ${card.imageContainer?.paddingY}px ${card.imageContainer?.paddingX}px; box-sizing: border-box;">

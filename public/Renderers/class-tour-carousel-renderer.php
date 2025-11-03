@@ -221,7 +221,8 @@ HTML;
                     return `
                     <div class="yab-tour-card" style="
                         position: relative; text-decoration: none; color: inherit; display: block; 
-                        width: 295px; height: ${cardSettings.height}px; 
+                        width: 295px; min-height: ${cardSettings.height}px; 
+                        height: auto;
                         background: ${getCardBackground(cardSettings)};
                         border: ${cardSettings.borderWidth}px solid ${cardSettings.borderColor};
                         border-radius: ${cardSettings.borderRadius}px; 
@@ -229,15 +230,16 @@ HTML;
                         padding: ${cardSettings.padding}px; 
                         direction: ${isRTL ? 'rtl' : 'ltr'};
                         box-sizing: border-box;
+
                         ">
-                        <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;">
+                        <a href="${escapeHTML(detailUrl)}" target="_blank" style="flex:1;text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;">
                             <div style="position: relative; width: 100%; height: ${cardSettings.imageHeight}px; flex-shrink: 0;">
                                 <img src="${escapeHTML(bannerImageUrl)}" alt="${escapeHTML(tour.title)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: ${cardSettings.borderRadius > 2 ? cardSettings.borderRadius - 2 : cardSettings.borderRadius}px;" />
                                 <div style="position: absolute; bottom: ${cardSettings.province.bottom}px; ${provincePos} min-height: 23px; display: flex; align-items: center; justify-content: center; border-radius: 29px; background: ${cardSettings.province.bgColor}; padding: 0 11px; backdrop-filter: blur(${cardSettings.province.blur}px);">
                                     <span style="color: ${cardSettings.province.color}; font-size: ${cardSettings.province.fontSize}px; font-weight: ${cardSettings.province.fontWeight}; line-height: 24px;">${escapeHTML(startProvinceName)}</span>
                                 </div>
                             </div>
-                            <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${rtlTextAlign}; min-height: 0;">
+                            <div style="display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 14px 5px 5px 5px; text-align: ${rtlTextAlign}; min-height: 0; height: 151px;">
                                 <div><h4 style="font-weight: ${cardSettings.title.fontWeight}; font-size: ${cardSettings.title.fontSize}px; line-height: ${cardSettings.title.lineHeight}; color: ${cardSettings.title.color}; text-overflow: ellipsis; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; margin: 0;">${escapeHTML(tour.title)}</h4></div>
                                 <div style="margin-top: auto; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; direction:ltr; flex-direction: ${rtlFlex};">
                                     <div style="display: flex; flex-direction: row; gap: 4px; align-items: baseline;">
