@@ -15,13 +15,23 @@
                 </button>
             </div>
         </div>
-
         <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
-            <div class="flex mb-4 bg-[#292929] rounded-lg p-1">
+            <h3 class="font-bold text-xl text-white tracking-wide mb-5">Content Source</h3>
+            <div class="flex bg-[#292929] rounded-lg p-1">
                 <button @click="currentView = 'desktop'" :class="{'active-tab': currentView === 'desktop'}" class="flex-1 tab-button rounded-md">Desktop</button>
                 <button @click="currentView = 'mobile'" :class="{'active-tab': currentView === 'mobile'}" class="flex-1 tab-button rounded-md">Mobile</button>
             </div>
-
+        </div>
+        <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2"  v-if="currentView === 'desktop'">
+            <div>
+                <h3 class="font-bold text-xl text-white tracking-wide mb-5">Alignment</h3>
+                <div class="flex bg-[#292929] rounded-lg p-1">
+                    <button @click="settings.layout = 'left'" :class="settings.layout === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Left</button>
+                    <button @click="settings.layout = 'right'" :class="settings.layout === 'right' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Right</button>
+                </div>
+            </div>
+        </div>
+        <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
             <div v-if="banner.api.design" :key="currentView">
                 <h3 class="font-bold text-xl text-white tracking-wide mb-4 capitalize">{{ currentView }} Settings</h3>
                 <div>

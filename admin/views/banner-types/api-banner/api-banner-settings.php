@@ -1,7 +1,7 @@
 <?php
 // tappersia/admin/views/banner-types/api-banner/api-banner-settings.php
 ?>
-<div class="flex flex-col gap-5">
+<div class="flex flex-col gap-3">
     <div>
         <h4 class="section-title">Layout</h4>
         <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
@@ -27,13 +27,7 @@
                 </div>
             </div>
         </div>
-        <div v-if="currentView === 'desktop'">
-            <label class="setting-label-sm">Image Position</label>
-            <div class="flex overflow-hidden bg-[#292929] rounded-lg">
-                <button @click="settings.layout = 'left'" :class="settings.layout === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Image Left</button>
-                <button @click="settings.layout = 'right'" :class="settings.layout === 'right' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Image Right</button>
-            </div>
-        </div>
+
         <div class="mt-4">
              <label class="setting-label-sm">Image Container Width (px)</label>
             <input type="number" v-model.number="settings.imageContainerWidth" class="yab-form-input">
@@ -88,9 +82,9 @@
     <hr class="section-divider">
     <div>
         <h4 class="section-title">Background</h4>
-        <div class="flex mb-2 bg-[#292929] rounded-lg border-none">
-            <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg border-none">Solid Color</button>
-            <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg border-none">Gradient</button>
+        <div class="flex bg-[#292929] rounded-lg p-1">
+            <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-md">Solid Color</button>
+            <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-md">Gradient</button>
         </div>
         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
             <label class="setting-label-sm">Background Color</label>
