@@ -70,7 +70,12 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
                         position: relative;
                         direction: <?php echo esc_attr($overall_direction); ?>;">
                 
-                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit; box-shadow: inset 0 0 0 <?php echo esc_attr($b['borderWidth']); ?>px <?php echo esc_attr($b['borderColor']); ?>; z-index: 10; pointer-events: none;"></div>
+                <?php // --- START: Conditional Border --- ?>
+                <?php if (!empty($b['enableBorder']) && $b['enableBorder']): ?>
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit; box-shadow: inset 0 0 0 <?php echo esc_attr($b['borderWidth']); ?>px <?php echo esc_attr($desktop_b['borderColor']); ?>; z-index: 10; pointer-events: none;"></div>
+                <?php endif; ?>
+                <?php // --- END: Conditional Border --- ?>
+
 
                 <div class="yab-promo-header"
                      style="<?php echo $this->get_background_style($b, 'header'); ?>; <?php // *** MODIFIED *** ?>
@@ -107,6 +112,7 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
             <?php
             return ob_get_clean();
         }
+
 
         /**
          * *** START: REPLACED METHOD ***

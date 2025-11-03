@@ -18,13 +18,15 @@
                         direction: banner.promotion.direction
                      }">
                     
-                    <div :style="{
+                    <?php // --- START: Conditional Border --- ?>
+                    <div v_if="banner.promotion.enableBorder" :style="{
                         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                         borderRadius: 'inherit',
-                        boxShadow: `inset 0 0 0 ${banner.promotion.borderWidth}px ${banner.promotion.borderColor}`,
+                        boxShadow: banner.promotion.enableBorder ? `inset 0 0 0 ${banner.promotion.borderWidth}px ${banner.promotion.borderColor}` : 'none',
                         zIndex: 10,
                         pointerEvents: 'none'
                     }"></div>
+                    <?php // --- END: Conditional Border --- ?>
 
                     <div class="yab-promo-header"
                          :style="{ 
@@ -72,13 +74,15 @@
                         direction: banner.promotion.direction
                      }">
                     
-                    <div :style="{
+                    <?php // --- START: Conditional Border --- ?>
+                    <div v_if="banner.promotion_mobile.enableBorder" :style="{
                         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                         borderRadius: 'inherit',
-                        boxShadow: `inset 0 0 0 ${banner.promotion_mobile.borderWidth}px ${banner.promotion.borderColor}`,
+                        boxShadow: banner.promotion_mobile.enableBorder ? `inset 0 0 0 ${banner.promotion_mobile.borderWidth}px ${banner.promotion.borderColor}` : 'none',
                         zIndex: 10,
                         pointerEvents: 'none'
                     }"></div>
+                    <?php // --- END: Conditional Border --- ?>
 
                     <div class="yab-promo-header"
                          :style="{ 

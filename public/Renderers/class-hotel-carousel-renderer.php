@@ -254,9 +254,9 @@ HTML;
                          const imageWidth = 295 - (card.padding * 2);
 
                         return `
-                        <div name="card" class="yab-hotel-card" style="margin: 0; height: ${card.height}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
-                          <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;">
-                            <div style="position: relative; height: ${card.image?.height}px; width: ${imageWidth}px; border-radius: ${card.image?.radius}px; flex-shrink: 0;" name="header-content-image">
+                        <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.height}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
+                          <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;flex:1">
+                            <div style="position: relative; height: ${card.image?.height}px; width: 100%; border-radius: ${card.image?.radius}px; flex-shrink: 0;" name="header-content-image">
                               <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: ${card.imageContainer?.paddingY}px ${card.imageContainer?.paddingX}px; box-sizing: border-box;">
                                 <div style="display: flex; width: 100%; align-items: flex-start; justify-content: space-between;">
                                   ${isFeatured ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: ${card.badges?.bestSeller?.radius}px; background: ${card.badges?.bestSeller?.bgColor}; padding: ${card.badges?.bestSeller?.paddingY}px ${card.badges?.bestSeller?.paddingX}px; font-size: ${card.badges?.bestSeller?.fontSize}px; line-height: 1; font-weight: 500; color: ${card.badges?.bestSeller?.textColor};">Best Seller</div>` : '<div></div>'}
@@ -272,7 +272,7 @@ HTML;
                             </div>
                             <div name="body-content" style="margin: ${card.bodyContent?.marginTop}px ${card.bodyContent?.marginX}px 0 ${card.bodyContent?.marginX}px; color: ${card.bodyContent?.textColor}; flex-grow: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
                               <div name="title" style="min-height: ${card.title?.minHeight}px; width: 100%;"> <h4 style="font-size: ${card.title?.fontSize}px; line-height: ${card.title?.lineHeight}; font-weight: ${card.title?.fontWeight}; color: ${card.title?.color}; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4> </div>
-                              <div name="description">
+                              <div name="description" style="margin-top:auto">
                                 <div name="rating" style="margin-top: ${card.rating?.marginTop}px; display: flex; flex-direction: row; align-items: center; gap: ${card.rating?.gap}px;">
                                   ${ratingScore !== null ? `<div name="rate"><span style="width: fit-content; border-radius: ${card.rating?.boxRadius}px; background: ${card.rating?.boxBgColor}; padding: ${card.rating?.boxPaddingY}px ${card.rating?.boxPaddingX}px; font-size: ${card.rating?.boxFontSize}px; line-height: 1; color: ${card.rating?.boxColor};">${ratingScore}</span></div>` : ''}
                                   <div name="text-rate" style="font-size: ${card.rating?.labelFontSize}px; line-height: 15px; color: ${card.rating?.labelColor}; padding-top: 1px;"> <span>${escapeHTML(ratingLabel)}</span> </div>
@@ -281,7 +281,7 @@ HTML;
                                 <div name="tags"> <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: ${card.tags?.gap}px;"> ${tagsHtml} </div> </div>
                               </div>
                               <hr style="margin: ${card.divider?.marginTop}px 0 ${card.divider?.marginBottom}px 0; border: 0; border-top: 1px solid ${card.divider?.color};" />
-                              <div name="price" style="display: flex; flex-direction: column; margin-top: auto;">
+                              <div name="price" style="display: flex; flex-direction: column; margin-top: 10px;">
                                 <div style="font-size: ${card.price?.fromSize}px; line-height: 14px; color: ${card.price?.fromColor};"> <span>From</span> </div>
                                 <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
                                   <div style="display: flex; align-items: center; gap: 5px;">

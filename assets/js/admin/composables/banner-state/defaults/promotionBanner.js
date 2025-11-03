@@ -1,5 +1,8 @@
 // tappersia/assets/js/admin/composables/banner-state/defaults/promotionBanner.js
 export const createDefaultPromotionPart = () => ({
+    // --- START: Added enableBorder ---
+    enableBorder: false,
+    // --- END: Added enableBorder ---
     borderWidth: 1,
     borderColor: '#ff731b3d',
     borderRadius: 16,

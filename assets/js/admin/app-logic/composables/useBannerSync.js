@@ -1,4 +1,5 @@
 // tappersia/assets/js/admin/app-logic/composables/useBannerSync.js
+// tappersia/assets/js/admin/app-logic/composables/useBannerSync.js
 const { watch } = Vue;
 
 export function useBannerSync(banner, currentView) {
@@ -262,6 +263,9 @@ export function useBannerSync(banner, currentView) {
          mobile.links = JSON.parse(JSON.stringify(newDesktop.links)); // Deep copy links
          mobile.borderColor = newDesktop.borderColor;
          mobile.iconUrl = newDesktop.iconUrl; // Sync icon URL
+         // --- START: Added enableBorder sync ---
+         mobile.enableBorder = newDesktop.enableBorder;
+         // --- END: Added enableBorder sync ---
      }, { deep: true });
 
 

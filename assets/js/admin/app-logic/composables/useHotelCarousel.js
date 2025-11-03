@@ -132,7 +132,7 @@ export const HotelCarouselLogic = {
             // --- SKELETON ---
             if (!hotel) {
                 return `
-                <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; height:${card.height || 357}px; width: 295px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #ffffff; box-sizing: border-box; overflow: hidden;">
+                <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; height:auto;min-height:${card.height || 357}px; width: 295px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #ffffff; box-sizing: border-box; overflow: hidden;">
                     <div style="height: ${card.image?.height || 176}px; width: 100%; border-radius: 14px; background-color: #f0f0f0;"></div>
                     <div style="margin: 14px 19px 0 19px;">
                         <div style="min-height: ${card.title?.minHeight || 34}px; width: 100%; margin-bottom: 7px;">
@@ -172,9 +172,9 @@ export const HotelCarouselLogic = {
             const imageWidth = 295 - (card.padding * 2);
 
             return `
-            <div name="card" class="yab-hotel-card" style="margin: 0; height: ${card.height}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
-              <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;">
-                <div style="position: relative; height: ${card.image?.height || 176}px; width: ${imageWidth}px; border-radius: ${card.image?.radius || 14}px; flex-shrink: 0;" name="header-content-image">
+            <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.height}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
+              <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;flex:1">
+                <div style="position: relative; height: ${card.image?.height || 176}px; width:100%; border-radius: ${card.image?.radius || 14}px; flex-shrink: 0;" name="header-content-image">
                   <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: ${card.imageContainer?.paddingY || 13}px ${card.imageContainer?.paddingX || 13}px; box-sizing: border-box;">
                     <div style="display: flex; width: 100%; align-items: flex-start; justify-content: space-between;">
                        ${isFeatured ? `<div style="display: flex; width: fit-content; align-items: center; justify-content: center; border-radius: ${card.badges?.bestSeller?.radius || 20}px; background: ${card.badges?.bestSeller?.bgColor || '#F66A05'}; padding: ${card.badges?.bestSeller?.paddingY || 5}px ${card.badges?.bestSeller?.paddingX || 7}px; font-size: ${card.badges?.bestSeller?.fontSize || 12}px; line-height: 1; font-weight: 500; color: ${card.badges?.bestSeller?.textColor || '#ffffff'};">Best Seller</div>` : '<div></div>'}
@@ -190,7 +190,7 @@ export const HotelCarouselLogic = {
                 </div>
                 <div name="body-content" style="margin: ${card.bodyContent?.marginTop || 14}px ${card.bodyContent?.marginX || 19}px 0 ${card.bodyContent?.marginX || 19}px; color: ${card.bodyContent?.textColor || '#333'}; flex-grow: 1; display: flex; flex-direction: column; min-height: 0;">
                   <div name="title" style="min-height: ${card.title?.minHeight || 34}px; width: 100%;"> <h4 style="font-size: ${card.title?.fontSize || 14}px; line-height: ${card.title?.lineHeight || 1.2}; font-weight: ${card.title?.fontWeight || 600}; color: ${card.title?.color || '#333333'}; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;">${escapeHTML(title)}</h4> </div>
-                  <div name="description">
+                  <div name="description" style="margin-top:auto">
                     <div name="rating" style="margin-top: ${card.rating?.marginTop || 7}px; display: flex; flex-direction: row; align-items: center; gap: ${card.rating?.gap || 6}px;">
                       ${ratingScore !== null ? `<div name="rate"><span style="width: fit-content; border-radius: ${card.rating?.boxRadius || 3}px; background: ${card.rating?.boxBgColor || '#5191FA'}; padding: ${card.rating?.boxPaddingY || 2}px ${card.rating?.boxPaddingX || 6}px; font-size: ${card.rating?.boxFontSize || 11}px; line-height: 1; color: ${card.rating?.boxColor || '#ffffff'};">${ratingScore}</span></div>` : ''}
                       <div name="text-rate" style="font-size: ${card.rating?.labelFontSize || 12}px; line-height: 15px; color: ${card.rating?.labelColor || '#333333'}; padding-top: 1px;"> <span>${escapeHTML(ratingLabel)}</span> </div>
@@ -199,7 +199,7 @@ export const HotelCarouselLogic = {
                     <div name="tags"> <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: ${card.tags?.gap || 5}px;"> ${tagsHtml} </div> </div>
                   </div>
                   <hr style="margin: ${card.divider?.marginTop || 9.5}px 0 ${card.divider?.marginBottom || 7.5}px 0; border: 0; border-top: 1px solid ${card.divider?.color || '#EEEEEE'};" />
-                  <div name="price" style="display: flex; flex-direction: column; margin-top: auto;">
+                  <div name="price" style="display: flex; flex-direction: column; margin-top: 10px;">
                     <div style="font-size: ${card.price?.fromSize || 12}px; line-height: 14px; color: ${card.price?.fromColor || '#999999'};"> <span>From</span> </div>
                     <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
                       <div style="display: flex; align-items: center; gap: 5px;">

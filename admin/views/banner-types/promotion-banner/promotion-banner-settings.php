@@ -28,7 +28,20 @@
         <div class="space-y-4">
             <div>
                 <h4 class="section-title">Border</h4>
-                <div class="grid grid-cols-3 gap-2">
+                
+                <?php // --- START: Added Enable/Disable Toggle --- ?>
+                <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
+                    <label class="setting-label-sm !mb-0">Enable Border</label>
+                    <label class="relative inline-flex items-center cursor-pointer" title="Toggle banner border">
+                        <input type="checkbox" v-model="settings.enableBorder" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
+                </div>
+                <?php // --- END: Added Enable/Disable Toggle --- ?>
+
+                <?php // --- START: Added v-if --- ?>
+                <div v-if="settings.enableBorder" class="grid grid-cols-3 gap-2">
+                <?php // --- END: Added v-if --- ?>
                     <div v-if="currentView === 'desktop'">
                         <label class="setting-label-sm">Color</label>
                         <div class="flex items-center gap-1">
