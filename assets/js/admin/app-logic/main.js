@@ -1,4 +1,5 @@
 // tappersia/assets/js/admin/app-logic/main.js
+// tappersia/assets/js/admin/app-logic/main.js
 const { createApp, ref, onMounted, watch, nextTick } = Vue;
 
 // Import کامپوننت‌ها به جای composables
@@ -164,20 +165,29 @@ export function initializeApp(yabData) {
 
 
             // --- Helper Methods ---
-            const addGradientStop = (settings) => {
-                 if (!settings.gradientStops) settings.gradientStops = [];
-                 const lastStop = settings.gradientStops.length > 0 ? settings.gradientStops[settings.gradientStops.length - 1].stop : 0;
+            // *** START: MODIFIED GRADIENT HELPERS ***
+            const addGradientStop = (stopsArray) => {
+                 if (!Array.isArray(stopsArray)) {
+                    console.error('addGradientStop expected an array.', stopsArray);
+                    return;
+                 }
+                 const lastStop = stopsArray.length > 0 ? stopsArray[stopsArray.length - 1].stop : 0;
                  const newStopPosition = Math.min(100, lastStop + 10);
-                 settings.gradientStops.push({ color: 'rgba(255, 255, 255, 0.5)', stop: newStopPosition });
-                 settings.gradientStops.sort((a, b) => a.stop - b.stop);
+                 stopsArray.push({ color: 'rgba(255, 255, 255, 0.5)', stop: newStopPosition });
+                 stopsArray.sort((a, b) => a.stop - b.stop);
              };
-            const removeGradientStop = (settings, index) => {
-                if (settings.gradientStops.length > 1) {
-                    settings.gradientStops.splice(index, 1);
+            const removeGradientStop = (stopsArray, index) => {
+                if (!Array.isArray(stopsArray)) {
+                     console.error('removeGradientStop expected an array.', stopsArray);
+                    return;
+                }
+                if (stopsArray.length > 1) {
+                    stopsArray.splice(index, 1);
                 } else {
                     showModal('Info', 'A gradient must have at least one color stop.');
                 }
              };
+             // *** END: MODIFIED GRADIENT HELPERS ***
 
              const copyPlaceholder = (placeholder) => {
                 if (navigator.clipboard && window.isSecureContext) {

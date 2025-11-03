@@ -13,8 +13,8 @@
             <div  >
                 <h3 class="font-bold text-xl text-white tracking-wide mb-4 capitalize">alignment</h3>
                 <div class="flex bg-[#292929] rounded-lg p-1">
-                    <button @click="settings.direction = 'ltr'" :class="settings.direction === 'ltr' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Left to Right</button>
-                    <button @click="settings.direction = 'rtl'" :class="settings.direction === 'rtl' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Right to Left</button>
+                    <button @click="settings.direction = 'ltr'" :class="settings.direction === 'ltr' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Left</button>
+                    <button @click="settings.direction = 'rtl'" :class="settings.direction === 'rtl' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Right</button>
                 </div>
             </div>
         </div>

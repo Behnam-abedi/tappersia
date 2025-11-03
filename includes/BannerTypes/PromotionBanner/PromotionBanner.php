@@ -101,7 +101,16 @@ class Yab_Promotion_Banner {
         if (!is_array($data)) return $sanitized;
 
         foreach ($data as $key => $value) {
-            if (is_array($value)) {
+            // *** START: Added sanitization for gradient stops ***
+            if (($key === 'headerGradientStops' || $key === 'bodyGradientStops') && is_array($value)) {
+                $sanitized[$key] = array_map(function($stop) {
+                    return [
+                        'color' => isset($stop['color']) ? sanitize_text_field($stop['color']) : '#FFFFFF',
+                        'stop' => isset($stop['stop']) ? intval($stop['stop']) : 0,
+                    ];
+                }, $value);
+            // *** END: Added sanitization for gradient stops ***
+            } elseif (is_array($value)) {
                 $sanitized[$key] = $this->sanitize_banner_data($value);
             } elseif (is_bool($value)) {
                 $sanitized[$key] = $value;
@@ -117,16 +126,14 @@ class Yab_Promotion_Banner {
                         $sanitized[$key] = wp_kses_post(trim($value));
                         break;
                     case 'headerBgColor':
-                    case 'headerGradientColor1':
-                    case 'headerGradientColor2':
+                    // --- REMOVED old keys: headerGradientColor1, headerGradientColor2 ---
                     case 'headerTextColor':
                     case 'bodyBgColor':
-                    case 'bodyGradientColor1':
-                    case 'bodyGradientColor2':
+                    // --- REMOVED old keys: bodyGradientColor1, bodyGradientColor2 ---
                     case 'bodyTextColor':
                     case 'linkColor':
                     case 'borderColor':
-                        $sanitized[$key] = sanitize_hex_color($value);
+                        $sanitized[$key] = sanitize_text_field($value); // Allow rgba
                         break;
                     default:
                         $sanitized[$key] = sanitize_text_field(trim($value));

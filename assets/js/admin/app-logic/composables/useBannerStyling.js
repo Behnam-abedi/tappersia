@@ -74,9 +74,31 @@ export function useBannerStyling(banner) {
     const getDescriptionStyles = (view) => getDynamicStyles(view).descriptionStyles;
     const getButtonStyles = (view) => getDynamicStyles(view).buttonStyles;
 
+    // +++ START: MODIFIED FUNCTION +++
+    // This function now correctly handles the new gradient object structure
     const getPromoBackgroundStyle = (promo, section) => {
-        // ... (این بخش بدون تغییر باقی می‌ماند) ...
+        if (!promo) return 'transparent'; // Safety check
+
+        const prefix = section; // 'header' or 'body'
+        const typeKey = `${prefix}BackgroundType`;
+        const stopsKey = `${prefix}GradientStops`;
+        const angleKey = `${prefix}GradientAngle`;
+        const colorKey = `${prefix}BgColor`;
+
+        // Check if gradient
+        if (promo[typeKey] === 'gradient') {
+             if (!promo[stopsKey] || promo[stopsKey].length === 0) {
+                return 'transparent';
+            }
+            const sortedStops = [...promo[stopsKey]].sort((a, b) => a.stop - b.stop);
+            const stopsString = sortedStops.map(s => `${s.color} ${s.stop}%`).join(', ');
+            return `linear-gradient(${promo[angleKey] || 90}deg, ${stopsString})`;
+        }
+
+        // Fallback to solid
+        return promo[colorKey] || '#ffffff';
     };
+    // +++ END: MODIFIED FUNCTION +++
 
     return {
         bannerStyles,

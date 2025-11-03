@@ -40,6 +40,7 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
         }
 
         private function render_view($b, $desktop_b) {
+            // Body text processing remains the same
             $body_text = esc_html($desktop_b['bodyText']);
             if (!empty($desktop_b['links']) && is_array($desktop_b['links'])) {
                 foreach ($desktop_b['links'] as $link) {
@@ -72,7 +73,7 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit; box-shadow: inset 0 0 0 <?php echo esc_attr($b['borderWidth']); ?>px <?php echo esc_attr($b['borderColor']); ?>; z-index: 10; pointer-events: none;"></div>
 
                 <div class="yab-promo-header"
-                     style="<?php echo $this->get_background_style($b, 'header'); ?>;
+                     style="<?php echo $this->get_background_style($b, 'header'); ?>; <?php // *** MODIFIED *** ?>
                             padding: <?php echo esc_attr($b['headerPaddingY']); ?>px <?php echo esc_attr($b['headerPaddingX']); ?>px;
                             display: flex;
                             align-items: center;
@@ -82,7 +83,7 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
                     <?php if (!empty($desktop_b['iconUrl'])): ?>
                         <img src="<?php echo esc_url($desktop_b['iconUrl']); ?>" alt="icon" style="width: <?php echo esc_attr($b['iconSize']); ?>px; height: <?php echo esc_attr($b['iconSize']); ?>px;">
                     <?php endif; ?>
-                    <span style="color: <?php echo esc_attr($b['headerTextColor']); ?>;
+                    <span style="color: <?php echo esc_attr($desktop_b['headerTextColor']); ?>; <?php // Color from desktop ?>
                                  font-size: <?php echo esc_attr($b['headerFontSize']); ?>px;
                                  font-weight: <?php echo esc_attr($b['headerFontWeight']); ?>;
                                  <?php echo $text_align_style; ?> flex-grow: 1;">
@@ -91,15 +92,15 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
                 </div>
 
                 <div class="yab-promo-body"
-                     style="<?php echo $this->get_background_style($b, 'body'); ?>;
+                     style="<?php echo $this->get_background_style($b, 'body'); ?>; <?php // *** MODIFIED *** ?>
                             padding: <?php echo esc_attr($b['bodyPaddingY']); ?>px <?php echo esc_attr($b['bodyPaddingX']); ?>px;
                             box-sizing: border-box;">
-                    <p style="color: <?php echo esc_attr($b['bodyTextColor']); ?>;
+                    <p style="color: <?php echo esc_attr($desktop_b['bodyTextColor']); ?>; <?php // Color from desktop ?>
                               font-size: <?php echo esc_attr($b['bodyFontSize']); ?>px;
                               font-weight: <?php echo esc_attr($b['bodyFontWeight']); ?>;
                               line-height: <?php echo esc_attr($b['bodyLineHeight']); ?>;
                               <?php echo $text_align_style; ?> margin: 0;">
-                        <?php echo $body_text; ?>
+                        <?php echo $body_text; // Body text is already processed ?>
                     </p>
                 </div>
             </div>
@@ -107,22 +108,46 @@ if (!class_exists('Yab_Promotion_Banner_Renderer')) {
             return ob_get_clean();
         }
 
-
+        /**
+         * *** START: REPLACED METHOD ***
+         * Use the abstract renderer's logic, adapted for section prefixes.
+         */
         protected function get_background_style(array $b, string $section = 'header'): string {
-            $prefix = $section;
-            $type_key = $prefix . 'BackgroundType';
-            $color_key = $prefix . 'BgColor';
-            $grad1_key = $prefix . 'GradientColor1';
-            $grad2_key = $prefix . 'GradientColor2';
-            $angle_key = $prefix . 'GradientAngle';
+            $type_key = $section . 'BackgroundType';
+            $grad_stops_key = $section . 'GradientStops';
+            $grad_angle_key = $section . 'GradientAngle';
+            $solid_color_key = $section . 'BgColor';
 
             if (($b[$type_key] ?? 'solid') === 'gradient') {
-                $angle = isset($b[$angle_key]) ? intval($b[$angle_key]) . 'deg' : '90deg';
-                $color1 = esc_attr($b[$grad1_key] ?? '#ffffff');
-                $color2 = esc_attr($b[$grad2_key] ?? '#ffffff');
-                return "background: linear-gradient({$angle}, {$color1}, {$color2});";
+                if (empty($b[$grad_stops_key]) || !is_array($b[$grad_stops_key])) {
+                    return "background: transparent;";
+                }
+
+                $gradient_stops = $b[$grad_stops_key];
+                usort($gradient_stops, function($a, $b) {
+                    return ($a['stop'] ?? 0) <=> ($b['stop'] ?? 0);
+                });
+
+                $stops_css = [];
+                foreach ($gradient_stops as $stop) {
+                    $color = isset($stop['color']) ? trim($stop['color']) : 'transparent';
+                    $sanitized_color = (strtolower($color) === 'transparent') ? 'transparent' : esc_attr($color);
+                    
+                    $position = isset($stop['stop']) ? intval($stop['stop']) : 0;
+                    $stops_css[] = $sanitized_color . ' ' . esc_attr($position) . '%';
+                }
+
+                if (empty($stops_css)) return "background: transparent;";
+
+                $angle = isset($b[$grad_angle_key]) ? intval($b[$grad_angle_key]) . 'deg' : '90deg';
+                return "background: linear-gradient({$angle}, " . implode(', ', $stops_css) . ");";
             }
-            return "background-color: " . esc_attr($b[$color_key] ?? '#ffffff') . ";";
+            
+            // Fallback to solid
+            return "background-color: " . esc_attr($b[$solid_color_key] ?? '#ffffff') . ";";
         }
+        /**
+         * *** END: REPLACED METHOD ***
+         */
     }
 }
