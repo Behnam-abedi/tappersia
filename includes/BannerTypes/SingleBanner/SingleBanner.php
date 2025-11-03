@@ -9,14 +9,14 @@ class Yab_Single_Banner {
         }
 
         if ($banner_data['displayMethod'] === 'Fixed') {
-            $conflict = $this.check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
+            $conflict = $this->check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
             if ($conflict['has_conflict']) {
                 wp_send_json_error(['message' => $conflict['message']]);
                 return;
             }
         }
 
-        $sanitized_data = $this.sanitize_banner_data($banner_data);
+        $sanitized_data = $this->sanitize_banner_data($banner_data);
         $post_id = !empty($sanitized_data['id']) ? intval($sanitized_data['id']) : 0;
         
         $post_data = [
@@ -136,7 +136,7 @@ class Yab_Single_Banner {
 
         foreach ($data as $key => $value) {
             if (is_array($value)) {
-                $sanitized[$key] = $this.sanitize_banner_data($value);
+                $sanitized[$key] = $this->sanitize_banner_data($value);
             } elseif (is_bool($value)) {
                 $sanitized[$key] = $value;
             } elseif (is_numeric($value) || $value === null) {
