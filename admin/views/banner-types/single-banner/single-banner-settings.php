@@ -215,14 +215,7 @@
         </div>
     </div>
     <hr v-if="currentView === 'desktop' && settings.imageUrl" class="section-divider">
-    <div v-if="currentView === 'desktop'">
-        <h4 class="section-title">Content Alignment</h4>
-        <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
-            <button @click="settings.alignment = 'left'" :class="settings.alignment === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Left</button>
-            <button @click="settings.alignment = 'center'" :class="settings.alignment === 'center' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Center</button>
-            <button @click="settings.alignment = 'right'" :class="settings.alignment === 'right' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Right</button>
-        </div>
-    </div>
+
     <hr class="section-divider">
     <div class="space-y-2">
         <h4 class="section-title">Title</h4>

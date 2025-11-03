@@ -11,21 +11,17 @@ export function useBannerSync(banner, currentView) {
             // Apply mobile overrides AFTER copying
             banner.single_mobile.layerOrder = banner.single.layerOrder; // <<< ADDED
             banner.single_mobile.minHeight = 145;
-            banner.single_mobile.paddingTop = 20;
-            banner.single_mobile.paddingRight = 22;
-            banner.single_mobile.paddingBottom = 15;
-            banner.single_mobile.paddingLeft = 22;
+            banner.single_mobile.paddingY = 20; // Changed
+            banner.single_mobile.paddingX = 22; // Changed
             banner.single_mobile.titleSize = 14;
-            banner.single_mobile.titleLineHeight = 1.4;
+            // banner.single_mobile.titleLineHeight = 1.4; // Removed
             banner.single_mobile.descSize = 12;
-            banner.single_mobile.descLineHeight = 1.4;
+            // banner.single_mobile.descLineHeight = 1.4; // Removed
             banner.single_mobile.marginTopDescription = 12;
             banner.single_mobile.marginBottomDescription = 15;
             banner.single_mobile.buttonFontSize = 11;
-            banner.single_mobile.buttonPaddingTop = 10;
-            banner.single_mobile.buttonPaddingRight = 16;
-            banner.single_mobile.buttonPaddingBottom = 10;
-            banner.single_mobile.buttonPaddingLeft = 16;
+            banner.single_mobile.buttonPaddingY = 10; // Changed
+            banner.single_mobile.buttonPaddingX = 16; // Changed
             banner.isMobileConfigured = true;
         }
 
@@ -74,27 +70,29 @@ export function useBannerSync(banner, currentView) {
             banner.double.mobile.left = JSON.parse(JSON.stringify(banner.double.desktop.left));
             banner.double.mobile.right = JSON.parse(JSON.stringify(banner.double.desktop.right));
             // Apply mobile overrides for left
-            banner.double.mobile.left.width = 100; banner.double.mobile.left.widthUnit = '%';
             banner.double.mobile.left.minHeight = 150;
-            banner.double.mobile.left.paddingTop = 20; banner.double.mobile.left.paddingRight = 20;
-            banner.double.mobile.left.paddingBottom = 20; banner.double.mobile.left.paddingLeft = 20;
-            banner.double.mobile.left.titleSize = 14; banner.double.mobile.left.titleLineHeight = 1.4;
-            banner.double.mobile.left.descSize = 12; banner.double.mobile.left.descLineHeight = 1.4;
+            banner.double.mobile.left.paddingY = 20;
+            banner.double.mobile.left.paddingX = 20;
+            banner.double.mobile.left.titleSize = 14;
+            banner.double.mobile.left.descSize = 12;
             banner.double.mobile.left.marginTopDescription = 8;
+            banner.double.mobile.left.contentWidth = 100;
+            banner.double.mobile.left.contentWidthUnit = '%';
             banner.double.mobile.left.buttonFontSize = 11;
-            banner.double.mobile.left.buttonPaddingTop = 10; banner.double.mobile.left.buttonPaddingRight = 16;
-            banner.double.mobile.left.buttonPaddingBottom = 10; banner.double.mobile.left.buttonPaddingLeft = 16;
+            banner.double.mobile.left.buttonPaddingY = 10;
+            banner.double.mobile.left.buttonPaddingX = 16;
             // Apply mobile overrides for right
-            banner.double.mobile.right.width = 100; banner.double.mobile.right.widthUnit = '%';
             banner.double.mobile.right.minHeight = 150;
-            banner.double.mobile.right.paddingTop = 20; banner.double.mobile.right.paddingRight = 20;
-            banner.double.mobile.right.paddingBottom = 20; banner.double.mobile.right.paddingLeft = 20;
-            banner.double.mobile.right.titleSize = 14; banner.double.mobile.right.titleLineHeight = 1.4;
-            banner.double.mobile.right.descSize = 12; banner.double.mobile.right.descLineHeight = 1.4;
+            banner.double.mobile.right.paddingY = 20;
+            banner.double.mobile.right.paddingX = 20;
+            banner.double.mobile.right.titleSize = 14;
+            banner.double.mobile.right.descSize = 12;
             banner.double.mobile.right.marginTopDescription = 8;
+            banner.double.mobile.right.contentWidth = 100;
+            banner.double.mobile.right.contentWidthUnit = '%';
             banner.double.mobile.right.buttonFontSize = 11;
-            banner.double.mobile.right.buttonPaddingTop = 10; banner.double.mobile.right.buttonPaddingRight = 16;
-            banner.double.mobile.right.buttonPaddingBottom = 10; banner.double.mobile.right.buttonPaddingLeft = 16;
+            banner.double.mobile.right.buttonPaddingY = 10;
+            banner.double.mobile.right.buttonPaddingX = 16;
 
             banner.double.isMobileConfigured = true;
         }
@@ -263,6 +261,10 @@ export function useBannerSync(banner, currentView) {
             const mob = banner.double.mobile[position];
             mob.imageUrl = desk.imageUrl;
             mob.alignment = desk.alignment;
+            mob.contentWidth = desk.contentWidth;
+            mob.contentWidthUnit = desk.contentWidthUnit;
+            mob.paddingX = desk.paddingX;
+            mob.paddingY = desk.paddingY;
             mob.titleText = desk.titleText;
             mob.titleColor = desk.titleColor;
             mob.descText = desk.descText;
@@ -272,6 +274,8 @@ export function useBannerSync(banner, currentView) {
             mob.buttonBgColor = desk.buttonBgColor;
             mob.buttonTextColor = desk.buttonTextColor;
             mob.buttonBgHoverColor = desk.buttonBgHoverColor;
+            mob.buttonPaddingX = desk.buttonPaddingX;
+            mob.buttonPaddingY = desk.buttonPaddingY;
             mob.borderColor = desk.borderColor; // Sync border color
             mob.layerOrder = desk.layerOrder; // Sync layer order
          });

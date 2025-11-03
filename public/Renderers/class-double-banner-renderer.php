@@ -186,8 +186,8 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
             $is_desktop = $view === 'desktop';
 
             $banner_styles = [
-                'width' => $is_desktop ? ($b['enableCustomDimensions'] ? esc_attr($b['width'] . $b['widthUnit']) : '50%') : '100%',
-                'min-height' => esc_attr($b['minHeight'] . ($b['minHeightUnit'] ?? 'px')),
+                'width' => $is_desktop ? '50%' : '100%',
+                'min-height' => esc_attr($b['minHeight']) . 'px',
                 'height' => 'auto',
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
                 'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0',
@@ -198,11 +198,9 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
             }
 
             // Get content padding for internal layout
-            $content_padding = sprintf('%spx %spx %spx %spx', 
-                esc_attr($b['paddingTop']), 
-                esc_attr($b['paddingRight']), 
-                esc_attr($b['paddingBottom']), 
-                esc_attr($b['paddingLeft'])
+            $content_padding = sprintf('%spx %spx', 
+                esc_attr($b['paddingY']), 
+                esc_attr($b['paddingX'])
             );
             
             $alignment = $this->get_alignment_style($b);
@@ -210,7 +208,7 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
             ob_start();
             ?>
             <div class="yab-double-skeleton " style="<?php echo $this->get_inline_style_attr($banner_styles); ?>">
-                <div class="yab-skeleton-content" style="padding: <?php echo $content_padding; ?>; align-items: <?php echo $alignment['align_items']; ?>; text-align: <?php echo $alignment['text_align']; ?>; display: flex; flex-direction: column; height: <?php echo esc_attr($b['minHeight'] . ($b['minHeightUnit'] ?? 'px')); ?>; box-sizing: border-box;">
+                <div class="yab-skeleton-content" style="padding: <?php echo $content_padding; ?>; align-items: <?php echo $alignment['align_items']; ?>; text-align: <?php echo $alignment['text_align']; ?>; display: flex; flex-direction: column; height: <?php echo esc_attr($b['minHeight']); ?>px; box-sizing: border-box;">
                     <div style="width:100%">
                         <div class="yab-skeleton-text-lg yab-skeleton-loader"></div>
                         <div class="yab-skeleton-text-md yab-skeleton-loader"></div>
@@ -229,8 +227,8 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
         private function render_view($b, $view, $key, $banner_id) {
             $is_desktop = $view === 'desktop';
             $banner_styles = [
-                'width' => $is_desktop ? ($b['enableCustomDimensions'] ? esc_attr($b['width'] . $b['widthUnit']) : '50%') : '100%',
-                'min-height' => esc_attr($b['minHeight'] . ($b['minHeightUnit'] ?? 'px')),
+                'width' => $is_desktop ? '50%' : '100%',
+                'min-height' => esc_attr($b['minHeight']) . 'px',
                 'height' => 'auto',
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
                 'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0',
@@ -242,9 +240,9 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
             $alignment_style = $this->get_alignment_style($b);
 
             $content_styles = [
-                'width' => '100%',
+                'width' => esc_attr($b['contentWidth'] . ($b['contentWidthUnit'] ?? '%')),
                 'height' => '100%', // Ensure content div fills the wrapper
-                'padding' => sprintf('%spx %spx %spx %spx', esc_attr($b['paddingTop']), esc_attr($b['paddingRight']), esc_attr($b['paddingBottom']), esc_attr($b['paddingLeft'])),
+                'padding' => sprintf('%spx %spx', esc_attr($b['paddingY']), esc_attr($b['paddingX'])),
                 'display' => 'flex', 'flex-direction' => 'column', 'position' => 'relative', 'z-index' => 3,
                 'align-items' => $alignment_style['align_items'],
                 'text-align' => $alignment_style['text_align'],
@@ -254,13 +252,12 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
             $button_styles = [
                 'text-decoration' => 'none', 'display' => 'inline-flex', 'align-items' => 'center', 'justify-content' => 'center',
                 'transition' => 'background-color 0.3s',
-                'padding' => sprintf('%spx %spx %spx %spx', esc_attr($b['buttonPaddingTop']), esc_attr($b['buttonPaddingRight']), esc_attr($b['buttonPaddingBottom']), esc_attr($b['buttonPaddingLeft'])),
+                'padding' => sprintf('%spx %spx', esc_attr($b['buttonPaddingY']), esc_attr($b['buttonPaddingX'])),
                 'background-color' => esc_attr($b['buttonBgColor']), 'color' => esc_attr($b['buttonTextColor']),
                 'font-size' => esc_attr($b['buttonFontSize']) . 'px',
                 'border-radius' => esc_attr($b['buttonBorderRadius']) . 'px',
                 'font-weight' => esc_attr($b['buttonFontWeight']),
                 'align-self' => $alignment_style['align_self'],
-                'line-height' => esc_attr($b['buttonLineHeight']),
                 'margin-top' => esc_attr($b['buttonMarginTop']) . 'px',
                 'margin-bottom' => esc_attr($b['buttonMarginBottom']) . 'px',
             ];
@@ -280,8 +277,8 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
 
                 <div class="yab-banner-content" style="<?php echo $this->get_inline_style_attr($content_styles); ?>">
                     <div style="flex-grow: 1;">
-                        <h2 style="font-weight: <?php echo esc_attr($b['titleWeight']); ?>; color: <?php echo esc_attr($b['titleColor']); ?>; font-size: <?php echo intval($b['titleSize']); ?>px; margin: 0; line-height: <?php echo esc_attr($b['titleLineHeight']); ?>;"><?php echo esc_html($b['titleText'] ?? ''); ?></h2>
-                        <p style="font-weight: <?php echo esc_attr($b['descWeight']); ?>; color: <?php echo esc_attr($b['descColor']); ?>; font-size: <?php echo intval($b['descSize']); ?>px; white-space: pre-wrap; width: <?php echo esc_attr($b['descWidth'] . ($b['descWidthUnit'] ?? '%')); ?>; margin-top: <?php echo esc_attr($b['marginTopDescription']); ?>px; margin-bottom: 0; line-height: <?php echo esc_attr($b['descLineHeight']); ?>;"><?php echo wp_kses_post($b['descText'] ?? ''); ?></p>
+                        <h2 style="font-weight: <?php echo esc_attr($b['titleWeight']); ?>; color: <?php echo esc_attr($b['titleColor']); ?>; font-size: <?php echo intval($b['titleSize']); ?>px; margin: 0; line-height: 1;"><?php echo esc_html($b['titleText'] ?? ''); ?></h2>
+                        <p style="font-weight: <?php echo esc_attr($b['descWeight']); ?>; color: <?php echo esc_attr($b['descColor']); ?>; font-size: <?php echo intval($b['descSize']); ?>px; white-space: pre-wrap; margin-top: <?php echo esc_attr($b['marginTopDescription']); ?>px; margin-bottom: 0;"><?php echo wp_kses_post($b['descText'] ?? ''); ?></p>
                     </div>
                     
                     <?php if(!empty($b['buttonText'])): ?>

@@ -169,10 +169,8 @@ class Yab_Double_Banner {
                     case 'borderColor':
                         $sanitized[$key] = sanitize_hex_color($value);
                         break;
-                    case 'widthUnit':
-                    case 'minHeightUnit':
-                    case 'buttonMinWidthUnit':
-                         $sanitized[$key] = in_array($value, ['px', '%']) ? $value : 'px';
+                    case 'contentWidthUnit': // Added this
+                         $sanitized[$key] = in_array($value, ['px', '%']) ? $value : '%';
                         break;
                     default:
                         $sanitized[$key] = sanitize_text_field(trim($value));
