@@ -78,9 +78,9 @@
     <hr class="section-divider">
     <div>
         <h4 class="section-title">Background</h4>
-        <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none">
-            <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-l-lg border-none">Solid Color</button>
-            <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-r-lg border-none">Gradient</button>
+        <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg p-1">
+            <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-md border-none">Solid Color</button>
+            <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-md border-none">Gradient</button>
         </div>
         <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
             <label class="setting-label-sm">Background Color</label>

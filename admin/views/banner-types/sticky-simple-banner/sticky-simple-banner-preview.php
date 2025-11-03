@@ -6,7 +6,6 @@
     
     <transition name="fade" mode="out-in">
         <div v-if="currentView === 'desktop'" class="flex flex-col items-center">
-            <span class="text-xs text-gray-400 mb-2">Desktop View</span>
             <div class="flex justify-center w-full bg-[#292929] rounded-lg p-4">
                 <div class="yab-simple-banner-wrapper" 
                     :style="{ 
@@ -14,6 +13,7 @@
                         height: 'auto', 
                         minHeight: banner.sticky_simple.minHeight + 'px',
                         borderRadius: banner.sticky_simple.borderRadius + 'px', 
+                        border: banner.sticky_simple.enableBorder ? `${banner.sticky_simple.borderWidth}px solid ${banner.sticky_simple.borderColor}` : 'none',
                         background: bannerStyles(banner.sticky_simple),
                         padding: banner.sticky_simple.paddingY + 'px ' + banner.sticky_simple.paddingX + banner.sticky_simple.paddingXUnit,
                         display: 'flex',
@@ -28,6 +28,7 @@
                         fontWeight: banner.sticky_simple.textWeight,
                         color: banner.sticky_simple.textColor,
                         flexGrow: 1,
+                        maxWidth: banner.sticky_simple.contentWidth + banner.sticky_simple.contentWidthUnit,
                         textAlign: banner.sticky_simple.direction === 'rtl' ? 'right' : 'left'
                     }">
                         {{ banner.sticky_simple.text }}
@@ -59,13 +60,13 @@
         </div>
         
         <div v-else-if="currentView === 'mobile'" class="flex flex-col items-center">
-            <span class="text-xs text-gray-400 mb-2">Mobile View</span>
             <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
                 <div class="yab-simple-banner-wrapper w-full" 
                     :style="{ 
                         height: 'auto',
                         minHeight: banner.sticky_simple_mobile.minHeight + 'px',
                         borderRadius: banner.sticky_simple_mobile.borderRadius + 'px', 
+                        border: banner.sticky_simple_mobile.enableBorder ? `${banner.sticky_simple_mobile.borderWidth}px solid ${banner.sticky_simple.borderColor}` : 'none',
                         background: bannerStyles(banner.sticky_simple_mobile),
                         padding: banner.sticky_simple_mobile.paddingY + 'px ' + banner.sticky_simple_mobile.paddingX + banner.sticky_simple_mobile.paddingXUnit,
                         display: 'flex',
@@ -80,6 +81,7 @@
                         fontWeight: banner.sticky_simple_mobile.textWeight,
                         color: banner.sticky_simple.textColor,
                         flexGrow: 1,
+                        maxWidth: banner.sticky_simple_mobile.contentWidth + banner.sticky_simple_mobile.contentWidthUnit,
                         textAlign: banner.sticky_simple.direction === 'rtl' ? 'right' : 'left'
                     }">
                         {{ banner.sticky_simple.text }}

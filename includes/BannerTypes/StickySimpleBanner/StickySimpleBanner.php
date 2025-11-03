@@ -132,8 +132,14 @@ class Yab_Sticky_Simple_Banner {
                     case 'gradientColor1':
                     case 'gradientColor2':
                     case 'buttonBgHoverColor':
+                    case 'borderColor': // --- ADDED ---
                         $sanitized[$key] = sanitize_hex_color($value);
                         break;
+                    // --- START: ADDED ---
+                    case 'contentWidthUnit':
+                         $sanitized[$key] = in_array($value, ['px', '%']) ? $value : '%';
+                        break;
+                    // --- END: ADDED ---
                     default:
                         $sanitized[$key] = sanitize_text_field(trim($value));
                 }
