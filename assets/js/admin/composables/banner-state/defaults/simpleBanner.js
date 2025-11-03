@@ -10,6 +10,13 @@ export const createDefaultSimplePart = () => ({
     height: 'auto',
     minHeight: 74,
     borderRadius: 10,
+
+    // --- START: Added Border ---
+    enableBorder: false,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    // --- END: Added Border ---
+
     paddingY: 24,
     paddingX: 40,
     paddingXUnit: 'px',
@@ -18,6 +25,12 @@ export const createDefaultSimplePart = () => ({
     textColor: '#000000',
     textSize: 17,
     textWeight: '700',
+
+    // --- START: Added Content Width ---
+    contentWidth: 100,
+    contentWidthUnit: '%',
+    // --- END: Added Content Width ---
+
     buttonText: 'Click Here',
     buttonLink: '#',
     buttonBgColor: '#1EC2AF',

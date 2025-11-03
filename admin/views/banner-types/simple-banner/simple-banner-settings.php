@@ -1,4 +1,81 @@
-<div :set="settings = currentView === 'desktop' ? banner.simple : banner.simple_mobile">
+<div :set="settings = currentView === 'desktop' ? banner.simple : banner.simple_mobile" class="flex flex-col gap-3">
+    <div>
+        <h4 class="section-title">Layout</h4>
+        <div class="grid grid-cols-1 gap-2">
+            <div>
+                <label class="setting-label-sm">Content Width</label>
+                <div class="flex items-center gap-1">
+                    <input type="number" v-model.number="settings.contentWidth" class="yab-form-input" placeholder="100">
+                    <select v-model="settings.contentWidthUnit" class="yab-form-input w-20"><option>%</option><option>px</option></select>
+                </div>
+            </div>
+            <div>
+                <label class="setting-label-sm">Min Height (px)</label>
+                <input type="number" v-model.number="settings.minHeight" class="yab-form-input" placeholder="e.g., 74">
+             </div>
+        </div>
+    </div>
+    <hr class="section-divider">
+    <div>
+         <h4 class="section-title">Content Padding</h4>
+         <div class="grid grid-cols-2 gap-2">
+             <div>
+                <label class="setting-label-sm">Top/Bottom (px)</label>
+                <input type="number" v-model.number="settings.paddingY" class="yab-form-input" placeholder="e.g., 26">
+             </div>
+             <div>
+                <label class="setting-label-sm">Left/Right</label>
+                <div class="flex items-center gap-1">
+                    <input type="number" v-model.number="settings.paddingX" class="yab-form-input" placeholder="e.g., 40">
+                    <select v-model="settings.paddingXUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
+                </div>
+            </div>
+         </div>
+    </div>
+        <hr class="section-divider">
+    <div>
+        <h4 class="section-title">Border</h4>
+         <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
+            <label class="setting-label-sm">Enable Border</label>
+            <label class="relative inline-flex items-center cursor-pointer" title="Toggle banner border">
+                <input type="checkbox" v-model="settings.enableBorder" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+            </label>
+        </div>
+        <div v-if="settings.enableBorder" class="grid grid-cols-3 gap-2">
+             <div v-if="currentView === 'desktop'">
+                <label class="setting-label-sm">Color</label>
+                <div class="flex items-center gap-1">
+                    <div
+                        :style="{ backgroundColor: settings.borderColor }"
+                        class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
+                        title="Selected color preview">
+                    </div>
+                    <input
+                        aria-label="Border color input"
+                        type="text"
+                        :value="settings.borderColor"
+                        @input="event => settings.borderColor = event.target.value"
+                        data-coloris
+                        class="yab-form-input clr-field flex-grow"
+                        placeholder="Select color...">
+                </div>
+            </div>
+            <div :class="{'col-span-3': currentView === 'mobile', 'col-span-2': currentView === 'desktop'}">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="setting-label-sm">Width (px)</label>
+                        <input type="number" v-model.number="settings.borderWidth" class="yab-form-input" placeholder="e.g., 1">
+                    </div>
+                    <div>
+                        <label class="setting-label-sm">Radius (px)</label>
+                        <input type="number" v-model.number="settings.borderRadius" class="yab-form-input" placeholder="e.g., 8">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="section-divider">
     <div>
         <h4 class="section-title">Background</h4>
         <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg border-none">
@@ -64,38 +141,6 @@
                  <button @click="addGradientStop(settings)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button>
             </div>
         </div>
-    </div>
-    <hr class="section-divider">
-     <div>
-        <h4 class="section-title">Layout</h4>
-         <div class="grid grid-cols-2 gap-2">
-            <div>
-                <label class="setting-label-sm">Min Height (px)</label>
-                <input type="number" v-model.number="settings.minHeight" class="yab-form-input" placeholder="e.g., 74">
-             </div>
-             <div>
-                <label class="setting-label-sm">Border Radius (px)</label>
-                <input type="number" v-model.number="settings.borderRadius" class="yab-form-input" placeholder="e.g., 10">
-            </div>
-        </div>
-
-    </div>
-    <hr class="section-divider">
-    <div>
-         <h4 class="section-title">Content Padding</h4>
-         <div class="grid grid-cols-2 gap-2">
-             <div>
-                <label class="setting-label-sm">Top/Bottom (px)</label>
-                <input type="number" v-model.number="settings.paddingY" class="yab-form-input" placeholder="e.g., 26">
-             </div>
-             <div>
-                <label class="setting-label-sm">Left/Right</label>
-                <div class="flex items-center gap-1">
-                    <input type="number" v-model.number="settings.paddingX" class="yab-form-input" placeholder="e.g., 40">
-                    <select v-model="settings.paddingXUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
-                </div>
-            </div>
-         </div>
     </div>
     <hr class="section-divider">
     <div class="space-y-2">
@@ -225,7 +270,6 @@
             </div>
         </div>
         <div>
-            <h4 class="section-title mt-4">Button Padding (px)</h4>
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="setting-label-sm">Top/Bottom</label>

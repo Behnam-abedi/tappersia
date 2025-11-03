@@ -56,12 +56,22 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
 
         private function render_view($b, $view, $banner_id) {
              ob_start();
+             
+             // --- START: Added Border Logic ---
+            $border_style = 'border-radius: ' . esc_attr($b['borderRadius'] ?? 10) . 'px;';
+            if (!empty($b['enableBorder']) && $b['enableBorder']) {
+                $border_style .= ' border: ' . esc_attr($b['borderWidth'] ?? 1) . 'px solid ' . esc_attr($b['borderColor'] ?? '#E0E0E0') . ';';
+            } else {
+                $border_style .= ' border: none;';
+            }
+            // --- END: Added Border Logic ---
+            
             ?>
             <div class="yab-banner-item yab-banner-<?php echo $view; ?>" 
                  style="width: 100%; 
                         height: auto; 
                         min-height: <?php echo esc_attr($b['minHeight']); ?>px;
-                        border-radius: <?php echo esc_attr($b['borderRadius']); ?>px; 
+                        <?php echo $border_style; ?> 
                         <?php echo $this->get_background_style($b); ?>;
                         padding: <?php echo esc_attr($b['paddingY']); ?>px <?php echo esc_attr($b['paddingX'] . ($b['paddingXUnit'] ?? 'px')); ?>;
                         align-items: center;
@@ -74,6 +84,7 @@ if (!class_exists('Yab_Simple_Banner_Renderer')) {
                              font-weight: <?php echo esc_attr($b['textWeight']); ?>;
                              color: <?php echo esc_attr($b['textColor']); ?>;
                              flex-grow: 1;
+                             max-width: <?php echo esc_attr(($b['contentWidth'] ?? 100) . ($b['contentWidthUnit'] ?? '%')); ?>;
                              text-align: <?php echo esc_attr($b['direction'] === 'rtl' ? 'right' : 'left'); ?>;">
                     <?php echo esc_html($b['text']); ?>
                 </span>

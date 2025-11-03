@@ -13,6 +13,7 @@
                         height: 'auto', 
                         minHeight: banner.simple.minHeight + 'px',
                         borderRadius: banner.simple.borderRadius + 'px', 
+                        border: banner.simple.enableBorder ? `${banner.simple.borderWidth}px solid ${banner.simple.borderColor}` : 'none',
                         background: bannerStyles(banner.simple),
                         padding: banner.simple.paddingY + 'px ' + banner.simple.paddingX + banner.simple.paddingXUnit,
                         display: 'flex',
@@ -27,6 +28,7 @@
                         fontWeight: banner.simple.textWeight,
                         color: banner.simple.textColor,
                         flexGrow: 1,
+                        maxWidth: banner.simple.contentWidth + banner.simple.contentWidthUnit,
                         textAlign: banner.simple.direction === 'rtl' ? 'right' : 'left'
                     }">
                         {{ banner.simple.text }}
@@ -64,6 +66,7 @@
                         height: 'auto',
                         minHeight: banner.simple_mobile.minHeight + 'px',
                         borderRadius: banner.simple_mobile.borderRadius + 'px', 
+                        border: banner.simple_mobile.enableBorder ? `${banner.simple_mobile.borderWidth}px solid ${banner.simple.borderColor}` : 'none',
                         background: bannerStyles(banner.simple_mobile),
                         padding: banner.simple_mobile.paddingY + 'px ' + banner.simple_mobile.paddingX + banner.simple_mobile.paddingXUnit,
                         display: 'flex',
@@ -78,6 +81,7 @@
                         fontWeight: banner.simple_mobile.textWeight,
                         color: banner.simple.textColor,
                         flexGrow: 1,
+                        maxWidth: banner.simple_mobile.contentWidth + banner.simple_mobile.contentWidthUnit,
                         textAlign: banner.simple.direction === 'rtl' ? 'right' : 'left'
                     }">
                         {{ banner.simple.text }}
