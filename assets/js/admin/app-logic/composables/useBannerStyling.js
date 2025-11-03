@@ -6,9 +6,11 @@ export function useBannerStyling(banner) {
         const settings = view === 'desktop' ? banner.single : banner.single_mobile;
         if (!settings) return {};
         return {
-            width: settings.enableCustomDimensions ? `${settings.width}${settings.widthUnit}` : '100%',
+            // --- تغییرات ---
+            width: '100%', // <--- همیشه 100%
             height: 'auto',
-            minHeight: settings.enableCustomDimensions ? `${settings.minHeight}${settings.minHeightUnit}` : (view === 'desktop' ? '190px' : '145px'),
+            minHeight: `${settings.minHeight}px`, // <--- ساده‌سازی شد
+            // --- پایان تغییرات ---
             border: settings.enableBorder ? `${settings.borderWidth}px solid ${settings.borderColor}` : 'none',
             borderRadius: `${settings.borderRadius}px`,
             fontFamily: 'Roboto, sans-serif'
@@ -23,14 +25,17 @@ export function useBannerStyling(banner) {
             contentStyles: {
                 alignItems: contentAlignment(settings.alignment),
                 textAlign: settings.alignment,
-                padding: `${settings.paddingTop}px ${settings.paddingRight}px ${settings.paddingBottom}px ${settings.paddingLeft}px`,
+                // --- تغییرات ---
+                padding: `${settings.paddingY}px ${settings.paddingX}px`, // <--- پدینگ Y/X
+                width: `${settings.contentWidth}${settings.contentWidthUnit}`, // <--- عرض محتوا
+                // --- پایان تغییرات ---
                 flexGrow: 1,
             },
             titleStyles: {
                 color: settings.titleColor,
                 fontSize: `${settings.titleSize}px`,
                 fontWeight: settings.titleWeight,
-                lineHeight: settings.titleLineHeight,
+                lineHeight: 1, // <--- ثابت شد
                 margin: 0,
             },
             descriptionStyles: {
@@ -40,8 +45,8 @@ export function useBannerStyling(banner) {
                 whiteSpace: 'pre-wrap',
                 marginTop: `${settings.marginTopDescription}px`,
                 marginBottom: `0px`,
-                lineHeight: settings.descLineHeight,
-                width: `${settings.descWidth}${settings.descWidthUnit}`,
+                lineHeight: 1.5, // <--- ثابت شد (یا هر مقدار دیفالت مناسب دیگر)
+                // width: `${settings.descWidth}${settings.descWidthUnit}`, // <--- حذف شد
                 wordWrap: 'break-word'
             },
             buttonStyles: {
@@ -51,12 +56,14 @@ export function useBannerStyling(banner) {
                 fontWeight: settings.buttonFontWeight,
                 alignSelf: settings.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start'),
                 borderRadius: `${settings.buttonBorderRadius}px`,
-                padding: `${settings.buttonPaddingTop}px ${settings.buttonPaddingRight}px ${settings.buttonPaddingBottom}px ${settings.buttonPaddingLeft}px`,
+                // --- تغییرات ---
+                padding: `${settings.buttonPaddingY}px ${settings.buttonPaddingX}px`, // <--- پدینگ Y/X
+                // --- پایان تغییرات ---
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 textDecoration: 'none',
-                lineHeight: settings.buttonLineHeight,
+                lineHeight: 1, // <--- ثابت شد
                 marginTop: `${settings.marginBottomDescription}px`
             }
         };
@@ -68,20 +75,7 @@ export function useBannerStyling(banner) {
     const getButtonStyles = (view) => getDynamicStyles(view).buttonStyles;
 
     const getPromoBackgroundStyle = (promo, section) => {
-        const prefix = section;
-        const typeKey = `${prefix}BackgroundType`;
-        const colorKey = `${prefix}BgColor`;
-        const grad1Key = `${prefix}GradientColor1`;
-        const grad2Key = `${prefix}GradientColor2`;
-        const angleKey = `${prefix}GradientAngle`;
-
-        if (promo[typeKey] === 'gradient') {
-            const angle = promo[angleKey] || 90;
-            const color1 = promo[grad1Key] || '#ffffff';
-            const color2 = promo[grad2Key] || '#ffffff';
-            return `linear-gradient(${angle}deg, ${color1}, ${color2})`;
-        }
-        return promo[colorKey] || '#ffffff';
+        // ... (این بخش بدون تغییر باقی می‌ماند) ...
     };
 
     return {

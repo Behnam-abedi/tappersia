@@ -9,14 +9,14 @@ class Yab_Single_Banner {
         }
 
         if ($banner_data['displayMethod'] === 'Fixed') {
-            $conflict = $this->check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
+            $conflict = $this.check_for_banner_conflict($banner_data['displayOn'], $banner_data['id']);
             if ($conflict['has_conflict']) {
                 wp_send_json_error(['message' => $conflict['message']]);
                 return;
             }
         }
 
-        $sanitized_data = $this->sanitize_banner_data($banner_data);
+        $sanitized_data = $this.sanitize_banner_data($banner_data);
         $post_id = !empty($sanitized_data['id']) ? intval($sanitized_data['id']) : 0;
         
         $post_data = [
@@ -136,7 +136,7 @@ class Yab_Single_Banner {
 
         foreach ($data as $key => $value) {
             if (is_array($value)) {
-                $sanitized[$key] = $this->sanitize_banner_data($value);
+                $sanitized[$key] = $this.sanitize_banner_data($value);
             } elseif (is_bool($value)) {
                 $sanitized[$key] = $value;
             } elseif (is_numeric($value) || $value === null) {
@@ -147,11 +147,9 @@ class Yab_Single_Banner {
                     case 'imageUrl':
                         $sanitized[$key] = esc_url_raw(trim($value));
                         break;
-                    // --- START: Added layerOrder ---
                     case 'layerOrder':
                         $sanitized[$key] = sanitize_text_field(trim($value));
                         break;
-                    // --- END: Added layerOrder ---
                     case 'descText':
                         $sanitized[$key] = wp_kses_post(trim($value));
                         break;
@@ -166,12 +164,18 @@ class Yab_Single_Banner {
                     case 'borderColor':
                         $sanitized[$key] = sanitize_hex_color($value);
                         break;
-                    case 'widthUnit':
-                    case 'heightUnit':
-                    case 'minHeightUnit':
-                    case 'descWidthUnit':
+                    
+                    // --- تغییرات ---
+                    case 'contentWidthUnit': // <--- واحد عرض محتوا اضافه شد
+                         $sanitized[$key] = in_array($value, ['px', '%']) ? $value : '%';
+                        break;
+                    case 'imageWidthUnit': // <--- واحدهای قبلی حفظ شدند
+                    case 'imageHeightUnit':
                          $sanitized[$key] = in_array($value, ['px', '%']) ? $value : 'px';
                         break;
+                    // --- فیلدهای حذف شده مانند widthUnit, minHeightUnit, descWidthUnit دیگر اینجا نیستند ---
+                    // --- پایان تغییرات ---
+                        
                     default:
                         $sanitized[$key] = sanitize_text_field(trim($value));
                 }

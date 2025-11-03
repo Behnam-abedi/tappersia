@@ -30,19 +30,19 @@
     
     <div :key="currentView + selectedDoubleBanner">
         <h3 class="font-bold text-xl text-white tracking-wide mb-4 capitalize">{{ selectedDoubleBanner }} Banner <span class="capitalize text-gray-400 text-lg">({{ currentView }})</span></h3>
-        <div class="flex flex-col gap-5">
-                            <div>
-                    <h4 class="section-title">Content Width</h4>
-                    <div class="flex items-center gap-1">
-                        <input type="number" v-model.number="settings.contentWidth" class="yab-form-input" placeholder="100">
-                        <select v-model="settings.contentWidthUnit" class="yab-form-input w-20">
-                            <option>%</option>
-                            <option>px</option>
-                        </select>
-                    </div>
-                </div>
-            <div>
-                <h4 class="section-title">Layout</h4>
+                    <h4 class="section-title">Layout</h4>
+                    <div class="flex flex-col gap-3">
+                        <div>
+                            <label class="setting-label-sm">Content Width</label>
+                            <div class="flex items-center gap-1">
+                                <input type="number" v-model.number="settings.contentWidth" class="yab-form-input" placeholder="100">
+                                <select v-model="settings.contentWidthUnit" class="yab-form-input w-20">
+                                    <option>%</option>
+                                    <option>px</option>
+                                </select>
+                            </div>
+                        </div>
+                    <div>
                 <div class="grid grid-cols-1 gap-2">
                     <div>
                         <label class="setting-label-sm">Min Height (px)</label>
@@ -51,11 +51,18 @@
                 </div>
             </div>
             <hr class="section-divider">
+            <div>
+                <h4 class="section-title">Content Padding (px)</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <div> <label class="setting-label-sm">Padding Y (Top/Bottom)</label> <input type="number" v-model.number="settings.paddingY" class="yab-form-input"></div>
+                    <div> <label class="setting-label-sm">Padding X (Left/Right)</label> <input type="number" v-model.number="settings.paddingX" class="yab-form-input"></div>
+                </div>
+            </div>
 
-
+            <hr class="section-divider">
             <div>
                 <h4 class="section-title">Border</h4>
-                <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
+                <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md ">
                     <label class="setting-label-sm">Enable Border</label>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" v-model="settings.enableBorder" class="sr-only peer">
@@ -96,28 +103,14 @@
                 </div>
             </div>
             <hr class="section-divider">
-
-
-            <div>
-                <h4 class="section-title">Content Padding (px)</h4>
-                <div class="grid grid-cols-2 gap-2">
-                    <div> <label class="setting-label-sm">Padding Y (Top/Bottom)</label> <input type="number" v-model.number="settings.paddingY" class="yab-form-input"></div>
-                    <div> <label class="setting-label-sm">Padding X (Left/Right)</label> <input type="number" v-model.number="settings.paddingX" class="yab-form-input"></div>
-                </div>
-            </div>
-            <hr class="section-divider">
-
-
             <div v-if="currentView === 'desktop'">
                 <h4 class="section-title">Layers Control</h4>
-                <div class="flex rounded-lg bg-[#292929] overflow-hidden">
-                    <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-l-lg">Image Below Color</button>
-                    <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-r-lg">Color Below Image</button>
+                <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg p-1">
+                    <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''"  class="flex-1 tab-button rounded-md">Image Below Color</button>
+                    <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''"  class="flex-1 tab-button rounded-md">Color Below Image</button>
                 </div>
             </div>
             <hr v-if="currentView === 'desktop'" class="section-divider">
-
-
             <div>
                 <h4 class="section-title">Background Overlay</h4>
                 <div class="flex gap-2 mb-2 bg-[#292929] rounded-lg p-1">
@@ -185,8 +178,6 @@
                 </div>
             </div>
             <hr class="section-divider">
-
-
             <div v-if="currentView === 'desktop'">
                 <h4 class="section-title">Image</h4>
                 <div class="flex gap-2 items-center">
@@ -228,7 +219,7 @@
             <hr v-if="currentView === 'desktop' || settings.imageUrl" class="section-divider">
             
             <div class="flex flex-col gap-5">
-                <div class="space-y-2 mb-3">
+                <div class="space-y-2 ">
                     <h4 class="section-title">Title</h4>
                     <input v-if="currentView === 'desktop'" type="text" v-model="settings.titleText" class="yab-form-input mb-2" placeholder="Title Text">
                     <div class="grid grid-cols-2 gap-2">
@@ -258,7 +249,7 @@
                 </div>
                             <hr class="section-divider">
 
-                <div class="space-y-2 mb-3">
+                <div class="space-y-2">
                     <h4 class="section-title">Description</h4>
                     <textarea v-if="currentView === 'desktop'" v-model="settings.descText" rows="3" class="yab-form-input mb-2" placeholder="Description Text"></textarea>
                     <div class="grid grid-cols-2 gap-2">

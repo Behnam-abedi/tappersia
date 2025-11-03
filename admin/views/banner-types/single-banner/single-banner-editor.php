@@ -9,9 +9,9 @@
                 <button @click="currentView = 'mobile'" :class="{'active-tab': currentView === 'mobile'}" class="flex-1 tab-button rounded-md">Mobile</button>
             </div>
         </div>     
-        <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
-            <div v-if="currentView === 'desktop'">
-                <h3 class="font-bold text-xl text-white tracking-wide mb-4 capitalize">Content Alignment</h3>
+        <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2" v-if="currentView === 'desktop'">
+            <div >
+                <h3 class="font-bold text-xl text-white tracking-wide mb-4 capitalize">Alignment</h3>
                 <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
                     <button @click="settings.alignment = 'left'" :class="settings.alignment === 'left' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Left</button>
                     <button @click="settings.alignment = 'center'" :class="settings.alignment === 'center' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Center</button>
