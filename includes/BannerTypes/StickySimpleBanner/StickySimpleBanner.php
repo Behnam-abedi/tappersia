@@ -49,6 +49,15 @@ class Yab_Sticky_Simple_Banner {
         wp_die();
     }
 
+    /**
+     * START: *** MODIFIED/FIXED FUNCTION ***
+     * Checks all 5 types of conflicts:
+     * 1. Post vs Post (Direct)
+     * 2. Page vs Page (Direct)
+     * 3. Category vs Category (Direct)
+     * 4. Post vs Category (Indirect - New post is in an old category)
+     * 5. Category vs Post (Indirect - New category contains an old post)
+     */
     private function check_for_banner_conflict($displayOn, $current_banner_id) {
         $conflict = ['has_conflict' => false, 'message' => ''];
         
@@ -67,7 +76,7 @@ class Yab_Sticky_Simple_Banner {
             'meta_query'   => [
                 'relation' => 'AND',
                 ['key' => '_yab_display_method', 'value' => 'Fixed', 'compare' => '='],
-                ['key' => '_yab_banner_type', 'value' => 'sticky-simple-banner', 'compare' => '=']
+                ['key' => '_yab_banner_type', 'value' => 'sticky-simple-banner', 'compare' => '='] // Check for this banner type
             ],
             'post__not_in' => $current_banner_id ? [intval($current_banner_id)] : [],
         ];
@@ -78,36 +87,79 @@ class Yab_Sticky_Simple_Banner {
             $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
             if (empty($data) || empty($data['displayOn'])) continue;
 
+            // Get assignments for the other banner
             $other_post_ids = !empty($data['displayOn']['posts']) ? array_map('intval', $data['displayOn']['posts']) : [];
             $other_page_ids = !empty($data['displayOn']['pages']) ? array_map('intval', $data['displayOn']['pages']) : [];
+            $other_cat_ids  = !empty($data['displayOn']['categories']) ? array_map('intval', $data['displayOn']['categories']) : [];
 
+            // 1. Direct Post Conflict (Post vs Post)
             $post_intersection = array_intersect($post_ids, $other_post_ids);
             if (!empty($post_intersection)) {
                 $p = get_post(reset($post_intersection));
                 return ['has_conflict' => true, 'message' => sprintf('Error: The post "%s" already has the Sticky Simple Banner "%s" assigned to it.', $p->post_title, $banner_post->post_title)];
             }
 
+            // 2. Direct Page Conflict (Page vs Page)
             $page_intersection = array_intersect($page_ids, $other_page_ids);
             if (!empty($page_intersection)) {
                 $p = get_post(reset($page_intersection));
                 return ['has_conflict' => true, 'message' => sprintf('Error: The page "%s" already has the Sticky Simple Banner "%s" assigned to it.', $p->post_title, $banner_post->post_title)];
             }
             
-            if (!empty($cat_ids)) {
+            // 3. Indirect Conflict: Check if current posts are in other banner's categories (Post vs Category)
+            if (!empty($post_ids) && !empty($other_cat_ids)) {
+                foreach ($post_ids as $post_id) {
+                    if (has_category($other_cat_ids, $post_id)) {
+                        $p = get_post($post_id);
+                        $p_cats = wp_get_post_categories($post_id, ['fields' => 'ids']);
+                        $conflicting_cat_id = reset(array_intersect($p_cats, $other_cat_ids));
+                        $cat = get_term($conflicting_cat_id);
+                        return [
+                            'has_conflict' => true,
+                            'message' => sprintf(
+                                'Error: The post "%s" you selected is already covered by the banner "%s", which is assigned to the category "%s".',
+                                $p->post_title,
+                                $banner_post->post_title,
+                                $cat->name
+                            )
+                        ];
+                    }
+                }
+            }
+
+            // 4. Indirect Conflict: Check posts within selected categories (Category vs Post)
+            if (!empty($cat_ids) && !empty($other_post_ids)) {
                  $posts_in_cats_query = new WP_Query(['post_type' => 'post', 'posts_per_page' => -1, 'category__in' => $cat_ids, 'fields' => 'ids']);
                 if (!empty($posts_in_cats_query->posts)) {
                     $conflict_in_cats = array_intersect($posts_in_cats_query->posts, $other_post_ids);
                     if (!empty($conflict_in_cats)) {
-                        $p = get_post(reset($conflict_in_cats));
-                        $cat_id = wp_get_post_categories($p->ID, ['fields' => 'ids'])[0];
+                        $p_id = reset($conflict_in_cats);
+                        $p = get_post($p_id);
+                        $cat_id = reset(array_intersect(wp_get_post_categories($p_id, ['fields' => 'ids']), $cat_ids));
                         $cat = get_term($cat_id);
                         return ['has_conflict' => true, 'message' => sprintf('Error: In the category "%s" you selected, the post "%s" already has the Sticky Simple Banner "%s" assigned to it.', $cat->name, $p->post_title, $banner_post->post_title)];
                     }
                 }
             }
+
+            // 5. Direct Category Conflict (Category vs Category)
+            $cat_intersection = array_intersect($cat_ids, $other_cat_ids);
+            if (!empty($cat_intersection)) {
+                 $conflicting_cat_id = reset($cat_intersection);
+                 $cat = get_term($conflicting_cat_id);
+                 return [
+                    'has_conflict' => true,
+                    'message' => sprintf(
+                        'Error: The category "%s" already has the Sticky Simple Banner "%s" assigned to it.',
+                        $cat->name,
+                        $banner_post->post_title
+                    )
+                ];
+            }
         }
         return $conflict;
     }
+    // *** END: MODIFIED/FIXED FUNCTION ***
     
     private function sanitize_banner_data($data) {
         $sanitized = [];
