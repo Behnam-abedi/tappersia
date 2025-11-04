@@ -290,7 +290,7 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                     </div>
 
                     <?php if(!empty($b['buttonText'])): ?>
-                    <a href="<?php echo esc_url($b['buttonLink'] ?? '#'); ?>" target="_blank" class="yab-button" style="<?php echo $this->get_inline_style_attr($button_styles); ?>"><?php echo esc_html($b['buttonText']); ?></a>
+                    <a href="<?php echo esc_url($b['buttonLink'] ?? '#'); ?>" target="_blank" class="yab-button" style="<?php echo $this->get_inline_style_attr($button_styles); ?> margin-top:auto!important"><?php echo esc_html($b['buttonText']); ?></a>
                     <?php endif; ?>
                 </div>
             </div>
