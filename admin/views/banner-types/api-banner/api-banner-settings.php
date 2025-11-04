@@ -138,7 +138,7 @@
                         <input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full">
                     </div>
                 </div>
-                    <button @click="addGradientStop(settings)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button>
+                    <button @click="addGradientStop(settings.gradientStops)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button>
             </div>
         </div>
     </div>
