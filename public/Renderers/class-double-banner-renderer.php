@@ -243,7 +243,7 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
                 'width' => esc_attr($b['contentWidth'] . ($b['contentWidthUnit'] ?? '%')),
                 'height' => '100%', // Ensure content div fills the wrapper
                 'padding' => sprintf('%spx %spx', esc_attr($b['paddingY']), esc_attr($b['paddingX'])),
-                'display' => 'flex', 'flex-direction' => 'column', 'position' => 'relative', 'z-index' => 3,
+                'display' => 'flex', 'flex-direction' => 'column', 'position' => 'absolute', 'z-index' => 3,
                 'align-items' => $alignment_style['align_items'],
                 'text-align' => $alignment_style['text_align'],
                 'box-sizing' => 'border-box', // Ensure padding is included
