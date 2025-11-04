@@ -51,7 +51,7 @@ export const HotelCarouselLogic = {
          };
 
          const containerWidth = computed(() => {
-            const cardWidth = 295;
+            const cardWidth = props.settings.cardWidth || 295;
             const spaceBetween = props.settings.spaceBetween || 18;
             const slidesPerView = props.settings.slidesPerView || 3;
              if (slidesPerView === 1) return cardWidth; // Handle mobile view width
@@ -132,7 +132,7 @@ export const HotelCarouselLogic = {
             // --- SKELETON ---
             if (!hotel) {
                 return `
-                <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; height:auto;min-height:${card.height || 357}px; width: 295px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #ffffff; box-sizing: border-box; overflow: hidden;">
+                <div name="card-skeleton" class="yab-hotel-card-skeleton yab-skeleton-loader" style="margin: 0; height:auto;min-height:${card.height || 357}px; width: ${props.settings.cardWidth || 295}px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #ffffff; box-sizing: border-box; overflow: hidden;">
                     <div style="height: ${card.image?.height || 176}px; width: 100%; border-radius: 14px; background-color: #f0f0f0;"></div>
                     <div style="margin: 14px 19px 0 19px;">
                         <div style="min-height: ${card.title?.minHeight || 34}px; width: 100%; margin-bottom: 7px;">
@@ -172,7 +172,7 @@ export const HotelCarouselLogic = {
             const imageWidth = 295 - (card.padding * 2);
 
             return `
-            <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.minHeight}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
+            <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.minHeight}px; width: ${props.settings.cardWidth || 295}px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
               <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;flex:1">
                 <div style="position: relative; height: ${card.image?.height || 176}px; width:100%; border-radius: ${card.image?.radius || 14}px; flex-shrink: 0;" name="header-content-image">
                   <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: ${card.imageContainer?.paddingY || 13}px ${card.imageContainer?.paddingX || 13}px; box-sizing: border-box;">
@@ -276,22 +276,33 @@ export const HotelCarouselLogic = {
             }
         };
 
-         const checkAndLoadVisibleSlides = (swiper) => {
-             // ... (keep existing logic) ...
+        const checkAndLoadVisibleSlides = (swiper) => {
             if (!swiper || !swiper.slides || swiper.slides.length === 0 || !swiper.params) return;
             const idsToFetch = new Set();
             const slides = Array.from(swiper.slides);
             const isGrid = swiper.params.grid && swiper.params.grid.rows > 1;
             const rows = isGrid ? swiper.params.grid.rows : 1;
-             let slidesPerView = 1;
-             if (swiper.params.slidesPerView && swiper.params.slidesPerView !== 'auto') {
-                 slidesPerView = parseInt(swiper.params.slidesPerView, 10);
-                 if (isNaN(slidesPerView)) slidesPerView = 1;
-             } else if (swiper.params.slidesPerView === 'auto') {
-                 slidesPerView = swiper.visibleSlides ? swiper.visibleSlides.length : 1;
-             }
+             
+            // +++ START FIX +++
+            let slidesPerView = 1; // Default
+            
+            if (isGrid) {
+               // برای گرید، swiper.params.slidesPerView یک عدد قابل اعتماد است
+               slidesPerView = parseInt(swiper.params.slidesPerView, 10) || 1;
+            } else {
+               // برای حالت 'auto'، ما از تنظیمات خودمان استفاده می‌کنیم
+               // (props.settings همان تنظیمات دسکتاپ یا موبایل است که به کامپوننت پاس داده شده)
+               slidesPerView = props.settings.slidesPerView || 3; 
+            }
+            // +++ END FIX +++
+             
             const startIndex = Math.max(0, swiper.activeIndex || 0);
-            const slidesToLoadCount = Math.max(1, (slidesPerView * rows) * 2);
+            
+            // +++ START FIX 2: استفاده از یک بافر ساده‌تر و قابل اطمینان‌تر +++
+            // (تعداد اسلایدهای قابل مشاهده * تعداد ردیف‌ها) + ۲ اسلاید اضافه
+            const slidesToLoadCount = Math.max(1, (slidesPerView * rows) + 2); 
+            // +++ END FIX 2 +++
+
             const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount);
 
             if (slidesToCheck.length > 0) {
@@ -322,7 +333,7 @@ export const HotelCarouselLogic = {
                     const slideEl = document.createElement('div');
                     slideEl.className = 'swiper-slide';
                     slideEl.setAttribute('data-hotel-id', id);
-                    // slideEl.style.width = '295px'; // Let Swiper handle width
+                    slideEl.style.width = `${props.settings.cardWidth || 295}px`; // +++ عرض اسلاید به صورت دستی تنظیم شد +++
                     slideEl.innerHTML = generateHotelCardHTML(null); // Render skeleton
                     wrapper.appendChild(slideEl);
                 });
@@ -330,7 +341,7 @@ export const HotelCarouselLogic = {
                 updatePaginationStyles(); // Apply dynamic styles
 
                 const swiperOptions = {
-                    slidesPerView: props.settings.slidesPerView,
+                    slidesPerView: 'auto',
                     spaceBetween: props.settings.spaceBetween,
                     loop: props.settings.loop,
                     dir: props.settings.direction,
@@ -369,6 +380,7 @@ export const HotelCarouselLogic = {
                         rows: 2,
                         fill: props.settings.loop ? 'column' : props.settings.gridFill,
                     };
+                    swiperOptions.slidesPerView = props.settings.slidesPerView; // +++ برای گرید، باید عدد باشد نه 'auto' +++
                     swiperOptions.slidesPerGroup = 1;
                     swiperOptions.spaceBetween = 20; // Ensure grid gap is set
                 }

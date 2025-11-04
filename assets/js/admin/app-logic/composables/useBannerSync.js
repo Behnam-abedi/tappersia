@@ -2,7 +2,7 @@
 const { watch } = Vue;
 // --- START: FIX ---
 // Corrected the import path from '../composables/...' to '../../composables/...'
-import { createDefaultPart, createDefaultMobilePart } from '../../composables/banner-state/defaults/index.js';
+import { createDefaultPart, createDefaultMobilePart ,createDefaultHotelCarouselMobilePart} from '../../composables/banner-state/defaults/index.js';
 // --- END: FIX ---
 
 export function useBannerSync(banner, currentView) {
@@ -172,19 +172,33 @@ export function useBannerSync(banner, currentView) {
         }
 
         // --- START: ADDED HOTEL CAROUSEL SYNC ---
+// --- START: ADDED HOTEL CAROUSEL SYNC ---
         if (banner.type === 'hotel-carousel' && newView === 'mobile' && !banner.hotel_carousel.isMobileConfigured) {
             const desktop = banner.hotel_carousel.settings;
             const mobile = banner.hotel_carousel.settings_mobile;
 
-            // 1. Deep copy all desktop settings to mobile on first switch
+            // --- +++ START: MODIFICATION FOR CARD WIDTH +++ ---
+            // 1. Get the mobile default card width *before* overwriting
+            // (این کار نیازمند import کردن createDefaultHotelCarouselMobilePart در بالای فایل است)
+            const mobileDefaultCardWidth = createDefaultHotelCarouselMobilePart().cardWidth;
+
+            // 2. Deep copy all desktop settings to mobile on first switch
+            // (این کار رنگ‌ها، استایل‌ها و همچنین cardWidth دسکتاپ را کپی می‌کند)
             const desktopSettingsCopy = JSON.parse(JSON.stringify(desktop));
             Object.assign(mobile, desktopSettingsCopy);
 
-            // 2. Apply specific mobile overrides (mirroring tour carousel)
+            // 3. Apply specific mobile overrides (mirroring tour carousel)
             mobile.slidesPerView = 1;
-            mobile.spaceBetween = 20; // Example override
+            mobile.spaceBetween = 15; // Set to mobile default
+
+            // 4. Restore the mobile default cardWidth, overwriting the value synced from desktop
+            // (این خط تضمین می‌کند که عرض کارت موبایل مستقل باقی بماند)
+            mobile.cardWidth = mobileDefaultCardWidth;
+            // --- +++ END: MODIFICATION FOR CARD WIDTH +++ ---
+
 
             // Explicitly ensure mobile card settings match desktop initially if needed
+            // (Deep copy بیشتر اینها را انجام داده است، اما برای اطمینان باقی می‌مانند)
             mobile.card.minHeight = desktop.card.minHeight;
              mobile.card.padding = desktop.card.padding;
              mobile.card.borderRadius = desktop.card.borderRadius;
@@ -195,6 +209,7 @@ export function useBannerSync(banner, currentView) {
 
             banner.hotel_carousel.isMobileConfigured = true;
         }
+        // --- END: ADDED HOTEL CAROUSEL SYNC ---
         // --- END: ADDED HOTEL CAROUSEL SYNC ---
         
         // +++ START: --- FIX for Flight Ticket Sync --- +++

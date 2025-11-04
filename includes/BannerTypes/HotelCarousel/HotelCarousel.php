@@ -96,6 +96,7 @@ class Yab_Hotel_Carousel {
         // --- START: Update to include new card settings ---
         $sanitized = [];
         $sanitized['slidesPerView'] = isset($settings['slidesPerView']) ? intval($settings['slidesPerView']) : 3;
+        $sanitized['cardWidth'] = isset($settings['cardWidth']) ? intval($settings['cardWidth']) : 295; // +++ مطمئن شوید این خط وجود دارد +++
         $sanitized['loop'] = isset($settings['loop']) ? boolval($settings['loop']) : false;
         $sanitized['spaceBetween'] = isset($settings['spaceBetween']) ? intval($settings['spaceBetween']) : 20;
         $sanitized['isDoubled'] = isset($settings['isDoubled']) ? boolval($settings['isDoubled']) : false;

@@ -128,7 +128,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                 $slides_to_render = $final_items;
             }
 
-            $card_width = 295;
+            $card_width = $settings['cardWidth'] ?? 295;
             $container_width = ($view === 'desktop' || $slides_per_view > 1)
                 ? (($card_width * $slides_per_view) + ($space_between * ($slides_per_view - 1)))
                 : $card_width;
@@ -141,7 +141,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
             ?>
             <style>
                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-slide {
-                    /* width: <?php echo $card_width; ?>px !important; */ box-sizing: border-box;
+                    width: <?php echo esc_attr($card_width); ?>px !important; box-sizing: border-box;
                     <?php if ($is_doubled): ?>
                         height: calc((100% - 20px) / 2) !important; /* FIX: Use fixed 20px gap */
                         /* margin-bottom: <?php // echo esc_js($space_between); ?>px !important; */ /* FIX: Remove margin-bottom */
@@ -180,7 +180,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                              // Skeleton based on new card settings
                             // --- START: Added overflow: hidden to inner flex container ---
                             $skeleton_html = <<<HTML
-<div name="card-skeleton" class="yab-hotel-card-skeleton " style="margin: 0; height:357px; width: 295px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #f4f4f4; box-sizing: border-box; overflow: hidden;">
+<div name="card-skeleton" class="yab-hotel-card-skeleton " style="margin: 0; height:357px; width: {$card_width}px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #f4f4f4; box-sizing: border-box; overflow: hidden;">
   <div style="height: 176px; width: 100%; border-radius: 14px; background-color: #ebebeb;" class="yab-skeleton-loader"></div>
   <div style="margin: 14px 19px 0 19px;">
     <div style="min-height: 34px; width: 100%; margin-bottom: 7px;">
@@ -229,6 +229,7 @@ HTML;
                     const isRTL = <?php echo json_encode($is_rtl); ?>;
                     const ajaxUrl = '<?php echo admin_url('admin-ajax.php'); ?>';
                     const cardSettings = <?php echo json_encode($card_settings); ?>; // Pass card settings
+                    const cardWidth = <?php echo esc_js($card_width); ?>; // +++ این خط را اضافه کنید +++
 
                     // --- Helper Functions (RatingLabel, getRatingLabel, getTagClass, escapeHTML) ---
                     const RatingLabel = { Excellent: 'Excellent', VeryGood: 'Very Good', Good: 'Good', Average: 'Average', Poor: 'Poor', New: 'New' };
@@ -254,7 +255,7 @@ HTML;
                          const imageWidth = 295 - (card.padding * 2);
 
                         return `
-                        <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.minHeight}px; width: 295px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
+                        <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.minHeight}px; width: ${cardWidth}px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
                           <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;flex:1">
                             <div style="position: relative; height: ${card.image?.height}px; width: 100%; border-radius: ${card.image?.radius}px; flex-shrink: 0;" name="header-content-image">
                               <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: ${card.imageContainer?.paddingY}px ${card.imageContainer?.paddingX}px; box-sizing: border-box;">
@@ -307,14 +308,53 @@ HTML;
                     };
 
                     // --- Swiper Logic (Same as preview) ---
-                    const checkAndLoadSlides = (swiper) => { /* ... (Exact same logic as preview checkAndLoadSlides) ... */
-                        if (!swiper || !swiper.slides || swiper.slides.length === 0 || !swiper.params) return; const idsToFetch = new Set(); const slides = Array.from(swiper.slides); const isGrid = swiper.params.grid && swiper.params.grid.rows > 1; const rows = isGrid ? swiper.params.grid.rows : 1; let slidesPerView = 1; if(swiper.params.slidesPerView && swiper.params.slidesPerView !== 'auto'){ slidesPerView = parseInt(swiper.params.slidesPerView, 10); if (isNaN(slidesPerView)) slidesPerView = 1; } else if (swiper.params.slidesPerView === 'auto') { slidesPerView = swiper.visibleSlides ? swiper.visibleSlides.length : 1; } const startIndex = Math.max(0, swiper.activeIndex || 0); const slidesToLoadCount = Math.max(1, (slidesPerView * rows) * 2); const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount); slidesToCheck.forEach(slide => { const hotelId = parseInt(slide.dataset.hotelId, 10); if (!isNaN(hotelId)) idsToFetch.add(hotelId); }); if (idsToFetch.size > 0) fetchHotelData(Array.from(idsToFetch));
+const checkAndLoadSlides = (swiper) => {
+                        if (!swiper || !swiper.slides || swiper.slides.length === 0 || !swiper.params) return;
+                        const idsToFetch = new Set();
+                        const slides = Array.from(swiper.slides);
+                        const isGrid = swiper.params.grid && swiper.params.grid.rows > 1;
+                        const rows = isGrid ? swiper.params.grid.rows : 1;
+
+                        // +++ START FIX (PHP) +++
+                        let slidesPerView = 1;
+                        
+                        if (isGrid) {
+                            slidesPerView = parseInt(swiper.params.slidesPerView, 10) || 1;
+                        } else {
+                            // ما متغیر slides_per_view را از PHP پاس داده‌ایم
+                            slidesPerView = <?php echo esc_js($slides_per_view); ?> || 3;
+                        }
+                        // +++ END FIX (PHP) +++
+
+                        const startIndex = Math.max(0, swiper.activeIndex || 0);
+
+                        // +++ START FIX 2: استفاده از همان بافر +++
+                        const slidesToLoadCount = Math.max(1, (slidesPerView * rows) + 2);
+                        // +++ END FIX 2 +++
+                        
+                        const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount);
+                        
+                        slidesToCheck.forEach(slide => {
+                            const hotelId = parseInt(slide.dataset.hotelId, 10);
+                            if (!isNaN(hotelId)) {
+                                idsToFetch.add(hotelId);
+                            }
+                        });
+                        
+                        if (idsToFetch.size > 0) {
+                            fetchHotelData(Array.from(idsToFetch));
+                        }
                     };
-                    const swiperOptions = { slidesPerView: <?php echo esc_js($slides_per_view); ?>, spaceBetween: <?php echo esc_js($space_between); ?>, loop: <?php echo json_encode($loop); ?>, dir: '<?php echo esc_js($direction); ?>', on: { init: (s) => setTimeout(() => checkAndLoadSlides(s), 150), slideChange: checkAndLoadSlides, resize: checkAndLoadSlides }, observer: true, observeParents: true };
+                    const swiperOptions = { slidesPerView: 'auto', spaceBetween: <?php echo esc_js($space_between); ?>, loop: <?php echo json_encode($loop); ?>, dir: '<?php echo esc_js($direction); ?>', on: { init: (s) => setTimeout(() => checkAndLoadSlides(s), 150), slideChange: checkAndLoadSlides, resize: checkAndLoadSlides }, observer: true, observeParents: true };
                     <?php if ($autoplay_enabled): ?> swiperOptions.autoplay = { delay: <?php echo esc_js($autoplay_delay); ?>, disableOnInteraction: false }; <?php endif; ?>
                     <?php if ($navigation_enabled): ?> swiperOptions.navigation = { nextEl: container.querySelector('.tappersia-carusel-next'), prevEl: container.querySelector('.tappersia-carusel-perv') }; <?php endif; ?>
                     <?php if ($pagination_enabled): ?> swiperOptions.pagination = { el: container.querySelector('.swiper-pagination'), clickable: true }; <?php endif; ?>
-                    <?php if ($is_doubled): ?> swiperOptions.grid = { rows: 2, fill: '<?php echo esc_js($grid_fill); ?>' }; swiperOptions.slidesPerGroup = 1; swiperOptions.spaceBetween = 20; <?php endif; ?>
+                    <?php if ($is_doubled): ?>
+                       swiperOptions.grid = { rows: 2, fill: '<?php echo esc_js($grid_fill); ?>' };
+                       swiperOptions.slidesPerView = <?php echo esc_js($slides_per_view); ?>; // <-- این خط 'auto' را برای گرید بازنویسی می‌کند
+                       swiperOptions.slidesPerGroup = 1;
+                        swiperOptions.spaceBetween = 20;
+                         <?php endif; ?>
                     if (typeof Swiper !== 'undefined') { try { new Swiper(swiperEl, swiperOptions); } catch (e) { console.error("Swiper initialization failed for <?php echo esc_js($unique_id); ?>:", e); } } else { console.error("Swiper library not loaded for <?php echo esc_js($unique_id); ?>."); }
                 };
 

@@ -39,6 +39,10 @@
           <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
             <button v-for="num in [1, 2, 3, 4]" :key="num" @click="settings.slidesPerView = num" :class="{'active-tab': settings.slidesPerView === num}" class="flex-1 tab-button rounded-md">{{ num }}</button>
           </div>
+          <div>
+                <label class="setting-label-sm">Card Width (px)</label>
+                <input type="number" v-model.number="settings.cardWidth" class="yab-form-input" placeholder="e.g., 295">
+            </div>
         </div>
         <hr class="section-divider">
         <div>

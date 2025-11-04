@@ -3,6 +3,7 @@
 // Keep settings identical to Tour Carousel for now, but add card styling specifics
 export const createDefaultHotelCarouselDesktopPart = () => ({
     slidesPerView: 3,
+    cardWidth:295,
     loop: false,
     spaceBetween: 20, // Default space for new card design
     isDoubled: false,
@@ -131,6 +132,7 @@ export const createDefaultHotelCarouselMobilePart = () => {
     const mobileDefaults = createDefaultHotelCarouselDesktopPart();
     mobileDefaults.slidesPerView = 1;
     mobileDefaults.spaceBetween = 15;
+    mobileDefaults.cardWidth = 295;
 
     return mobileDefaults;
 };
