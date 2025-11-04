@@ -124,7 +124,7 @@
                 <div v-for="(stop, index) in settings.gradientStops" :key="index" class="bg-[#292929] p-3 rounded-lg mb-2 space-y-2">
                     <div class="flex items-center justify-between">
                          <span class="text-xs font-bold text-gray-300">Color Stop #{{ index + 1 }}</span>
-                         <button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings, index)" class="text-red-500 hover:text-red-400 text-xs">Remove</button>
+                         <button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings.gradientStops, index)" class="text-red-500 hover:text-red-400 text-xs">Remove</button> <?php // FIX: Pass settings.gradientStops ?>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="flex items-center gap-1">
@@ -149,11 +149,12 @@
                         <input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full">
                     </div>
                 </div>
-                 <button @click="addGradientStop(settings)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button>
+                 <button @click="addGradientStop(settings.gradientStops)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button> <?php // FIX: Pass settings.gradientStops ?>
             </div>
         </div>
     </div>
     
+    <?php // --- START: MODIFIED IMAGE SECTION --- ?>
     <div v-if="currentView === 'desktop'">
         <hr class="section-divider">
         <h4 class="section-title">Image</h4>
@@ -165,42 +166,48 @@
                 Remove
             </button>
         </div>
-        <div v-if="settings.imageUrl" class="mt-3 space-y-3">
-            <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
-                <label class="setting-label-sm">Enable Custom Image Size</label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" v-model="settings.enableCustomImageSize" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                </label>
-            </div>
-             <div v-if="settings.enableCustomImageSize" class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="setting-label-sm">Width</label>
-                    <div class="flex items-center gap-1">
-                        <input type="number" v-model.number="settings.imageWidth" class="yab-form-input" placeholder="Auto">
-                        <select v-model="settings.imageWidthUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
-                    </div>
-                </div>
-                <div>
-                    <label class="setting-label-sm">Height</label>
-                    <div class="flex items-center gap-1">
-                        <input type="number" v-model.number="settings.imageHeight" class="yab-form-input" placeholder="100%">
-                        <select v-model="settings.imageHeightUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
-                    </div>
+    </div>
+
+    <?php // --- Image Size & Position (Desktop & Mobile) --- ?>
+    <div v-if="settings.imageUrl" class="mt-3 space-y-3">
+        <hr class="section-divider" v-if="currentView !== 'desktop'"> <?php // Add separator for mobile ?>
+        <h4 class="section-title" v-if="currentView !== 'desktop'">Image Layout</h4> <?php // Add title for mobile ?>
+        
+        <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
+            <label class="setting-label-sm">Enable Custom Image Size</label>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="settings.enableCustomImageSize" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+            </label>
+        </div>
+         <div v-if="settings.enableCustomImageSize" class="grid grid-cols-2 gap-2">
+            <div>
+                <label class="setting-label-sm">Width</label>
+                <div class="flex items-center gap-1">
+                    <input type="number" v-model.number="settings.imageWidth" class="yab-form-input" placeholder="Auto">
+                    <select v-model="settings.imageWidthUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
                 </div>
             </div>
-             <div class="grid grid-cols-2 gap-2 mt-2">
-                 <div>
-                    <label class="setting-label-sm">Right (px)</label>
-                    <input type="number" v-model.number="settings.imagePosRight" class="yab-form-input" placeholder="Right">
-                 </div>
-                 <div>
-                    <label class="setting-label-sm">Bottom (px)</label>
-                    <input type="number" v-model.number="settings.imagePosBottom" class="yab-form-input" placeholder="Bottom">
+            <div>
+                <label class="setting-label-sm">Height</label>
+                <div class="flex items-center gap-1">
+                    <input type="number" v-model.number="settings.imageHeight" class="yab-form-input" placeholder="100%">
+                    <select v-model="settings.imageHeightUnit" class="yab-form-input w-20"><option>px</option><option>%</option></select>
                 </div>
             </div>
         </div>
+         <div class="grid grid-cols-2 gap-2 mt-2">
+             <div>
+                <label class="setting-label-sm">Right (px)</label>
+                <input type="number" v-model.number="settings.imagePosRight" class="yab-form-input" placeholder="Right">
+             </div>
+             <div>
+                <label class="setting-label-sm">Bottom (px)</label>
+                <input type="number" v-model.number="settings.imagePosBottom" class="yab-form-input" placeholder="Bottom">
+            </div>
+        </div>
     </div>
+    <?php // --- END: MODIFIED IMAGE SECTION --- ?>
     <hr class="section-divider">
 
     <div class="space-y-2">

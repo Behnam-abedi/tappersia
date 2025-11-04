@@ -1,30 +1,62 @@
 // tappersia/assets/js/admin/app-logic/composables/useBannerSync.js
-// tappersia/assets/js/admin/app-logic/composables/useBannerSync.js
 const { watch } = Vue;
+// --- START: FIX ---
+// Corrected the import path from '../composables/...' to '../../composables/...'
+import { createDefaultPart, createDefaultMobilePart } from '../../composables/banner-state/defaults/index.js';
+// --- END: FIX ---
 
 export function useBannerSync(banner, currentView) {
+    
+    // --- START: Define defaults for sync logic ---
+    const singleDesktopDefaults = createDefaultPart();
+    const singleMobileDefaults = createDefaultMobilePart();
+    // ... (other defaults can be added here if needed for other types)
+    // --- END: Define defaults ---
+
     // Sync logic when switching from desktop to mobile view for the first time
     watch(currentView, (newView) => {
 
-        // --- Keep existing sync logic for other types ---
+        // --- START: REWRITTEN Single Banner Sync Logic ---
         if (banner.type === 'single-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
-            banner.single_mobile = JSON.parse(JSON.stringify(banner.single));
-            // Apply mobile overrides AFTER copying
-            banner.single_mobile.layerOrder = banner.single.layerOrder; // <<< ADDED
-            banner.single_mobile.minHeight = 145;
-            banner.single_mobile.paddingY = 20; // Changed
-            banner.single_mobile.paddingX = 22; // Changed
-            banner.single_mobile.titleSize = 14;
-            // banner.single_mobile.titleLineHeight = 1.4; // Removed
-            banner.single_mobile.descSize = 12;
-            // banner.single_mobile.descLineHeight = 1.4; // Removed
-            banner.single_mobile.marginTopDescription = 12;
-            banner.single_mobile.marginBottomDescription = 15;
-            banner.single_mobile.buttonFontSize = 11;
-            banner.single_mobile.buttonPaddingY = 10; // Changed
-            banner.single_mobile.buttonPaddingX = 16; // Changed
             banner.isMobileConfigured = true;
+            
+            // --- Perform initial sync based on new rules ---
+            const desktop = banner.single;
+            const mobile = banner.single_mobile;
+
+            const propertiesToSync = [
+                'layerOrder', 'alignment', 'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
+                'titleText', 'titleColor', 'titleWeight',
+                'descText', 'descColor', 'descWeight',
+                'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
+                'imageUrl', 'enableBorder', 'borderColor'
+            ];
+            
+            for (const prop of propertiesToSync) {
+                const desktopVal = desktop[prop];
+                const desktopDefault = singleDesktopDefaults[prop];
+                
+                // If desktop value is NOT default, sync it to mobile.
+                // Mobile is guaranteed to be at its default state here.
+                let isDesktopDefault;
+                if (typeof desktopVal === 'object' && desktopVal !== null) {
+                    isDesktopDefault = JSON.stringify(desktopVal) === JSON.stringify(desktopDefault);
+                } else {
+                    isDesktopDefault = desktopVal === desktopDefault;
+                }
+
+                if (!isDesktopDefault) {
+                    // Sync non-default desktop value to mobile
+                    if (typeof desktopVal === 'object' && desktopVal !== null) {
+                        mobile[prop] = JSON.parse(JSON.stringify(desktopVal));
+                    } else {
+                        mobile[prop] = desktopVal;
+                    }
+                }
+                // If desktop IS default, we do nothing, letting mobile keep its own default.
+            }
         }
+        // --- END: REWRITTEN Single Banner Sync Logic ---
 
         if (banner.type === 'simple-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
              banner.simple_mobile = JSON.parse(JSON.stringify(banner.simple));
@@ -207,24 +239,68 @@ export function useBannerSync(banner, currentView) {
     });
 
     // Continuous sync for shared properties from desktop to mobile
-    // --- Keep existing watches for other types ---
-    watch(() => banner.single, (newDesktop) => {
-        if (banner.type !== 'single-banner' || !banner.isMobileConfigured) return;
+    
+    // --- START: REWRITTEN Single Banner Continuous Sync ---
+    watch(() => banner.single, (newDesktop, oldDesktop) => {
+        if (banner.type !== 'single-banner' || !banner.isMobileConfigured) return; 
+        
         const mobile = banner.single_mobile;
-        mobile.imageUrl = newDesktop.imageUrl;
-        mobile.alignment = newDesktop.alignment;
-        mobile.titleText = newDesktop.titleText;
-        mobile.titleColor = newDesktop.titleColor;
-        mobile.descText = newDesktop.descText;
-        mobile.descColor = newDesktop.descColor;
-        mobile.buttonText = newDesktop.buttonText;
-        mobile.buttonLink = newDesktop.buttonLink;
-        mobile.buttonBgColor = newDesktop.buttonBgColor;
-        mobile.buttonTextColor = newDesktop.buttonTextColor;
-        mobile.buttonBgHoverColor = newDesktop.buttonBgHoverColor;
-        mobile.borderColor = newDesktop.borderColor; // Sync border color
-        mobile.layerOrder = newDesktop.layerOrder; // <<< ADDED
-     }, { deep: true });
+
+        // Helper to sync a property if mobile hasn't been "manually" changed.
+        const syncProperty = (propName) => {
+            // If desktop value didn't change, do nothing
+            if (!oldDesktop || newDesktop[propName] === oldDesktop[propName]) {
+                return; 
+            }
+
+            const mobileValue = mobile[propName];
+            const oldDesktopValue = oldDesktop[propName];
+            const mobileDefault = singleMobileDefaults[propName];
+
+            let isMobileUntouched;
+            if (typeof mobileValue === 'object' && mobileValue !== null) {
+                // For objects/arrays, compare stringified versions
+                isMobileUntouched = JSON.stringify(mobileValue) === JSON.stringify(oldDesktopValue) || 
+                                    JSON.stringify(mobileValue) === JSON.stringify(mobileDefault);
+            } else {
+                // For primitives
+                isMobileUntouched = mobileValue === oldDesktopValue || mobileValue === mobileDefault;
+            }
+
+            if (isMobileUntouched) {
+                // Mobile is untouched (or was following desktop), so sync it with the new desktop value.
+                if (typeof newDesktop[propName] === 'object' && newDesktop[propName] !== null) {
+                    mobile[propName] = JSON.parse(JSON.stringify(newDesktop[propName]));
+                } else {
+                    mobile[propName] = newDesktop[propName];
+                }
+            }
+        };
+        
+        // List of properties that should sync from desktop to mobile.
+        // We *exclude* properties that have different desktop/mobile defaults and are layout-specific.
+        const propertiesToSync = [
+            'layerOrder', 'alignment', 'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
+            'titleText', 'titleColor', 'titleWeight',
+            'descText', 'descColor', 'descWeight',
+            'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
+            'imageUrl', 'enableBorder', 'borderColor'
+            // We intentionally DO NOT sync:
+            // minHeight, contentWidth, contentWidthUnit, paddingY, paddingX,
+            // titleSize, descSize, marginTopDescription, marginBottomDescription,
+            // buttonFontSize, buttonBorderRadius, buttonPaddingY, buttonPaddingX,
+            // enableCustomImageSize, imageWidth, imageWidthUnit, imageHeight, imageHeightUnit,
+            // imagePosRight, imagePosBottom
+            // (The last 7 image props are now editable on mobile, so they must not be synced)
+        ];
+
+        for (const prop of propertiesToSync) {
+            syncProperty(prop);
+        }
+
+    }, { deep: true });
+    // --- END: REWRITTEN Single Banner Continuous Sync ---
+
 
     watch(() => banner.simple, (newDesktop) => {
         if (banner.type !== 'simple-banner' || !banner.isMobileConfigured) return;
