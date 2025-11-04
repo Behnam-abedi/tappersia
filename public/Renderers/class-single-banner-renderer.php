@@ -6,13 +6,16 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
     class Yab_Single_Banner_Renderer extends Yab_Abstract_Banner_Renderer {
 
         public function render(): string {
+            // --- FIX: Changed $this.data to $this->data ---
             if (empty($this->data['single'])) {
                 return '';
             }
             
-            $desktop_b = $this.data['single'];
-            $mobile_b = $this.data['single_mobile'] ?? $desktop_b; 
-            $banner_id = $this.banner_id;
+            // --- FIX: Changed $this.data to $this->data ---
+            $desktop_b = $this->data['single'];
+            $mobile_b = $this->data['single_mobile'] ?? $desktop_b; 
+            // --- FIX: Changed $this.banner_id to $this->banner_id ---
+            $banner_id = $this->banner_id;
 
             // --- START: Data for JS ---
             $desktop_has_image = !empty($desktop_b['imageUrl']);
@@ -174,11 +177,12 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
             );
             // --- پایان تغییرات ---
             
-            $alignment = $this.get_alignment_style($b);
+            // --- FIX: Changed $this. to $this-> ---
+            $alignment = $this->get_alignment_style($b);
 
             ob_start();
             ?>
-            <div class="yab-single-skeleton  yab-skeleton-<?php echo $view; ?>" style="<?php echo $this.get_inline_style_attr($banner_styles); ?>">
+            <div class="yab-single-skeleton  yab-skeleton-<?php echo $view; ?>" style="<?php echo $this->get_inline_style_attr($banner_styles); ?>">
                 <div class="yab-skeleton-content" style="padding: <?php echo $content_padding; ?>; align-items: <?php echo $alignment['align_items']; ?>; text-align: <?php echo $alignment['text_align']; ?>; display: flex; flex-direction: column; min-height: <?php echo esc_attr($b['minHeight'] ?? ($is_desktop ? 190 : 145)); ?>px; box-sizing: border-box;">
                     <div style="width:100%">
                         <div class="yab-skeleton-text-lg yab-skeleton-loader"></div>
@@ -227,7 +231,8 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
             ];
             // --- پایان تغییرات ---
             
-            $alignment_style = $this.get_alignment_style($b);
+            // --- FIX: Changed $this. to $this-> ---
+            $alignment_style = $this->get_alignment_style($b);
             
             $title_styles = [
                 'font-weight' => esc_attr($b['titleWeight'] ?? '700'),
@@ -269,23 +274,23 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
 
             ob_start();
             ?>
-            <div class="yab-content-real yab-content-<?php echo $view; ?>" style="<?php echo $this.get_inline_style_attr($banner_styles); ?> <?php echo $this.get_inline_style_attr($wrapper_styles); ?>">
+            <div class="yab-content-real yab-content-<?php echo $view; ?>" style="<?php echo $this->get_inline_style_attr($banner_styles); ?> <?php echo $this->get_inline_style_attr($wrapper_styles); ?>">
                 <?php if (!empty($b['imageUrl'])): ?>
-                    <img src="<?php echo esc_url($b['imageUrl']); ?>" alt="" style="<?php echo $this.get_image_style($b); ?> z-index: <?php echo $image_z_index; ?>;">
+                    <img src="<?php echo esc_url($b['imageUrl']); ?>" alt="" style="<?php echo $this->get_image_style($b); ?> z-index: <?php echo $image_z_index; ?>;">
                 <?php endif; ?>
 
-                <div class="yab-banner-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: <?php echo $overlay_z_index; ?>; <?php echo $this.get_background_style($b); ?>"></div>
-                <div class="yab-banner-content" style="<?php echo $this.get_inline_style_attr($content_styles); ?> z-index: 3; text-align: <?php echo $alignment_style['text_align']; ?>; align-items: <?php echo $alignment_style['align_items']; ?>;">
+                <div class="yab-banner-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: <?php echo $overlay_z_index; ?>; <?php echo $this->get_background_style($b); ?>"></div>
+                <div class="yab-banner-content" style="<?php echo $this->get_inline_style_attr($content_styles); ?> z-index: 3; text-align: <?php echo $alignment_style['text_align']; ?>; align-items: <?php echo $alignment_style['align_items']; ?>;">
                     
                     <div style="flex-grow: 1;">
-                        <h2 style="<?php echo $this.get_inline_style_attr($title_styles); ?>"><?php echo esc_html($b['titleText'] ?? ''); ?></h2>
-                        <p style="<?php echo $this.get_inline_style_attr($desc_styles); ?>">
+                        <h2 style="<?php echo $this->get_inline_style_attr($title_styles); ?>"><?php echo esc_html($b['titleText'] ?? ''); ?></h2>
+                        <p style="<?php echo $this->get_inline_style_attr($desc_styles); ?>">
                             <?php echo wp_kses_post(trim($b['descText'] ?? '')); ?>
                         </p>
                     </div>
 
                     <?php if(!empty($b['buttonText'])): ?>
-                    <a href="<?php echo esc_url($b['buttonLink'] ?? '#'); ?>" target="_blank" class="yab-button" style="<?php echo $this.get_inline_style_attr($button_styles); ?>"><?php echo esc_html($b['buttonText']); ?></a>
+                    <a href="<?php echo esc_url($b['buttonLink'] ?? '#'); ?>" target="_blank" class="yab-button" style="<?php echo $this->get_inline_style_attr($button_styles); ?>"><?php echo esc_html($b['buttonText']); ?></a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -295,7 +300,12 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
         
         private function get_inline_style_attr(array $styles): string {
             $style_str = '';
-            foreach ($styles as $prop => $value) { $style_str .= $prop . ': ' . $value . '; '; }
+            foreach ($styles as $prop => $value) { 
+                // --- FIX: Added check for null or empty string ---
+                if ($value !== '' && $value !== null) {
+                    $style_str .= $prop . ': ' . $value . '; '; 
+                }
+            }
             return trim($style_str);
         }
     }
