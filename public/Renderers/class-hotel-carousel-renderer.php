@@ -94,8 +94,8 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
 
         private function render_view($banner_id, $view, $settings, $original_hotels_ids) {
             $header_settings = $settings['header'] ?? [];
-            $card_settings = $settings['card'] ?? []; // Get card settings
-            $card_min_height_esc = esc_attr($card_settings['minHeight'] ?? 369); // +++ این خط را اضافه کنید +++
+            $card_settings = $settings['card'] ?? [];
+            $card_min_height_esc = esc_attr($card_settings['minHeight'] ?? 369);
             $hotel_count = count($original_hotels_ids);
 
             $slides_per_view = $settings['slidesPerView'] ?? ($view === 'desktop' ? 3 : 1);
@@ -115,7 +115,6 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
 
             $slides_to_render = $original_hotels_ids;
 
-            // Loop logic (same as tour)
             if ($loop && $hotel_count > 0) {
                 $final_items = $original_hotels_ids;
                 if ($is_doubled) {
@@ -133,8 +132,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
             $container_width = ($view === 'desktop' || $slides_per_view > 1)
                 ? (($card_width * $slides_per_view) + ($space_between * ($slides_per_view - 1)))
                 : $card_width;
-            // Use card height from settings for grid height calculation
-            $grid_height = ($card_settings['minHeight'] ?? 369) * 2 + ($space_between ?? 20); // Use spaceBetween for gap
+            $grid_height = ($card_settings['minHeight'] ?? 369) * 2 + ($space_between ?? 20); 
 
             $unique_id = $banner_id . '_' . $view;
 
@@ -144,7 +142,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                 #yab-hotel-carousel-<?php echo esc_attr($unique_id); ?> .swiper-slide {
                     width: <?php echo esc_attr($card_width); ?>px !important; box-sizing: border-box;
                     <?php if ($is_doubled): ?>
-                        height: calc((100% - 20px) / 2) !important; /* FIX: Use fixed 20px gap */
+                        height: calc((100% - 20px) / 2) !important; 
                         /* margin-bottom: <?php // echo esc_js($space_between); ?>px !important; */ /* FIX: Remove margin-bottom */
                     <?php else: ?>
                         height: auto !important;
@@ -178,8 +176,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                             <?php
 
 
-                             // Skeleton based on new card settings
-                            // --- START: Added overflow: hidden to inner flex container ---
+
                             $skeleton_html = <<<HTML
 <div name="card-skeleton" class="yab-hotel-card-skeleton " style="margin: 0; height:{$card_min_height_esc}px; width: {$card_width}px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #f4f4f4; box-sizing: border-box; overflow: hidden;">
   <div style="height: 176px; width: 100%; border-radius: 14px; background-color: #ebebeb;" class="yab-skeleton-loader"></div>
