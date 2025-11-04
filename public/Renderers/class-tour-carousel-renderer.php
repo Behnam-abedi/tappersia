@@ -77,8 +77,11 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
                 $slides_to_render = $final_tours;
             }
 
-            $card_width = 295;
-            $container_width = ($card_width * $slides_per_view) + ($space_between * ($slides_per_view - 1));
+            $card_width = $settings['cardWidth'] ?? 295;
+            $container_width = ($view === 'desktop' || $slides_per_view > 1)
+                ? (($card_width * $slides_per_view) + ($space_between * ($slides_per_view - 1)))
+                : $card_width; // +++ این خط را آپدیت کنید ++
+
             $grid_height = ($card_settings['height'] ?? 375) * 2 + 20;
             
             $unique_id = $banner_id . '_' . $view;
@@ -87,7 +90,7 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
             ?>
             <style>
                 #yab-tour-carousel-<?php echo esc_attr($unique_id); ?> .swiper-slide { 
-                    /* width: 295px !important; */ 
+                    width: <?php echo esc_attr($card_width); ?>px !important; /* +++ عرض داینامیک اعمال شد +++ */
                     box-sizing: border-box;
                     <?php if ($is_doubled): ?> 
                         height: calc((100% - 20px) / 2) !important; 
@@ -150,7 +153,7 @@ if (!class_exists('Yab_Tour_Carousel_Renderer')) {
                             $card_height_esc = esc_attr($card_settings['height'] ?? 375);
                             $image_height_esc = esc_attr($card_settings['imageHeight'] ?? 204);
                             $skeleton_html = <<<HTML
-                                <div class="yab-tour-card-skeleton yab-skeleton-loader" style="width: 295px; height: {$card_height_esc}px; background-color: #f4f4f4; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden;">
+                                <div class="yab-tour-card-skeleton yab-skeleton-loader" style="width: {$card_width}px; height: {$card_height_esc}px; background-color: #f4f4f4; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden;">
                                     <div class="yab-skeleton-image" style="width: 100%; height: {$image_height_esc}px; background-color: #ebebeb; border-radius: 14px;"></div>
                                     <div style="padding: 14px 5px 5px 5px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
                                         <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #ebebeb; border-radius: 4px;"></div>
@@ -185,6 +188,7 @@ HTML;
                 const fetchedIds = new Set();
                 const isRTL = <?php echo json_encode($is_rtl); ?>;
                 const cardSettings = <?php echo json_encode($card_settings); ?>;
+                const cardWidth = <?php echo esc_js($card_width); ?>; // +++ این خط را اضافه کنید +++
 
                 const getCardBackground = (settings) => {
                     if (!settings) return '#FFFFFF';
@@ -221,7 +225,8 @@ HTML;
                     return `
                     <div class="yab-tour-card" style="
                         position: relative; text-decoration: none; color: inherit; display: block; 
-                        width: 295px; min-height: ${cardSettings.height}px; 
+                        width: ${cardWidth}px;
+                        min-height: ${cardSettings.height}px; 
                         height: auto;
                         background: ${getCardBackground(cardSettings)};
                         border: ${cardSettings.borderWidth}px solid ${cardSettings.borderColor};
@@ -326,15 +331,24 @@ HTML;
                     const slides = Array.from(swiper.slides);
                     const isGrid = swiper.params.grid && swiper.params.grid.rows > 1;
                     const rows = isGrid ? swiper.params.grid.rows : 1;
-                     let slidesPerView = 1;
-                     if (swiper.params.slidesPerView && swiper.params.slidesPerView !== 'auto') {
-                         slidesPerView = parseInt(swiper.params.slidesPerView, 10);
-                         if (isNaN(slidesPerView)) slidesPerView = 1;
-                     } else if (swiper.params.slidesPerView === 'auto') {
-                         slidesPerView = swiper.visibleSlides ? swiper.visibleSlides.length : 1;
-                     }
+                    
+                    // +++ START FIX (PHP) +++
+                    let slidesPerView = 1;
+                    
+                    if (isGrid) {
+                        slidesPerView = parseInt(swiper.params.slidesPerView, 10) || 1;
+                    } else {
+                        // ما متغیر slides_per_view را از PHP پاس داده‌ایم
+                        slidesPerView = <?php echo esc_js($slides_per_view); ?> || 3;
+                    }
+                    // +++ END FIX (PHP) +++
+
                     const startIndex = Math.max(0, swiper.activeIndex || 0);
-                    const slidesToLoadCount = Math.max(1, (slidesPerView * rows) * 2);
+
+                    // +++ START FIX 2: استفاده از همان بافر +++
+                    const slidesToLoadCount = Math.max(1, (slidesPerView * rows) + 2);
+                    // +++ END FIX 2 +++
+                    
                     const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount);
                     
                     if (slidesToCheck.length > 0) {
@@ -344,7 +358,7 @@ HTML;
                 };
                 
                  const swiperOptions = {
-                    slidesPerView: <?php echo esc_js($slides_per_view); ?>,
+                    slidesPerView: 'auto',
                     spaceBetween: <?php echo esc_js($space_between); ?>,
                     loop: <?php echo json_encode($loop); ?>,
                     dir: '<?php echo esc_js($direction); ?>',
@@ -358,6 +372,8 @@ HTML;
                 <?php if ($pagination_enabled): ?> swiperOptions.pagination = { el: container.querySelector('.swiper-pagination'), clickable: true }; <?php endif; ?>
                 <?php if ($is_doubled): ?> 
                     swiperOptions.grid = { rows: 2, fill: '<?php echo esc_js($grid_fill); ?>' }; 
+                    swiperOptions.slidesPerView = <?php echo esc_js($slides_per_view); ?>; // +++ این خط 'auto' را بازنویسی می‌کند +++
+                    swiperOptions.slidesPerGroup = 1;
                     swiperOptions.slidesPerGroup = 1; 
                     swiperOptions.spaceBetween = 20;
                 <?php endif; ?>

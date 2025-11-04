@@ -95,6 +95,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
         private function render_view($banner_id, $view, $settings, $original_hotels_ids) {
             $header_settings = $settings['header'] ?? [];
             $card_settings = $settings['card'] ?? []; // Get card settings
+            $card_min_height_esc = esc_attr($card_settings['minHeight'] ?? 369); // +++ این خط را اضافه کنید +++
             $hotel_count = count($original_hotels_ids);
 
             $slides_per_view = $settings['slidesPerView'] ?? ($view === 'desktop' ? 3 : 1);
@@ -133,7 +134,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                 ? (($card_width * $slides_per_view) + ($space_between * ($slides_per_view - 1)))
                 : $card_width;
             // Use card height from settings for grid height calculation
-            $grid_height = ($card_settings['minHeight'] ?? 357) * 2 + ($space_between ?? 20); // Use spaceBetween for gap
+            $grid_height = ($card_settings['minHeight'] ?? 369) * 2 + ($space_between ?? 20); // Use spaceBetween for gap
 
             $unique_id = $banner_id . '_' . $view;
 
@@ -180,7 +181,7 @@ if (!class_exists('Yab_Hotel_Carousel_Renderer')) {
                              // Skeleton based on new card settings
                             // --- START: Added overflow: hidden to inner flex container ---
                             $skeleton_html = <<<HTML
-<div name="card-skeleton" class="yab-hotel-card-skeleton " style="margin: 0; height:357px; width: {$card_width}px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #f4f4f4; box-sizing: border-box; overflow: hidden;">
+<div name="card-skeleton" class="yab-hotel-card-skeleton " style="margin: 0; height:{$card_min_height_esc}px; width: {$card_width}px; border-radius: 16px; border: 1px solid #f5f5f5ff; padding: 9px; background-color: #f4f4f4; box-sizing: border-box; overflow: hidden;">
   <div style="height: 176px; width: 100%; border-radius: 14px; background-color: #ebebeb;" class="yab-skeleton-loader"></div>
   <div style="margin: 14px 19px 0 19px;">
     <div style="min-height: 34px; width: 100%; margin-bottom: 7px;">
@@ -255,7 +256,7 @@ HTML;
                          const imageWidth = 295 - (card.padding * 2);
 
                         return `
-                        <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.minHeight}px; width: ${cardWidth}px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
+                        <div name="card" class="yab-hotel-card" style="margin: 0; height:auto;min-height: ${card.minHeight || 369}px; width: ${cardWidth}px; border-radius: ${card.borderRadius}px; border: ${card.borderWidth}px solid ${card.borderColor}; padding: ${card.padding}px; background-color: ${card.bgColor}; box-sizing: border-box; font-family: 'Roboto', sans-serif; display: flex; flex-direction: column;">
                           <a href="${escapeHTML(detailUrl)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; outline: none; -webkit-tap-highlight-color: transparent;flex:1">
                             <div style="position: relative; height: ${card.image?.height}px; width: 100%; border-radius: ${card.image?.radius}px; flex-shrink: 0;" name="header-content-image">
                               <div style="position: absolute; z-index: 10; display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; padding: ${card.imageContainer?.paddingY}px ${card.imageContainer?.paddingX}px; box-sizing: border-box;">

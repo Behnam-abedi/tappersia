@@ -19,7 +19,7 @@ export const createDefaultHotelCarouselDesktopPart = () => ({
     },
     // --- START: Added Detailed Card Styling ---
     card: {
-        minHeight: 357, // Fixed height based on new design
+        minHeight:369, // Fixed height based on new design
         bgColor: '#ffffff',
         borderWidth: 1,
         borderColor: '#E5E5E5',

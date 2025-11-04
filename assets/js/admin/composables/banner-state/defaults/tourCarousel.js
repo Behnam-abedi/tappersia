@@ -2,6 +2,7 @@
 
 export const createDefaultTourCarouselDesktopPart = () => ({
     slidesPerView: 3,
+    cardWidth: 295,
     loop: false,
     spaceBetween: 22,
     isDoubled: false,
@@ -61,6 +62,7 @@ export const createDefaultTourCarouselDesktopPart = () => ({
 export const createDefaultTourCarouselMobilePart = () => {
     const mobileDefaults = createDefaultTourCarouselDesktopPart();
     mobileDefaults.slidesPerView = 1;
+    mobileDefaults.cardWidth = 295; // +++ این خط را اضافه کنید +++
     mobileDefaults.card.height = 375;
     mobileDefaults.card.padding = 9;
     mobileDefaults.card.borderRadius = 14;

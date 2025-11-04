@@ -35,10 +35,19 @@
             <div class="space-y-4">
 
 
-                <div v-if="currentView === 'desktop'">
-                    <h4 class="section-title">Slides Per View</h4>
-                    <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1" >
-                        <button v-for="num in (currentView === 'desktop' ? [1, 2, 3, 4] : [1])" :key="num" @click="settings.slidesPerView = num" :class="{'active-tab': settings.slidesPerView === num}" class="flex-1 tab-button rounded-md">{{ num }}</button>
+                <div>
+                    <h4 class="section-title">Layout</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div v-if="currentView === 'desktop'">
+                            <label class="setting-label-sm">Slides Per View</label>
+                            <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
+                              <button v-for="num in [1, 2, 3, 4]" :key="num" @click="settings.slidesPerView = num" :class="{'active-tab': settings.slidesPerView === num}" class="flex-1 tab-button rounded-md">{{ num }}</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="setting-label-sm">Card Width (px)</label>
+                            <input type="number" v-model.number="settings.cardWidth" class="yab-form-input" placeholder="e.g., 295">
+                        </div>
                     </div>
                 </div>
                 <hr class="section-divider">

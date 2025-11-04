@@ -109,6 +109,7 @@ class Yab_Tour_Carousel {
     private function sanitize_settings_object($settings) {
         $sanitized = [];
         $sanitized['slidesPerView'] = isset($settings['slidesPerView']) ? intval($settings['slidesPerView']) : 3;
+        $sanitized['cardWidth'] = isset($settings['cardWidth']) ? intval($settings['cardWidth']) : 295; // +++ این خط را اضافه کنید +++
         $sanitized['loop'] = isset($settings['loop']) ? boolval($settings['loop']) : false;
         $sanitized['spaceBetween'] = isset($settings['spaceBetween']) ? intval($settings['spaceBetween']) : 22;
         $sanitized['isDoubled'] = isset($settings['isDoubled']) ? boolval($settings['isDoubled']) : false;

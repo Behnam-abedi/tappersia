@@ -2,7 +2,7 @@
 const { watch } = Vue;
 // --- START: FIX ---
 // Corrected the import path from '../composables/...' to '../../composables/...'
-import { createDefaultPart, createDefaultMobilePart ,createDefaultHotelCarouselMobilePart} from '../../composables/banner-state/defaults/index.js';
+import { createDefaultPart, createDefaultMobilePart ,createDefaultHotelCarouselMobilePart,createDefaultTourCarouselMobilePart} from '../../composables/banner-state/defaults/index.js';
 // --- END: FIX ---
 
 export function useBannerSync(banner, currentView) {
@@ -157,17 +157,33 @@ export function useBannerSync(banner, currentView) {
             // *** END: API BANNER SYNC LOGIC ***
         }
 
-        if (banner.type === 'tour-carousel' && newView === 'mobile' && !banner.tour_carousel.isMobileConfigured) {
+if (banner.type === 'tour-carousel' && newView === 'mobile' && !banner.tour_carousel.isMobileConfigured) {
             const desktop = banner.tour_carousel.settings;
             const mobile = banner.tour_carousel.settings_mobile;
+            
+            // +++ START: MODIFICATION FOR CARD WIDTH +++
+            // 1. عرض کارت پیش‌فرض موبایل را بگیرید
+            const mobileDefaultCardWidth = createDefaultTourCarouselMobilePart().cardWidth;
+
+            // 2. تنظیمات دسکتاپ را در موبایل کپی کنید
             const desktopSettingsCopy = JSON.parse(JSON.stringify(desktop));
             Object.assign(mobile, desktopSettingsCopy);
+
+            // 3. تنظیمات پیش‌فرض چیدمان موبایل را بازگردانید
             mobile.slidesPerView = 1;
-             mobile.card.height = 375; // Keep card settings consistent unless explicitly overridden
+            mobile.spaceBetween = 15; // (یا هر مقدار پیش‌فرض موبایل که دارید)
+
+            // 4. عرض کارت پیش‌فرض موبایل را بازگردانید
+            mobile.cardWidth = mobileDefaultCardWidth;
+            // +++ END: MODIFICATION FOR CARD WIDTH +++
+
+             // (این کدهای قبلی شما هستند، آنها را نگه دارید)
+             mobile.card.height = 375; 
              mobile.card.padding = 9;
              mobile.card.borderRadius = 14;
              mobile.card.borderWidth = 1;
              mobile.card.imageHeight = 204;
+             
             banner.tour_carousel.isMobileConfigured = true;
         }
 

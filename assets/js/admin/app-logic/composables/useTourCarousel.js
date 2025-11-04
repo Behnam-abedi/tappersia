@@ -52,8 +52,8 @@ export const TourCarouselLogic = {
         // ... بقیه منطق setup ...
 
          const containerWidth = computed(() => {
-            const cardWidth = 295;
-            const spaceBetween = props.settings.spaceBetween || 18;
+            const cardWidth = props.settings.cardWidth || 295;
+            const spaceBetween = props.settings.spaceBetween || 18; // تعریف متغیر
             const slidesPerView = props.settings.slidesPerView || 3;
              if (slidesPerView === 1) return cardWidth; // Handle mobile view width
             return (cardWidth * slidesPerView) + (spaceBetween * (slidesPerView - 1));
@@ -124,7 +124,7 @@ export const TourCarouselLogic = {
             // --- SKELETON ---
             if (!tour) {
                 return `
-                <div class="yab-tour-card-skeleton yab-skeleton-loader" style="width: 295px; height: ${card.height || 375}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
+                <div class="yab-tour-card-skeleton yab-skeleton-loader" style="width: ${props.settings.cardWidth || 295}px; height: ${card.height || 375}px; background-color: #fff; border-radius: 14px; padding: 9px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; border: 1px solid #f0f0f0;">
                     <div class="yab-skeleton-image" style="width: 100%; height: ${card.imageHeight || 204}px; background-color: #f0f0f0; border-radius: 14px;"></div>
                     <div style="padding: 14px 5px 5px 5px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
                         <div class="yab-skeleton-text" style="width: 80%; height: 20px; background-color: #f0f0f0; border-radius: 4px;"></div>
@@ -157,7 +157,8 @@ export const TourCarouselLogic = {
             return `
                 <div class="yab-tour-card" style="
                     position: relative; text-decoration: none; color: inherit; display: block;
-                    width: 295px; min-height: ${card.height || 375}px;
+                    width: ${props.settings.cardWidth || 295}px;
+                    min-height: ${card.height || 375}px;
                     height:auto;
                     background: ${getCardBackground(card)};
                     border: ${card.borderWidth || 1}px solid ${card.borderColor || '#E0E0E0'};
@@ -262,21 +263,30 @@ export const TourCarouselLogic = {
         };
 
         const checkAndLoadVisibleSlides = (swiper) => {
-             // ... (keep existing logic) ...
             if (!swiper || !swiper.slides || swiper.slides.length === 0 || !swiper.params) return;
             const idsToFetch = new Set();
             const slides = Array.from(swiper.slides);
             const isGrid = swiper.params.grid && swiper.params.grid.rows > 1;
             const rows = isGrid ? swiper.params.grid.rows : 1;
-             let slidesPerView = 1;
-             if (swiper.params.slidesPerView && swiper.params.slidesPerView !== 'auto') {
-                 slidesPerView = parseInt(swiper.params.slidesPerView, 10);
-                 if (isNaN(slidesPerView)) slidesPerView = 1;
-             } else if (swiper.params.slidesPerView === 'auto') {
-                 slidesPerView = swiper.visibleSlides ? swiper.visibleSlides.length : 1;
-             }
+             
+            // +++ START FIX +++
+            let slidesPerView = 1; // Default
+            
+            if (isGrid) {
+               // برای گرید، swiper.params.slidesPerView یک عدد قابل اعتماد است
+               slidesPerView = parseInt(swiper.params.slidesPerView, 10) || 1;
+            } else {
+               // برای حالت 'auto'، ما از تنظیمات خودمان استفاده می‌کنیم
+               slidesPerView = props.settings.slidesPerView || 3; // استفاده از مقداری که از props آمده
+            }
+            // +++ END FIX +++
+             
             const startIndex = Math.max(0, swiper.activeIndex || 0);
-            const slidesToLoadCount = Math.max(1, (slidesPerView * rows) * 2);
+            
+            // +++ START FIX 2: استفاده از یک بافر ساده‌تر و قابل اطمینان‌تر +++
+            const slidesToLoadCount = Math.max(1, (slidesPerView * rows) + 2); 
+            // +++ END FIX 2 +++
+
             const slidesToCheck = slides.slice(startIndex, startIndex + slidesToLoadCount);
 
             if (slidesToCheck.length > 0) {
@@ -308,6 +318,7 @@ export const TourCarouselLogic = {
                     slideEl.className = 'swiper-slide';
                     slideEl.setAttribute('data-tour-id', id);
                     // slideEl.style.width = '295px'; // Let Swiper handle width based on slidesPerView
+                    slideEl.style.width = `${props.settings.cardWidth || 295}px`; // +++ عرض اسلاید به صورت دستی تنظیم شد +++
                     slideEl.innerHTML = generateTourCardHTML(null); // Render skeleton
                     wrapper.appendChild(slideEl);
                 });
@@ -315,7 +326,7 @@ export const TourCarouselLogic = {
                 updatePaginationStyles(); // Apply dynamic styles
 
                 const swiperOptions = {
-                    slidesPerView: props.settings.slidesPerView,
+                    slidesPerView: 'auto',
                     spaceBetween: props.settings.spaceBetween,
                     loop: props.settings.loop,
                     dir: props.settings.direction,
@@ -354,6 +365,7 @@ export const TourCarouselLogic = {
                         rows: 2,
                         fill: props.settings.loop ? 'column' : props.settings.gridFill,
                     };
+                    swiperOptions.slidesPerView = props.settings.slidesPerView; // +++ برای گرید، باید عدد باشد نه 'auto' +++
                     swiperOptions.slidesPerGroup = 1;
                     swiperOptions.spaceBetween = 20; // Ensure grid gap is set
                 }
