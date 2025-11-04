@@ -227,7 +227,7 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                     esc_attr($b['paddingX'] ?? ($is_desktop ? 34 : 22))
                 ),
                 'width' => esc_attr($b['contentWidth'] . ($b['contentWidthUnit'] ?? '%')), // <--- عرض محتوا
-                'display' => 'flex', 'flex-direction' => 'column', 'z-index' => '10', 'position' => 'relative', 'flex-grow' => '1', 'width' => '100%', 'height' => '100%', 'box-sizing' => 'border-box'
+                'display' => 'flex', 'flex-direction' => 'column', 'z-index' => '10', 'position' => 'absolute', 'flex-grow' => '1', 'width' => '100%', 'height' => '100%', 'box-sizing' => 'border-box'
             ];
             // --- پایان تغییرات ---
             
