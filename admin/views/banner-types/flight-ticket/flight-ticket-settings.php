@@ -212,6 +212,18 @@
                     <div :class="currentView === 'mobile' ? 'col-span-2' : ''"><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="settings.content1.fontSize" class="yab-form-input"></div>
                     <div><label class="setting-label-sm">Weight</label><select v-model="settings.content1.fontWeight" class="yab-form-input"><option value="400">400</option><option value="500">500</option><option value="600">600</option><option value="700">700</option></select></div>
                 </div>
+                <?php // --- START: ADDED MARGINS FOR CONTENT 1 --- ?>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <div>
+                        <label class="setting-label-sm">Margin Top (px)</label>
+                        <input type="number" v-model.number="settings.content1.marginTop" class="yab-form-input" placeholder="0">
+                    </div>
+                    <div>
+                        <label class="setting-label-sm">Margin Bottom (px)</label>
+                        <input type="number" v-model.number="settings.content1.marginBottom" class="yab-form-input" placeholder="0">
+                    </div>
+                </div>
+                <?php // --- END: ADDED MARGINS FOR CONTENT 1 --- ?>
             </div>
             
             <hr class="section-divider">
@@ -225,6 +237,18 @@
                     <div :class="currentView === 'mobile' ? 'col-span-2' : ''"><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="settings.content2.fontSize" class="yab-form-input"></div>
                     <div><label class="setting-label-sm">Weight</label><select v-model="settings.content2.fontWeight" class="yab-form-input"><option value="400">400</option><option value="500">500</option><option value_500="600">600</option><option value="700">700</option></select></div>
                 </div>
+                <?php // --- START: ADDED MARGINS FOR CONTENT 2 --- ?>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <div>
+                        <label class="setting-label-sm">Margin Top (px)</label>
+                        <input type="number" v-model.number="settings.content2.marginTop" class="yab-form-input" placeholder="0">
+                    </div>
+                    <div>
+                        <label class="setting-label-sm">Margin Bottom (px)</label>
+                        <input type="number" v-model.number="settings.content2.marginBottom" class="yab-form-input" placeholder="0">
+                    </div>
+                </div>
+                <?php // --- END: ADDED MARGINS FOR CONTENT 2 --- ?>
             </div>
             
             <hr class="section-divider">
@@ -238,6 +262,18 @@
                     <div :class="currentView === 'mobile' ? 'col-span-2' : ''"><label class="setting-label-sm">Size (px)</label><input type="number" v-model.number="settings.content3.fontSize" class="yab-form-input"></div>
                     <div><label class="setting-label-sm">Weight</label><select v-model="settings.content3.fontWeight" class="yab-form-input"><option value="400">400</option><option value="500">500</option><option value="600">600</option><option value="700">700</option></select></div>
                 </div>
+                <?php // --- START: ADDED MARGINS FOR CONTENT 3 --- ?>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <div>
+                        <label class="setting-label-sm">Margin Top (px)</label>
+                        <input type="number" v-model.number="settings.content3.marginTop" class="yab-form-input" placeholder="0">
+                    </div>
+                    <div>
+                        <label class="setting-label-sm">Margin Bottom (px)</label>
+                        <input type="number" v-model.number="settings.content3.marginBottom" class="yab-form-input" placeholder="0">
+                    </div>
+                </div>
+                <?php // --- END: ADDED MARGINS FOR CONTENT 3 --- ?>
             </div>
         </div>
     </div>

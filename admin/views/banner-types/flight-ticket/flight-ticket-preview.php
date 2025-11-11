@@ -53,9 +53,11 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
                             'flexGrow': 0, /* CHANGED from 1 to 0 */
                             'flexShrink': 1 
                          }">
-                      <span class="promo-banner__content_1" :style="{ color: settings.content1.color, fontSize: settings.content1.fontSize + 'px', fontWeight: settings.content1.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ settings.content1.text }}</span>
-                      <span class="promo-banner__content_2" :style="{ color: settings.content2.color, fontSize: settings.content2.fontSize + 'px', fontWeight: settings.content2.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ settings.content2.text }}</span>
-                      <span class="promo-banner__content_3" :style="{ color: settings.content3.color, fontSize: settings.content3.fontSize + 'px', fontWeight: settings.content3.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ settings.content3.text }}</span>
+                      <?php // --- START: DESKTOP STYLE UPDATE --- ?>
+                      <span class="promo-banner__content_1" :style="{ color: settings.content1.color, fontSize: settings.content1.fontSize + 'px', fontWeight: settings.content1.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word', marginTop: settings.content1.marginTop + 'px', marginBottom: settings.content1.marginBottom + 'px' }">{{ settings.content1.text }}</span>
+                      <span class="promo-banner__content_2" :style="{ color: settings.content2.color, fontSize: settings.content2.fontSize + 'px', fontWeight: settings.content2.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word', marginTop: settings.content2.marginTop + 'px', marginBottom: settings.content2.marginBottom + 'px' }">{{ settings.content2.text }}</span>
+                      <span class="promo-banner__content_3" :style="{ color: settings.content3.color, fontSize: settings.content3.fontSize + 'px', fontWeight: settings.content3.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word', marginTop: settings.content3.marginTop + 'px', marginBottom: settings.content3.marginBottom + 'px' }">{{ settings.content3.text }}</span>
+                      <?php // --- END: DESKTOP STYLE UPDATE --- ?>
                     </div>
                     <div class="ticket" :style="{ 'position': 'relative', 'flex-shrink': 0 }">
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 352px; height: 129px;">
@@ -149,9 +151,11 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
                             'flexGrow': 0, /* CHANGED from 1 to 0 */
                             'flexShrink': 1
                          }">
-                      <span class="promo-banner__content_1" :style="{ color: banner.flight_ticket.design.content1.color, fontSize: settings.content1.fontSize + 'px', fontWeight: settings.content1.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ banner.flight_ticket.design.content1.text }}</span>
-                      <span class="promo-banner__content_2" :style="{ color: banner.flight_ticket.design.content2.color, fontSize: settings.content2.fontSize + 'px', fontWeight: settings.content2.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ banner.flight_ticket.design.content2.text }}</span>
-                      <span class="promo-banner__content_3" :style="{ color: banner.flight_ticket.design.content3.color, fontSize: settings.content3.fontSize + 'px', fontWeight: settings.content3.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word' }">{{ banner.flight_ticket.design.content3.text }}</span>
+                      <?php // --- START: MOBILE STYLE UPDATE --- ?>
+                      <span class="promo-banner__content_1" :style="{ color: banner.flight_ticket.design.content1.color, fontSize: settings.content1.fontSize + 'px', fontWeight: settings.content1.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word', marginTop: settings.content1.marginTop + 'px', marginBottom: settings.content1.marginBottom + 'px' }">{{ banner.flight_ticket.design.content1.text }}</span>
+                      <span class="promo-banner__content_2" :style="{ color: banner.flight_ticket.design.content2.color, fontSize: settings.content2.fontSize + 'px', fontWeight: settings.content2.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word', marginTop: settings.content2.marginTop + 'px', marginBottom: settings.content2.marginBottom + 'px' }">{{ banner.flight_ticket.design.content2.text }}</span>
+                      <span class="promo-banner__content_3" :style="{ color: banner.flight_ticket.design.content3.color, fontSize: settings.content3.fontSize + 'px', fontWeight: settings.content3.fontWeight, whiteSpace: 'normal', wordWrap: 'break-word', marginTop: settings.content3.marginTop + 'px', marginBottom: settings.content3.marginBottom + 'px' }">{{ banner.flight_ticket.design.content3.text }}</span>
+                      <?php // --- END: MOBILE STYLE UPDATE --- ?>
                     </div>
                     <div class="ticket mobile-ticket-preview" :style="{ 'position': 'relative', 'flex-shrink': 0 }">
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4; width: 100%; height: 100%;">

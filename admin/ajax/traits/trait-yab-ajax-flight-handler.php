@@ -255,9 +255,32 @@ if (!trait_exists('Yab_Ajax_Flight_Handler')) {
 
             
             // START: ADDED white-space and word-wrap
-            $content1_style = sprintf('color: %s; font-size: %spx; font-weight: %s; white-space: normal; word-wrap: break-word;', esc_attr($desktop_design['content1']['color']), esc_attr($design['content1']['fontSize']), esc_attr($desktop_design['content1']['fontWeight']));
-            $content2_style = sprintf('color: %s; font-size: %spx; font-weight: %s; white-space: normal; word-wrap: break-word;', esc_attr($desktop_design['content2']['color']), esc_attr($design['content2']['fontSize']), esc_attr($desktop_design['content2']['fontWeight']));
-            $content3_style = sprintf('color: %s; font-size: %spx; font-weight: %s; white-space: normal; word-wrap: break-word;', esc_attr($desktop_design['content3']['color']), esc_attr($design['content3']['fontSize']), esc_attr($desktop_design['content3']['fontWeight']));
+            // --- START: UPDATED TO INCLUDE MARGINS ---
+            $content1_style = sprintf(
+                'color: %s; font-size: %spx; font-weight: %s; white-space: normal; word-wrap: break-word; margin-top: %spx; margin-bottom: %spx;',
+                esc_attr($desktop_design['content1']['color']),
+                esc_attr($design['content1']['fontSize']),
+                esc_attr($desktop_design['content1']['fontWeight']),
+                esc_attr($design['content1']['marginTop'] ?? 0), // Add marginTop
+                esc_attr($design['content1']['marginBottom'] ?? 0) // Add marginBottom
+            );
+            $content2_style = sprintf(
+                'color: %s; font-size: %spx; font-weight: %s; white-space: normal; word-wrap: break-word; margin-top: %spx; margin-bottom: %spx;',
+                esc_attr($desktop_design['content2']['color']),
+                esc_attr($design['content2']['fontSize']),
+                esc_attr($desktop_design['content2']['fontWeight']),
+                esc_attr($design['content2']['marginTop'] ?? 0), // Add marginTop
+                esc_attr($design['content2']['marginBottom'] ?? 0) // Add marginBottom
+            );
+            $content3_style = sprintf(
+                'color: %s; font-size: %spx; font-weight: %s; white-space: normal; word-wrap: break-word; margin-top: %spx; margin-bottom: %spx;',
+                esc_attr($desktop_design['content3']['color']),
+                esc_attr($design['content3']['fontSize']),
+                esc_attr($desktop_design['content3']['fontWeight']),
+                esc_attr($design['content3']['marginTop'] ?? 0), // Add marginTop
+                esc_attr($design['content3']['marginBottom'] ?? 0) // Add marginBottom
+            );
+            // --- END: UPDATED TO INCLUDE MARGINS ---
             // END: ADDED white-space and word-wrap
             
             $price_style = sprintf('color: %s; font-size: %spx; font-weight: %s;', esc_attr($desktop_design['price']['color']), esc_attr($design['price']['fontSize']), esc_attr($desktop_design['price']['fontWeight']));
@@ -374,9 +397,11 @@ HTML;
                 'contentWidth' => 100,
                 'contentWidthUnit' => '%',
                 // END: ADDED Content Width
-                'content1' => ['text' => 'Offering', 'color' => '#555555', 'fontSize' => 12, 'fontWeight' => '400'],
-                'content2' => ['text' => 'BEST DEALS', 'color' => '#111111', 'fontSize' => 18, 'fontWeight' => '700'],
-                'content3' => ['text' => 'on Iran Domestic Flight Booking', 'color' => '#333333', 'fontSize' => 14, 'fontWeight' => '400'],
+                // --- START: ADDED MARGINS TO DEFAULTS ---
+                'content1' => ['text' => 'Offering', 'color' => '#555555', 'fontSize' => 12, 'fontWeight' => '400', 'marginTop' => 0, 'marginBottom' => 0],
+                'content2' => ['text' => 'BEST DEALS', 'color' => '#111111', 'fontSize' => 18, 'fontWeight' => '700', 'marginTop' => 0, 'marginBottom' => 0],
+                'content3' => ['text' => 'on Iran Domestic Flight Booking', 'color' => '#333333', 'fontSize' => 14, 'fontWeight' => '400', 'marginTop' => 0, 'marginBottom' => 0],
+                // --- END: ADDED MARGINS TO DEFAULTS ---
                 'price' => ['color' => '#00BAA4', 'fontSize' => 17, 'fontWeight' => '700', 'fromFontSize' => 10],
                 'button' => [
                     'bgColor' => '#1EC2AF', 
@@ -410,6 +435,13 @@ HTML;
                     'button' => ['fontSize' => 8, 'paddingX' => 13, 'paddingY' => 4, 'borderRadius' => 4],
                     'fromCity' => ['fontSize' => 8],
                     'toCity' => ['fontSize' => 8],
+                    
+                    // --- START: Explicitly add mobile margin defaults (even if 0) ---
+                    // This isn't strictly needed if they inherit 0, but it's safer.
+                    'content1' => ['marginTop' => 0, 'marginBottom' => 0],
+                    'content2' => ['marginTop' => 0, 'marginBottom' => 0],
+                    'content3' => ['marginTop' => 0, 'marginBottom' => 0],
+                    // --- END: Explicitly add mobile margin defaults ---
                 ];
                 // Deep merge: Start with defaults, apply desktop, then apply mobile-specific defaults, then apply saved mobile settings
                 $mobile_design = array_replace_recursive($defaults, $desktop_design, $mobile_defaults, $mobile_design);

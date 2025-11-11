@@ -49,18 +49,24 @@ export const createDefaultFlightTicketPart = () => ({
             color: '#555555',
             fontSize: 12,
             fontWeight: '400',
+            marginTop: 0, // <<< ADDED
+            marginBottom: 0 // <<< ADDED
         },
         content2: {
             text: 'BEST DEALS',
             color: '#111111',
             fontSize: 18,
             fontWeight: '700', // bold
+            marginTop: 0, // <<< ADDED
+            marginBottom: 0 // <<< ADDED
         },
         content3: {
             text: 'on Iran Domestic Flight Booking',
             color: '#333333',
             fontSize: 14,
             fontWeight: '400',
+            marginTop: 0, // <<< ADDED
+            marginBottom: 0 // <<< ADDED
         },
 
         // .ticket__price-amount
@@ -134,6 +140,8 @@ export const createDefaultFlightTicketMobilePart = () => {
     mobileDefaults.design.contentWidth = 100;
     mobileDefaults.design.contentWidthUnit = '%';
     // END: Added Content Width
+    
+    // مقادیر margin (0) از دسکتاپ به ارث می‌رسند و نیازی به بازنویسی ندارند
 
     return mobileDefaults;
 };
