@@ -1,43 +1,47 @@
 // tappersia/assets/js/admin/app-logic/composables/useBannerSync.js
 const { watch } = Vue;
-// --- START: FIX ---
-// Corrected the import path from '../composables/...' to '../../composables/...'
-import { createDefaultPart, createDefaultMobilePart ,createDefaultHotelCarouselMobilePart,createDefaultTourCarouselMobilePart} from '../../composables/banner-state/defaults/index.js';
-// --- END: FIX ---
+
+import { 
+    createDefaultPart, createDefaultMobilePart ,
+    createDefaultHotelCarouselMobilePart,createDefaultTourCarouselMobilePart,
+    createDefaultSimplePart, createDefaultSimpleBannerMobilePart,
+    createDefaultStickySimplePart, createDefaultStickySimpleMobilePart
+} from '../../composables/banner-state/defaults/index.js';
 
 export function useBannerSync(banner, currentView) {
     
-    // --- START: Define defaults for sync logic ---
+    // --- 🚀 [DEBUGGER] INITIALIZATION ---
+    console.log(`🚀 [DEBUGGER] useBannerSync INITIALIZED for banner type: ${banner.type}`);
+    
     const singleDesktopDefaults = createDefaultPart();
     const singleMobileDefaults = createDefaultMobilePart();
-    // ... (other defaults can be added here if needed for other types)
-    // --- END: Define defaults ---
+    const simpleDesktopDefaults = createDefaultSimplePart();
+    const simpleMobileDefaults = createDefaultSimpleBannerMobilePart();
+    const stickyDesktopDefaults = createDefaultStickySimplePart();
+    const stickyMobileDefaults = createDefaultStickySimpleMobilePart();
 
-    // Sync logic when switching from desktop to mobile view for the first time
+    // --- 1. INITIAL SYNC (When user clicks 'mobile' tab) ---
     watch(currentView, (newView) => {
+        
+        console.log(`🚀 [DEBUGGER] View changed to: ${newView}`);
 
-        // --- START: REWRITTEN Single Banner Sync Logic ---
-        if (banner.type === 'single-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
+        // --- Simple Banner: INITIAL Sync ---
+        if (banner.type === 'simple-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
+            console.log('🚀 [DEBUGGER] Running INITIAL sync for simple-banner...');
             banner.isMobileConfigured = true;
             
-            // --- Perform initial sync based on new rules ---
-            const desktop = banner.single;
-            const mobile = banner.single_mobile;
-
+            const desktop = banner.simple;
+            const mobile = banner.simple_mobile;
             const propertiesToSync = [
-                'layerOrder', 'alignment', 'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
-                'titleText', 'titleColor', 'titleWeight',
-                'descText', 'descColor', 'descWeight',
+                'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops', 'text', 'textColor', 'textWeight',
                 'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
-                'imageUrl', 'enableBorder', 'borderColor'
+                'enableBorder', 'borderColor', 'direction'
             ];
             
             for (const prop of propertiesToSync) {
                 const desktopVal = desktop[prop];
-                const desktopDefault = singleDesktopDefaults[prop];
+                const desktopDefault = simpleDesktopDefaults[prop];
                 
-                // If desktop value is NOT default, sync it to mobile.
-                // Mobile is guaranteed to be at its default state here.
                 let isDesktopDefault;
                 if (typeof desktopVal === 'object' && desktopVal !== null) {
                     isDesktopDefault = JSON.stringify(desktopVal) === JSON.stringify(desktopDefault);
@@ -46,477 +50,339 @@ export function useBannerSync(banner, currentView) {
                 }
 
                 if (!isDesktopDefault) {
-                    // Sync non-default desktop value to mobile
+                    console.log(`  > INITIAL Syncing [${prop}]: ${desktopVal}`);
                     if (typeof desktopVal === 'object' && desktopVal !== null) {
                         mobile[prop] = JSON.parse(JSON.stringify(desktopVal));
                     } else {
                         mobile[prop] = desktopVal;
                     }
                 }
-                // If desktop IS default, we do nothing, letting mobile keep its own default.
             }
         }
-        // --- END: REWRITTEN Single Banner Sync Logic ---
-
-        if (banner.type === 'simple-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
-             banner.simple_mobile = JSON.parse(JSON.stringify(banner.simple));
-             // Apply mobile overrides
-            banner.simple_mobile.minHeight = 7;
-            banner.simple_mobile.paddingY = 24;
-            banner.simple_mobile.paddingX = 20;
-            banner.simple_mobile.textSize = 17;
-            banner.simple_mobile.buttonFontSize = 8;
-            banner.simple_mobile.buttonPaddingY = 8;
-            banner.simple_mobile.buttonPaddingX = 12;
-            banner.simple_mobile.buttonMinWidth = 0;
-            banner.isMobileConfigured = true;
-        }
+        
+        // --- Sticky Simple Banner: INITIAL Sync ---
          if (banner.type === 'sticky-simple-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
-             banner.sticky_simple_mobile = JSON.parse(JSON.stringify(banner.sticky_simple));
-             // Apply mobile overrides
-             banner.sticky_simple_mobile.minHeight = 7;
-             banner.sticky_simple_mobile.paddingY = 24;
-             banner.sticky_simple_mobile.paddingX = 20;
-             banner.sticky_simple_mobile.textSize = 17;
-             banner.sticky_simple_mobile.buttonFontSize = 8;
-             banner.sticky_simple_mobile.buttonPaddingY = 8;
-             banner.sticky_simple_mobile.buttonPaddingX = 12;
-             banner.sticky_simple_mobile.buttonMinWidth = 0;
+            console.log('🚀 [DEBUGGER] Running INITIAL sync for sticky-simple-banner...');
             banner.isMobileConfigured = true;
-         }
+            
+            const desktop = banner.sticky_simple;
+            const mobile = banner.sticky_simple_mobile;
+            const propertiesToSync = [
+                'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops', 'text', 'textColor', 'textWeight',
+                'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
+                'enableBorder', 'borderColor', 'direction'
+            ];
+            
+            for (const prop of propertiesToSync) {
+                const desktopVal = desktop[prop];
+                const desktopDefault = stickyDesktopDefaults[prop]; 
+                
+                let isDesktopDefault;
+                if (typeof desktopVal === 'object' && desktopVal !== null) {
+                    isDesktopDefault = JSON.stringify(desktopVal) === JSON.stringify(desktopDefault);
+                } else {
+                    isDesktopDefault = desktopVal === desktopDefault;
+                }
 
+                if (!isDesktopDefault) {
+                    console.log(`  > INITIAL Syncing [${prop}]: ${desktopVal}`);
+                    if (typeof desktopVal === 'object' && desktopVal !== null) {
+                        mobile[prop] = JSON.parse(JSON.stringify(desktopVal));
+                    } else {
+                        mobile[prop] = desktopVal;
+                    }
+                }
+            }
+         }
+         
+         // ... (other banner types' initial sync logic remains here) ...
+         // --- START: Other types ---
+        if (banner.type === 'single-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
+            banner.isMobileConfigured = true;
+            const desktop = banner.single;
+            const mobile = banner.single_mobile;
+            const propertiesToSync = [
+                'layerOrder', 'alignment', 'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
+                'titleText', 'titleColor', 'titleWeight', 'descText', 'descColor', 'descWeight',
+                'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
+                'imageUrl', 'enableBorder', 'borderColor'
+            ];
+            for (const prop of propertiesToSync) {
+                const desktopVal = desktop[prop];
+                const desktopDefault = singleDesktopDefaults[prop];
+                let isDesktopDefault;
+                if (typeof desktopVal === 'object' && desktopVal !== null) {
+                    isDesktopDefault = JSON.stringify(desktopVal) === JSON.stringify(desktopDefault);
+                } else {
+                    isDesktopDefault = desktopVal === desktopDefault;
+                }
+                if (!isDesktopDefault) {
+                    if (typeof desktopVal === 'object' && desktopVal !== null) {
+                        mobile[prop] = JSON.parse(JSON.stringify(desktopVal));
+                    } else {
+                        mobile[prop] = desktopVal;
+                    }
+                }
+            }
+        }
         if (banner.type === 'promotion-banner' && newView === 'mobile' && !banner.isMobileConfigured) {
             banner.promotion_mobile = JSON.parse(JSON.stringify(banner.promotion));
-             // Apply mobile overrides
-            banner.promotion_mobile.headerPaddingX = 15;
-            banner.promotion_mobile.headerPaddingY = 10;
-            banner.promotion_mobile.headerFontSize = 14;
-            banner.promotion_mobile.iconSize = 24;
-            banner.promotion_mobile.bodyPaddingX = 15;
-            banner.promotion_mobile.bodyPaddingY = 15;
-            banner.promotion_mobile.bodyFontSize = 12;
-            banner.promotion_mobile.bodyLineHeight = '22px';
+            banner.promotion_mobile.headerPaddingX = 15; banner.promotion_mobile.headerPaddingY = 10; banner.promotion_mobile.headerFontSize = 14;
+            banner.promotion_mobile.iconSize = 24; banner.promotion_mobile.bodyPaddingX = 15; banner.promotion_mobile.bodyPaddingY = 15;
+            banner.promotion_mobile.bodyFontSize = 12; banner.promotion_mobile.bodyLineHeight = '22px';
             banner.isMobileConfigured = true;
         }
-
         if (banner.type === 'double-banner' && newView === 'mobile' && !banner.double.isMobileConfigured) {
             banner.double.mobile.left = JSON.parse(JSON.stringify(banner.double.desktop.left));
             banner.double.mobile.right = JSON.parse(JSON.stringify(banner.double.desktop.right));
-            // Apply mobile overrides for left
-            banner.double.mobile.left.minHeight = 150;
-            banner.double.mobile.left.paddingY = 20;
-            banner.double.mobile.left.paddingX = 20;
-            banner.double.mobile.left.titleSize = 14;
-            banner.double.mobile.left.descSize = 12;
-            banner.double.mobile.left.marginTopDescription = 8;
-            banner.double.mobile.left.contentWidth = 100;
-            banner.double.mobile.left.contentWidthUnit = '%';
-            banner.double.mobile.left.buttonFontSize = 11;
-            banner.double.mobile.left.buttonPaddingY = 10;
-            banner.double.mobile.left.buttonPaddingX = 16;
-            // Apply mobile overrides for right
-            banner.double.mobile.right.minHeight = 150;
-            banner.double.mobile.right.paddingY = 20;
-            banner.double.mobile.right.paddingX = 20;
-            banner.double.mobile.right.titleSize = 14;
-            banner.double.mobile.right.descSize = 12;
-            banner.double.mobile.right.marginTopDescription = 8;
-            banner.double.mobile.right.contentWidth = 100;
-            banner.double.mobile.right.contentWidthUnit = '%';
-            banner.double.mobile.right.buttonFontSize = 11;
-            banner.double.mobile.right.buttonPaddingY = 10;
-            banner.double.mobile.right.buttonPaddingX = 16;
-
+            banner.double.mobile.left.minHeight = 150; banner.double.mobile.left.paddingY = 20; banner.double.mobile.left.paddingX = 20;
+            banner.double.mobile.left.titleSize = 14; banner.double.mobile.left.descSize = 12; banner.double.mobile.left.marginTopDescription = 8;
+            banner.double.mobile.left.contentWidth = 100; banner.double.mobile.left.contentWidthUnit = '%';
+            banner.double.mobile.left.buttonFontSize = 11; banner.double.mobile.left.buttonPaddingY = 10; banner.double.mobile.left.buttonPaddingX = 16;
+            banner.double.mobile.right.minHeight = 150; banner.double.mobile.right.paddingY = 20; banner.double.mobile.right.paddingX = 20;
+            banner.double.mobile.right.titleSize = 14; banner.double.mobile.right.descSize = 12; banner.double.mobile.right.marginTopDescription = 8;
+            banner.double.mobile.right.contentWidth = 100; banner.double.mobile.right.contentWidthUnit = '%';
+            banner.double.mobile.right.buttonFontSize = 11; banner.double.mobile.right.buttonPaddingY = 10; banner.double.mobile.right.buttonPaddingX = 16;
             banner.double.isMobileConfigured = true;
         }
-
         if (banner.type === 'api-banner' && newView === 'mobile' && !banner.api.isMobileConfigured) {
-            // *** START: API BANNER SYNC LOGIC ***
             banner.api.design_mobile = JSON.parse(JSON.stringify(banner.api.design));
-             // Apply mobile overrides
-            banner.api.design_mobile.minHeight = 80; // *** 2. Changed from height ***
-            banner.api.design_mobile.imageContainerWidth = 140;
-            banner.api.design_mobile.imageContainerWidthUnit = 'px'; // *** 1. Added ***
-            banner.api.design_mobile.paddingY = 12; // *** 3. Changed ***
-            banner.api.design_mobile.paddingX = 20; // *** 3. Changed ***
-            // *** 3. Remove old padding keys if they exist ***
-            delete banner.api.design_mobile.paddingTop;
-            delete banner.api.design_mobile.paddingBottom;
-            delete banner.api.design_mobile.paddingLeft;
-            delete banner.api.design_mobile.paddingRight;
-            
-            banner.api.design_mobile.titleSize = 16; 
-            banner.api.design_mobile.starSize = 11;
-            banner.api.design_mobile.citySize = 11;
-            banner.api.design_mobile.ratingBoxSize = 10;
-            banner.api.design_mobile.ratingTextSize = 10;
-            banner.api.design_mobile.reviewSize = 8;
-            banner.api.design_mobile.priceAmountSize = 12;
-            banner.api.design_mobile.priceFromSize = 9;
+            banner.api.design_mobile.minHeight = 80; banner.api.design_mobile.imageContainerWidth = 140; banner.api.design_mobile.imageContainerWidthUnit = 'px';
+            banner.api.design_mobile.paddingY = 12; banner.api.design_mobile.paddingX = 20;
+            delete banner.api.design_mobile.paddingTop; delete banner.api.design_mobile.paddingBottom; delete banner.api.design_mobile.paddingLeft; delete banner.api.design_mobile.paddingRight;
+            banner.api.design_mobile.titleSize = 16; banner.api.design_mobile.starSize = 11; banner.api.design_mobile.citySize = 11;
+            banner.api.design_mobile.ratingBoxSize = 10; banner.api.design_mobile.ratingTextSize = 10; banner.api.design_mobile.reviewSize = 8;
+            banner.api.design_mobile.priceAmountSize = 12; banner.api.design_mobile.priceFromSize = 9;
             banner.api.isMobileConfigured = true;
-            // *** END: API BANNER SYNC LOGIC ***
         }
-
-if (banner.type === 'tour-carousel' && newView === 'mobile' && !banner.tour_carousel.isMobileConfigured) {
-            const desktop = banner.tour_carousel.settings;
-            const mobile = banner.tour_carousel.settings_mobile;
-            
-            // +++ START: MODIFICATION FOR CARD WIDTH +++
-            // 1. عرض کارت پیش‌فرض موبایل را بگیرید
+        if (banner.type === 'tour-carousel' && newView === 'mobile' && !banner.tour_carousel.isMobileConfigured) {
+            const desktop = banner.tour_carousel.settings; const mobile = banner.tour_carousel.settings_mobile;
             const mobileDefaultCardWidth = createDefaultTourCarouselMobilePart().cardWidth;
-
-            // 2. تنظیمات دسکتاپ را در موبایل کپی کنید
             const desktopSettingsCopy = JSON.parse(JSON.stringify(desktop));
             Object.assign(mobile, desktopSettingsCopy);
-
-            // 3. تنظیمات پیش‌فرض چیدمان موبایل را بازگردانید
-            mobile.slidesPerView = 1;
-            mobile.spaceBetween = 15; // (یا هر مقدار پیش‌فرض موبایل که دارید)
-
-            // 4. عرض کارت پیش‌فرض موبایل را بازگردانید
-            mobile.cardWidth = mobileDefaultCardWidth;
-            // +++ END: MODIFICATION FOR CARD WIDTH +++
-
-             // (این کدهای قبلی شما هستند، آنها را نگه دارید)
-             mobile.card.height = 375; 
-             mobile.card.padding = 9;
-             mobile.card.borderRadius = 14;
-             mobile.card.borderWidth = 1;
-             mobile.card.imageHeight = 204;
-             
+            mobile.slidesPerView = 1; mobile.spaceBetween = 15; mobile.cardWidth = mobileDefaultCardWidth;
+            mobile.card.height = 375; mobile.card.padding = 9; mobile.card.borderRadius = 14;
+            mobile.card.borderWidth = 1; mobile.card.imageHeight = 204;
             banner.tour_carousel.isMobileConfigured = true;
         }
-
-        // --- START: ADDED HOTEL CAROUSEL SYNC ---
-// --- START: ADDED HOTEL CAROUSEL SYNC ---
         if (banner.type === 'hotel-carousel' && newView === 'mobile' && !banner.hotel_carousel.isMobileConfigured) {
-            const desktop = banner.hotel_carousel.settings;
-            const mobile = banner.hotel_carousel.settings_mobile;
-
-            // --- +++ START: MODIFICATION FOR CARD WIDTH +++ ---
-            // 1. Get the mobile default card width *before* overwriting
-            // (این کار نیازمند import کردن createDefaultHotelCarouselMobilePart در بالای فایل است)
+            const desktop = banner.hotel_carousel.settings; const mobile = banner.hotel_carousel.settings_mobile;
             const mobileDefaultCardWidth = createDefaultHotelCarouselMobilePart().cardWidth;
-
-            // 2. Deep copy all desktop settings to mobile on first switch
-            // (این کار رنگ‌ها، استایل‌ها و همچنین cardWidth دسکتاپ را کپی می‌کند)
             const desktopSettingsCopy = JSON.parse(JSON.stringify(desktop));
             Object.assign(mobile, desktopSettingsCopy);
-
-            // 3. Apply specific mobile overrides (mirroring tour carousel)
-            mobile.slidesPerView = 1;
-            mobile.spaceBetween = 15; // Set to mobile default
-
-            // 4. Restore the mobile default cardWidth, overwriting the value synced from desktop
-            // (این خط تضمین می‌کند که عرض کارت موبایل مستقل باقی بماند)
-            mobile.cardWidth = mobileDefaultCardWidth;
-            // --- +++ END: MODIFICATION FOR CARD WIDTH +++ ---
-
-
-            // Explicitly ensure mobile card settings match desktop initially if needed
-            // (Deep copy بیشتر اینها را انجام داده است، اما برای اطمینان باقی می‌مانند)
-            mobile.card.minHeight = desktop.card.minHeight;
-             mobile.card.padding = desktop.card.padding;
-             mobile.card.borderRadius = desktop.card.borderRadius;
-             mobile.card.borderWidth = desktop.card.borderWidth;
-             mobile.card.image.height = desktop.card.image.height;
-             mobile.card.image.radius = desktop.card.image.radius;
-             // ... copy other relevant card settings if needed, but deep copy should handle it ...
-
+            mobile.slidesPerView = 1; mobile.spaceBetween = 15; mobile.cardWidth = mobileDefaultCardWidth;
+            mobile.card.minHeight = desktop.card.minHeight; mobile.card.padding = desktop.card.padding;
+            mobile.card.borderRadius = desktop.card.borderRadius; mobile.card.borderWidth = desktop.card.borderWidth;
+            mobile.card.image.height = desktop.card.image.height; mobile.card.image.radius = desktop.card.image.radius;
             banner.hotel_carousel.isMobileConfigured = true;
         }
-        // --- END: ADDED HOTEL CAROUSEL SYNC ---
-        // --- END: ADDED HOTEL CAROUSEL SYNC ---
-        
-        // +++ START: --- FIX for Flight Ticket Sync --- +++
         if (banner.type === 'flight-ticket' && newView === 'mobile' && !banner.flight_ticket.isMobileConfigured) {
-            const desktop = banner.flight_ticket.design;
-            const mobile = banner.flight_ticket.design_mobile;
-
-            // به جای کپی کامل آبجکت، فقط مقادیر مشترک (متن، رنگ، عکس) را همگام‌سازی می‌کنیم
-            // این کار باعث حفظ دیفالت‌های مخصوص موبایل (مثل minHeight, padding, fontSize) می‌شود
-            // که از قبل در bannerState.js ست شده‌اند.
-
-            // همگام‌سازی مقادیر مشترک (متن‌ها، رنگ‌ها، تصویر)
-            mobile.layerOrder = desktop.layerOrder;
-            mobile.backgroundType = desktop.backgroundType;
-            mobile.bgColor = desktop.bgColor;
-            mobile.gradientAngle = desktop.gradientAngle;
-            mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
-            
+            const desktop = banner.flight_ticket.design; const mobile = banner.flight_ticket.design_mobile;
+            mobile.layerOrder = desktop.layerOrder; mobile.backgroundType = desktop.backgroundType; mobile.bgColor = desktop.bgColor;
+            mobile.gradientAngle = desktop.gradientAngle; mobile.gradientStops = JSON.parse(JSON.stringify(desktop.gradientStops));
             mobile.imageUrl = desktop.imageUrl;
-
-            mobile.content1.text = desktop.content1.text;
-            mobile.content1.color = desktop.content1.color;
-            mobile.content2.text = desktop.content2.text;
-            mobile.content2.color = desktop.content2.color;
-            mobile.content3.text = desktop.content3.text;
-            mobile.content3.color = desktop.content3.color;
-
-            mobile.price.color = desktop.price.color;
-            mobile.button.bgColor = desktop.button.bgColor;
-            mobile.button.BgHoverColor = desktop.button.BgHoverColor;
-            mobile.button.color = desktop.button.color;
-            mobile.fromCity.color = desktop.fromCity.color;
-            mobile.toCity.color = desktop.toCity.color;
-
-            // مقادیر چیدمان مخصوص موبایل (minHeight, padding, fontSizes و...)
-            // که از createDefaultFlightTicketMobilePart آمده‌اند، دست نخورده باقی می‌مانند.
-            
+            mobile.content1.text = desktop.content1.text; mobile.content1.color = desktop.content1.color;
+            mobile.content2.text = desktop.content2.text; mobile.content2.color = desktop.content2.color;
+            mobile.content3.text = desktop.content3.text; mobile.content3.color = desktop.content3.color;
+            mobile.price.color = desktop.price.color; mobile.button.bgColor = desktop.button.bgColor;
+            mobile.button.BgHoverColor = desktop.button.BgHoverColor; mobile.button.color = desktop.button.color;
+            mobile.fromCity.color = desktop.fromCity.color; mobile.toCity.color = desktop.toCity.color;
             banner.flight_ticket.isMobileConfigured = true;
         }
-        // +++ END: --- FIX for Flight Ticket Sync --- +++
+         // --- END: Other types ---
 
     });
 
-    // Continuous sync for shared properties from desktop to mobile
+    // --- 2. CONTINUOUS SYNC (This is what we need to debug) ---
     
-    // --- START: REWRITTEN Single Banner Continuous Sync ---
-    watch(() => banner.single, (newDesktop, oldDesktop) => {
-        if (banner.type !== 'single-banner' || !banner.isMobileConfigured) return; 
+    /**
+     * Helper function to create the core sync logic with detailed logging.
+     * @param {string} bannerType - The banner type (e.g., 'simple-banner')
+     * @param {object} mobileState - The mobile state object (e.g., banner.simple_mobile)
+     * @param {object} mobileDefaults - The mobile defaults object (e.g., simpleMobileDefaults)
+     * @param {object} newDesktop - The new desktop state
+     * @param {object} oldDesktop - The old desktop state
+     * @param {string[]} propertiesToSync - Array of property names to sync
+     */
+    const runContinuousSyncDebug = (bannerType, mobileState, mobileDefaults, newDesktop, oldDesktop, propertiesToSync) => {
         
-        const mobile = banner.single_mobile;
-
-        // Helper to sync a property if mobile hasn't been "manually" changed.
-        const syncProperty = (propName) => {
-            // If desktop value didn't change, do nothing
-            if (!oldDesktop || newDesktop[propName] === oldDesktop[propName]) {
-                return; 
-            }
-
-            const mobileValue = mobile[propName];
-            const oldDesktopValue = oldDesktop[propName];
-            const mobileDefault = singleMobileDefaults[propName];
-
-            let isMobileUntouched;
-            if (typeof mobileValue === 'object' && mobileValue !== null) {
-                // For objects/arrays, compare stringified versions
-                isMobileUntouched = JSON.stringify(mobileValue) === JSON.stringify(oldDesktopValue) || 
-                                    JSON.stringify(mobileValue) === JSON.stringify(mobileDefault);
+        console.log(`🔥 [DEBUGGER] CONTINUOUS Sync Watcher FIRED for: ${bannerType}`);
+    
+        for (const propName of propertiesToSync) {
+            const newDeskVal = newDesktop[propName];
+            const oldDeskVal = oldDesktop ? oldDesktop[propName] : undefined; // *** FIX: Safe access for oldDesktop ***
+    
+            // 1. Check if desktop value actually changed
+            let deskValChanged;
+            if (typeof newDeskVal === 'object' && newDeskVal !== null) {
+                deskValChanged = JSON.stringify(newDeskVal) !== JSON.stringify(oldDeskVal);
             } else {
-                // For primitives
-                isMobileUntouched = mobileValue === oldDesktopValue || mobileValue === mobileDefault;
+                deskValChanged = newDeskVal !== oldDeskVal;
             }
-
+    
+            if (!deskValChanged) {
+                continue; // This property didn't change, skip to the next property
+            }
+    
+            // 2. OK, it changed. Log everything.
+            console.log(`--- [${bannerType}] Property Changed: [${propName}] ---`);
+            console.log(`  > Desktop Value:`, oldDeskVal, '->', newDeskVal);
+    
+            const mobileVal = mobileState[propName];
+            const mobileDefaultVal = mobileDefaults[propName];
+    
+            // 3. Check if mobile is "untouched"
+            let isMobileLikeOldDesktop;
+            let isMobileLikeDefault;
+    
+            if (typeof mobileVal === 'object' && mobileVal !== null) {
+                // *** FIX: Safe access for oldDeskVal ***
+                isMobileLikeOldDesktop = JSON.stringify(mobileVal) === JSON.stringify(oldDeskVal);
+                isMobileLikeDefault = JSON.stringify(mobileVal) === JSON.stringify(mobileDefaultVal);
+            } else {
+                // *** FIX: Safe access for oldDeskVal ***
+                isMobileLikeOldDesktop = mobileVal === oldDeskVal;
+                isMobileLikeDefault = mobileVal === mobileDefaultVal;
+            }
+    
+            // Mobile is "untouched" if it still matches the *old* desktop value (it was following)
+            // OR if it's still at its own default value (it was never touched at all).
+            const isMobileUntouched = isMobileLikeOldDesktop || isMobileLikeDefault;
+    
+            console.log(`  > Current Mobile Value:`, mobileVal);
+            console.log(`  > Mobile Default Value:`, mobileDefaultVal);
+            console.log(`  > Was Mobile == Old Desktop?`, isMobileLikeOldDesktop);
+            console.log(`  > Was Mobile == Mobile Default?`, isMobileLikeDefault);
+            console.log(`  > Is Mobile "Untouched"?`, isMobileUntouched);
+    
+            // 4. Sync if untouched
             if (isMobileUntouched) {
-                // Mobile is untouched (or was following desktop), so sync it with the new desktop value.
-                if (typeof newDesktop[propName] === 'object' && newDesktop[propName] !== null) {
-                    mobile[propName] = JSON.parse(JSON.stringify(newDesktop[propName]));
+                console.log(`  > ✅ [${propName}] SYNCING! Setting mobile to new desktop value.`);
+                if (typeof newDeskVal === 'object' && newDeskVal !== null) {
+                    mobileState[propName] = JSON.parse(JSON.stringify(newDeskVal));
                 } else {
-                    mobile[propName] = newDesktop[propName];
+                    mobileState[propName] = newDeskVal;
                 }
+            } else {
+                console.log(`  > ❌ [${propName}] NOT SYNCING. Mobile value appears manually changed.`);
             }
-        };
-        
-        // List of properties that should sync from desktop to mobile.
-        // We *exclude* properties that have different desktop/mobile defaults and are layout-specific.
+            console.log(`--- End [${propName}] ---`);
+        }
+    };
+    
+    // --- Single Banner: CONTINUOUS Sync (The working example) ---
+    watch(() => banner.single, (newDesktop, oldDesktop) => {
+        if (banner.type !== 'single-banner') return; 
         const propertiesToSync = [
             'layerOrder', 'alignment', 'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
-            'titleText', 'titleColor', 'titleWeight',
-            'descText', 'descColor', 'descWeight',
+            'titleText', 'titleColor', 'titleWeight', 'descText', 'descColor', 'descWeight',
             'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
             'imageUrl', 'enableBorder', 'borderColor'
-            // We intentionally DO NOT sync:
-            // minHeight, contentWidth, contentWidthUnit, paddingY, paddingX,
-            // titleSize, descSize, marginTopDescription, marginBottomDescription,
-            // buttonFontSize, buttonBorderRadius, buttonPaddingY, buttonPaddingX,
-            // enableCustomImageSize, imageWidth, imageWidthUnit, imageHeight, imageHeightUnit,
-            // imagePosRight, imagePosBottom
-            // (The last 7 image props are now editable on mobile, so they must not be synced)
         ];
-
-        for (const prop of propertiesToSync) {
-            syncProperty(prop);
-        }
-
+        runContinuousSyncDebug('single-banner', banner.single_mobile, singleMobileDefaults, newDesktop, oldDesktop, propertiesToSync);
     }, { deep: true });
-    // --- END: REWRITTEN Single Banner Continuous Sync ---
 
+    
+    // --- Simple Banner: CONTINUOUS Sync (The broken one) ---
+    watch(() => banner.simple, (newDesktop, oldDesktop) => {
+        if (banner.type !== 'simple-banner') return;
+        const propertiesToSync = [
+            'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
+            'text', 'textColor', 'textWeight',
+            'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
+            'enableBorder', 'borderColor', 'direction'
+        ];
+        runContinuousSyncDebug('simple-banner', banner.simple_mobile, simpleMobileDefaults, newDesktop, oldDesktop, propertiesToSync);
+     }, { deep: true });
+     
 
-    watch(() => banner.simple, (newDesktop) => {
-        if (banner.type !== 'simple-banner' || !banner.isMobileConfigured) return;
-        const mobile = banner.simple_mobile;
-        mobile.text = newDesktop.text;
-        mobile.textColor = newDesktop.textColor;
-        mobile.buttonText = newDesktop.buttonText;
-        mobile.buttonLink = newDesktop.buttonLink;
-        mobile.buttonBgColor = newDesktop.buttonBgColor;
-        mobile.buttonBgHoverColor = newDesktop.buttonBgHoverColor; // <<< افزوده شد
-        mobile.buttonTextColor = newDesktop.buttonTextColor;
-        mobile.direction = newDesktop.direction; // Sync direction
+    // --- Sticky Simple Banner: CONTINUOUS Sync (The broken one) ---
+    watch(() => banner.sticky_simple, (newDesktop, oldDesktop) => {
+        if (banner.type !== 'sticky-simple-banner') return;
+        const propertiesToSync = [
+            'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
+            'text', 'textColor', 'textWeight',
+            'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
+            'enableBorder', 'borderColor', 'direction'
+        ];
+        runContinuousSyncDebug('sticky-simple-banner', banner.sticky_simple_mobile, stickyMobileDefaults, newDesktop, oldDesktop, propertiesToSync);
      }, { deep: true });
 
-    watch(() => banner.sticky_simple, (newDesktop) => {
-        if (banner.type !== 'sticky-simple-banner' || !banner.isMobileConfigured) return;
-        const mobile = banner.sticky_simple_mobile;
-        mobile.text = newDesktop.text;
-        mobile.textColor = newDesktop.textColor;
-        mobile.buttonText = newDesktop.buttonText;
-        mobile.buttonLink = newDesktop.buttonLink;
-        mobile.buttonBgColor = newDesktop.buttonBgColor;
-        mobile.buttonBgHoverColor = newDesktop.buttonBgHoverColor; // <<< افزوده شد
-        mobile.buttonTextColor = newDesktop.buttonTextColor;
-        mobile.direction = newDesktop.direction; // Sync direction
-     }, { deep: true });
-
+     
+     // ... (other banner types' continuous sync logic remains here) ...
+     // --- START: Other types ---
      watch(() => banner.promotion, (newDesktop) => {
         if (banner.type !== 'promotion-banner' || !banner.isMobileConfigured) return;
         const mobile = banner.promotion_mobile;
-         mobile.direction = newDesktop.direction;
-         mobile.headerText = newDesktop.headerText;
-         mobile.headerTextColor = newDesktop.headerTextColor;
-         mobile.bodyText = newDesktop.bodyText;
-         mobile.bodyTextColor = newDesktop.bodyTextColor;
-         mobile.links = JSON.parse(JSON.stringify(newDesktop.links)); // Deep copy links
-         mobile.borderColor = newDesktop.borderColor;
-         mobile.iconUrl = newDesktop.iconUrl; // Sync icon URL
-         // --- START: Added enableBorder sync ---
-         mobile.enableBorder = newDesktop.enableBorder;
-         // --- END: Added enableBorder sync ---
+         mobile.direction = newDesktop.direction; mobile.headerText = newDesktop.headerText; mobile.headerTextColor = newDesktop.headerTextColor;
+         mobile.bodyText = newDesktop.bodyText; mobile.bodyTextColor = newDesktop.bodyTextColor;
+         mobile.links = JSON.parse(JSON.stringify(newDesktop.links));
+         mobile.borderColor = newDesktop.borderColor; mobile.iconUrl = newDesktop.iconUrl; mobile.enableBorder = newDesktop.enableBorder;
      }, { deep: true });
-
-
     watch(() => banner.double.desktop, (newDesktop) => {
         if (banner.type !== 'double-banner' || !banner.double.isMobileConfigured) return;
         ['left', 'right'].forEach(position => {
-            const desk = newDesktop[position];
-            const mob = banner.double.mobile[position];
-            mob.imageUrl = desk.imageUrl;
-            mob.alignment = desk.alignment;
-            mob.contentWidth = desk.contentWidth;
-            mob.contentWidthUnit = desk.contentWidthUnit;
-            mob.paddingX = desk.paddingX;
-            mob.paddingY = desk.paddingY;
-            mob.titleText = desk.titleText;
-            mob.titleColor = desk.titleColor;
-            mob.descText = desk.descText;
-            mob.descColor = desk.descColor;
-            mob.buttonText = desk.buttonText;
-            mob.buttonLink = desk.buttonLink;
-            mob.buttonBgColor = desk.buttonBgColor;
-            mob.buttonTextColor = desk.buttonTextColor;
-            mob.buttonBgHoverColor = desk.buttonBgHoverColor;
-            mob.buttonPaddingX = desk.buttonPaddingX;
-            mob.buttonPaddingY = desk.buttonPaddingY;
-            mob.borderColor = desk.borderColor; // Sync border color
-            mob.layerOrder = desk.layerOrder; // Sync layer order
+            const desk = newDesktop[position]; const mob = banner.double.mobile[position];
+            mob.imageUrl = desk.imageUrl; mob.alignment = desk.alignment; mob.contentWidth = desk.contentWidth; mob.contentWidthUnit = desk.contentWidthUnit;
+            mob.paddingX = desk.paddingX; mob.paddingY = desk.paddingY; mob.titleText = desk.titleText; mob.titleColor = desk.titleColor;
+            mob.descText = desk.descText; mob.descColor = desk.descColor; mob.buttonText = desk.buttonText; mob.buttonLink = desk.buttonLink;
+            mob.buttonBgColor = desk.buttonBgColor; mob.buttonTextColor = desk.buttonTextColor; mob.buttonBgHoverColor = desk.buttonBgHoverColor;
+            mob.buttonPaddingX = desk.buttonPaddingX; mob.buttonPaddingY = desk.buttonPaddingY; mob.borderColor = desk.borderColor; mob.layerOrder = desk.layerOrder;
          });
     }, { deep: true });
-
-    // --- Tour Carousel Continuous Sync ---
     watch(() => banner.tour_carousel.settings, (newDesktopSettings) => {
         if (banner.type !== 'tour-carousel' || !banner.tour_carousel.isMobileConfigured) return;
         const mobile = banner.tour_carousel.settings_mobile;
-        mobile.direction = newDesktopSettings.direction;
-        mobile.autoplay = JSON.parse(JSON.stringify(newDesktopSettings.autoplay));
-        mobile.header.text = newDesktopSettings.header.text;
-        mobile.header.color = newDesktopSettings.header.color;
-        mobile.header.lineColor = newDesktopSettings.header.lineColor;
-        // Sync desktop-only card styles (colors, backgrounds)
-        mobile.card.backgroundType = newDesktopSettings.card.backgroundType;
-        mobile.card.bgColor = newDesktopSettings.card.bgColor;
-        mobile.card.gradientAngle = newDesktopSettings.card.gradientAngle;
-        mobile.card.gradientStops = JSON.parse(JSON.stringify(newDesktopSettings.card.gradientStops));
-        mobile.card.borderColor = newDesktopSettings.card.borderColor;
-        mobile.card.province.color = newDesktopSettings.card.province.color;
-        mobile.card.province.bgColor = newDesktopSettings.card.province.bgColor;
-        mobile.card.title.color = newDesktopSettings.card.title.color;
-        mobile.card.price.color = newDesktopSettings.card.price.color;
-        mobile.card.duration.color = newDesktopSettings.card.duration.color;
-        mobile.card.rating.color = newDesktopSettings.card.rating.color;
-        mobile.card.reviews.color = newDesktopSettings.card.reviews.color;
-        mobile.card.button.color = newDesktopSettings.card.button.color;
-        mobile.card.button.bgColor = newDesktopSettings.card.button.bgColor;
+        mobile.direction = newDesktopSettings.direction; mobile.autoplay = JSON.parse(JSON.stringify(newDesktopSettings.autoplay));
+        mobile.header.text = newDesktopSettings.header.text; mobile.header.color = newDesktopSettings.header.color; mobile.header.lineColor = newDesktopSettings.header.lineColor;
+        mobile.card.backgroundType = newDesktopSettings.card.backgroundType; mobile.card.bgColor = newDesktopSettings.card.bgColor;
+        mobile.card.gradientAngle = newDesktopSettings.card.gradientAngle; mobile.card.gradientStops = JSON.parse(JSON.stringify(newDesktopSettings.card.gradientStops));
+        mobile.card.borderColor = newDesktopSettings.card.borderColor; mobile.card.province.color = newDesktopSettings.card.province.color;
+        mobile.card.province.bgColor = newDesktopSettings.card.province.bgColor; mobile.card.title.color = newDesktopSettings.card.title.color;
+        mobile.card.price.color = newDesktopSettings.card.price.color; mobile.card.duration.color = newDesktopSettings.card.duration.color;
+        mobile.card.rating.color = newDesktopSettings.card.rating.color; mobile.card.reviews.color = newDesktopSettings.card.reviews.color;
+        mobile.card.button.color = newDesktopSettings.card.button.color; mobile.card.button.bgColor = newDesktopSettings.card.button.bgColor;
         mobile.card.button.BgHoverColor = newDesktopSettings.card.button.BgHoverColor;
     }, { deep: true });
-
-    // --- START: ADDED HOTEL CAROUSEL CONTINUOUS SYNC ---
     watch(() => banner.hotel_carousel.settings, (newDesktopSettings) => {
         if (banner.type !== 'hotel-carousel' || !banner.hotel_carousel.isMobileConfigured) return;
-
         const mobile = banner.hotel_carousel.settings_mobile;
-
-        // Sync Carousel level settings (Desktop only)
-        mobile.direction = newDesktopSettings.direction;
-        mobile.autoplay = JSON.parse(JSON.stringify(newDesktopSettings.autoplay));
-        mobile.header.text = newDesktopSettings.header.text;
-        mobile.header.color = newDesktopSettings.header.color;
-        mobile.header.lineColor = newDesktopSettings.header.lineColor;
-
-        // Sync Card level settings (Desktop only colors/styles, NOT sizes/padding/radius)
-        mobile.card.bgColor = newDesktopSettings.card.bgColor;
-        mobile.card.borderColor = newDesktopSettings.card.borderColor;
-        mobile.card.imageOverlay.gradientStartColor = newDesktopSettings.card.imageOverlay.gradientStartColor;
-        mobile.card.imageOverlay.gradientEndColor = newDesktopSettings.card.imageOverlay.gradientEndColor;
-        mobile.card.badges.bestSeller.textColor = newDesktopSettings.card.badges.bestSeller.textColor;
-        mobile.card.badges.bestSeller.bgColor = newDesktopSettings.card.badges.bestSeller.bgColor;
-        mobile.card.badges.discount.textColor = newDesktopSettings.card.badges.discount.textColor;
-        mobile.card.badges.discount.bgColor = newDesktopSettings.card.badges.discount.bgColor;
-        mobile.card.stars.shapeColor = newDesktopSettings.card.stars.shapeColor;
-        mobile.card.stars.textColor = newDesktopSettings.card.stars.textColor;
-        mobile.card.bodyContent.textColor = newDesktopSettings.card.bodyContent.textColor;
-        mobile.card.title.color = newDesktopSettings.card.title.color;
-        mobile.card.rating.boxBgColor = newDesktopSettings.card.rating.boxBgColor;
-        mobile.card.rating.boxColor = newDesktopSettings.card.rating.boxColor;
-        mobile.card.rating.labelColor = newDesktopSettings.card.rating.labelColor;
-        mobile.card.rating.countColor = newDesktopSettings.card.rating.countColor;
-        mobile.card.divider.color = newDesktopSettings.card.divider.color;
-        mobile.card.price.fromColor = newDesktopSettings.card.price.fromColor;
-        mobile.card.price.amountColor = newDesktopSettings.card.price.amountColor;
-        mobile.card.price.nightColor = newDesktopSettings.card.price.nightColor;
+        mobile.direction = newDesktopSettings.direction; mobile.autoplay = JSON.parse(JSON.stringify(newDesktopSettings.autoplay));
+        mobile.header.text = newDesktopSettings.header.text; mobile.header.color = newDesktopSettings.header.color; mobile.header.lineColor = newDesktopSettings.header.lineColor;
+        mobile.card.bgColor = newDesktopSettings.card.bgColor; mobile.card.borderColor = newDesktopSettings.card.borderColor;
+        mobile.card.imageOverlay.gradientStartColor = newDesktopSettings.card.imageOverlay.gradientStartColor; mobile.card.imageOverlay.gradientEndColor = newDesktopSettings.card.imageOverlay.gradientEndColor;
+        mobile.card.badges.bestSeller.textColor = newDesktopSettings.card.badges.bestSeller.textColor; mobile.card.badges.bestSeller.bgColor = newDesktopSettings.card.badges.bestSeller.bgColor;
+        mobile.card.badges.discount.textColor = newDesktopSettings.card.badges.discount.textColor; mobile.card.badges.discount.bgColor = newDesktopSettings.card.badges.discount.bgColor;
+        mobile.card.stars.shapeColor = newDesktopSettings.card.stars.shapeColor; mobile.card.stars.textColor = newDesktopSettings.card.stars.textColor;
+        mobile.card.bodyContent.textColor = newDesktopSettings.card.bodyContent.textColor; mobile.card.title.color = newDesktopSettings.card.title.color;
+        mobile.card.rating.boxBgColor = newDesktopSettings.card.rating.boxBgColor; mobile.card.rating.boxColor = newDesktopSettings.card.rating.boxColor;
+        mobile.card.rating.labelColor = newDesktopSettings.card.rating.labelColor; mobile.card.rating.countColor = newDesktopSettings.card.rating.countColor;
+        mobile.card.divider.color = newDesktopSettings.card.divider.color; mobile.card.price.fromColor = newDesktopSettings.card.price.fromColor;
+        mobile.card.price.amountColor = newDesktopSettings.card.price.amountColor; mobile.card.price.nightColor = newDesktopSettings.card.price.nightColor;
         mobile.card.price.originalColor = newDesktopSettings.card.price.originalColor;
-
     }, { deep: true });
-    // --- END: ADDED HOTEL CAROUSEL CONTINUOUS SYNC ---
-    
-    // +++ START: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
-// +++ START: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
     watch(() => banner.flight_ticket.design, (newDesktopSettings) => {
-        if (banner.type !== 'flight-ticket' || !banner.flight_ticket.isMobileConfigured) return;
-
+        if (banner.type !== 'flight-ticket' || !banner.isMobileConfigured) return;
         const mobile = banner.flight_ticket.design_mobile;
-
-        // Sync shared properties (texts, colors, image)
-        mobile.layerOrder = newDesktopSettings.layerOrder;
-        mobile.backgroundType = newDesktopSettings.backgroundType;
-        mobile.bgColor = newDesktopSettings.bgColor;
-        
-        // mobile.gradientAngle = newDesktopSettings.gradientAngle; // <<< حذف شد تا زاویه موبایل مستقل باشد
-
-        // --- START: همگام سازی هوشمند رنگ گرادینت ---
-        // این بخش رنگ‌ها را سینک می‌کند اما موقعیت‌ها (stops) را مستقل نگه می‌دارد
+        mobile.layerOrder = newDesktopSettings.layerOrder; mobile.backgroundType = newDesktopSettings.backgroundType; mobile.bgColor = newDesktopSettings.bgColor;
         if (newDesktopSettings.gradientStops && Array.isArray(newDesktopSettings.gradientStops)) {
             const newMobileStops = [];
             newDesktopSettings.gradientStops.forEach((desktopStop, index) => {
-                // چک می‌کند آیا آیتم متناظری در آرایه موبایل وجود دارد
                 const existingMobileStop = (mobile.gradientStops && mobile.gradientStops[index]) ? mobile.gradientStops[index] : null;
-                
                 newMobileStops.push({
-                    color: desktopStop.color, // رنگ همیشه از دسکتاپ می‌آید
-                    stop: existingMobileStop ? existingMobileStop.stop : desktopStop.stop // پوزیشن موبایل حفظ می‌شود، اگر وجود نداشت از دسکتاپ می‌آید
+                    color: desktopStop.color,
+                    stop: existingMobileStop ? existingMobileStop.stop : desktopStop.stop
                 });
             });
-            mobile.gradientStops = newMobileStops; // این کار حذف و اضافه شدن آیتم‌ها را هم مدیریت می‌کند
+            mobile.gradientStops = newMobileStops;
         }
-        // --- END: همگام سازی هوشمند رنگ گرادینت ---
-        
         mobile.imageUrl = newDesktopSettings.imageUrl;
-
-        mobile.content1.text = newDesktopSettings.content1.text;
-        mobile.content1.color = newDesktopSettings.content1.color;
-        mobile.content2.text = newDesktopSettings.content2.text;
-        mobile.content2.color = newDesktopSettings.content2.color;
-        mobile.content3.text = newDesktopSettings.content3.text;
-        mobile.content3.color = newDesktopSettings.content3.color;
-
-        mobile.price.color = newDesktopSettings.price.color;
-        mobile.button.bgColor = newDesktopSettings.button.bgColor;
-        mobile.button.BgHoverColor = newDesktopSettings.button.BgHoverColor;
-        mobile.button.color = newDesktopSettings.button.color;
-        mobile.fromCity.color = newDesktopSettings.fromCity.color;
-        mobile.toCity.color = newDesktopSettings.toCity.color;
-
+        mobile.content1.text = newDesktopSettings.content1.text; mobile.content1.color = newDesktopSettings.content1.color;
+        mobile.content2.text = newDesktopSettings.content2.text; mobile.content2.color = newDesktopSettings.content2.color;
+        mobile.content3.text = newDesktopSettings.content3.text; mobile.content3.color = newDesktopSettings.content3.color;
+        mobile.price.color = newDesktopSettings.price.color; mobile.button.bgColor = newDesktopSettings.button.bgColor;
+        mobile.button.BgHoverColor = newDesktopSettings.button.BgHoverColor; mobile.button.color = newDesktopSettings.button.color;
+        mobile.fromCity.color = newDesktopSettings.fromCity.color; mobile.toCity.color = newDesktopSettings.toCity.color;
     }, { deep: true });
-    // +++ END: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
-    // +++ END: ADDED FLIGHT TICKET CONTINUOUS SYNC +++
+     // --- END: Other types ---
 }
