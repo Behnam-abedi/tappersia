@@ -32,21 +32,26 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                     visibility: hidden;
                     opacity: 0;
                     transition: opacity 0.3s ease-in-out;
-                    position: absolute; /* Add absolute positioning */
+                    /* position: absolute; */ /* <-- REMOVED - Let it take space */
+                    /* top: 0; */
+                    /* left: 0; */
+                    /* width: 100%; */
+                    /* height: 100%; */
+                }
+                
+                .yab-banner-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader {
+                    position: absolute; /* <-- Skeleton is now absolute */
                     top: 0;
                     left: 0;
                     width: 100%;
                     height: 100%;
-                }
-                
-                .yab-banner-wrapper-<?php echo $banner_id; ?> .yab-skeleton-loader {
-                    position: relative; /* Skeleton takes up space */
                     z-index: 1;
                 }
 
                 .yab-banner-wrapper-<?php echo $banner_id; ?> .yab-content-real.is-loaded {
                     visibility: visible;
                     opacity: 1;
+                    position: relative; /* <-- Content is relative */
                     z-index: 2; /* Ensure content is on top */
                 }
                 
@@ -140,8 +145,8 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
             ob_start();
             ?>
             <div class="<?php echo esc_attr($wrapper_class); ?>" style="position: relative;">
-                <?php echo $this->render_skeleton($b, $view); // Skeleton (relative) ?>
-                <?php echo $this->render_real_banner($b, $view, $banner_id); // Real Content (absolute) ?>
+                <?php echo $this->render_skeleton($b, $view); // Skeleton (absolute) ?>
+                <?php echo $this->render_real_banner($b, $view, $banner_id); // Real Content (relative, hidden) ?>
             </div>
             <?php
             return ob_get_clean();
@@ -159,9 +164,12 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                 'height' => 'auto',
                 'min-height' => esc_attr($b['minHeight'] ?? ($is_desktop ? 190 : 145)) . 'px', // <--- ساده‌سازی شد
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
-                'position' => 'relative', 
+                'position' => 'absolute', // <--- Skeleton is absolute
+                'top' => '0',
+                'left' => '0',
+                'width' => '100%',
+                'height' => '100%',
                 'overflow' => 'hidden', 
-                'flex-shrink' => '0',
                 'background-color' => '#f4f4f4' // Skeleton base color
             ];
             // --- پایان تغییرات ---
@@ -184,11 +192,13 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
             $skeleton_button_margin_top = !empty($b['buttonMarginTopAuto']) ? 'auto' : (esc_attr($b['buttonMarginTop'] ?? 15) . 'px');
             // --- END: MODIFIED SKELETON BUTTON MARGIN ---
 
+            $skeleton_min_height = esc_attr($b['minHeight'] ?? ($is_desktop ? 190 : 145)) . 'px';
+
             ob_start();
             ?>
             <div class="yab-single-skeleton  yab-skeleton-<?php echo $view; ?>" style="<?php echo $this->get_inline_style_attr($banner_styles); ?>">
-                <div class="yab-skeleton-content" style="padding: <?php echo $content_padding; ?>; align-items: <?php echo $alignment['align_items']; ?>; text-align: <?php echo $alignment['text_align']; ?>; display: flex; flex-direction: column; min-height: <?php echo esc_attr($b['minHeight'] ?? ($is_desktop ? 190 : 145)); ?>px; box-sizing: border-box;">
-                    <div style="width:100%">
+                <div class="yab-skeleton-content" style="padding: <?php echo $content_padding; ?>; align-items: <?php echo $alignment['align_items']; ?>; text-align: <?php echo $alignment['text_align']; ?>; display: flex; flex-direction: column; min-height: <?php echo $skeleton_min_height; ?>; box-sizing: border-box; width: 100%; height: 100%;">
+                    <div style="width:100%; flex-grow: 1;">
                         <div class="yab-skeleton-text-lg yab-skeleton-loader"></div>
                         <div class="yab-skeleton-text-md yab-skeleton-loader"></div>
                     </div>
@@ -210,32 +220,40 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
              $image_z_index = ($b['layerOrder'] ?? 'image-below-overlay') === 'image-below-overlay' ? 1 : 2;
              $overlay_z_index = $image_z_index === 1 ? 2 : 1;
 
-             // --- تغییرات ---
+             // --- Banner Container Styles ---
              $banner_styles = [
-                'width' => '100%', // <--- همیشه 100%
+                'width' => '100%', 
                 'height' => 'auto',
-                'min-height' => esc_attr($b['minHeight'] ?? ($is_desktop ? 190 : 145)) . 'px', // <--- ساده‌سازی شد
+                'min-height' => esc_attr($b['minHeight'] ?? ($is_desktop ? 190 : 145)) . 'px', 
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
-                'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0'
+                'position' => 'relative', 
+                'overflow' => 'hidden', 
+                'flex-shrink' => '0'
             ];
-             // --- پایان تغییرات ---
              if (!empty($b['enableBorder'])) { $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 1) . 'px solid ' . esc_attr($b['borderColor'] ?? '#ebebeb'); }
 
-            $wrapper_styles = [
-                'position' => 'relative', 'width' => '100%', 'height' => 'auto',
-            ];
 
-
-            // --- تغییرات ---
-            $content_styles = [
+             // ***** START: THE FIX IS HERE *****
+             // --- Content Wrapper Styles ---
+             // This MUST be position: relative, so it can grow with its content.
+             // It MUST have a min-height to match the parent, so 'margin-top: auto' works.
+             $content_styles = [
                 'padding' => sprintf('%spx %spx', // <--- پدینگ Y/X
                     esc_attr($b['paddingY'] ?? ($is_desktop ? 34 : 20)), 
                     esc_attr($b['paddingX'] ?? ($is_desktop ? 34 : 22))
                 ),
-                'width' => esc_attr($b['contentWidth'] . ($b['contentWidthUnit'] ?? '%')), // <--- عرض محتوا
-                'display' => 'flex', 'flex-direction' => 'column', 'z-index' => '10', 'position' => 'absolute', 'flex-grow' => '1', 'width' => '100%', 'height' => '100%', 'box-sizing' => 'border-box'
+                'width' => esc_attr($b['contentWidth'] . ($b['contentWidthUnit'] ?? '%')),
+                'min-height' => esc_attr($b['minHeight'] ?? ($is_desktop ? 190 : 145)) . 'px', // <-- ADDED: Ensures it fills parent
+                'display' => 'flex', 
+                'flex-direction' => 'column', 
+                'z-index' => '3', // On top of overlay
+                'position' => 'relative', // <-- FIX: Changed from 'absolute'
+                // 'flex-grow' => '1', // Not needed
+                // 'width' => '100%', // REMOVED
+                // 'height' => '100%', // <-- FIX: REMOVED
+                'box-sizing' => 'border-box'
             ];
-            // --- پایان تغییرات ---
+            // ***** END: THE FIX *****
             
             // --- FIX: Changed $this. to $this-> ---
             $alignment_style = $this->get_alignment_style($b);
@@ -286,13 +304,15 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
 
             ob_start();
             ?>
-            <div class="yab-content-real yab-content-<?php echo $view; ?>" style="<?php echo $this->get_inline_style_attr($banner_styles); ?> <?php echo $this->get_inline_style_attr($wrapper_styles); ?>">
+            <div class="yab-content-real yab-content-<?php echo $view; ?>" style="<?php echo $this->get_inline_style_attr($banner_styles); ?>">
                 <?php if (!empty($b['imageUrl'])): ?>
                     <img src="<?php echo esc_url($b['imageUrl']); ?>" alt="" style="<?php echo $this->get_image_style($b); ?> z-index: <?php echo $image_z_index; ?>;">
                 <?php endif; ?>
 
                 <div class="yab-banner-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: <?php echo $overlay_z_index; ?>; <?php echo $this->get_background_style($b); ?>"></div>
-                <div class="yab-banner-content" style="<?php echo $this->get_inline_style_attr($content_styles); ?> z-index: 3; text-align: <?php echo $alignment_style['text_align']; ?>; align-items: <?php echo $alignment_style['align_items']; ?>;">
+                
+                <?php // --- Content wrapper is NOW position: relative --- ?>
+                <div class="yab-banner-content" style="<?php echo $this->get_inline_style_attr($content_styles); ?> text-align: <?php echo $alignment_style['text_align']; ?>; align-items: <?php echo $alignment_style['align_items']; ?>;">
                     
                     <div style="flex-grow: 1;">
                         <h2 style="<?php echo $this->get_inline_style_attr($title_styles); ?>"><?php echo esc_html($b['titleText'] ?? ''); ?></h2>

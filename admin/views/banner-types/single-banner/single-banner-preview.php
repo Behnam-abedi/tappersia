@@ -12,9 +12,17 @@
                     <img v-if="banner.single.imageUrl" :src="banner.single.imageUrl" :style="{...imageStyleObject(banner.single), zIndex: banner.single.layerOrder === 'image-below-overlay' ? 1 : 2}" />
                     <div class="absolute inset-0" :style="{background: bannerStyles(banner.single), zIndex: banner.single.layerOrder === 'image-below-overlay' ? 2 : 1}"></div>
                     <div class="w-full h-full flex flex-col z-10 relative flex" :style="{...getContentStyles('desktop'), zIndex: 3}">
-                        <h4 :style="getTitleStyles('desktop')">{{ banner.single.titleText }}</h4>
-                        <p :style="getDescriptionStyles('desktop')">{{ banner.single.descText }}</p>
-                        <a v-if="banner.single.buttonText" :href="banner.single.buttonLink" target="_blank" :style="getButtonStyles('desktop')" style="margin-top:auto!important">{{ banner.single.buttonText }}</a>
+                        
+                        <?php // --- START: Added flex-grow wrapper --- ?>
+                        <div style="flex-grow: 1;">
+                            <h4 :style="getTitleStyles('desktop')">{{ banner.single.titleText }}</h4>
+                            <p :style="getDescriptionStyles('desktop')">{{ banner.single.descText }}</p>
+                        </div>
+                        <?php // --- END: Added flex-grow wrapper --- ?>
+
+                        <?php // --- START: Removed hardcoded margin-top --- ?>
+                        <a v-if="banner.single.buttonText" :href="banner.single.buttonLink" target="_blank" :style="getButtonStyles('desktop')">{{ banner.single.buttonText }}</a>
+                        <?php // --- END: Removed hardcoded margin-top --- ?>
                     </div>
                 </div>
             </div>
@@ -26,9 +34,15 @@
                 <div class="relative overflow-hidden flex-shrink-0 w-full" :style="getBannerContainerStyles('mobile')">
                     <img v-if="banner.single_mobile.imageUrl" :src="banner.single_mobile.imageUrl" :style="{...imageStyleObject(banner.single_mobile), zIndex: banner.single.layerOrder === 'image-below-overlay' ? 1 : 2}" />
                     <div class="absolute inset-0" :style="{background: bannerStyles(banner.single_mobile), zIndex: banner.single.layerOrder === 'image-below-overlay' ? 2 : 1}"></div>
-                    <div class="w-full h-full flex flex-col z-10 absolute" :style="{...getContentStyles('mobile'), zIndex: 3}">
-                        <h4 :style="getTitleStyles('mobile')">{{ banner.single_mobile.titleText }}</h4>
-                        <p :style="getDescriptionStyles('mobile')">{{ banner.single_mobile.descText }}</p>
+                    <div class="w-full h-full flex flex-col z-10 relative" :style="{...getContentStyles('mobile'), zIndex: 3}">
+                        
+                        <?php // --- START: Added flex-grow wrapper --- ?>
+                        <div style="flex-grow: 1;">
+                            <h4 :style="getTitleStyles('mobile')">{{ banner.single_mobile.titleText }}</h4>
+                            <p :style="getDescriptionStyles('mobile')">{{ banner.single_mobile.descText }}</p>
+                        </div>
+                        <?php // --- END: Added flex-grow wrapper --- ?>
+                        
                         <a v-if="banner.single_mobile.buttonText" :href="banner.single_mobile.buttonLink" target="_blank" :style="getButtonStyles('mobile')">{{ banner.single_mobile.buttonText }}</a>
                     </div>
                 </div>

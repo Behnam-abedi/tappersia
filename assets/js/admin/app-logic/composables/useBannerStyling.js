@@ -22,15 +22,29 @@ export function useBannerStyling(banner) {
         if (!settings) return {};
 
         return {
+            // ***** START: THE FIX IS HERE *****
             contentStyles: {
                 alignItems: contentAlignment(settings.alignment),
                 textAlign: settings.alignment,
-                // --- تغییرات ---
                 padding: `${settings.paddingY}px ${settings.paddingX}px`, // <--- پدینگ Y/X
                 width: `${settings.contentWidth}${settings.contentWidthUnit}`, // <--- عرض محتوا
-                // --- پایان تغییرات ---
+                
+                minHeight: `${settings.minHeight}px`, // <-- ADDED: Ensures it fills parent for auto margin
+                
                 flexGrow: 1,
+                display: 'flex', 
+                flexDirection: 'column', 
+                
+                // --- CORE FIX ---
+                zIndex: 3, // <-- Use 3 (same as renderer)
+                position: 'relative', // <-- FIX: Changed from 'absolute'
+                // height: '100%', // <-- FIX: REMOVED
+                // --- END CORE FIX ---
+
+                boxSizing: 'border-box'
             },
+            // ***** END: THE FIX *****
+
             titleStyles: {
                 color: settings.titleColor,
                 fontSize: `${settings.titleSize}px`,
@@ -73,7 +87,12 @@ export function useBannerStyling(banner) {
     };
 
     const getContentStyles = (view) => getDynamicStyles(view).contentStyles;
+    
+    // ***** START: BUG FIX *****
+    // Corrected .styles to .titleStyles
     const getTitleStyles = (view) => getDynamicStyles(view).titleStyles;
+    // ***** END: BUG FIX *****
+    
     const getDescriptionStyles = (view) => getDynamicStyles(view).descriptionStyles;
     const getButtonStyles = (view) => getDynamicStyles(view).buttonStyles;
 
