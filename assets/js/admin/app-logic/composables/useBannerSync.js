@@ -101,12 +101,15 @@ export function useBannerSync(banner, currentView) {
             banner.isMobileConfigured = true;
             const desktop = banner.single;
             const mobile = banner.single_mobile;
+            // --- START: MODIFIED propertiesToSync ---
             const propertiesToSync = [
                 'layerOrder', 'alignment', 'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
                 'titleText', 'titleColor', 'titleWeight', 'descText', 'descColor', 'descWeight',
                 'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
-                'imageUrl', 'enableBorder', 'borderColor'
+                'imageUrl', 'enableBorder', 'borderColor',
+                'buttonMarginTopAuto', 'buttonMarginTop' // <-- ADDED
             ];
+            // --- END: MODIFIED propertiesToSync ---
             for (const prop of propertiesToSync) {
                 const desktopVal = desktop[prop];
                 const desktopDefault = singleDesktopDefaults[prop];
@@ -196,21 +199,24 @@ export function useBannerSync(banner, currentView) {
     // --- 2. CONTINUOUS SYNC (This is what we need to debug) ---
     
     /**
+     * *** START: REFACTORED FUNCTION ***
      * Helper function to create the core sync logic with detailed logging.
+     * This new version correctly handles Req #4, #5, and #7.
      * @param {string} bannerType - The banner type (e.g., 'simple-banner')
      * @param {object} mobileState - The mobile state object (e.g., banner.simple_mobile)
      * @param {object} mobileDefaults - The mobile defaults object (e.g., simpleMobileDefaults)
+     * @param {object} desktopDefaults - The desktop defaults object (e.g., singleDesktopDefaults)
      * @param {object} newDesktop - The new desktop state
      * @param {object} oldDesktop - The old desktop state
      * @param {string[]} propertiesToSync - Array of property names to sync
      */
-    const runContinuousSyncDebug = (bannerType, mobileState, mobileDefaults, newDesktop, oldDesktop, propertiesToSync) => {
+    const runContinuousSyncDebug = (bannerType, mobileState, mobileDefaults, desktopDefaults, newDesktop, oldDesktop, propertiesToSync) => {
         
         console.log(`🔥 [DEBUGGER] CONTINUOUS Sync Watcher FIRED for: ${bannerType}`);
     
         for (const propName of propertiesToSync) {
             const newDeskVal = newDesktop[propName];
-            const oldDeskVal = oldDesktop ? oldDesktop[propName] : undefined; // *** FIX: Safe access for oldDesktop ***
+            const oldDeskVal = oldDesktop ? oldDesktop[propName] : undefined;
     
             // 1. Check if desktop value actually changed
             let deskValChanged;
@@ -230,60 +236,105 @@ export function useBannerSync(banner, currentView) {
     
             const mobileVal = mobileState[propName];
             const mobileDefaultVal = mobileDefaults[propName];
+            const desktopDefaultVal = desktopDefaults[propName]; // <-- Get desktop default
     
-            // 3. Check if mobile is "untouched"
+            // 3. Check if mobile has been manually edited (Req #7)
             let isMobileLikeOldDesktop;
             let isMobileLikeDefault;
     
             if (typeof mobileVal === 'object' && mobileVal !== null) {
-                // *** FIX: Safe access for oldDeskVal ***
                 isMobileLikeOldDesktop = JSON.stringify(mobileVal) === JSON.stringify(oldDeskVal);
                 isMobileLikeDefault = JSON.stringify(mobileVal) === JSON.stringify(mobileDefaultVal);
             } else {
-                // *** FIX: Safe access for oldDeskVal ***
                 isMobileLikeOldDesktop = mobileVal === oldDeskVal;
                 isMobileLikeDefault = mobileVal === mobileDefaultVal;
             }
     
-            // Mobile is "untouched" if it still matches the *old* desktop value (it was following)
-            // OR if it's still at its own default value (it was never touched at all).
-            const isMobileUntouched = isMobileLikeOldDesktop || isMobileLikeDefault;
+            // Mobile is "manually edited" if it DOES NOT match the old desktop value (it wasn't following)
+            // AND it DOES NOT match its own default value (it wasn't untouched).
+            const isMobileManuallyEdited = !isMobileLikeOldDesktop && !isMobileLikeDefault;
     
             console.log(`  > Current Mobile Value:`, mobileVal);
             console.log(`  > Mobile Default Value:`, mobileDefaultVal);
             console.log(`  > Was Mobile == Old Desktop?`, isMobileLikeOldDesktop);
             console.log(`  > Was Mobile == Mobile Default?`, isMobileLikeDefault);
-            console.log(`  > Is Mobile "Untouched"?`, isMobileUntouched);
+            console.log(`  > Is Mobile Manually Edited?`, isMobileManuallyEdited);
     
-            // 4. Sync if untouched
-            if (isMobileUntouched) {
-                console.log(`  > ✅ [${propName}] SYNCING! Setting mobile to new desktop value.`);
+            // 4. Sync if mobile has been manually edited (Req #7)
+            if (isMobileManuallyEdited) {
+                console.log(`  > ❌ [${propName}] NOT SYNCING. Mobile value appears manually changed.`);
+                console.log(`--- End [${propName}] ---`);
+                continue; // Stop here and go to the next property
+            }
+
+            // 5. Mobile is NOT manually edited (it's "following"). Now apply Req #4 and #5.
+            // Check if the NEW desktop value is a default value.
+            let isNewDesktopDefault;
+            if (typeof newDeskVal === 'object' && newDeskVal !== null) {
+                isNewDesktopDefault = JSON.stringify(newDeskVal) === JSON.stringify(desktopDefaultVal);
+            } else {
+                isNewDesktopDefault = newDeskVal === desktopDefaultVal;
+            }
+
+            console.log(`  > Desktop Default Value:`, desktopDefaultVal);
+            console.log(`  > Is New Desktop Value == Desktop Default?`, isNewDesktopDefault);
+
+            // 6. Apply new logic
+            if (isNewDesktopDefault) {
+                // Req #4: Desktop value IS default. Reset mobile to mobile's default.
+                console.log(`  > ⚠️ [${propName}] NOT SYNCING desktop default. Resetting mobile to ITS OWN default.`);
+                if (typeof mobileDefaultVal === 'object' && mobileDefaultVal !== null) {
+                    mobileState[propName] = JSON.parse(JSON.stringify(mobileDefaultVal));
+                } else {
+                    mobileState[propName] = mobileDefaultVal;
+                }
+            } else {
+                // Req #5: Desktop value is NOT default. SYNC the new desktop value.
+                console.log(`  > ✅ [${propName}] SYNCING! Setting mobile to new (non-default) desktop value.`);
                 if (typeof newDeskVal === 'object' && newDeskVal !== null) {
                     mobileState[propName] = JSON.parse(JSON.stringify(newDeskVal));
                 } else {
                     mobileState[propName] = newDeskVal;
                 }
-            } else {
-                console.log(`  > ❌ [${propName}] NOT SYNCING. Mobile value appears manually changed.`);
             }
             console.log(`--- End [${propName}] ---`);
         }
     };
+    // *** END: REFACTORED FUNCTION ***
+
     
     // --- Single Banner: CONTINUOUS Sync (The working example) ---
     watch(() => banner.single, (newDesktop, oldDesktop) => {
         if (banner.type !== 'single-banner') return; 
+        
+        // --- START: MODIFIED propertiesToSync ---
         const propertiesToSync = [
             'layerOrder', 'alignment', 'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
             'titleText', 'titleColor', 'titleWeight', 'descText', 'descColor', 'descWeight',
             'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
-            'imageUrl', 'enableBorder', 'borderColor'
+            'imageUrl', 'enableBorder', 'borderColor',
+            'buttonMarginTopAuto', 'buttonMarginTop' // <-- ADDED
         ];
-        runContinuousSyncDebug('single-banner', banner.single_mobile, singleMobileDefaults, newDesktop, oldDesktop, propertiesToSync);
+        // --- END: MODIFIED propertiesToSync ---
+        
+        // *** START: MODIFIED CALL to use new function signature ***
+        runContinuousSyncDebug(
+            'single-banner',
+            banner.single_mobile,
+            singleMobileDefaults,
+            singleDesktopDefaults, // <-- Pass desktop defaults
+            newDesktop,
+            oldDesktop,
+            propertiesToSync
+        );
+        // *** END: MODIFIED CALL ***
+
     }, { deep: true });
 
     
     // --- Simple Banner: CONTINUOUS Sync (The broken one) ---
+    // *** NOTE: This is left as-is per instructions to only fix single-banner ***
+    // *** To fix this, it would need the same change as single-banner ***
     watch(() => banner.simple, (newDesktop, oldDesktop) => {
         if (banner.type !== 'simple-banner') return;
         const propertiesToSync = [
@@ -292,11 +343,13 @@ export function useBannerSync(banner, currentView) {
             'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
             'enableBorder', 'borderColor', 'direction'
         ];
-        runContinuousSyncDebug('simple-banner', banner.simple_mobile, simpleMobileDefaults, newDesktop, oldDesktop, propertiesToSync);
+        // This is the OLD call, which has the bug:
+         runContinuousSyncDebug('simple-banner', banner.simple_mobile, simpleMobileDefaults, newDesktop, oldDesktop, propertiesToSync);
      }, { deep: true });
      
 
     // --- Sticky Simple Banner: CONTINUOUS Sync (The broken one) ---
+    // *** NOTE: This is left as-is per instructions to only fix single-banner ***
     watch(() => banner.sticky_simple, (newDesktop, oldDesktop) => {
         if (banner.type !== 'sticky-simple-banner') return;
         const propertiesToSync = [
@@ -305,6 +358,7 @@ export function useBannerSync(banner, currentView) {
             'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
             'enableBorder', 'borderColor', 'direction'
         ];
+        // This is the OLD call, which has the bug:
         runContinuousSyncDebug('sticky-simple-banner', banner.sticky_simple_mobile, stickyMobileDefaults, newDesktop, oldDesktop, propertiesToSync);
      }, { deep: true });
 

@@ -180,6 +180,10 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
             // --- FIX: Changed $this. to $this-> ---
             $alignment = $this->get_alignment_style($b);
 
+            // --- START: MODIFIED SKELETON BUTTON MARGIN ---
+            $skeleton_button_margin_top = !empty($b['buttonMarginTopAuto']) ? 'auto' : (esc_attr($b['buttonMarginTop'] ?? 15) . 'px');
+            // --- END: MODIFIED SKELETON BUTTON MARGIN ---
+
             ob_start();
             ?>
             <div class="yab-single-skeleton  yab-skeleton-<?php echo $view; ?>" style="<?php echo $this->get_inline_style_attr($banner_styles); ?>">
@@ -188,7 +192,9 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                         <div class="yab-skeleton-text-lg yab-skeleton-loader"></div>
                         <div class="yab-skeleton-text-md yab-skeleton-loader"></div>
                     </div>
-                    <div class="yab-skeleton-button yab-skeleton-loader" style="align-self: <?php echo $alignment['align_self']; ?>; margin-top: <?php echo esc_attr($b['marginBottomDescription'] ?? 15); ?>px;"></div>
+                    <?php // --- START: MODIFIED SKELETON BUTTON MARGIN --- ?>
+                    <div class="yab-skeleton-button yab-skeleton-loader" style="align-self: <?php echo $alignment['align_self']; ?>; margin-top: <?php echo $skeleton_button_margin_top; ?>;"></div>
+                    <?php // --- END: MODIFIED SKELETON BUTTON MARGIN --- ?>
                 </div>
             </div>
             <?php
@@ -253,6 +259,10 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                 'word-wrap' => 'break-word',
             ];
 
+            // --- START: MODIFIED BUTTON MARGIN ---
+            $button_margin_top = !empty($b['buttonMarginTopAuto']) ? 'auto' : (esc_attr($b['buttonMarginTop'] ?? 15) . 'px');
+            // --- END: MODIFIED BUTTON MARGIN ---
+
             // --- تغییرات ---
             $button_styles = [
                 'text-decoration' => 'none', 'display' => 'inline-flex', 'align-items' => 'center',
@@ -268,7 +278,9 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                 'font-weight' => esc_attr($b['buttonFontWeight'] ?? '500'),
                 'align-self' => $alignment_style['align_self'],
                 'line-height' => 1, // <--- ثابت شد
-                'margin-top' => esc_attr($b['marginBottomDescription'] ?? 15) . 'px',
+                // --- START: MODIFIED BUTTON MARGIN ---
+                'margin-top' => $button_margin_top,
+                // --- END: MODIFIED BUTTON MARGIN ---
             ];
             // --- پایان تغییرات ---
 
@@ -290,7 +302,9 @@ if (!class_exists('Yab_Single_Banner_Renderer')) {
                     </div>
 
                     <?php if(!empty($b['buttonText'])): ?>
-                    <a href="<?php echo esc_url($b['buttonLink'] ?? '#'); ?>" target="_blank" class="yab-button" style="<?php echo $this->get_inline_style_attr($button_styles); ?> margin-top:auto!important"><?php echo esc_html($b['buttonText']); ?></a>
+                    <?php // --- START: MODIFIED BUTTON MARGIN (removed inline !important) --- ?>
+                    <a href="<?php echo esc_url($b['buttonLink'] ?? '#'); ?>" target="_blank" class="yab-button" style="<?php echo $this->get_inline_style_attr($button_styles); ?>"><?php echo esc_html($b['buttonText']); ?></a>
+                    <?php // --- END: MODIFIED BUTTON MARGIN --- ?>
                     <?php endif; ?>
                 </div>
             </div>

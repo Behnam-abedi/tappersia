@@ -64,7 +64,10 @@ export function useBannerStyling(banner) {
                 justifyContent: 'center',
                 textDecoration: 'none',
                 lineHeight: 1, // <--- ثابت شد
-                marginTop: `${settings.marginBottomDescription}px`
+                
+                // --- START: MODIFIED MARGIN LOGIC ---
+                marginTop: settings.buttonMarginTopAuto ? 'auto' : `${settings.buttonMarginTop}px`
+                // --- END: MODIFIED MARGIN LOGIC ---
             }
         };
     };

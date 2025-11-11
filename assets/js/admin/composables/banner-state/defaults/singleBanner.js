@@ -63,7 +63,11 @@ export const createDefaultPart = () => ({
     
     buttonBorderRadius: 8,
     marginTopDescription: 12,
-    marginBottomDescription: 15, // New default for margin-bottom
+    
+    // --- START: Refactored Button Margin ---
+    buttonMarginTopAuto: true, // <-- NEW
+    buttonMarginTop: 15,       // <-- RENAMED from marginBottomDescription
+    // --- END: Refactored Button Margin ---
     
     // --- تغییرات پدینگ دکمه ---
     buttonPaddingY: 12, // <--- جدید
@@ -106,7 +110,10 @@ export const createDefaultMobilePart = () => {
     // mobileDefaults.buttonPaddingBottom = 10; // <--- حذف شد
     // mobileDefaults.buttonPaddingLeft = 16; // <--- حذف شد
     
-    mobileDefaults.marginBottomDescription = 15;
+    // --- START: Refactored Button Margin ---
+    mobileDefaults.buttonMarginTopAuto = true; // <-- NEW
+    mobileDefaults.buttonMarginTop = 15;       // <-- RENAMED from marginBottomDescription
+    // --- END: Refactored Button Margin ---
 
 
     return mobileDefaults;

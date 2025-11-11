@@ -124,7 +124,7 @@
                 <div v-for="(stop, index) in settings.gradientStops" :key="index" class="bg-[#292929] p-3 rounded-lg mb-2 space-y-2">
                     <div class="flex items-center justify-between">
                          <span class="text-xs font-bold text-gray-300">Color Stop #{{ index + 1 }}</span>
-                         <button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings.gradientStops, index)" class="text-red-500 hover:text-red-400 text-xs">Remove</button> <?php // FIX: Pass settings.gradientStops ?>
+                         <button v-if="settings.gradientStops.length > 1" @click="removeGradientStop(settings.gradientStops, index)" class="text-red-500 hover:text-red-400 text-xs">Remove</button>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="flex items-center gap-1">
@@ -149,7 +149,7 @@
                         <input type="range" v-model.number="stop.stop" min="0" max="100" class="w-full">
                     </div>
                 </div>
-                 <button @click="addGradientStop(settings.gradientStops)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button> <?php // FIX: Pass settings.gradientStops ?>
+                 <button @click="addGradientStop(settings.gradientStops)" class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 mt-2">Add Color Stop</button>
             </div>
         </div>
     </div>
@@ -288,16 +288,20 @@
                 </div>
             </div>
         </div>
+        <?php // *** START: REMOVED marginBottomDescription *** ?>
         <div class="grid grid-cols-2 gap-2 mt-2">
             <div>
                 <label class="setting-label-sm">Margin Top (px)</label>
                 <input type="number" v-model.number="settings.marginTopDescription" class="yab-form-input" placeholder="e.g., 12">
             </div>
+             <?php /*
              <div>
                 <label class="setting-label-sm">Margin Bottom (px)</label>
                 <input type="number" v-model.number="settings.marginBottomDescription" class="yab-form-input" placeholder="e.g., 15">
             </div>
+             */ ?>
         </div>
+        <?php // *** END: REMOVED marginBottomDescription *** ?>
     </div>
     <hr class="section-divider">
     <div class="space-y-2">
@@ -375,7 +379,24 @@
                  <label class="setting-label-sm">Border Radius (px)</label>
                  <input type="number" v-model.number="settings.buttonBorderRadius" class="yab-form-input" placeholder="e.g., 8">
             </div>
+        </div>
+        
+        <?php // *** START: ADDED MARGIN CONTROLS *** ?>
+        <div class="mt-2">
+            <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
+                <label class="setting-label-sm !mb-0">Set Margin Top Automatically</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" v-model="settings.buttonMarginTopAuto" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
             </div>
+        </div>
+        <div v-if="!settings.buttonMarginTopAuto" class="mt-2">
+            <label class="setting-label-sm">Margin Top (px)</label>
+            <input type="number" v-model.number="settings.buttonMarginTop" class="yab-form-input" placeholder="e.g., 15">
+        </div>
+        <?php // *** END: ADDED MARGIN CONTROLS *** ?>
+
         <div>
              <div class="grid grid-cols-2 gap-2">
                 <div>
