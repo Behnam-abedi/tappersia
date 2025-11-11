@@ -35,7 +35,7 @@
     <div>
         <h4 class="section-title">Border</h4>
          <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md mb-2">
-            <label class="setting-label-sm">Enable Border</label>
+            <label class="setting-label-sm !mb-0">Enable Border</label>
             <label class="relative inline-flex items-center cursor-pointer" title="Toggle banner border">
                 <input type="checkbox" v-model="settings.enableBorder" class="sr-only peer">
                 <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
@@ -46,15 +46,15 @@
                 <label class="setting-label-sm">Color</label>
                 <div class="flex items-center gap-1">
                     <div
-                        :style="{ backgroundColor: settings.borderColor }"
+                        :style="{ backgroundColor: banner.single.borderColor }" <?php // Always read from desktop ?>
                         class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
                         title="Selected color preview">
                     </div>
                     <input
                         aria-label="Border color input"
                         type="text"
-                        :value="settings.borderColor"
-                        @input="event => settings.borderColor = event.target.value"
+                        :value="banner.single.borderColor" <?php // Always read from desktop ?>
+                        @input="event => banner.single.borderColor = event.target.value" <?php // Always write to desktop ?>
                         data-coloris
                         class="yab-form-input clr-field flex-grow"
                         placeholder="Select color...">
@@ -79,8 +79,8 @@
         <div >
             <h4 class="section-title">Layers Control</h4>
             <div class="flex rounded-lg bg-[#292929] overflow-hidden p-1">
-                <button @click="settings.layerOrder = 'image-below-overlay'" :class="settings.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Image Below Color</button>
-                <button @click="settings.layerOrder = 'overlay-below-image'" :class="settings.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Color Below Image</button>
+                <button @click="banner.single.layerOrder = 'image-below-overlay'" :class="banner.single.layerOrder === 'image-below-overlay' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Image Below Color</button>
+                <button @click="banner.single.layerOrder = 'overlay-below-image'" :class="banner.single.layerOrder === 'overlay-below-image' ? 'active-tab' : ''" class="flex-1 tab-button rounded-md">Color Below Image</button>
             </div>
         </div>
     </div>
@@ -93,7 +93,7 @@
             <button @click="settings.backgroundType = 'solid'" :class="{'active-tab': settings.backgroundType === 'solid'}" class="flex-1 tab-button rounded-md">Solid Color</button>
             <button @click="settings.backgroundType = 'gradient'" :class="{'active-tab': settings.backgroundType === 'gradient'}" class="flex-1 tab-button rounded-md">Gradient</button>
         </div>
-        <div v-if="settings.backgroundType === 'solid'" class="space-y-2">
+        <div v-if="settings.backgroundType === 'solid'" class="space-y-2 mt-2">
             <label class="setting-label-sm">Color</label>
             <div class="flex items-center gap-1">
                 <div
@@ -111,7 +111,7 @@
                     placeholder="e.g., rgba(0,0,0,0.5)">
             </div>
         </div>
-        <div v-else class="space-y-4">
+        <div v-else class="space-y-4 mt-2">
             <div>
                 <label class="setting-label-sm">Gradient Angle: {{ settings.gradientAngle }}deg</label>
                 <div class="flex items-center gap-2">
@@ -154,27 +154,26 @@
         </div>
     </div>
     
-    <?php // --- START: MODIFIED IMAGE SECTION --- ?>
     <div v-if="currentView === 'desktop'">
         <hr class="section-divider">
         <h4 class="section-title">Image</h4>
         <div  class="flex gap-2 items-center">
             <button @click="openMediaUploader('single')" class="flex-1 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 text-sm">
-                {{ settings.imageUrl ? 'Change Image' : 'Select Image' }}
+                {{ banner.single.imageUrl ? 'Change Image' : 'Select Image' }}
             </button>
-            <button v-if="settings.imageUrl" @click="removeImage('single')" class="bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm">
+            <button v-if="banner.single.imageUrl" @click="removeImage('single')" class="bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 text-sm">
                 Remove
             </button>
         </div>
     </div>
 
     <?php // --- Image Size & Position (Desktop & Mobile) --- ?>
-    <div v-if="settings.imageUrl" class="mt-3 space-y-3">
+    <div v-if="banner.single.imageUrl" class="mt-3 space-y-3"> <?php // v-if uses desktop image ?>
         <hr class="section-divider" v-if="currentView !== 'desktop'"> <?php // Add separator for mobile ?>
         <h4 class="section-title" v-if="currentView !== 'desktop'">Image Layout</h4> <?php // Add title for mobile ?>
         
         <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
-            <label class="setting-label-sm">Enable Custom Image Size</label>
+            <label class="setting-label-sm !mb-0">Enable Custom Image Size</label>
             <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" v-model="settings.enableCustomImageSize" class="sr-only peer">
                 <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
@@ -207,29 +206,28 @@
             </div>
         </div>
     </div>
-    <?php // --- END: MODIFIED IMAGE SECTION --- ?>
     <hr class="section-divider">
 
     <div class="space-y-2">
         <h4 class="section-title">Title</h4>
         <div v-if="currentView === 'desktop'">
             <label class="setting-label-sm">Title Text</label>
-            <input type="text" v-model="settings.titleText" class="yab-form-input mb-2" placeholder="Title Text">
+            <input type="text" v-model="banner.single.titleText" class="yab-form-input mb-2" placeholder="Title Text"> <?php // Always write to desktop ?>
         </div>
         <div class="grid grid-cols-2 gap-2">
             <div v-if="currentView === 'desktop'">
                 <label class="setting-label-sm">Color</label>
                 <div class="flex items-center gap-1">
                     <div
-                        :style="{ backgroundColor: settings.titleColor }"
+                        :style="{ backgroundColor: banner.single.titleColor }" <?php // Always read from desktop ?>
                         class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
                         title="Selected color preview">
                     </div>
                     <input
                         aria-label="Title color input"
                         type="text"
-                        :value="settings.titleColor"
-                        @input="event => settings.titleColor = event.target.value"
+                        :value="banner.single.titleColor" <?php // Always read from desktop ?>
+                        @input="event => banner.single.titleColor = event.target.value" <?php // Always write to desktop ?>
                         data-coloris
                         class="yab-form-input clr-field flex-grow"
                         placeholder="#hexcode">
@@ -254,22 +252,22 @@
         <h4 class="section-title">Description</h4>
         <div v-if="currentView === 'desktop'">
             <label class="setting-label-sm">Description Text</label>
-            <textarea v-model="settings.descText" rows="3" class="yab-form-input mb-2" placeholder="Description Text"></textarea>
+            <textarea v-model="banner.single.descText" rows="3" class="yab-form-input mb-2" placeholder="Description Text"></textarea> <?php // Always write to desktop ?>
         </div>
         <div class="grid grid-cols-2 gap-2">
             <div v-if="currentView === 'desktop'">
                  <label class="setting-label-sm">Color</label>
                  <div class="flex items-center gap-1">
                     <div
-                        :style="{ backgroundColor: settings.descColor }"
+                        :style="{ backgroundColor: banner.single.descColor }" <?php // Always read from desktop ?>
                         class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
                         title="Selected color preview">
                     </div>
                     <input
                         aria-label="Description color input"
                         type="text"
-                        :value="settings.descColor"
-                        @input="event => settings.descColor = event.target.value"
+                        :value="banner.single.descColor" <?php // Always read from desktop ?>
+                        @input="event => banner.single.descColor = event.target.value" <?php // Always write to desktop ?>
                         data-coloris
                         class="yab-form-input clr-field flex-grow"
                         placeholder="#hexcode">
@@ -288,44 +286,36 @@
                 </div>
             </div>
         </div>
-        <?php // *** START: REMOVED marginBottomDescription *** ?>
         <div class="grid grid-cols-2 gap-2 mt-2">
             <div>
                 <label class="setting-label-sm">Margin Top (px)</label>
                 <input type="number" v-model.number="settings.marginTopDescription" class="yab-form-input" placeholder="e.g., 12">
             </div>
-             <?php /*
-             <div>
-                <label class="setting-label-sm">Margin Bottom (px)</label>
-                <input type="number" v-model.number="settings.marginBottomDescription" class="yab-form-input" placeholder="e.g., 15">
-            </div>
-             */ ?>
         </div>
-        <?php // *** END: REMOVED marginBottomDescription *** ?>
     </div>
     <hr class="section-divider">
     <div class="space-y-2">
         <h4 class="section-title">Button</h4>
         <div v-if="currentView === 'desktop'">
             <label class="setting-label-sm">Button Text</label>
-            <input type="text" v-model="settings.buttonText" class="yab-form-input mb-2" placeholder="Button Text">
+            <input type="text" v-model="banner.single.buttonText" class="yab-form-input mb-2" placeholder="Button Text"> <?php // Always write to desktop ?>
             <label class="setting-label-sm">Button Link (URL)</label>
-            <input type="text" v-model="settings.buttonLink" class="yab-form-input mb-2" placeholder="https://example.com">
+            <input type="text" v-model="banner.single.buttonLink" class="yab-form-input mb-2" placeholder="https://example.com"> <?php // Always write to desktop ?>
         </div>
         <div v-if="currentView === 'desktop'" class="grid grid-cols-2 gap-2 mb-2">
             <div>
                 <label class="setting-label-sm">Background Color</label>
                 <div class="flex items-center gap-1">
                     <div
-                        :style="{ backgroundColor: settings.buttonBgColor }"
+                        :style="{ backgroundColor: banner.single.buttonBgColor }" <?php // Always read from desktop ?>
                         class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
                         title="Selected color preview">
                     </div>
                     <input
                         aria-label="Button background color input"
                         type="text"
-                        :value="settings.buttonBgColor"
-                        @input="event => settings.buttonBgColor = event.target.value"
+                        :value="banner.single.buttonBgColor" <?php // Always read from desktop ?>
+                        @input="event => banner.single.buttonBgColor = event.target.value" <?php // Always write to desktop ?>
                         data-coloris
                         class="yab-form-input clr-field flex-grow"
                         placeholder="BG #hex">
@@ -335,15 +325,15 @@
                 <label class="setting-label-sm">Text Color</label>
                 <div class="flex items-center gap-1">
                     <div
-                        :style="{ backgroundColor: settings.buttonTextColor }"
+                        :style="{ backgroundColor: banner.single.buttonTextColor }" <?php // Always read from desktop ?>
                         class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
                         title="Selected color preview">
                     </div>
                     <input
                         aria-label="Button text color input"
                         type="text"
-                        :value="settings.buttonTextColor"
-                        @input="event => settings.buttonTextColor = event.target.value"
+                        :value="banner.single.buttonTextColor" <?php // Always read from desktop ?>
+                        @input="event => banner.single.buttonTextColor = event.target.value" <?php // Always write to desktop ?>
                         data-coloris
                         class="yab-form-input clr-field flex-grow"
                         placeholder="Text #hex">
@@ -355,15 +345,15 @@
                <label class="setting-label-sm">Hover BG Color</label>
                <div class="flex items-center gap-1">
                     <div
-                        :style="{ backgroundColor: settings.buttonBgHoverColor }"
+                        :style="{ backgroundColor: banner.single.buttonBgHoverColor }" <?php // Always read from desktop ?>
                         class="w-8 h-[40px] rounded border border-gray-500 flex-shrink-0"
                         title="Selected color preview">
                     </div>
                     <input
                         aria-label="Button hover background color input"
                         type="text"
-                        :value="settings.buttonBgHoverColor"
-                        @input="event => settings.buttonBgHoverColor = event.target.value"
+                        :value="banner.single.buttonBgHoverColor" <?php // Always read from desktop ?>
+                        @input="event => banner.single.buttonBgHoverColor = event.target.value" <?php // Always write to desktop ?>
                         data-coloris
                         class="yab-form-input clr-field flex-grow"
                         placeholder="Hover #hex">
@@ -381,7 +371,7 @@
             </div>
         </div>
         
-        <?php // *** START: ADDED MARGIN CONTROLS *** ?>
+        <?php // *** START: MARGIN CONTROLS *** ?>
         <div class="mt-2">
             <div class="flex items-center justify-between bg-[#292929] p-2 rounded-md">
                 <label class="setting-label-sm !mb-0">Set Margin Top Automatically</label>
@@ -391,11 +381,19 @@
                 </label>
             </div>
         </div>
-        <div v-if="!settings.buttonMarginTopAuto" class="mt-2">
-            <label class="setting-label-sm">Margin Top (px)</label>
-            <input type="number" v-model.number="settings.buttonMarginTop" class="yab-form-input" placeholder="e.g., 15">
+
+        <div class="grid grid-cols-2 gap-2 mt-2">
+            <div v-if="!settings.buttonMarginTopAuto">
+                <label class="setting-label-sm">Margin Top (px)</label>
+                <input type="number" v-model.number="settings.buttonMarginTop" class="yab-form-input" placeholder="e.g., 15">
+            </div>
+            <div :class="{'col-span-2': settings.buttonMarginTopAuto}">
+                <label class="setting-label-sm">Margin Bottom (px)</label>
+                <input type="number" v-model.number="settings.buttonMarginBottom" class="yab-form-input" placeholder="e.g., 0">
+            </div>
         </div>
-        <?php // *** END: ADDED MARGIN CONTROLS *** ?>
+        <?php // *** END: MARGIN CONTROLS *** ?>
+
 
         <div>
              <div class="grid grid-cols-2 gap-2">

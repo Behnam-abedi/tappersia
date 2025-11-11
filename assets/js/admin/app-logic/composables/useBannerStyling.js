@@ -6,93 +6,130 @@ export function useBannerStyling(banner) {
         const settings = view === 'desktop' ? banner.single : banner.single_mobile;
         if (!settings) return {};
         return {
-            // --- تغییرات ---
-            width: '100%', // <--- همیشه 100%
+            width: '100%',
             height: 'auto',
-            minHeight: `${settings.minHeight}px`, // <--- ساده‌سازی شد
-            // --- پایان تغییرات ---
-            border: settings.enableBorder ? `${settings.borderWidth}px solid ${settings.borderColor}` : 'none',
+            minHeight: `${settings.minHeight}px`,
+            border: settings.enableBorder ? `${settings.borderWidth}px solid ${banner.single.borderColor}` : 'none', // Color from desktop
             borderRadius: `${settings.borderRadius}px`,
             fontFamily: 'Roboto, sans-serif'
         };
     };
     
+    // ***** START: REFACTORED FUNCTION *****
     const getDynamicStyles = (view) => {
-        const settings = view === 'desktop' ? banner.single : banner.single_mobile;
-        if (!settings) return {};
+        if (view === 'desktop') {
+            const settings = banner.single;
+            if (!settings) return {};
+            return {
+                contentStyles: {
+                    alignItems: contentAlignment(settings.alignment),
+                    textAlign: settings.alignment,
+                    padding: `${settings.paddingY}px ${settings.paddingX}px`,
+                    width: `${settings.contentWidth}${settings.contentWidthUnit}`,
+                    minHeight: `${settings.minHeight}px`,
+                    flexGrow: 1,
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    zIndex: 3,
+                    position: 'relative',
+                    boxSizing: 'border-box'
+                },
+                titleStyles: {
+                    color: settings.titleColor,
+                    fontSize: `${settings.titleSize}px`,
+                    fontWeight: settings.titleWeight,
+                    lineHeight: 1,
+                    margin: 0,
+                },
+                descriptionStyles: {
+                    color: settings.descColor,
+                    fontSize: `${settings.descSize}px`,
+                    fontWeight: settings.descWeight,
+                    whiteSpace: 'pre-wrap',
+                    marginTop: `${settings.marginTopDescription}px`,
+                    marginBottom: `0px`,
+                    lineHeight: 1.5,
+                    wordWrap: 'break-word'
+                },
+                buttonStyles: {
+                    backgroundColor: settings.buttonBgColor,
+                    color: settings.buttonTextColor,
+                    fontSize: `${settings.buttonFontSize}px`,
+                    fontWeight: settings.buttonFontWeight,
+                    alignSelf: settings.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start'),
+                    borderRadius: `${settings.buttonBorderRadius}px`,
+                    padding: `${settings.buttonPaddingY}px ${settings.buttonPaddingX}px`,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textDecoration: 'none',
+                    lineHeight: 1,
+                    marginTop: settings.buttonMarginTopAuto ? 'auto' : `${settings.buttonMarginTop}px`,
+                    marginBottom: `${settings.buttonMarginBottom}px`
+                }
+            };
+        } else {
+            // --- Mobile View: Combine settings ---
+            const mobileSettings = banner.single_mobile;
+            const desktopSettings = banner.single; // Get desktop settings
+            if (!mobileSettings || !desktopSettings) return {};
 
-        return {
-            // ***** START: THE FIX IS HERE *****
-            contentStyles: {
-                alignItems: contentAlignment(settings.alignment),
-                textAlign: settings.alignment,
-                padding: `${settings.paddingY}px ${settings.paddingX}px`, // <--- پدینگ Y/X
-                width: `${settings.contentWidth}${settings.contentWidthUnit}`, // <--- عرض محتوا
-                
-                minHeight: `${settings.minHeight}px`, // <-- ADDED: Ensures it fills parent for auto margin
-                
-                flexGrow: 1,
-                display: 'flex', 
-                flexDirection: 'column', 
-                
-                // --- CORE FIX ---
-                zIndex: 3, // <-- Use 3 (same as renderer)
-                position: 'relative', // <-- FIX: Changed from 'absolute'
-                // height: '100%', // <-- FIX: REMOVED
-                // --- END CORE FIX ---
+            const mobileAlignment = contentAlignment(desktopSettings.alignment); // Use desktop alignment
 
-                boxSizing: 'border-box'
-            },
-            // ***** END: THE FIX *****
-
-            titleStyles: {
-                color: settings.titleColor,
-                fontSize: `${settings.titleSize}px`,
-                fontWeight: settings.titleWeight,
-                lineHeight: 1, // <--- ثابت شد
-                margin: 0,
-            },
-            descriptionStyles: {
-                color: settings.descColor,
-                fontSize: `${settings.descSize}px`,
-                fontWeight: settings.descWeight,
-                whiteSpace: 'pre-wrap',
-                marginTop: `${settings.marginTopDescription}px`,
-                marginBottom: `0px`,
-                lineHeight: 1.5, // <--- ثابت شد (یا هر مقدار دیفالت مناسب دیگر)
-                // width: `${settings.descWidth}${settings.descWidthUnit}`, // <--- حذف شد
-                wordWrap: 'break-word'
-            },
-            buttonStyles: {
-                backgroundColor: settings.buttonBgColor,
-                color: settings.buttonTextColor,
-                fontSize: `${settings.buttonFontSize}px`,
-                fontWeight: settings.buttonFontWeight,
-                alignSelf: settings.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start'),
-                borderRadius: `${settings.buttonBorderRadius}px`,
-                // --- تغییرات ---
-                padding: `${settings.buttonPaddingY}px ${settings.buttonPaddingX}px`, // <--- پدینگ Y/X
-                // --- پایان تغییرات ---
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textDecoration: 'none',
-                lineHeight: 1, // <--- ثابت شد
-                
-                // --- START: MODIFIED MARGIN LOGIC ---
-                marginTop: settings.buttonMarginTopAuto ? 'auto' : `${settings.buttonMarginTop}px`
-                // --- END: MODIFIED MARGIN LOGIC ---
-            }
-        };
+            return {
+                contentStyles: {
+                    alignItems: mobileAlignment,
+                    textAlign: desktopSettings.alignment, // Use desktop alignment
+                    padding: `${mobileSettings.paddingY}px ${mobileSettings.paddingX}px`, // Mobile padding
+                    width: `${mobileSettings.contentWidth}${mobileSettings.contentWidthUnit}`, // Mobile width
+                    minHeight: `${mobileSettings.minHeight}px`, // Mobile minHeight
+                    flexGrow: 1,
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    zIndex: 3,
+                    position: 'relative',
+                    boxSizing: 'border-box'
+                },
+                titleStyles: {
+                    color: desktopSettings.titleColor, // Desktop color
+                    fontSize: `${mobileSettings.titleSize}px`, // Mobile size
+                    fontWeight: mobileSettings.titleWeight, // Mobile weight
+                    lineHeight: 1,
+                    margin: 0,
+                },
+                descriptionStyles: {
+                    color: desktopSettings.descColor, // Desktop color
+                    fontSize: `${mobileSettings.descSize}px`, // Mobile size
+                    fontWeight: mobileSettings.descWeight, // Mobile weight
+                    whiteSpace: 'pre-wrap',
+                    marginTop: `${mobileSettings.marginTopDescription}px`, // Mobile margin
+                    marginBottom: `0px`,
+                    lineHeight: 1.5,
+                    wordWrap: 'break-word'
+                },
+                buttonStyles: {
+                    backgroundColor: desktopSettings.buttonBgColor, // Desktop color
+                    color: desktopSettings.buttonTextColor, // Desktop color
+                    fontSize: `${mobileSettings.buttonFontSize}px`, // Mobile size
+                    fontWeight: desktopSettings.buttonFontWeight, // Desktop weight
+                    alignSelf: desktopSettings.alignment === 'center' ? 'center' : (desktopSettings.alignment === 'right' ? 'flex-end' : 'flex-start'), // Desktop alignment
+                    borderRadius: `${mobileSettings.buttonBorderRadius}px`, // Mobile radius
+                    padding: `${mobileSettings.buttonPaddingY}px ${mobileSettings.buttonPaddingX}px`, // Mobile padding
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textDecoration: 'none',
+                    lineHeight: 1,
+                    marginTop: mobileSettings.buttonMarginTopAuto ? 'auto' : `${mobileSettings.buttonMarginTop}px`, // Mobile margin
+                    marginBottom: `${mobileSettings.buttonMarginBottom}px` // Mobile margin
+                }
+            };
+        }
     };
+    // ***** END: REFACTORED FUNCTION *****
 
     const getContentStyles = (view) => getDynamicStyles(view).contentStyles;
-    
-    // ***** START: BUG FIX *****
-    // Corrected .styles to .titleStyles
     const getTitleStyles = (view) => getDynamicStyles(view).titleStyles;
-    // ***** END: BUG FIX *****
-    
     const getDescriptionStyles = (view) => getDynamicStyles(view).descriptionStyles;
     const getButtonStyles = (view) => getDynamicStyles(view).buttonStyles;
 

@@ -13,14 +13,10 @@ export const createDefaultPart = () => ({
     titleColor: '#ffffff',
     titleSize: 24,
     titleWeight: '700',
-    // titleLineHeight: 1, // <--- حذف شد
     descText: 'A short and engaging description.',
     descColor: '#ffffff',
     descSize: 14,
     descWeight: '500',
-    // descLineHeight: 1.5, // <--- حذف شد
-    // descWidth: 100, // <--- حذف شد
-    // descWidthUnit: '%', // <--- حذف شد
     buttonText: 'Learn More',
     buttonLink: '#',
     buttonBgColor: '#124C88',
@@ -28,7 +24,6 @@ export const createDefaultPart = () => ({
     buttonFontSize: 14,
     buttonBgHoverColor: '#10447B',
     buttonFontWeight: '500',
-    // buttonLineHeight: 1, // <--- حذف شد
     imageUrl: '',
     enableCustomImageSize: false,
     imageWidth: null,
@@ -39,14 +34,9 @@ export const createDefaultPart = () => ({
     imagePosBottom: 0,
     
     // --- تغییرات چیدمان ---
-    // enableCustomDimensions: true, // <--- حذف شد
-    // width: 100, // <--- حذف شد
-    // widthUnit: '%', // <--- حذف شد
-    // height: 'auto', // <--- حذف شد
-    minHeight: 190, // <--- ساده‌سازی شد
-    // minHeightUnit: 'px', // <--- حذف شد
-    contentWidth: 100, // <--- جدید
-    contentWidthUnit: '%', // <--- جدید
+    minHeight: 190,
+    contentWidth: 100,
+    contentWidthUnit: '%',
     
     enableBorder: false,
     borderWidth: 1,
@@ -54,28 +44,21 @@ export const createDefaultPart = () => ({
     borderRadius: 16,
     
     // --- تغییرات پدینگ ---
-    paddingY: 34, // <--- جدید (جایگزین Top/Bottom)
-    paddingX: 34, // <--- جدید (جایگزین Left/Right)
-    // paddingTop: 34, // <--- حذف شد
-    // paddingRight: 34, // <--- حذف شد
-    // paddingBottom: 34, // <--- حذف شد
-    // paddingLeft: 34, // <--- حذف شد
+    paddingY: 34,
+    paddingX: 34,
     
     buttonBorderRadius: 8,
     marginTopDescription: 12,
     
     // --- START: Refactored Button Margin ---
-    buttonMarginTopAuto: true, // <-- NEW
-    buttonMarginTop: 15,       // <-- RENAMED from marginBottomDescription
+    buttonMarginTopAuto: true,
+    buttonMarginTop: 15,
+    buttonMarginBottom: 0, // <-- ADDED
     // --- END: Refactored Button Margin ---
     
     // --- تغییرات پدینگ دکمه ---
-    buttonPaddingY: 12, // <--- جدید
-    buttonPaddingX: 24, // <--- جدید
-    // buttonPaddingTop: 12, // <--- حذف شد
-    // buttonPaddingRight: 24, // <--- حذف شد
-    // buttonPaddingBottom: 12, // <--- حذف شد
-    // buttonPaddingLeft: 24, // <--- حذف شد
+    buttonPaddingY: 12,
+    buttonPaddingX: 24,
 });
 
 export const createDefaultMobilePart = () => {
@@ -86,33 +69,24 @@ export const createDefaultMobilePart = () => {
     mobileDefaults.minHeight = 145;
     
     // --- تغییرات پدینگ ---
-    mobileDefaults.paddingY = 20; // <--- جدید
-    mobileDefaults.paddingX = 22; // <--- جدید
-    // mobileDefaults.paddingTop = 20; // <--- حذف شد
-    // mobileDefaults.paddingRight = 22; // <--- حذف شد
-    // mobileDefaults.paddingBottom = 15; // <--- حذف شد
-    // mobileDefaults.paddingLeft = 22; // <--- حذف شد
+    mobileDefaults.paddingY = 20;
+    mobileDefaults.paddingX = 22;
     
     mobileDefaults.titleSize = 14;
-    // mobileDefaults.titleLineHeight = 1.4; // <--- حذف شد
 
     mobileDefaults.descSize = 12;
-    // mobileDefaults.descLineHeight = 1.4; // <--- حذف شد
     mobileDefaults.marginTopDescription = 12;
 
     mobileDefaults.buttonFontSize = 11;
     
     // --- تغییرات پدینگ دکمه ---
-    mobileDefaults.buttonPaddingY = 10; // <--- جدید
-    mobileDefaults.buttonPaddingX = 16; // <--- جدید
-    // mobileDefaults.buttonPaddingTop = 10; // <--- حذف شد
-    // mobileDefaults.buttonPaddingRight = 16; // <--- حذف شد
-    // mobileDefaults.buttonPaddingBottom = 10; // <--- حذف شد
-    // mobileDefaults.buttonPaddingLeft = 16; // <--- حذف شد
+    mobileDefaults.buttonPaddingY = 10;
+    mobileDefaults.buttonPaddingX = 16;
     
     // --- START: Refactored Button Margin ---
-    mobileDefaults.buttonMarginTopAuto = true; // <-- NEW
-    mobileDefaults.buttonMarginTop = 15;       // <-- RENAMED from marginBottomDescription
+    mobileDefaults.buttonMarginTopAuto = true;
+    mobileDefaults.buttonMarginTop = 15;
+    mobileDefaults.buttonMarginBottom = 0; // <-- ADDED
     // --- END: Refactored Button Margin ---
 
 

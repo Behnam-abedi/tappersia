@@ -101,13 +101,13 @@ export function useBannerSync(banner, currentView) {
             banner.isMobileConfigured = true;
             const desktop = banner.single;
             const mobile = banner.single_mobile;
-            // --- START: MODIFIED propertiesToSync ---
+            // --- START: MODIFIED propertiesToSync (Content fields REMOVED) ---
             const propertiesToSync = [
-                'layerOrder', 'alignment', 'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
-                'titleText', 'titleColor', 'titleWeight', 'descText', 'descColor', 'descWeight',
-                'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
-                'imageUrl', 'enableBorder', 'borderColor',
-                'buttonMarginTopAuto', 'buttonMarginTop' // <-- ADDED
+                // --- Kept Only Fields With Mobile UI ---
+                'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
+                'titleWeight', 'descWeight',
+                'buttonMarginTopAuto', 'buttonMarginTop',
+                'buttonMarginBottom' // <-- ADDED
             ];
             // --- END: MODIFIED propertiesToSync ---
             for (const prop of propertiesToSync) {
@@ -304,23 +304,32 @@ export function useBannerSync(banner, currentView) {
 
     
     // --- Single Banner: CONTINUOUS Sync (The working example) ---
-    watch(() => banner.single, (newDesktop, oldDesktop) => {
-        if (banner.type !== 'single-banner') return; 
+    // ***** START: BUG FIX - Watch a function that accesses banner.value *****
+    watch(() => (banner.value && banner.value.type === 'single-banner') ? banner.value.single : null, (newDesktop, oldDesktop) => {
         
-        // --- START: MODIFIED propertiesToSync ---
+        if (!newDesktop || !oldDesktop) {
+            // This happens when the banner type is first selected, or when switching away.
+            // We need a valid oldDesktop to compare, so we'll wait for the next change.
+            console.log('🚀 [DEBUGGER] Single-banner watcher (re)calibrating...');
+            return;
+        }
+
+        if (!banner.value || banner.value.type !== 'single-banner') return; // Safety check
+        
+        // --- START: MODIFIED propertiesToSync (Content fields REMOVED) ---
         const propertiesToSync = [
-            'layerOrder', 'alignment', 'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
-            'titleText', 'titleColor', 'titleWeight', 'descText', 'descColor', 'descWeight',
-            'buttonText', 'buttonLink', 'buttonBgColor', 'buttonTextColor', 'buttonBgHoverColor', 'buttonFontWeight',
-            'imageUrl', 'enableBorder', 'borderColor',
-            'buttonMarginTopAuto', 'buttonMarginTop' // <-- ADDED
+            // --- Kept Only Fields With Mobile UI ---
+            'backgroundType', 'bgColor', 'gradientAngle', 'gradientStops',
+            'titleWeight', 'descWeight',
+            'buttonMarginTopAuto', 'buttonMarginTop',
+            'buttonMarginBottom' // <-- ADDED
         ];
         // --- END: MODIFIED propertiesToSync ---
         
         // *** START: MODIFIED CALL to use new function signature ***
         runContinuousSyncDebug(
             'single-banner',
-            banner.single_mobile,
+            banner.value.single_mobile, // <-- Access banner.value
             singleMobileDefaults,
             singleDesktopDefaults, // <-- Pass desktop defaults
             newDesktop,
@@ -330,11 +339,11 @@ export function useBannerSync(banner, currentView) {
         // *** END: MODIFIED CALL ***
 
     }, { deep: true });
+    // ***** END: BUG FIX *****
 
     
     // --- Simple Banner: CONTINUOUS Sync (The broken one) ---
     // *** NOTE: This is left as-is per instructions to only fix single-banner ***
-    // *** To fix this, it would need the same change as single-banner ***
     watch(() => banner.simple, (newDesktop, oldDesktop) => {
         if (banner.type !== 'simple-banner') return;
         const propertiesToSync = [
