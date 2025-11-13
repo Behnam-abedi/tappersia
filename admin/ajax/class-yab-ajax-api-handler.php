@@ -3,7 +3,7 @@
 
 if (!class_exists('Yab_Ajax_Api_Handler')) {
 
-    // 1. بارگذاری فایل‌های Trait
+    // 1. Load Trait files (no change)
     require_once YAB_PLUGIN_DIR . 'admin/ajax/traits/trait-yab-ajax-hotel-handler.php';
     require_once YAB_PLUGIN_DIR . 'admin/ajax/traits/trait-yab-ajax-tour-handler.php';
     require_once YAB_PLUGIN_DIR . 'admin/ajax/traits/trait-yab-ajax-flight-handler.php';
@@ -11,23 +11,28 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
 
     class Yab_Ajax_Api_Handler {
 
-        // 2. استفاده از Traitها
-        // تمام متدهای عمومی (public) و خصوصی (private) از این فایل‌ها
-        // به این کلاس اضافه می‌شوند.
+        // 2. Use Traits (no change)
         use Yab_Ajax_Hotel_Handler,
             Yab_Ajax_Tour_Handler,
             Yab_Ajax_Flight_Handler,
             Yab_Ajax_Welcome_Package_Handler;
 
-        // کلید API در کلاس اصلی باقی می‌ماند و در تمام Traitها
-        // از طریق $this->api_key قابل دسترسی است.
-        private $api_key = '0963b596-1f23-4188-b46c-d7d671028940';
+        // *** START: MODIFICATION ***
+        // The API key is now passed from Yab_Ajax_Handler
+        private $api_key;
+
+        public function __construct($api_key) {
+            $this->api_key = $api_key;
+        }
+        // *** END: MODIFICATION ***
+
 
         /**
-         * متد ثبت هوک‌ها بدون تغییر باقی می‌ماند.
-         * وردپرس متدهای مورد نیاز را از Traitها پیدا خواهد کرد.
+         * Register hooks method remains unchanged.
          */
         public function register_hooks() {
+            // ... (no changes here, all hooks remain the same) ...
+        // ... (all add_action calls) ...
             // --- هوک‌های هتل (از Trait هتل) ---
             add_action('wp_ajax_yab_fetch_hotels_from_api', [$this, 'fetch_hotels_from_api']);
             add_action('wp_ajax_yab_fetch_cities_from_api', [$this, 'fetch_cities_from_api']);
@@ -59,15 +64,23 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
         }
 
         /**
-         * این متد عمومی رندر بنر API (هتل/تور) است و
-         * چون به هیچ گروه خاصی تعلق ندارد، در کلاس اصلی می‌ماند.
+         * This public render method needs the API key check.
          */
         public function fetch_api_banner_html() {
+            // *** ADD THIS: License check ***
+            if (empty($this->api_key)) {
+                wp_send_json_error(['message' => 'Invalid or missing API license.'], 403);
+                return;
+            }
+            // *** END ADD ***
+            
             if (empty($_POST['banner_id']) || !is_numeric($_POST['banner_id'])) {
                 wp_send_json_error(['message' => 'Invalid Banner ID.'], 400);
                 return;
             }
 
+            // ... (rest of the function is unchanged) ...
+// ... (rest of fetch_api_banner_html)
             $banner_id = intval($_POST['banner_id']);
             $banner_post = get_post($banner_id);
 
@@ -92,8 +105,6 @@ if (!class_exists('Yab_Ajax_Api_Handler')) {
             wp_send_json_success(['html' => $html]);
             wp_die();
         }
-
-        // تمام متدهای دیگر به فایل‌های Trait منتقل شده‌اند
     }
 }
 ?>

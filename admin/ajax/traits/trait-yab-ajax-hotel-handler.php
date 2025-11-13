@@ -5,8 +5,17 @@ if (!trait_exists('Yab_Ajax_Hotel_Handler')) {
     trait Yab_Ajax_Hotel_Handler {
 
         public function fetch_hotel_details_by_ids() {
+            // *** ADD THIS: License check ***
+            if (empty($this->api_key)) {
+                wp_send_json_error(['message' => 'Invalid or missing API license.'], 403);
+                return;
+            }
+            // *** END ADD ***
+
             // No nonce check needed if used on frontend potentially
             if (empty($_POST['hotel_ids']) || !is_array($_POST['hotel_ids'])) {
+            // ... (rest of method)
+// ... (rest of fetch_hotel_details_by_ids)
                 wp_send_json_error(['message' => 'Invalid or empty hotel IDs provided.'], 400);
                 return;
             }
@@ -62,7 +71,16 @@ if (!trait_exists('Yab_Ajax_Hotel_Handler')) {
         }
 
         public function fetch_cities_from_api() {
-             check_ajax_referer('yab_nonce', 'nonce');
+            // *** ADD THIS: License check ***
+            if (empty($this->api_key)) {
+                wp_send_json_error(['message' => 'Invalid or missing API license.'], 403);
+                return;
+            }
+            // *** END ADD ***
+
+            check_ajax_referer('yab_nonce', 'nonce');
+            // ... (rest of method)
+// ... (rest of fetch_cities_from_api)
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
 
             $api_url = 'https://b2bapi.tapexplore.com/api/b2b/hotel/cities';
@@ -83,7 +101,16 @@ if (!trait_exists('Yab_Ajax_Hotel_Handler')) {
         }
 
          public function fetch_hotel_details_from_api() {
+            // *** ADD THIS: License check ***
+            if (empty($this->api_key)) {
+                wp_send_json_error(['message' => 'Invalid or missing API license.'], 403);
+                return;
+            }
+            // *** END ADD ***
+
             check_ajax_referer('yab_nonce', 'nonce');
+            // ... (rest of method)
+// ... (rest of fetch_hotel_details_from_api)
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
             if (empty($_POST['hotel_id']) || !is_numeric($_POST['hotel_id'])) {
                 wp_send_json_error(['message' => 'Invalid Hotel ID provided.'], 400);
@@ -110,7 +137,16 @@ if (!trait_exists('Yab_Ajax_Hotel_Handler')) {
         }
 
         public function fetch_hotels_from_api() {
+            // *** ADD THIS: License check ***
+            if (empty($this->api_key)) {
+                wp_send_json_error(['message' => 'Invalid or missing API license.'], 403);
+                return;
+            }
+            // *** END ADD ***
+            
             check_ajax_referer('yab_nonce', 'nonce');
+            // ... (rest of method)
+// ... (rest of fetch_hotels_from_api)
             if (!current_user_can('manage_options')) { wp_send_json_error(['message' => 'Permission denied.'], 403); return; }
 
             $base_url = 'https://b2bapi.tapexplore.com/api/b2b/hotel/filter';

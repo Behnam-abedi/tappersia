@@ -4,7 +4,18 @@
 if (!class_exists('Yab_Ajax_Handler')) {
     class Yab_Ajax_Handler {
 
+        // *** ADD THIS ***
+        private $api_key;
+
         public function __construct() {
+            // *** ADD THIS: Load manager and get key ***
+            if (!class_exists('Yab_License_Manager')) {
+                require_once YAB_PLUGIN_DIR . 'includes/license/class-yab-license-manager.php';
+            }
+            $license_manager = new Yab_License_Manager();
+            $this->api_key = $license_manager->get_api_key();
+            // *** END ADD ***
+
             $this->load_dependencies();
             $this->register_handlers();
         }
@@ -16,7 +27,8 @@ if (!class_exists('Yab_Ajax_Handler')) {
         }
 
         private function register_handlers() {
-            $api_handler = new Yab_Ajax_Api_Handler();
+            // *** MODIFY THIS: Pass the api_key to the handler ***
+            $api_handler = new Yab_Ajax_Api_Handler($this->api_key);
             $api_handler->register_hooks(); // This already registers welcome package related hooks
 
             $banner_handler = new Yab_Ajax_Banner_Handler();

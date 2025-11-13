@@ -10,13 +10,25 @@ class Yab_Admin_Menu {
     }
 
     public function add_plugin_admin_menu() {
-        add_menu_page('Tappersia', 'Tappersia', 'manage_options', $this->plugin_name, array( $this, 'display_add_new_page' ), 'dashicons-art', 25 );
+        
+        $logo_url = YAB_PLUGIN_URL . 'assets/image/logo.png';
+
+        add_menu_page('Tappersia', 'Tappersia', 'manage_options', $this->plugin_name, array( $this, 'display_add_new_page' ), $logo_url, 25 );
+
         add_submenu_page($this->plugin_name, 'Add New', 'Add New', 'manage_options', $this->plugin_name, array( $this, 'display_add_new_page' ));
         add_submenu_page($this->plugin_name, 'All Banners', 'All Banners', 'manage_options', $this->plugin_name . '-list', array( $this, 'display_list_page' ));
+        
+        add_submenu_page(
+            $this->plugin_name,
+            'License Settings',
+            'License',
+            'manage_options',
+            $this->plugin_name . '-license',
+            array($this, 'display_license_settings_page')
+        );
     }
 
     public function display_add_new_page() {
-        // Add welcome package modal include here
         require_once YAB_PLUGIN_DIR . 'admin/views/view-add-new-banner.php';
     }
 
@@ -24,9 +36,34 @@ class Yab_Admin_Menu {
         require_once YAB_PLUGIN_DIR . 'admin/views/view-list-banners.php';
     }
 
-    // --- enqueue_styles_and_scripts function remains unchanged ---
+    public function display_license_settings_page() {
+        require_once YAB_PLUGIN_DIR . 'admin/views/view-license-settings.php';
+    }
+
+
     public function enqueue_styles_and_scripts( $hook ) {
-        // Check if the current page is one of the plugin's pages
+        
+        // این فایل CSS *همیشه* بارگذاری می‌شود (از طریق هوکی که در class-main.php ثبت شد)
+        wp_enqueue_style( 
+            'yab-admin-global-style', // اسم جدید
+            YAB_PLUGIN_URL . 'assets/css/admin-global.css', // فایل جدید
+            array(), 
+            $this->version, 
+            'all' 
+        );
+
+        // این چک کردن مثل قبل باقی می‌ماند تا اسکریپت‌های سنگین فقط در صفحات پلاگین لود شوند
+        if ( strpos($hook, $this->plugin_name) === false && strpos($hook, 'tappersia-activate') === false ) {
+            return;
+        }
+
+        // این فایل فقط در صفحات لایسنس و فعال‌سازی بارگذاری می‌شود (درست است)
+        if (strpos($hook, 'tappersia-activate') !== false || strpos($hook, $this->plugin_name . '-license') !== false) {
+             wp_enqueue_style( 'yab-license-style', YAB_PLUGIN_URL . 'assets/css/yab-license-style.css', array(), $this->version, 'all' );
+        }
+
+        // اگر هوک شامل نام پلاگین نباشد، اسکریپت‌های اصلی (Vue.js و ...) را بارگذاری نکن
+        // (این کار مانع بارگذاری Vue در صفحه لایسنس می‌شود)
         if ( strpos($hook, $this->plugin_name) === false ) {
             return;
         }
@@ -70,7 +107,9 @@ class Yab_Admin_Menu {
                 // Enqueue List App
                 wp_enqueue_script( 'yab-list-app', YAB_PLUGIN_URL . 'assets/js/admin-list-app.js', array( 'yab-vue', 'jquery', 'yab-modal-component' ), $this->version, true );
                 wp_localize_script( 'yab-list-app', 'yab_list_data', $this->get_list_page_data() );
-            } else {
+            } 
+            else if (strpos($hook, $page_slug . '-license') === false) { 
+                
                 // Enqueue Main Editor App
                 wp_enqueue_script( 'yab-admin-app-main', YAB_PLUGIN_URL . 'assets/js/admin/app.js', array( 'yab-vue', 'jquery', 'yab-modal-component', 'swiper-js', 'sortable-js', 'yab-coloris-js' ), $this->version, true );
 
@@ -88,10 +127,6 @@ class Yab_Admin_Menu {
         }
     }
 
-    // --- remove_admin_notices, get_list_page_data, get_add_new_page_data methods remain unchanged ---
-    /**
-     * Remove all admin notices from plugin pages.
-     */
     public function remove_admin_notices() {
         remove_all_actions('admin_notices');
         remove_all_actions('user_admin_notices');
@@ -112,22 +147,20 @@ class Yab_Admin_Menu {
                 $query->the_post();
                 $banner_id = get_the_ID();
                 $banner_data = get_post_meta($banner_id, '_yab_banner_data', true);
-                $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner'; // Default type if missing
+                $banner_type = get_post_meta($banner_id, '_yab_banner_type', true) ?: 'double-banner'; 
 
-                $display_method = isset($banner_data['displayMethod']) ? $banner_data['displayMethod'] : 'Fixed'; // Default method
+                $display_method = isset($banner_data['displayMethod']) ? $banner_data['displayMethod'] : 'Fixed'; 
 
                 $shortcode = '[unknown_banner]';
-                // Convert banner type slug to base shortcode name
                 $base_shortcode = str_replace('-', '', $banner_type);
-                 // Special cases for longer names if needed
                 $base_shortcode = str_replace('contenthtmlbanner', 'contenthtml', $base_shortcode);
                 $base_shortcode = str_replace('contenthtmlsidebarbanner', 'contenthtmlsidebar', $base_shortcode);
-                $base_shortcode = str_replace('welcomepackagebanner', 'welcomepackage', $base_shortcode); // Add Welcome Package
+                $base_shortcode = str_replace('welcomepackagebanner', 'welcomepackage', $base_shortcode); 
 
 
                 if ($display_method === 'Embeddable') {
                     $shortcode = '[' . $base_shortcode . ' id="' . $banner_id . '"]';
-                } else { // Fixed method
+                } else { 
                      $shortcode = '[' . $base_shortcode . '_fixed]';
                 }
 
@@ -136,7 +169,7 @@ class Yab_Admin_Menu {
                     'id' => $banner_id,
                     'title' => get_the_title(),
                     'date' => get_the_date('Y/m/d'),
-                    'is_active' => isset($banner_data['isActive']) ? $banner_data['isActive'] : false, // Default to inactive if not set
+                    'is_active' => isset($banner_data['isActive']) ? $banner_data['isActive'] : false, 
                     'display_method' => $display_method,
                     'shortcode' => $shortcode,
                     'type' => $banner_type,
@@ -146,7 +179,6 @@ class Yab_Admin_Menu {
         }
         wp_reset_postdata();
 
-        // Sort banners by ID descending (newest first)
         usort($all_banners, function($a, $b) {
             return $b['id'] <=> $a['id'];
         });
@@ -160,7 +192,6 @@ class Yab_Admin_Menu {
     }
 
      private function get_add_new_page_data() {
-        // Fetch initial content lists (posts, pages, categories)
         $initial_posts = get_posts(['numberposts' => 50, 'post_status' => 'publish', 'orderby' => 'date', 'order' => 'DESC']);
         $initial_categories = get_categories(['hide_empty' => false, 'number' => 50, 'orderby' => 'name', 'order' => 'ASC']);
         $initial_pages = get_pages(['number' => 50, 'sort_column' => 'post_title', 'sort_order' => 'ASC']);
@@ -174,28 +205,23 @@ class Yab_Admin_Menu {
             'existing_banner' => null
         );
 
-        // Check if editing an existing banner
         if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['banner_id'])) {
             $banner_id = intval($_GET['banner_id']);
             $banner_post = get_post($banner_id);
-            $banner_data = get_post_meta($banner_id, '_yab_banner_data', true); // Stored banner settings
-            $banner_type = get_post_meta($banner_id, '_yab_banner_type', true); // Stored banner type
+            $banner_data = get_post_meta($banner_id, '_yab_banner_data', true); 
+            $banner_type = get_post_meta($banner_id, '_yab_banner_type', true); 
 
             if ($banner_post && $banner_data && $banner_type) {
-                // Prepare the existing banner data to be merged into the Vue app state
-                $banner_data['name'] = $banner_post->post_title; // Add the name back
-                $banner_data['id'] = $banner_id; // Add the ID back
-                $banner_data['type'] = $banner_type; // Ensure type is set correctly
+                $banner_data['name'] = $banner_post->post_title; 
+                $banner_data['id'] = $banner_id; 
+                $banner_data['type'] = $banner_type; 
 
                 $localized_data['existing_banner'] = $banner_data;
-
-                // Pre-populate search lists with selected items if they exist
-                 // Ensure 'displayOn' structure exists before accessing
+                
                 $displayOn = $banner_data['displayOn'] ?? ['posts' => [], 'pages' => [], 'categories' => []];
 
                 if (!empty($displayOn['posts'])) {
                     $selected_posts = get_posts(['post__in' => $displayOn['posts'], 'numberposts' => -1, 'post_type' => 'post', 'post_status' => 'publish']);
-                    // Merge and ensure uniqueness based on ID
                     $localized_data['posts'] = array_values(array_unique(array_merge($localized_data['posts'], array_map(fn($p) => ['ID' => $p->ID, 'post_title' => $p->post_title], $selected_posts)), SORT_REGULAR));
                 }
                 if (!empty($displayOn['pages'])) {
@@ -206,8 +232,6 @@ class Yab_Admin_Menu {
                     $selected_cats = get_categories(['include' => $displayOn['categories'], 'hide_empty' => false]);
                     $localized_data['categories'] = array_values(array_unique(array_merge($localized_data['categories'], array_map(fn($c) => ['term_id' => $c->term_id, 'name' => $c->name], $selected_cats)), SORT_REGULAR));
                 }
-            } else {
-                 // Handle case where banner ID is invalid or data is missing (optional: show error)
             }
         }
 
