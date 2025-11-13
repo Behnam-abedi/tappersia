@@ -80,12 +80,19 @@ class Yab_Updater_Client {
         }
 
         // 5. Cache the successful result
-        
-        // --- START: MODIFICATION FOR 30 SECONDS ---
-        // set_transient( $this->transient_key, $data, 12 * HOUR_IN_SECONDS ); // 12-hour cache (Original)
-        set_transient( $this->transient_key, $data, 30 ); // 30-second cache (FOR TESTING ONLY!)
-        // --- END: MODIFICATION ---
+        // زمان استاندارد 12 ساعت است. برای تست می‌توانید این مقدار را به 30 (ثانیه) تغییر دهید.
+        set_transient( $this->transient_key, $data, 12 * HOUR_IN_SECONDS ); // 12-hour cache
 
         return $data;
+    }
+
+    /**
+     * Deletes the update transient cache.
+     * این متد جدید برای دکمه "بررسی آپدیت" اضافه شده است
+     */
+    public function delete_cache() {
+        if ( ! empty( $this->transient_key ) ) {
+            delete_transient( $this->transient_key );
+        }
     }
 }

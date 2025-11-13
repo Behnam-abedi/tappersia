@@ -140,6 +140,24 @@ class Yab_Updater_Checker {
     }
 
     /**
+     * Deletes the plugin's update cache transient.
+     * This forces a new check against GitHub on the next run.
+     */
+    public function force_check() {
+        if ( $this->client ) {
+            $this->client->delete_cache();
+        }
+    }
+
+    /**
+     * متد کمکی برای گرفتن اسلاگ پلاگین
+     * @return string
+     */
+    public function get_plugin_slug() {
+        return $this->plugin_slug;
+    }
+
+    /**
      * Helper to get validated data, caching it for the current request.
      *
      * @return stdClass|WP_Error

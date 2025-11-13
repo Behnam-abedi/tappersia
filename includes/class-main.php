@@ -1,14 +1,24 @@
 <?php
+// includes/class-main.php
+
 class Yab_Main {
 
     protected $plugin_name;
     protected $version;
+    protected $plugin_file; // <-- اضافه شده
+    private $updater; // <-- اضافه شده
 
     private $license_manager;
     private $license_page_handler;
-    private $admin_menu; // <-- این برای بارگذاری اسکریپت‌ها لازم است
+    private $admin_menu;
 
-    public function __construct() {
+    /**
+     * Constructor.
+     *
+     * @param string $plugin_file The full path to the main plugin file.
+     */
+    public function __construct( $plugin_file ) { // <-- ویرایش شده
+        $this->plugin_file = $plugin_file; // <-- اضافه شده
         $this->plugin_name = 'tappersia';
         $this->version = YAB_VERSION;
         $this->load_dependencies();
@@ -21,29 +31,26 @@ class Yab_Main {
         require_once YAB_PLUGIN_DIR . 'admin/class-yab-license-page.php';
         $this->license_page_handler = new Yab_License_Page($this->license_manager);
         
-        // --- START: این خط مهم است ---
-        // ما به یک نمونه از Admin_Menu نیاز داریم تا اسکریپت‌ها را *همیشه* بارگذاری کنیم
         $this->admin_menu = new Yab_Admin_Menu( $this->get_plugin_name(), $this->get_version() );
-        // --- END: خط مهم ---
     }
 
     private function load_dependencies() {
         require_once YAB_PLUGIN_DIR . 'admin/class-admin-menu.php';
         require_once YAB_PLUGIN_DIR . 'admin/class-ajax-handler.php';
         require_once YAB_PLUGIN_DIR . 'public/class-shortcode-handler.php';
+        
+        // <-- اضافه شده -->
+        // بارگذاری فکتوری آپدیتر گیت‌هاب
+        require_once YAB_PLUGIN_DIR . 'includes/updater/class-yab-updater-factory.php';
     }
 
     public function run() {
         
-        // --- START: این بلاک اصلاح شد ---
-        // این هوک باید *همیشه* در پنل ادمین اجرا شود (قبل از چک کردن لایسنس)
-        // تا فایل 'admin-global.css' (مخصوص لوگوی منو) همیشه بارگذاری شود.
         if (is_admin()) {
             add_action( 'admin_enqueue_scripts', array( $this->admin_menu, 'enqueue_styles_and_scripts' ) );
         }
-        // --- END: بلاک اصلاح شد ---
 
-        // حالا لایسنس را چک می‌کنیم
+        // چک کردن لایسنس
         if ($this->license_manager->is_license_valid()) {
             // لایسنس معتبر است: پلاگین کامل را اجرا کن
             $this->define_cpt();
@@ -62,70 +69,156 @@ class Yab_Main {
     }
 
     private function define_admin_hooks() {
-        // از نمونه‌ای که در constructor ساختیم استفاده می‌کنیم
         add_action( 'admin_menu', array( $this->admin_menu, 'add_plugin_admin_menu' ) );
-        
-        // نکته: هوک 'admin_enqueue_scripts' قبلاً به متد run() منتقل شده است
         
         new Yab_Ajax_Handler();
         
-        // هوک برای فرم غیرفعال‌سازی
         add_action('admin_post_yab_deactivate_license', [$this, 'handle_deactivate_license']);
+
+        // --- START: بلوک آپدیتر (ویرایش شده برای ای‌جکس) ---
+        // 1. راه‌اندازی آپدیتر (بدون تغییر)
+        $this->updater = Yab_Updater_Factory::build(
+            $this->plugin_file, // مسیر فایل اصلی پلاگین
+            $this->version      // نسخه فعلی
+        );
+        $this->updater->init(); // ثبت هوک‌های 'pre_set_site_transient_update_plugins' و 'plugins_api'
+
+        // 2. هوک‌های ای‌جکس جدید را اضافه کنید
+        add_action('wp_ajax_yab_ajax_check_for_updates', [$this, 'ajax_check_for_updates']);
+        add_action('wp_ajax_yab_ajax_install_update', [$this, 'ajax_install_update']);
+        // --- END: بلوک آپدیتر ---
     }
     
-    private function define_activation_hooks() {
-        // اضافه کردن منوی صفحه فعال‌سازی
-        add_action('admin_menu', array($this, 'register_activation_page'));
-        
-        // منطق ریدایرکت
-        add_action('admin_init', array($this, 'redirect_to_activation_page'));
-        
-        // نوتیس ادمین
-        add_action('admin_notices', array($this, 'show_activation_notice'));
-        add_action('network_admin_notices', array($this, 'show_activation_notice'));
+    // --- START: NEW AJAX HANDLER FUNCTIONS ---
 
-        // پردازش فرم فعال‌سازی
-        add_action('admin_init', array($this->license_page_handler, 'process_activation_submission'));
+    /**
+     * هندلر ای‌جکس برای "بررسی آپدیت"
+     */
+    public function ajax_check_for_updates() {
+        // 1. بررسی‌های امنیتی
+        check_ajax_referer('yab_update_nonce', 'nonce');
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( [ 'message' => 'دسترسی مجاز نیست.' ] );
+        }
+
+        // 2. پاک کردن کش‌ها
+        if ( $this->updater ) {
+            $this->updater->force_check();
+        }
+        delete_site_transient( 'update_plugins' );
+
+        // 3. وادار کردن وردپرس به بررسی مجدد آپدیت‌ها (این تابع هوک ما را صدا می‌زند)
+        wp_update_plugins();
+
+        // 4. دریافت نتیجه بررسی
+        $transient = get_site_transient( 'update_plugins' );
+        $slug = $this->updater->get_plugin_slug();
+
+        if ( ! empty( $transient->response[ $slug ] ) ) {
+            // آپدیت موجود است
+            $update_data = $transient->response[ $slug ];
+            wp_send_json_success( [
+                'update_available' => true,
+                'new_version' => $update_data->new_version,
+                'message' => 'نسخه ' . $update_data->new_version . ' آماده نصب است.',
+            ] );
+        } else {
+            // آپدیتی موجود نیست
+            wp_send_json_success( [
+                'update_available' => false,
+                'message' => 'شما از آخرین نسخه استفاده می‌کنید (' . $this->version . ').',
+            ] );
+        }
     }
 
     /**
-     * منوی صفحه فعال‌سازی را ثبت می‌کند (زمانی که لایسنس فعال نیست)
+     * هندلر ای‌جکس برای "نصب آپدیت"
      */
+    public function ajax_install_update() {
+        // 1. بررسی‌های امنیتی
+        check_ajax_referer('yab_update_nonce', 'nonce');
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( [ 'message' => 'دسترسی مجاز نیست.' ] );
+        }
+
+        // 2. بارگذاری فایل‌های مورد نیاز وردپرس برای آپگرید
+        require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+        require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/misc.php';
+        // این فایل جدید و ضروری است
+        require_once YAB_PLUGIN_DIR . 'includes/updater/class-yab-silent-upgrader-skin.php';
+
+        // 3. آماده‌سازی و اجرای آپگرید
+        $slug = $this->updater->get_plugin_slug();
+        $skin = new Yab_Silent_Upgrader_Skin();
+        $upgrader = new Plugin_Upgrader( $skin );
+
+        $result = $upgrader->upgrade( $slug );
+
+        // 4. بررسی نتیجه
+        if ( is_wp_error( $result ) ) {
+            // خطای WP Error
+            wp_send_json_error( [ 'message' => 'خطا در آپگرید: ' . $result->get_error_message() ] );
+        } elseif ( $skin->get_errors() ) {
+            // خطاهای ثبت شده توسط Skin
+            wp_send_json_error( [ 'message' => 'خطا در پوسته آپگرید: ' . implode( ', ', $skin->get_errors() ) ] );
+        } elseif ( $result === null ) {
+            // خطای احتمالی در اتصال یا فایل سیستم
+            wp_send_json_error( [ 'message' => 'خطا در نصب. ممکن است دسترسی فایل (Permissions) صحیح نباشد.' ] );
+        }
+
+        // 5. فعال‌سازی مجدد پلاگین (وردپرس پس از آپدیت آن را غیرفعال می‌کند)
+        activate_plugin( $slug );
+        
+        // 6. ارسال پیام موفقیت
+        wp_send_json_success( [
+            'reload' => true,
+            'message' => 'آپدیت با موفقیت نصب شد. صفحه در حال بارگذاری مجدد است...',
+        ] );
+    }
+
+    // --- END: NEW AJAX HANDLER FUNCTIONS ---
+    
+    // ... (بقیه متدهای کلاس بدون تغییر هستند) ...
+
+    private function define_activation_hooks() {
+        add_action('admin_menu', array($this, 'register_activation_page'));
+        add_action('admin_init', array($this, 'redirect_to_activation_page'));
+        add_action('admin_notices', array($this, 'show_activation_notice'));
+        add_action('network_admin_notices', array($this, 'show_activation_notice'));
+        add_action('admin_init', array($this->license_page_handler, 'process_activation_submission'));
+    }
+
     public function register_activation_page() {
-        // --- START: این بلاک اصلاح شد ---
-        // ما باید در اینجا نیز URL لوگو را تعریف کنیم
         $logo_url = YAB_PLUGIN_URL . 'assets/image/logo.png';
         
         add_menu_page(
             'Activate Tappersia',
             'Tappersia',
             'manage_options',
-            'tappersia-activate', // اسلاگ صفحه فعال‌سازی
+            'tappersia-activate',
             array($this->license_page_handler, 'render_page'),
-            $logo_url, // <-- استفاده از لوگو به جای dashicon
+            $logo_url,
             25
         );
-        // --- END: بلاک اصلاح شد ---
     }
 
     public function redirect_to_activation_page() {
-        // فقط در صورتی ریدایرکت کن که در صفحه فعال‌سازی نباشیم
         if (get_option(Yab_License_Manager::NEEDS_ACTIVATION_OPTION, false) &&
             (!isset($_GET['page']) || $_GET['page'] !== 'tappersia-activate'))
         {
-            // اگر در حال پردازش فرم خودمان هستیم، ریدایرکت نکن
             if (isset($_POST['yab_activate_license'])) {
                 return;
             }
             
-            delete_option(Yab_License_Manager::NEEDS_ACTIVATION_OPTION); // فقط یکبار ریدایرکت کن
+            delete_option(Yab_License_Manager::NEEDS_ACTIVATION_OPTION);
             wp_safe_redirect(admin_url('admin.php?page=tappersia-activate'));
             exit;
         }
     }
 
     public function show_activation_notice() {
-        // در خود صفحه فعال‌سازی، نوتیس را نشان نده
         if (isset($_GET['page']) && $_GET['page'] === 'tappersia-activate') {
             return;
         }
@@ -149,20 +242,14 @@ class Yab_Main {
         exit;
     }
 
-    // ... (بقیه متدهای کلاس: define_public_hooks, display_sticky_banner_in_footer, و غیره) ...
-    
     private function define_public_hooks() {
         $shortcode_handler = new Yab_Shortcode_Handler();
         add_action('init', array($shortcode_handler, 'register_shortcodes'));
         
         add_action('wp_enqueue_scripts', array($this, 'enqueue_public_styles_and_scripts'));
-
-        // START: Add action to render sticky banner in the footer
         add_action('wp_footer', array($this, 'display_sticky_banner_in_footer'));
-        // END: Add action
     }
     
-    // START: New function to display sticky banner
     public function display_sticky_banner_in_footer() {
         global $post;
         if (!is_singular() && !is_category() && !is_archive()) {
@@ -182,17 +269,11 @@ class Yab_Main {
         ];
 
         $banners = get_posts($args);
-
-        if (empty($banners)) {
-            return;
-        }
+        if (empty($banners)) return;
 
         $banner_post = $banners[0];
         $data = get_post_meta($banner_post->ID, '_yab_banner_data', true);
-        
-        if (empty($data['displayOn'])) {
-            return;
-        }
+        if (empty($data['displayOn'])) return;
 
         $cond = $data['displayOn'];
         $post_ids = !empty($cond['posts']) ? array_map('intval', $cond['posts']) : [];
@@ -212,13 +293,11 @@ class Yab_Main {
             echo $renderer->render();
         }
     }
-    // END: New function
 
     public function enqueue_public_styles_and_scripts() {
         wp_enqueue_style( 'yab-roboto-font', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap', array(), null );
         wp_enqueue_style( 'yab-public-style', YAB_PLUGIN_URL . 'assets/css/public-style.css', array('yab-roboto-font'), $this->version, 'all' );
         
-        // Enqueue Swiper for frontend if a tour-carousel might be present
         wp_enqueue_style( 'swiper-css', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.css', array(), '12.0.2' );
         wp_enqueue_script( 'swiper-js', YAB_PLUGIN_URL . 'assets/vendor/swiper/swiper-bundle.min.js', array(), '12.0.2', true );
     }
