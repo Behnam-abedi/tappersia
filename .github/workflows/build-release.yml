@@ -1,0 +1,39 @@
+name: Build and Upload Plugin Zip
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Prepare Plugin Structure
+      run: |
+        # ساخت پوشه موقت
+        mkdir build_temp
+        
+        # کپی کردن فایل‌ها به داخل پوشه‌ای با نام درست (tappersia)
+        rsync -av --exclude='.git*' --exclude='.github' --exclude='build_temp' ./ build_temp/tappersia/
+        
+        # حذف فایل جیسون که نباید در فایل دانلودی کاربر باشد
+        rm build_temp/tappersia/update-info.json
+
+    - name: Zip the Plugin
+      run: |
+        cd build_temp
+        # ساخت فایل زیپ استاندارد
+        zip -r ../tappersia-plugin.zip tappersia
+        cd ..
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: tappersia-plugin.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
