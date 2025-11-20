@@ -2,7 +2,7 @@
 // tappersia/admin/views/view-license-settings.php
 defined('ABSPATH') || exit;
 
-// We need an instance of the manager to get data
+// دریافت اطلاعات لایسنس
 if (!class_exists('Yab_License_Manager')) {
     require_once YAB_PLUGIN_DIR . 'includes/license/class-yab-license-manager.php';
 }
@@ -10,15 +10,16 @@ $license_manager = new Yab_License_Manager();
 $license_key = $license_manager->get_api_key();
 $license_status = $license_manager->get_license_status();
 
-// Mask the API key for display
+// ماسک کردن کلید برای نمایش
 $masked_key = '****************' . esc_html(substr($license_key, -4));
 $status_class = $license_status['status'] === 'valid' ? 'yab-status-valid' : 'yab-status-invalid';
 $status_text = $license_status['status'] === 'valid' ? 'Active' : 'Invalid';
 
-// پیام آپدیت قبلی حذف شد، چون ای‌جکس شد
+// دریافت ورژن فعلی پلاگین
+$current_version = defined('YAB_VERSION') ? YAB_VERSION : '1.0.0';
 ?>
 <div class="wrap yab-license-settings-wrap">
-    <h1>Tappersia License Settings</h1>
+    <h1>Tappersia License & Updates</h1>
 
     <div class="yab-license-box">
         <h2 class="yab-box-title">License Status</h2>
@@ -67,51 +68,53 @@ $status_text = $license_status['status'] === 'valid' ? 'Active' : 'Invalid';
     </div>
 
     <div class="yab-license-box">
-        <h2 class="yab-box-title">Plugin Updates</h2>
+        <h2 class="yab-box-title">Plugin Update</h2>
         
-        <div id="yab-updater-ui">
-            <p class="description">
-                Check for new versions of Tappersia from GitHub.
-            </p>
-            <button type="button" class="button button-primary" id="yab-check-update-btn" style="margin-top: 15px;">
-                Check for Updates
-            </button>
-            <span class="spinner" style="float: none; vertical-align: middle; margin-left: 5px;"></span>
+        <div class="yab-update-row">
+            <span class="yab-label">Current Version:</span>
+            <span class="yab-version-badge"><?php echo esc_html($current_version); ?></span>
+        </div>
+
+        <div id="yab-auto-check-status" class="yab-update-status-area">
+            <div class="yab-checking-state">
+                <span class="spinner is-active" style="float: none; margin: 0 5px 0 0;"></span>
+                Checking for updates...
+            </div>
         </div>
 
         <div id="yab-update-messages" style="display:none; margin-top: 15px;"></div>
-        
     </div>
-    </div>
+</div>
 
 <style>
-/* Minimal styles for the license settings page */
+/* استایل‌های صفحه لایسنس */
 .yab-license-settings-wrap {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     padding: 20px;
-    height: 100vh;
+    min-height: 80vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     box-sizing: border-box; 
 }
 .yab-license-box {
     background: #fff;
     border: 1px solid #c3c4c7;
     box-shadow: 0 1px 1px rgba(0,0,0,.04);
-    padding: 1px 12px 12px 12px;
+    padding: 0 20px 20px 20px;
     max-width: 700px;
     width: 100%; 
     margin-top: 20px;
-    border-radius: 10px;
+    border-radius: 8px;
     box-sizing: border-box; 
 }
 .yab-box-title {
     font-size: 18px;
-    padding: 8px 0;
-    border-bottom: 1px solid #c3c4c7;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
     margin-bottom: 20px;
+    margin-top: 0;
 }
 .yab-status-indicator {
     font-weight: 600;
@@ -119,19 +122,16 @@ $status_text = $license_status['status'] === 'valid' ? 'Active' : 'Invalid';
     border-radius: 4px;
     color: #fff;
     text-transform: uppercase;
-    font-size: 13px;
+    font-size: 12px;
 }
-.yab-status-valid {
-    background-color: #28a745;
-}
-.yab-status-invalid {
-    background-color: #dc3545;
-}
+.yab-status-valid { background-color: #28a745; }
+.yab-status-invalid { background-color: #dc3545; }
 .yab-api-key-display {
     background: #f0f0f1;
     padding: 4px 8px;
     border-radius: 4px;
     font-family: monospace;
+    color: #555;
 }
 .yab-deactivate-button {
     color: #dc3545 !important;
@@ -140,65 +140,74 @@ $status_text = $license_status['status'] === 'valid' ? 'Active' : 'Invalid';
 .yab-deactivate-button:hover {
     background: #dc3545 !important;
     color: #fff !important;
+    border-color: #dc3545 !important;
 }
 
-/* --- START: NEW/MODIFIED STYLES --- */
-.yab-notice {
+/* استایل بخش آپدیت */
+.yab-update-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+.yab-label { font-weight: 600; color: #333; }
+.yab-version-badge {
+    background: #e5e7eb;
+    color: #374151;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.yab-update-status-area {
     padding: 15px;
+    background: #f9f9f9;
     border-radius: 6px;
-    margin-top: 20px;
-    border-left: 4px solid;
-    max-width: 700px;
-    width: 100%;
-    box-sizing: border-box;
+    border: 1px dashed #ccc;
+    text-align: center;
 }
-.yab-notice-success {
-    background: #fff;
-    border-color: #4fe07f;
-    color: #1a1a1a;
+.yab-checking-state {
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.yab-notice-error {
-    background: #fff;
-    border-color: #dc3545; /* قرمز برای خطا */
-    color: #1a1a1a;
-}
-.yab-notice-info {
-    background: #fff;
-    border-color: #007cba; /* آبی برای اطلاعات */
-    color: #1a1a1a;
-}
-.yab-notice p {
-    margin: 0;
-    padding: 0;
+.yab-update-available {
+    color: #2271b1;
     font-weight: 500;
 }
-#yab-updater-ui .spinner {
-    display: none; /* در ابتدا مخفی */
+.yab-up-to-date {
+    color: #28a745;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
-#yab-updater-ui.loading .spinner {
-    display: inline-block; /* نمایش در زمان لودینگ */
+
+/* نوتیفیکیشن‌ها */
+.yab-notice {
+    padding: 12px;
+    border-radius: 4px;
+    margin-top: 10px;
+    border-left: 4px solid;
+    text-align: left;
 }
-/* --- END: NEW/MODIFIED STYLES --- */
+.yab-notice-success { background: #f0f9eb; border-color: #28a745; color: #155724; }
+.yab-notice-error { background: #fef2f2; border-color: #dc3545; color: #991b1b; }
 </style>
 
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-
-    var uiContainer = $('#yab-updater-ui');
+    var statusArea = $('#yab-auto-check-status');
     var messageBox = $('#yab-update-messages');
-
-    // Nonce برای امنیت ای‌جکس
     var updateNonce = '<?php echo wp_create_nonce('yab_update_nonce'); ?>';
 
-    // 1. هندلر برای دکمه "Check for Updates"
-    $(document).on('click', '#yab-check-update-btn', function(e) {
-        e.preventDefault();
-        var $button = $(this);
-        
-        uiContainer.addClass('loading');
-        $button.prop('disabled', true);
-        messageBox.hide().empty();
+    // اجرای خودکار هنگام لود شدن صفحه
+    performAutoCheck();
 
+    function performAutoCheck() {
         $.ajax({
             url: ajaxurl,
             type: 'POST',
@@ -208,44 +217,43 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    // موفقیت‌آمیز بود
-                    showMessage(response.data.message, 'info');
-
                     if (response.data.update_available) {
-                        // آپدیت موجود است، دکمه را عوض کن
-                        $button.replaceWith(
-                            '<button type="button" class="button button-primary" id="yab-install-update-btn" style="margin-top: 15px;">' +
-                            'Install Update (v' + response.data.new_version + ')' +
-                            '</button>'
+                        // آپدیت موجود است
+                        var newVersion = response.data.new_version;
+                        statusArea.html(
+                            '<div class="yab-update-available">' +
+                                '<span class="dashicons dashicons-warning" style="color: #f0b849; vertical-align: middle;"></span> ' +
+                                '<strong>New version available: v' + newVersion + '</strong>' +
+                                '<br><br>' +
+                                '<button type="button" class="button button-primary" id="yab-install-update-btn">Update Now</button>' +
+                            '</div>'
                         );
                     } else {
-                        // آپدیتی نیست، دکمه را فعال کن
-                        $button.prop('disabled', false);
+                        // آپدیتی نیست
+                        statusArea.html(
+                            '<div class="yab-up-to-date">' +
+                                '<span class="dashicons dashicons-yes-alt"></span> ' +
+                                'You are using the latest version.' +
+                            '</div>'
+                        );
                     }
                 } else {
-                    // خطای سرور
-                    showMessage(response.data.message, 'error');
-                    $button.prop('disabled', false);
+                    // خطا در پاسخ سرور
+                    statusArea.html('<span style="color:red;">Error checking for updates: ' + response.data.message + '</span>');
                 }
             },
             error: function() {
-                showMessage('An unknown error occurred.', 'error');
-                $button.prop('disabled', false);
-            },
-            complete: function() {
-                uiContainer.removeClass('loading');
+                statusArea.html('<span style="color:red;">Connection error while checking for updates.</span>');
             }
         });
-    });
+    }
 
-    // 2. هندلر برای دکمه "Install Update"
-    // (از 'document' استفاده می‌کنیم چون این دکمه بعداً به صفحه اضافه می‌شود)
+    // هندلر دکمه نصب آپدیت (که به صورت داینامیک اضافه شده)
     $(document).on('click', '#yab-install-update-btn', function(e) {
         e.preventDefault();
         var $button = $(this);
         
-        uiContainer.addClass('loading');
-        $button.prop('disabled', true).text('Installing... Do not refresh.');
+        $button.prop('disabled', true).text('Installing...');
         messageBox.hide().empty();
 
         $.ajax({
@@ -257,43 +265,26 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    // نصب موفقیت‌آمیز بود
                     showMessage(response.data.message, 'success');
                     if (response.data.reload) {
-                        // اگر سرور گفت، ریلود کن
-                        setTimeout(function() {
-                            location.reload();
-                        }, 2000); // 2 ثانیه صبر کن تا کاربر پیام را ببیند
+                        setTimeout(function() { location.reload(); }, 2000);
                     }
                 } else {
-                    // خطای نصب
                     showMessage(response.data.message, 'error');
-                    $button.prop('disabled', false).text('Install Failed. Try Again?');
+                    $button.prop('disabled', false).text('Retry Update');
                 }
             },
             error: function() {
-                showMessage('An unknown error occurred during installation.', 'error');
-                $button.prop('disabled', false).text('Install Failed. Try Again?');
-            },
-            complete: function() {
-                // لودینگ را حذف نکن تا کاربر رفرش کند
-                // uiContainer.removeClass('loading'); 
+                showMessage('Installation failed due to a network error.', 'error');
+                $button.prop('disabled', false).text('Retry Update');
             }
         });
     });
 
-    // 3. تابع کمکی برای نمایش پیام
     function showMessage(message, type) {
-        var className = 'yab-notice-info'; // default
-        if (type === 'success') {
-            className = 'yab-notice-success';
-        } else if (type === 'error') {
-            className = 'yab-notice-error';
-        }
-        
+        var className = type === 'success' ? 'yab-notice-success' : 'yab-notice-error';
         messageBox.html('<div class="yab-notice ' + className + '"><p>' + message + '</p></div>');
         messageBox.slideDown();
     }
-
 });
 </script>

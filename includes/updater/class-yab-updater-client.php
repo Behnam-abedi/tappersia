@@ -79,16 +79,15 @@ class Yab_Updater_Client {
             return new WP_Error( 'updater_client_json_error', 'Failed to decode JSON from update-info.json.' );
         }
 
-        // 5. Cache the successful result
-        // زمان استاندارد 12 ساعت است. برای تست می‌توانید این مقدار را به 30 (ثانیه) تغییر دهید.
-        set_transient( $this->transient_key, $data, 12 * HOUR_IN_SECONDS ); // 12-hour cache
+        // 5. Cache the successful result (Standard 12 hours)
+        set_transient( $this->transient_key, $data, 12 * HOUR_IN_SECONDS );
 
         return $data;
     }
 
     /**
      * Deletes the update transient cache.
-     * این متد جدید برای دکمه "بررسی آپدیت" اضافه شده است
+     * This forces a fresh fetch on the next call.
      */
     public function delete_cache() {
         if ( ! empty( $this->transient_key ) ) {
