@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/wacpkksb/public_html/wp-content/plugins/tappersia/
+    - /bin/cp -R * $DEPLOYPATH

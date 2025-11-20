@@ -1,0 +1,14 @@
+{
+  "name": "Tappersia",
+  "version": "2.0.3", 
+  "homepage": "https://www.tappersia.com",
+  "download_url": "https://github.com/Behnam-abedi/tappersia/releases/download/v2.0.3/tappersia.zip",
+  "requires": "5.5",
+  "tested": "6.6",
+  "requires_php": "7.4",
+  "last_updated": "2025-11-20 12:00:00",
+  "sections": {
+    "description": "A modern banner management plugin...",
+    "changelog": "<h4>Version 1.0.4</h4><ul><li>رفع مشکل آپدیت</li></ul>"
+  }
+}
