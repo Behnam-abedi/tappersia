@@ -6,7 +6,7 @@
  * Version:           1.0.3
  * Author:            Behnam Abedi
  * Author URI:        abd.behnam@gmail.com
- * GitHub Plugin URI: Tappersia/tappersia-plugin-repo
+ * GitHub Plugin URI: Behnam-abedi/tappersia
  * GitHub Branch:     main
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
