@@ -1,0 +1,259 @@
+/*
+ * Tappersia Admin Styles
+ * Cleaned for optimization.
+ */
+
+/* Force Roboto font for the entire Vue app wrapper in the admin panel */
+#yab-app {
+    font-family: 'Roboto', sans-serif !important;
+}
+
+#yab-app *:not([class*="dashicons"]) {
+    font-family: inherit !important;
+}
+
+
+/* --- General Admin Layout & Scrollbars --- */
+.overflow-y-auto::-webkit-scrollbar { width: 8px; border-radius: 10px; }
+.overflow-y-auto::-webkit-scrollbar-track { background: #434343; border-radius: 10px; }
+.overflow-y-auto::-webkit-scrollbar-thumb { background-color: #656565; border-radius: 10px; border: 2px solid #434343; }
+.overflow-x-auto::-webkit-scrollbar { height: 8px; border-radius: 10px; }
+.overflow-x-auto::-webkit-scrollbar-track { background: #434343; border-radius: 10px; }
+.overflow-x-auto::-webkit-scrollbar-thumb { background-color: #656565; border-radius: 10px; border: 2px solid #434343; }
+#wpbody-content { padding-bottom: 0 !important; }
+.metabox-prefs, .hide-if-no-js, .screen-meta-toggle,#wpfooter { display: none!important; }
+#wpbody { background-color:#232323!important ; }
+
+
+/* --- Loading States & Spinners --- */
+.yab-spinner {
+    border: 4px solid rgba(0, 186, 164, 0.2);
+    border-top: 4px solid #00baa4;
+    border-radius: 50%;
+    animation: yab-spin 1s linear infinite;
+}
+@keyframes yab-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.yab-image-loader-container { position: relative; width: 96px; height: 96px; flex-shrink: 0; background-color: #292929; border-radius: 0.375rem; overflow: hidden; }
+.yab-skeleton-loader { position: relative; overflow: hidden; }
+.yab-skeleton-loader::before {
+    content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: yab-shimmer 1.5s infinite;
+}
+@keyframes yab-shimmer { 100% { transform: translateX(100%); } }
+
+/* --- Vue Transitions & UI Elements --- */
+.yab-modal-fade-enter-active, .yab-modal-fade-leave-active { transition: opacity 0.3s ease-in-out; }
+.yab-modal-fade-enter-from, .yab-modal-fade-leave-to { opacity: 0; }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+.yab-sortable-ghost { opacity: 0.4; background: #00baa4; }
+
+.section-title { color: #fff; font-size: 15px; margin-bottom: 8px; background: #656565; padding: 5px 10px; border-radius: 7px; font-weight: 600; }
+.section-divider { height: 1px; margin: 12px 0; background-color: #656565; border: 0; }
+.tab-button { text-align: center; padding: 6px 0; cursor: pointer; color: #fff; transition: all 0.2s; border: none; background: transparent; }
+.active-tab { background: #00baa4; font-weight: bold; }
+
+
+/* --- Form Elements & Inputs --- */
+.setting-label { display: block; font-size: 0.875rem; font-weight: 500; color: #d1d5db; margin-bottom: 8px; }
+.setting-label-sm { display: block; font-size: 0.75rem; font-weight: 500; color: #9ca3af; margin-bottom: 4px; }
+.yab-form-input { width: 100%; height: 40px; background: #292929; border: 1px solid #656565; border-radius: 6px; padding: 0 12px; color: #ffffff; transition: border-color 0.2s; }
+.yab-form-input:focus { outline: none; border-color: #00baa4; box-shadow: 0 0 0 2px rgba(0, 186, 164, 0.5); }
+textarea.yab-form-input { height: auto; padding-top: 8px; padding-bottom: 8px; }
+
+/* Color Picker & Range Inputs */
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: #4b5563; border-radius: 5px; outline: none; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #00baa4; cursor: pointer; border-radius: 50%; }
+input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: #00baa4; cursor: pointer; border-radius: 50%; }
+
+/* --- Search & Checkbox (Display Conditions) --- */
+.filter-label { display: block; font-size: 0.875rem; font-weight: 500; color: #d1d5db; margin-bottom: 8px; }
+.filter-input { width: 100%; background: #434343; border: 1px solid #6b7280; color: white; padding: 8px 12px; border-radius: 6px; }
+.checkbox-label { display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; }
+.checkbox-label:hover { background-color: #333; }
+.checkbox-custom { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid #888; border-radius: 6px; transition: all 0.2s; }
+.peer:checked ~ .checkbox-custom { background-color: #00baa4; border-color: #00baa4; }
+.checkbox-text { color: #d1d5db; transition: color 0.2s; }
+.checkbox-label:hover .checkbox-text { color: white; }
+
+
+/* --- Hotel/Tour Carousel Tags (Used in Modals) --- */
+.hotel-label-base { margin-top: 7px; width: fit-content; border-radius: 3px; padding: 2px 6px; font-size: 11px; line-height: 1; display: inline-block; box-sizing: border-box; }
+.hotel-label-luxury { background: #333333; color: #fff; }
+.hotel-label-business { background: #DAF6FF; color: #04A5D8; }
+.hotel-label-boutique { background: #f8f3b0; color: #a8a350; }
+.hotel-label-traditional { background: #FAECE0; color: #B68960; }
+.hotel-label-economy { background: #FFE9F7; color: #FF48C3; }
+.hotel-label-hostel { background: #B0B0B0; color: #FFF; }
+.hotel-label-default { background: #e0e0e0; color: #555; }
+
+
+/* --- Flight Ticket & Promo Banner Preview Styles --- */
+/* Base Promo Banner Container */
+#yab-app .promo-banner {
+  width: 100%; min-height: 150px; border-radius: 16px; display: flex; align-items: center; padding: 0 12px;
+  position: relative; isolation: isolate; box-sizing: border-box;
+  direction: ltr;
+}
+
+/* Background/Overlay */
+#yab-app .promo-banner__background {
+  width: 100%; height: 100%; position: absolute; right: 0; z-index: 1; 
+  /* +++ START FIX: Removed hardcoded border-radius +++ */
+  /* border-radius: 16px; */
+  /* +++ END FIX +++ */
+  top: 0; left: 0;
+}
+
+/* Image Wrapper */
+#yab-app .promo-banner__image-wrapper {
+  width: 100%; height: 100%; position: absolute; right: 0; z-index: 2; border-radius: 16px; top: 0; left: 0; overflow: hidden;
+}
+#yab-app .promo-banner__image-wrapper img {
+  width: 50px; height: 100%; position: absolute; left: 188px; object-fit: contain;
+}
+
+/* Text Content */
+#yab-app .promo-banner__content {
+  direction: ltr; display: flex; flex-direction: column; position: absolute; z-index: 3; margin-left: 16px;gap: 8px;
+}
+#yab-app .promo-banner__content_1 { line-height: normal; }
+#yab-app .promo-banner__content_2 { line-height: normal;}
+#yab-app .promo-banner__content_3 { line-height: normal; }
+
+/* Ticket Container */
+#yab-app .ticket {
+  width: 352px; height: 129px; position: relative;  display: flex; z-index: 50;
+  margin-left: auto; box-sizing: border-box; direction: rtl; overflow: hidden;
+}
+#yab-app .ticket__section { position: relative; z-index: 4; height: 100%; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; width: 50%; }
+#yab-app .ticket__section--actions { align-items: center; gap: 21px; }
+#yab-app .ticket__section--details { align-items: flex-end; }
+#yab-app .ticket__city { display: flex; flex-direction: row; align-items: center; gap: 8px; padding-left: 22px; width: 100%; box-sizing: border-box; }
+#yab-app .ticket__city-name { line-height: 19px; overflow-wrap: break-word; direction: ltr; padding-right: 20px; flex-grow: 1; text-align: left; }
+#yab-app .ticket__city-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+#yab-app .ticket__city-dot--origin { background-color: #5191FA; }
+#yab-app .ticket__city-dot--destination { background-color: #FF48C3; }
+#yab-app .ticket__flight-path { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px; width: 100%; margin: 8px 0; }
+#yab-app .ticket__flight-arrow--bottom { transform: rotate(180deg); }
+#yab-app .ticket__price { display: flex; flex-direction: row-reverse; align-items: center; justify-content: center; gap: 7px; }
+#yab-app .ticket__price-icon { display: flex; justify-content: center; align-items: center; width: 20px; height: 20px; }
+#yab-app .ticket__price-label { display: flex; justify-content: center; align-items: center; font-weight: 400; font-size: 10px; line-height: 12px; color: #666666; }
+#yab-app .ticket__price-amount { display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 17px; line-height: 21px; }
+#yab-app .ticket__button { border-radius: 8px; padding: 10px 33px; cursor: pointer; }
+#yab-app .ticket__button-text { font-size: 13px; font-weight: 600; line-height: 16px; display: flex; justify-content: center; align-items: center; }
+#yab-app .ticket__flight-arrow--top{display: flex;align-items: center;}
+#yab-app .icket__flight-arrow--bottom{display: flex;align-items: center;}
+
+/* +++ START: Mobile Preview Styles (FIXES) +++ */
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview {
+    width: 165px;
+    height: 60px;
+    margin-left: auto;
+    gap: 0;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__section--actions {
+    align-items: center;
+    gap: 5px;
+}
+
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__section--details {
+    align-items: flex-end;
+    padding-right: 5px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__city {
+    gap: 4px;
+    padding-left: 10px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__city-name {
+    /* +++ FIX: Removed !important for Bugs 4 & 5 +++ */
+    line-height: 1.2;
+    padding-right: 10px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__city-dot {
+    width: 3px;
+    height: 3px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__flight-path {
+    gap: 3px;
+    margin: 4px 0;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__flight-path svg {
+    width: 4px;
+    height: 12px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price {
+    gap: 3px;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price-icon {
+    width: 10px;
+    height: 10px;
+}
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price-label {
+    /* +++ FIX: Removed !important for Bug 2 +++ */
+    line-height: 1;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__price-amount {
+    /* +++ FIX: Removed !important (was font-size: 8px !important;) +++ */
+    line-height: 1;
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__button {
+    /* +++ FIX: Removed !important for Bug 3 +++ */
+}
+
+#yab-app .w-\[375px\] .ticket.mobile-ticket-preview .ticket__button-text {
+    /* +++ FIX: Removed !important for Bug 3 +++ */
+    line-height: 1;
+}
+    #yab-app .w-\[375px\] .promo-banner__content {
+        margin-left: 7px;
+        gap: 3px;
+    }
+/* +++ END: Mobile Preview Styles (FIXES) +++ */
+
+#yab-app .right-ticket-promo{
+    direction: rtl!important;
+}
+#yab-app .right-ticket-promo .promo-banner__content {
+    text-align: right!important;
+    margin-left: 0!important;
+    margin-right: 16px!important;
+}
+#yab-app .right-ticket-promo .ticket {
+        flex-direction: row-reverse!important;
+}
+#yab-app .right-ticket-promo .ticket__city-name{
+    text-align: right!important;
+padding-right: 0!important;
+padding-left: 20px!important;
+}
+#yab-app .right-ticket-promo .ticket__city{
+    flex-direction: row-reverse!important;
+    padding-left: 0!important;
+    padding-right: 22px!important;
+}
+#yab-app .right-ticket-promo .ticket__price{
+    flex-direction: row!important;
+}
+#yab-app .w-\[375px\] .right-ticket-promo .ticket.mobile-ticket-preview .ticket__city{
+    padding-right: 10px!important;
+}
+
