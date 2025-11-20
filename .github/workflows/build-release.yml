@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
 
+# +++ بخش جدید: دادن مجوز نوشتن به ربات +++
+permissions:
+  contents: write
+# +++ پایان بخش جدید +++
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,19 +19,13 @@ jobs:
 
     - name: Prepare Plugin Structure
       run: |
-        # ساخت پوشه موقت
         mkdir build_temp
-        
-        # کپی کردن فایل‌ها به داخل پوشه‌ای با نام درست (tappersia)
         rsync -av --exclude='.git*' --exclude='.github' --exclude='build_temp' ./ build_temp/tappersia/
-        
-        # حذف فایل جیسون که نباید در فایل دانلودی کاربر باشد
         rm build_temp/tappersia/update-info.json
 
     - name: Zip the Plugin
       run: |
         cd build_temp
-        # ساخت فایل زیپ استاندارد
         zip -r ../tappersia-plugin.zip tappersia
         cd ..
 
