@@ -26,7 +26,7 @@ jobs:
     - name: Zip the Plugin
       run: |
         cd build_temp
-        zip -r ../tappersia-plugin.zip tappersia
+        zip -r ../tappersia.zip tappersia
         cd ..
 
     - name: Upload to Release
