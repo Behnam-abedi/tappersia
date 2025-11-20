@@ -5,8 +5,8 @@ class Yab_Main {
 
     protected $plugin_name;
     protected $version;
-    protected $plugin_file; // <-- اضافه شده
-    private $updater; // <-- اضافه شده
+    protected $plugin_file; // <-- Added
+    private $updater; // <-- Added
 
     private $license_manager;
     private $license_page_handler;
@@ -17,17 +17,17 @@ class Yab_Main {
      *
      * @param string $plugin_file The full path to the main plugin file.
      */
-    public function __construct( $plugin_file ) { // <-- ویرایش شده
-        $this->plugin_file = $plugin_file; // <-- اضافه شده
+    public function __construct( $plugin_file ) { // <-- Modified
+        $this->plugin_file = $plugin_file; // <-- Added
         $this->plugin_name = 'tappersia';
         $this->version = YAB_VERSION;
         $this->load_dependencies();
 
-        // بارگذاری سیستم لایسنس
+        // Load license system
         require_once YAB_PLUGIN_DIR . 'includes/license/class-yab-license-manager.php';
         $this->license_manager = new Yab_License_Manager();
 
-        // بارگذاری هندلر صفحه لایسنس
+        // Load license page handler
         require_once YAB_PLUGIN_DIR . 'admin/class-yab-license-page.php';
         $this->license_page_handler = new Yab_License_Page($this->license_manager);
         
@@ -39,8 +39,8 @@ class Yab_Main {
         require_once YAB_PLUGIN_DIR . 'admin/class-ajax-handler.php';
         require_once YAB_PLUGIN_DIR . 'public/class-shortcode-handler.php';
         
-        // <-- اضافه شده -->
-        // بارگذاری فکتوری آپدیتر گیت‌هاب
+        // <-- Added -->
+        // Load GitHub updater factory
         require_once YAB_PLUGIN_DIR . 'includes/updater/class-yab-updater-factory.php';
     }
 
@@ -50,14 +50,14 @@ class Yab_Main {
             add_action( 'admin_enqueue_scripts', array( $this->admin_menu, 'enqueue_styles_and_scripts' ) );
         }
 
-        // چک کردن لایسنس
+        // Check license
         if ($this->license_manager->is_license_valid()) {
-            // لایسنس معتبر است: پلاگین کامل را اجرا کن
+            // License is valid: run full plugin
             $this->define_cpt();
             $this->define_admin_hooks();
             $this->define_public_hooks();
         } else {
-            // لایسنس نامعتبر است: فقط هوک‌های فعال‌سازی را اجرا کن
+            // License is invalid: run activation hooks only
             if (is_admin()) {
                 $this->define_activation_hooks();
             }
@@ -75,112 +75,112 @@ class Yab_Main {
         
         add_action('admin_post_yab_deactivate_license', [$this, 'handle_deactivate_license']);
 
-        // --- START: بلوک آپدیتر (ویرایش شده برای ای‌جکس) ---
-        // 1. راه‌اندازی آپدیتر (بدون تغییر)
+        // --- START: Updater Block (Modified for AJAX) ---
+        // 1. Initialize updater (unchanged)
         $this->updater = Yab_Updater_Factory::build(
-            $this->plugin_file, // مسیر فایل اصلی پلاگین
-            $this->version      // نسخه فعلی
+            $this->plugin_file, // Main plugin file path
+            $this->version      // Current version
         );
-        $this->updater->init(); // ثبت هوک‌های 'pre_set_site_transient_update_plugins' و 'plugins_api'
+        $this->updater->init(); // Register hooks: 'pre_set_site_transient_update_plugins' and 'plugins_api'
 
-        // 2. هوک‌های ای‌جکس جدید را اضافه کنید
+        // 2. Add new AJAX hooks
         add_action('wp_ajax_yab_ajax_check_for_updates', [$this, 'ajax_check_for_updates']);
         add_action('wp_ajax_yab_ajax_install_update', [$this, 'ajax_install_update']);
-        // --- END: بلوک آپدیتر ---
+        // --- END: Updater Block ---
     }
     
     // --- START: NEW AJAX HANDLER FUNCTIONS ---
 
     /**
-     * هندلر ای‌جکس برای "بررسی آپدیت"
+     * AJAX handler for "Check for Updates"
      */
     public function ajax_check_for_updates() {
-        // 1. بررسی‌های امنیتی
+        // 1. Security checks
         check_ajax_referer('yab_update_nonce', 'nonce');
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( [ 'message' => 'دسترسی مجاز نیست.' ] );
+            wp_send_json_error( [ 'message' => 'Permission denied.' ] );
         }
 
-        // 2. پاک کردن کش‌ها
+        // 2. Clear caches
         if ( $this->updater ) {
             $this->updater->force_check();
         }
         delete_site_transient( 'update_plugins' );
 
-        // 3. وادار کردن وردپرس به بررسی مجدد آپدیت‌ها (این تابع هوک ما را صدا می‌زند)
+        // 3. Force WordPress to re-check updates (this calls our hook)
         wp_update_plugins();
 
-        // 4. دریافت نتیجه بررسی
+        // 4. Get check result
         $transient = get_site_transient( 'update_plugins' );
         $slug = $this->updater->get_plugin_slug();
 
         if ( ! empty( $transient->response[ $slug ] ) ) {
-            // آپدیت موجود است
+            // Update available
             $update_data = $transient->response[ $slug ];
             wp_send_json_success( [
                 'update_available' => true,
                 'new_version' => $update_data->new_version,
-                'message' => 'نسخه ' . $update_data->new_version . ' آماده نصب است.',
+                'message' => 'Version ' . $update_data->new_version . ' is ready to install.',
             ] );
         } else {
-            // آپدیتی موجود نیست
+            // No update available
             wp_send_json_success( [
                 'update_available' => false,
-                'message' => 'شما از آخرین نسخه استفاده می‌کنید (' . $this->version . ').',
+                'message' => 'You are using the latest version (' . $this->version . ').',
             ] );
         }
     }
 
     /**
-     * هندلر ای‌جکس برای "نصب آپدیت"
+     * AJAX handler for "Install Update"
      */
     public function ajax_install_update() {
-        // 1. بررسی‌های امنیتی
+        // 1. Security checks
         check_ajax_referer('yab_update_nonce', 'nonce');
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( [ 'message' => 'دسترسی مجاز نیست.' ] );
+            wp_send_json_error( [ 'message' => 'Permission denied.' ] );
         }
 
-        // 2. بارگذاری فایل‌های مورد نیاز وردپرس برای آپگرید
+        // 2. Load required WordPress upgrade files
         require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
         require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/misc.php';
-        // این فایل جدید و ضروری است
+        // This file is new and essential
         require_once YAB_PLUGIN_DIR . 'includes/updater/class-yab-silent-upgrader-skin.php';
 
-        // 3. آماده‌سازی و اجرای آپگرید
+        // 3. Prepare and run upgrade
         $slug = $this->updater->get_plugin_slug();
         $skin = new Yab_Silent_Upgrader_Skin();
         $upgrader = new Plugin_Upgrader( $skin );
 
         $result = $upgrader->upgrade( $slug );
 
-        // 4. بررسی نتیجه
+        // 4. Check result
         if ( is_wp_error( $result ) ) {
-            // خطای WP Error
-            wp_send_json_error( [ 'message' => 'خطا در آپگرید: ' . $result->get_error_message() ] );
+            // WP Error
+            wp_send_json_error( [ 'message' => 'Upgrade error: ' . $result->get_error_message() ] );
         } elseif ( $skin->get_errors() ) {
-            // خطاهای ثبت شده توسط Skin
-            wp_send_json_error( [ 'message' => 'خطا در پوسته آپگرید: ' . implode( ', ', $skin->get_errors() ) ] );
+            // Errors logged by Skin
+            wp_send_json_error( [ 'message' => 'Upgrade skin error: ' . implode( ', ', $skin->get_errors() ) ] );
         } elseif ( $result === null ) {
-            // خطای احتمالی در اتصال یا فایل سیستم
-            wp_send_json_error( [ 'message' => 'خطا در نصب. ممکن است دسترسی فایل (Permissions) صحیح نباشد.' ] );
+            // Possible connection or filesystem error
+            wp_send_json_error( [ 'message' => 'Installation failed. File permissions might be incorrect.' ] );
         }
 
-        // 5. فعال‌سازی مجدد پلاگین (وردپرس پس از آپدیت آن را غیرفعال می‌کند)
+        // 5. Re-activate plugin (WordPress deactivates it after update)
         activate_plugin( $slug );
         
-        // 6. ارسال پیام موفقیت
+        // 6. Send success message
         wp_send_json_success( [
             'reload' => true,
-            'message' => 'آپدیت با موفقیت نصب شد. صفحه در حال بارگذاری مجدد است...',
+            'message' => 'Update installed successfully. Reloading page...',
         ] );
     }
 
     // --- END: NEW AJAX HANDLER FUNCTIONS ---
     
-    // ... (بقیه متدهای کلاس بدون تغییر هستند) ...
+    // ... (Rest of class methods remain unchanged) ...
 
     private function define_activation_hooks() {
         add_action('admin_menu', array($this, 'register_activation_page'));
