@@ -8,9 +8,9 @@
         <div v-if="currentView === 'desktop'" class="flex flex-col items-center">
             <div class="flex flex-row justify-center w-full" style="gap: 20px;">
                 <div v-for="(b, key) in banner.double.desktop" :key="`preview-desktop-${key}`" 
-                    class="relative overflow-hidden flex-shrink-0" 
+                    class="relative overflow-hidden " 
                     :style="{ 
-                        width: '50%',
+                        width: '100%',
                         minHeight: `${b.minHeight}px`,
                         height: 'auto',
                         border: b.enableBorder ? `${b.borderWidth}px solid ${b.borderColor}` : 'none',

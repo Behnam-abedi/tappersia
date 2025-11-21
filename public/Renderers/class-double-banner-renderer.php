@@ -186,11 +186,11 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
             $is_desktop = $view === 'desktop';
 
             $banner_styles = [
-                'width' => $is_desktop ? '50%' : '100%',
+                'width' => $is_desktop ? '100%' : '100%',
                 'min-height' => esc_attr($b['minHeight']) . 'px',
                 'height' => 'auto',
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
-                'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0',
+                'position' => 'relative', 'overflow' => 'hidden',
                 'background-color' => '#f4f4f4' // Skeleton base color
             ];
             if (!empty($b['enableBorder'])) { 
@@ -227,11 +227,11 @@ if (!class_exists('Yab_Double_Banner_Renderer')) {
         private function render_view($b, $view, $key, $banner_id) {
             $is_desktop = $view === 'desktop';
             $banner_styles = [
-                'width' => $is_desktop ? '50%' : '100%',
+                'width' => $is_desktop ? '100%' : '100%',
                 'min-height' => esc_attr($b['minHeight']) . 'px',
                 'height' => 'auto',
                 'border-radius' => esc_attr($b['borderRadius'] ?? 16) . 'px',
-                'position' => 'relative', 'overflow' => 'hidden', 'flex-shrink' => '0',
+                'position' => 'relative', 'overflow' => 'hidden',
             ];
             if (!empty($b['enableBorder'])) { 
                 $banner_styles['border'] = esc_attr($b['borderWidth'] ?? 0) . 'px solid ' . esc_attr($b['borderColor'] ?? '#FFFFFF');

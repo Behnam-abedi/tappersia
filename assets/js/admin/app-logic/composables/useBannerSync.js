@@ -353,7 +353,7 @@ export function useBannerSync(banner, currentView) {
             'enableBorder', 'borderColor', 'direction'
         ];
         // This is the OLD call, which has the bug:
-         runContinuousSyncDebug('simple-banner', banner.simple_mobile, simpleMobileDefaults, newDesktop, oldDesktop, propertiesToSync);
+         runContinuousSyncDebug('simple-banner', banner.simple_mobile, simpleMobileDefaults,simpleDesktopDefaults, newDesktop, oldDesktop, propertiesToSync);
      }, { deep: true });
      
 
@@ -368,7 +368,7 @@ export function useBannerSync(banner, currentView) {
             'enableBorder', 'borderColor', 'direction'
         ];
         // This is the OLD call, which has the bug:
-        runContinuousSyncDebug('sticky-simple-banner', banner.sticky_simple_mobile, stickyMobileDefaults, newDesktop, oldDesktop, propertiesToSync);
+        runContinuousSyncDebug('sticky-simple-banner', banner.sticky_simple_mobile, stickyMobileDefaults, stickyDesktopDefaults,newDesktop, oldDesktop, propertiesToSync);
      }, { deep: true });
 
      
