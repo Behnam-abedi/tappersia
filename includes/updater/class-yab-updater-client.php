@@ -56,7 +56,10 @@ class Yab_Updater_Client {
         }
 
         // 2. Not in cache, fetch from GitHub
-        $response = wp_remote_get( $this->metadata_url, [
+        // *** FIX: Add timestamp to URL to bypass GitHub CDN cache ***
+        $request_url = add_query_arg( 't', time(), $this->metadata_url );
+
+        $response = wp_remote_get( $request_url, [
             'timeout'   => 10,
             'sslverify' => true,
         ] );
@@ -79,7 +82,9 @@ class Yab_Updater_Client {
             return new WP_Error( 'updater_client_json_error', 'Failed to decode JSON from update-info.json.' );
         }
 
-        // 5. Cache the successful result (Standard 12 hours)
+        // 5. Cache the successful result
+        // کش برای ۱۲ ساعت تنظیم می‌شود، اما هر بار که صفحه لایسنس باز شود
+        // متد delete_cache صدا زده شده و این کش پاک می‌شود.
         set_transient( $this->transient_key, $data, 12 * HOUR_IN_SECONDS );
 
         return $data;
