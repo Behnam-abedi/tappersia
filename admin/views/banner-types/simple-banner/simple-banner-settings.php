@@ -1,4 +1,4 @@
-<div :set="settings = currentView === 'desktop' ? banner.simple : banner.simple_mobile" class="flex flex-col gap-3">
+<div  class="flex flex-col gap-3">
     <div>
         <h4 class="section-title">Layout</h4>
         <div class="grid grid-cols-1 gap-2">

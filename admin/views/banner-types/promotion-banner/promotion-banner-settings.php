@@ -21,7 +21,7 @@
 </div>
 
 <?php // *** START: Added v-set wrapper *** ?>
-<div :set="settings = currentView === 'desktop' ? banner.promotion : banner.promotion_mobile" class="flex flex-col gap-6">
+<div  class="flex flex-col gap-6">
 
     <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
         <h3 class="font-bold text-xl text-white tracking-wide mb-5">General Settings</h3>

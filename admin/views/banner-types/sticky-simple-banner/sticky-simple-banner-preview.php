@@ -50,8 +50,8 @@
                           lineHeight: 1,
                           transition: 'background-color 0.3s'
                        }"
-                       @mouseover="event.currentTarget.style.backgroundColor = banner.sticky_simple.buttonBgHoverColor || banner.sticky_simple.buttonBgColor"
-                       @mouseout="event.currentTarget.style.backgroundColor = banner.sticky_simple.buttonBgColor"
+                        @mouseover="$event.currentTarget.style.backgroundColor = banner.simple.buttonBgHoverColor || banner.simple.buttonBgColor"
+                        @mouseout="$event.currentTarget.style.backgroundColor = banner.simple.buttonBgColor"
                        >
                         {{ banner.sticky_simple.buttonText }}
                     </a>
@@ -103,8 +103,8 @@
                           lineHeight: 1,
                           transition: 'background-color 0.3s'
                        }"
-                       @mouseover="event.currentTarget.style.backgroundColor = banner.sticky_simple.buttonBgHoverColor || banner.sticky_simple.buttonBgColor"
-                       @mouseout="event.currentTarget.style.backgroundColor = banner.sticky_simple.buttonBgColor"
+                        @mouseover="$event.currentTarget.style.backgroundColor = banner.simple.buttonBgHoverColor || banner.simple.buttonBgColor"
+                        @mouseout="$event.currentTarget.style.backgroundColor = banner.simple.buttonBgColor"
                        >
                         {{ banner.sticky_simple.buttonText }}
                     </a>

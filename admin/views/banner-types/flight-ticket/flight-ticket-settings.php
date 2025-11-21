@@ -60,7 +60,7 @@
 
 
 <?php // --- START: DESIGN SETTINGS WRAPPER --- ?>
-<div class="gap-6 flex flex-col" :set="settings = (currentView === 'desktop' ? banner.flight_ticket.design : banner.flight_ticket.design_mobile)" :key="currentView">
+<div class="gap-6 flex flex-col"  :key="currentView">
 
     <?php // *** START: Card 1 - General Settings (Container) *** ?>
     <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2 ">

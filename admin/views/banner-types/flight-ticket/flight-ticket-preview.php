@@ -17,7 +17,7 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
         
         <div v-if="currentView === 'desktop'" class="flex flex-col items-center" key="desktop">
             <span class="text-xs text-gray-400 mb-2">Desktop View</span>
-            <div class="bg-[#292929] rounded-lg p-6 overflow-hidden w-full" :set="settings = banner.flight_ticket.design">
+            <div class="bg-[#292929] rounded-lg p-6 overflow-hidden w-full" >
                 
                 <div class="promo-banner" 
                      :class="{'right-ticket-promo': settings.ticketLayout === 'right'}"
@@ -118,7 +118,7 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
             <div class="w-[375px] h-auto bg-[#292929] rounded-2xl p-4 flex justify-center items-center mx-auto">
                 
                 <div class="promo-banner w-full" 
-                     :set="settings = banner.flight_ticket.design_mobile"
+                    
                      :class="{'right-ticket-promo': banner.flight_ticket.design.ticketLayout === 'right'}"
                      :style="{ 
                 minHeight: settings.minHeight + 'px', 
@@ -179,8 +179,8 @@ $svg_mobile_url = $plugin_url . 'assets/image/ticket-shape-mobile.svg';
                                 <a :href="bookingUrl" target="_blank" style="text-decoration: none;">
                                     <div class="ticket__button" 
                                          :style="{ backgroundColor: banner.flight_ticket.design.button.bgColor, padding: settings.button.paddingY + 'px ' + settings.button.paddingX + 'px', borderRadius: settings.button.borderRadius + 'px', transition: 'background-color 0.3s' }"
-                                         @mouseover="event.currentTarget.style.backgroundColor = banner.flight_ticket.design.button.BgHoverColor || banner.flight_ticket.design.button.bgColor"
-                                         @mouseout="event.currentTarget.style.backgroundColor = banner.flight_ticket.design.button.bgColor"
+                                            @mouseover="$event.currentTarget.style.backgroundColor = settings.button.BgHoverColor || settings.button.bgColor"
+                                            @mouseout="$event.currentTarget.style.backgroundColor = settings.button.bgColor"
                                     >
                                         <span class="ticket__button-text" :style="{ color: banner.flight_ticket.design.button.color, fontSize: settings.button.fontSize + 'px', fontWeight: settings.button.fontWeight }">Book Now</span>
                                     </div>

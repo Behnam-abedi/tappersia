@@ -30,7 +30,7 @@
   </div>
 
   <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
-    <div :set="settings = currentView === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile">
+    <div >
       <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Carousel Settings</h3>
       <div class="space-y-4">
 
@@ -195,7 +195,7 @@
   </div>
 
   <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2" v-if="currentView === 'desktop'">
-    <div :set="settings = currentView === 'desktop' ? banner.hotel_carousel.settings : banner.hotel_carousel.settings_mobile">
+    <div>
       <div :set="card = settings.card">
         <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Card Styling</h3>
         <div class="space-y-4">

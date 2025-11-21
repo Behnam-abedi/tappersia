@@ -30,7 +30,7 @@
         </div>
 <div class="bg-[#434343] p-5 rounded-lg shadow-xl mr-2">
     <div v-if="banner.tour_carousel" :key="currentView">
-        <div :set="settings = currentView === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile">
+        <div >
             <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Carousel Settings</h3>
             <div class="space-y-4">
 
@@ -122,7 +122,7 @@
                 <hr class="section-divider my-6">
             </div>
     <div :key="currentView" v-if="currentView === 'desktop'">
-        <div :set="settings = currentView === 'desktop' ? banner.tour_carousel.settings : banner.tour_carousel.settings_mobile" >
+        <div  >
             <div :set="card = settings.card">
                 <h3 class="font-bold text-xl text-white tracking-wide mb-5 capitalize">{{ currentView }} Card Styling</h3>
                 <div class="space-y-4">
