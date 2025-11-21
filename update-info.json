@@ -1,8 +1,8 @@
 {
   "name": "Tappersia",
-  "version": "0.0.1", 
+  "version": "0.0.2", 
   "homepage": "https://www.tappersia.com",
-  "download_url": "https://github.com/Behnam-abedi/tappersia/releases/download/v0.0.1/tappersia.zip",
+  "download_url": "https://github.com/Behnam-abedi/tappersia/releases/download/v0.0.2/tappersia.zip",
   "requires": "5.5",
   "tested": "6.6",
   "requires_php": "7.4",
